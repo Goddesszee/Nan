@@ -3,7 +3,7 @@
  * ====================================================
  * HOW TO INSTALL:
  * 1. Upload this file to your GitHub repo (same folder as index.html)
- * 2. Replace YOUR_GEMINI_API_KEY below with your real key
+ * 2. Replace AIzaSyDImJBR0FK_tHBci4gk1tmyL4IpRoml8QM below with your real key
  * 3. Add this line before </body> in index.html and landing.html:
  *    <script src="agent.js"></script>
  */
@@ -12,7 +12,7 @@
   "use strict";
 
   /* ─── PUT YOUR GEMINI API KEY HERE ───────────────────────────── */
-  const API_KEY = "YOUR_GEMINI_API_KEY";
+  const API_KEY = "AIzaSyDImJBR0FK_tHBci4gk1tmyL4IpRoml8QM";
   /* ─────────────────────────────────────────────────────────────── */
 
   const API_URL =
