@@ -1,7 +1,7 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/landing.html" },
-    { "source": "/app", "destination": "/index.html" }
+  "routes": [
+    { "src": "/", "dest": "/landing.html" },
+    { "src": "/index.html", "dest": "/index.html" },
+    { "src": "/landing.html", "dest": "/landing.html" }
   ]
 }
