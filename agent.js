@@ -1,9 +1,9 @@
 /**
- * Arcloom AI Agent — Powered by Google Gemini (Free)
- * ====================================================
+ * Arcloom AI Agent — Powered by Groq (Free)
+ * ==========================================
  * HOW TO INSTALL:
- * 1. Upload this file to your GitHub repo (same folder as index.html)
- * 2. Replace AIzaSyDImJBR0FK_tHBci4gk1tmyL4IpRoml8QM below with your real key
+ * 1. Upload this file to your GitHub repo
+ * 2. Replace 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 below with your real key
  * 3. Add this line before </body> in index.html and landing.html:
  *    <script src="agent.js"></script>
  */
@@ -11,13 +11,12 @@
 (function () {
   "use strict";
 
-  /* ─── PUT YOUR GEMINI API KEY HERE ───────────────────────────── */
-  const API_KEY = "AIzaSyDImJBR0FK_tHBci4gk1tmyL4IpRoml8QM";
+  /* ─── PUT YOUR GROQ API KEY HERE ─────────────────────────────── */
+  const API_KEY = "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";
   /* ─────────────────────────────────────────────────────────────── */
 
-  const API_URL =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
-    API_KEY;
+  const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+  const MODEL = "llama-3.3-70b-versatile";
 
   const css = `
     #arc-fab {
@@ -221,24 +220,34 @@ ABOUT ARCLOOM:
 YOUR JOB: Answer any crypto/DeFi/Web3 question. Report wallet data. Guide users on Arcloom features. Be concise, friendly, and accurate. Never invent numbers — only use live data above.`;
   }
 
-  async function askGemini(userMsg) {
-    history.push({ role: "user", parts: [{ text: userMsg }] });
+  async function askGroq(userMsg) {
+    history.push({ role: "user", content: userMsg });
+
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY
+      },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt() }] },
-        contents: history.slice(-12),
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt() },
+          ...history.slice(-12)
+        ],
+        max_tokens: 1024,
+        temperature: 0.7
       })
     });
+
     if (!res.ok) {
       const e = await res.json().catch(() => ({}));
       throw new Error(e?.error?.message || "API error " + res.status);
     }
+
     const data = await res.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, no response.";
-    history.push({ role: "model", parts: [{ text: reply }] });
+    const reply = data.choices?.[0]?.message?.content || "Sorry, no response.";
+    history.push({ role: "assistant", content: reply });
     return reply;
   }
 
@@ -275,11 +284,11 @@ YOUR JOB: Answer any crypto/DeFi/Web3 question. Report wallet data. Guide users 
     sendBtn.disabled = true; busy = true;
     addMsg("user", text); showTyping();
     try {
-      const reply = await askGemini(text);
+      const reply = await askGroq(text);
       hideTyping(); addMsg("agent", reply); refreshStrip();
     } catch (err) {
       hideTyping();
-      addMsg("agent", "Oops! " + err.message + "\n\nMake sure your API key is correct in agent.js.");
+      addMsg("agent", "Oops! " + err.message + "\n\nMake sure your Groq API key is correct in agent.js.");
     } finally {
       busy = false; sendBtn.disabled = false; input.focus();
     }
