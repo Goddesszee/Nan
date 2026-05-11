@@ -29,14 +29,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .brand svg{width:52px;height:52px;display:block;}
 .brand-name{font-size:.95rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;line-height:1;}
 .brand>div{display:flex;flex-direction:column;justify-content:center;}
-.brand-tag{font-size:.42rem;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;}
+.brand-tag{display:none;}
 .net-pill{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);border:1px solid rgba(0,229,195,.25);padding:3px 7px;border-radius:100px;background:rgba(0,229,195,.06);display:flex;align-items:center;gap:4px;}
 .net-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent3);box-shadow:0 0 5px var(--accent3);animation:pulse 2s ease infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 #connectBtn{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:7px 13px;font-family:'Space Grotesk',sans-serif;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(123,92,240,.35);white-space:nowrap;}
 #connectBtn.connected{background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.2);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.65rem;}
-#page-land{text-align:center;padding-top:8px;}
-.land-title{font-size:1.7rem;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#page-land{text-align:center;padding-top:8px;padding-bottom:16px;}
+.land-title{display:none;}
 .land-tag{font-size:.62rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .land-sub{font-size:.76rem;color:var(--text2);line-height:1.55;margin-bottom:16px;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;text-align:left;}
