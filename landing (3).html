@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nan — Weave. Connect. Build.</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Space Grotesk',sans-serif;background:#050508;color:#f0f0f8;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 80% -10%,rgba(123,92,240,.15) 0%,transparent 70%),radial-gradient(ellipse 500px 700px at -10% 90%,rgba(79,142,255,.1) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0;pointer-events:none;}
+nav{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand svg{width:32px;height:32px;}
+.brand-name{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.net-pill{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:#00e5c3;border:1px solid rgba(0,229,195,.25);padding:4px 10px;border-radius:100px;background:rgba(0,229,195,.06);display:flex;align-items:center;gap:5px;}
+.net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:#00e5c3;box-shadow:0 0 6px #00e5c3;animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.launch-btn{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:9px 20px;font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 3px 12px rgba(123,92,240,.35);}
+.launch-btn:hover{transform:translateY(-1px);}
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;}
+.hero{text-align:center;padding:80px 24px 60px;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,195,.06);border:1px solid rgba(0,229,195,.2);border-radius:100px;padding:5px 14px;font-size:.7rem;color:#00e5c3;font-family:'JetBrains Mono',monospace;margin-bottom:24px;}
+.hero h1{font-size:3rem;font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:20px;background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:#8888aa;line-height:1.7;max-width:580px;margin:0 auto 36px;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(123,92,240,.4);transition:all .2s;}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:500;color:#8888aa;cursor:pointer;text-decoration:none;transition:all .2s;}
+.btn-secondary:hover{border-color:rgba(255,255,255,.3);color:#f0f0f8;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:60px 0;}
+.stat{background:#0f0f1a;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;text-align:center;}
+.stat-num{font-size:2rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.stat-lbl{font-size:.75rem;color:#555570;letter-spacing:.1em;text-transform:uppercase;}
+.section{padding:60px 0;}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#7b5cf0;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;}
+.section-title{font-size:1.8rem;font-weight:700;letter-spacing:-.5px;margin-bottom:10px;}
+.section-sub{font-size:1rem;color:#8888aa;line-height:1.6;max-width:500px;margin-bottom:40px;}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.feat-card{background:#0f0f1a;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;transition:border-color .2s;}
+.feat-card:hover{border-color:rgba(123,92,240,.3);}
+.feat-icon{width:40px;height:40px;border-radius:10px;background:rgba(123,92,240,.1);border:1px solid rgba(123,92,240,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:14px;}
+.feat-title{font-size:.95rem;font-weight:600;margin-bottom:6px;}
+.feat-desc{font-size:.82rem;color:#8888aa;line-height:1.6;}
+.how-section{background:#0a0a12;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:40px;margin:60px 0;}
+.steps{display:flex;flex-direction:column;gap:24px;margin-top:32px;}
+.step{display:flex;gap:16px;align-items:flex-start;}
+.step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7b5cf0,#4f8eff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;}
+.step-title{font-size:.95rem;font-weight:600;margin-bottom:4px;}
+.step-desc{font-size:.82rem;color:#8888aa;line-height:1.6;}
+.tokens-section{padding:60px 0;}
+.tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.tok-card{background:#0f0f1a;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;display:flex;align-items:center;gap:14px;}
+.tok-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.tok-name{font-size:1rem;font-weight:600;margin-bottom:2px;}
+.tok-desc{font-size:.75rem;color:#555570;}
+.tok-bal{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#00e5c3;margin-left:auto;}
+.cta-section{background:linear-gradient(135deg,rgba(123,92,240,.1),rgba(79,142,255,.1));border:1px solid rgba(123,92,240,.2);border-radius:20px;padding:60px 40px;text-align:center;margin:60px 0;}
+.cta-section h2{font-size:2rem;font-weight:700;letter-spacing:-.5px;margin-bottom:14px;}
+.cta-section p{font-size:1rem;color:#8888aa;margin-bottom:32px;}
+footer{border-top:1px solid rgba(255,255,255,.07);padding:40px 24px;text-align:center;position:relative;z-index:1;}
+.footer-brand{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;}
+.footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px;}
+.footer-links a{font-size:.82rem;color:#555570;text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:#f0f0f8;}
+.footer-note{font-size:.72rem;color:#333350;}
+@media(max-width:600px){
+.hero h1{font-size:2rem;}
+.stats{grid-template-columns:1fr;}
+.feat-grid{grid-template-columns:1fr;}
+.tok-grid{grid-template-columns:1fr;}
+nav{padding:12px 16px;}
+main{padding:0 16px;}
+.how-section{padding:24px;}
+.cta-section{padding:40px 24px;}
+}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div style="max-width:1100px;margin:0 auto;">
+<nav>
+<div class="brand">
+<svg width="32" height="32" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Nan Logo</title>
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="50%" stop-color="#4f8eff"/>
+      <stop offset="100%" stop-color="#00e5c3"/>
+    </linearGradient>
+  </defs>
+  <circle cx="0" cy="0" r="42" fill="none" stroke="url(#g1)" stroke-width="2"/>
+  <path d="M-20,-20 Q0,0 20,20" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M-20,0 Q0,0 20,0" fill="none" stroke="#4f8eff" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M-20,20 Q0,0 20,-20" fill="none" stroke="#00e5c3" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="0" cy="0" r="5" fill="url(#g1)"/>
+</svg>
+<span class="brand-name">Nan</span>
+</div>
+<div class="net-pill">Arc Testnet</div>
+<a class="launch-btn" href="index.html">Launch App →</a>
+</nav>
+</div>
+<main>
+<div class="hero">
+<div class="hero-badge">🧵 Now live on Arc Testnet</div>
+<h1>Weave. Connect. Build.<br/>On Arc.</h1>
+<p class="hero-sub">Nan is the simplest way to send, receive, swap and stake USDC and EURC on Arc — Circle's stablecoin-native blockchain. For everyone, everywhere.</p>
+<div class="hero-btns">
+<a class="btn-primary" href="index.html">Launch App →</a>
+<a class="btn-secondary" href="https://faucet.circle.com" target="_blank">Get Free Tokens</a>
+</div>
+</div>
+<div class="stats">
+<div class="stat"><div class="stat-num">5.2%</div><div class="stat-lbl">Staking APY</div></div>
+<div class="stat"><div class="stat-num">~0.009</div><div class="stat-lbl">Gas per tx (USDC)</div></div>
+<div class="stat"><div class="stat-num">$0</div><div class="stat-lbl">Platform fees</div></div>
+</div>
+<div class="section">
+<div class="section-tag">Features</div>
+<div class="section-title">Everything in one place</div>
+<p class="section-sub">Nan gives you all the tools you need to manage your stablecoins on Arc.</p>
+<div class="feat-grid">
+<div class="feat-card"><div class="feat-icon">↑↓</div><div class="feat-title">Send & Receive</div><div class="feat-desc">Send USDC instantly to any wallet address, Twitter handle or Discord username. No bank needed.</div></div>
+<div class="feat-card"><div class="feat-icon">⇄</div><div class="feat-title">Swap Tokens</div><div class="feat-desc">Exchange USDC and EURC at live FX rates with just one click. Fast, cheap and transparent.</div></div>
+<div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-title">Stake & Earn</div><div class="feat-desc">Earn 5.2% APY by staking your USDC in the Nan pool. No lockup — unstake anytime.</div></div>
+<div class="feat-card"><div class="feat-icon">@</div><div class="feat-title">Social Handles</div><div class="feat-desc">Link your Twitter or Discord username to your wallet. Anyone can pay you by just typing your handle.</div></div>
+</div>
+</div>
+<div class="how-section">
+<div class="section-tag">How it works</div>
+<div class="section-title">Get started in minutes</div>
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div><div class="step-title">Install a wallet</div><div class="step-desc">Download Rabby or MetaMask — free crypto wallets that work in your browser. Takes 2 minutes.</div></div></div>
+<div class="step"><div class="step-num">2</div><div><div class="step-title">Get free test tokens</div><div class="step-desc">Visit faucet.circle.com, select Arc Testnet, paste your wallet address and claim free USDC and EURC.</div></div></div>
+<div class="step"><div class="step-num">3</div><div><div class="step-title">Launch Nan</div><div class="step-desc">Open Nan-dapp.netlify.app, connect your wallet, switch to Arc Testnet and start using the app!</div></div></div>
+</div>
+</div>
+<div class="tokens-section">
+<div class="section-tag">Tokens</div>
+<div class="section-title">Supported stablecoins</div>
+<p class="section-sub">Nan supports the leading stablecoins on Arc. More tokens coming soon.</p>
+<div class="tok-grid">
+<div class="tok-card"><div class="tok-dot" style="background:#2775ca;"></div><div><div class="tok-name">USDC</div><div class="tok-desc">USD Coin — issued by Circle</div></div><div class="tok-bal">Live ✓</div></div>
+<div class="tok-card"><div class="tok-dot" style="background:#1a9fff;"></div><div><div class="tok-name">EURC</div><div class="tok-desc">Euro Coin — issued by Circle</div></div><div class="tok-bal">Live ✓</div></div>
+</div>
+</div>
+<div class="cta-section">
+<h2>Ready to try Nan?</h2>
+<p>Connect your wallet and experience the future of stablecoin fiNance on Arc.</p>
+<a class="btn-primary" href="index.html">Launch App →</a>
+</div>
+</main>
+<footer>
+<div class="footer-brand">Nan</div>
+<div class="footer-links">
+<a href="index.html">App</a>
+<a href="https://faucet.circle.com" target="_blank">Faucet</a>
+<a href="https://testnet.arcscan.app" target="_blank">Explorer</a>
+<a href="https://docs.arc.network" target="_blank">Docs</a>
+<a href="https://github.com/Goddesszee/Nan" target="_blank">GitHub</a>
+</div>
+<div class="footer-note">Built on Arc Testnet · Powered by Circle · Built by Goddesszee</div>
+</footer>
+<script src="agent.js"></script>
+</body>
+</html>
