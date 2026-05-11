@@ -7,13 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Space Grotesk',sans-serif;background:#050508;color:#f0f0f8;min-height:100vh;}
+body{font-family:'Space Grotesk',sans-serif;background:#050508;color:#f0f0f8;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 80% -10%,rgba(123,92,240,.15) 0%,transparent 70%),radial-gradient(ellipse 500px 700px at -10% 90%,rgba(79,142,255,.1) 0%,transparent 70%);pointer-events:none;z-index:0;}
 .grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0;pointer-events:none;}
-nav{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;}
-.brand{display:flex;align-items:center;gap:5px;}
-.brand svg{width:46px;height:46px;}
-.brand-name{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+nav{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:0px;}
+.brand svg{width:52px;height:52px;display:block;}
+.brand-name{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.brand>div{display:flex;flex-direction:column;justify-content:center;}
 .net-pill{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:#00e5c3;border:1px solid rgba(0,229,195,.25);padding:4px 10px;border-radius:100px;background:rgba(0,229,195,.06);display:flex;align-items:center;gap:5px;}
 .net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:#00e5c3;box-shadow:0 0 6px #00e5c3;animation:pulse 2s ease infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
@@ -25,9 +26,9 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;}
 .hero h1{font-size:3rem;font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:20px;background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero-sub{font-size:1.1rem;color:#8888aa;line-height:1.7;max-width:580px;margin:0 auto 36px;}
 .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
-.btn-primary{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(123,92,240,.4);transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(123,92,240,.4);transition:all .2s;display:inline-block;}
 .btn-primary:hover{transform:translateY(-2px);}
-.btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:500;color:#8888aa;cursor:pointer;text-decoration:none;transition:all .2s;}
+.btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:13px 32px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:500;color:#8888aa;cursor:pointer;text-decoration:none;transition:all .2s;display:inline-block;}
 .btn-secondary:hover{border-color:rgba(255,255,255,.3);color:#f0f0f8;}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:60px 0;}
 .stat{background:#0f0f1a;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;text-align:center;}
@@ -61,19 +62,27 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;}
 .cta-section p{font-size:1rem;color:#8888aa;margin-bottom:32px;}
 footer{border-top:1px solid rgba(255,255,255,.07);padding:40px 24px;text-align:center;position:relative;z-index:1;}
 .footer-brand{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;}
-.footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px;}
+.footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
 .footer-links a{font-size:.82rem;color:#555570;text-decoration:none;transition:color .2s;}
 .footer-links a:hover{color:#f0f0f8;}
 .footer-note{font-size:.72rem;color:#333350;}
 @media(max-width:600px){
+.hero{padding:40px 16px 30px;}
 .hero h1{font-size:2rem;}
-.stats{grid-template-columns:1fr;}
+.hero-sub{font-size:.9rem;}
+.btn-primary,.btn-secondary{padding:11px 24px;font-size:.85rem;}
+.stats{grid-template-columns:1fr;margin:30px 0;}
 .feat-grid{grid-template-columns:1fr;}
 .tok-grid{grid-template-columns:1fr;}
-nav{padding:12px 16px;}
+nav{padding:8px 16px;}
+.brand svg{width:42px;height:42px;}
+.brand-name{font-size:.95rem;}
 main{padding:0 16px;}
-.how-section{padding:24px;}
-.cta-section{padding:40px 24px;}
+.how-section{padding:20px;margin:30px 0;}
+.cta-section{padding:30px 20px;margin:30px 0;}
+.section{padding:30px 0;}
+.section-title{font-size:1.4rem;}
+.net-pill{display:none;}
 }
 </style>
 </head>
@@ -82,7 +91,7 @@ main{padding:0 16px;}
 <div style="max-width:1100px;margin:0 auto;">
 <nav>
 <div class="brand">
-<svg width="32" height="32" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg width="52" height="52" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#a78bfa"/>
@@ -96,7 +105,7 @@ main{padding:0 16px;}
   <path d="M-20,20 Q0,0 20,-20" fill="none" stroke="#00e5c3" stroke-width="2.5" stroke-linecap="round"/>
   <circle cx="0" cy="0" r="5" fill="url(#g1)"/>
 </svg>
-<span class="brand-name">Nan</span>
+<div><span class="brand-name">Nan</span></div>
 </div>
 <div class="net-pill">Arc Testnet</div>
 <a class="launch-btn" href="index.html">Launch App →</a>
@@ -134,7 +143,7 @@ main{padding:0 16px;}
 <div class="steps">
 <div class="step"><div class="step-num">1</div><div><div class="step-title">Install a wallet</div><div class="step-desc">Download Rabby or MetaMask — free crypto wallets that work in your browser. Takes 2 minutes.</div></div></div>
 <div class="step"><div class="step-num">2</div><div><div class="step-title">Get free test tokens</div><div class="step-desc">Visit faucet.circle.com, select Arc Testnet, paste your wallet address and claim free USDC and EURC.</div></div></div>
-<div class="step"><div class="step-num">3</div><div><div class="step-title">Launch Nan</div><div class="step-desc">Open Nan-dapp.netlify.app, connect your wallet, switch to Arc Testnet and start using the app!</div></div></div>
+<div class="step"><div class="step-num">3</div><div><div class="step-title">Launch Nan</div><div class="step-desc">Open nan-swart.vercel.app, connect your wallet, switch to Arc Testnet and start using the app!</div></div></div>
 </div>
 </div>
 <div class="tokens-section">
@@ -148,7 +157,7 @@ main{padding:0 16px;}
 </div>
 <div class="cta-section">
 <h2>Ready to try Nan?</h2>
-<p>Connect your wallet and experience the future of stablecoin fiNance on Arc.</p>
+<p>Connect your wallet and experience the future of stablecoin finance on Arc.</p>
 <a class="btn-primary" href="index.html">Launch App →</a>
 </div>
 </main>
