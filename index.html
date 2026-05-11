@@ -24,7 +24,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .page::-webkit-scrollbar{display:none;}
 body::after{content:'';position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:480px;pointer-events:none;z-index:50;box-shadow:0 0 80px rgba(123,92,240,.12),inset 0 0 0 1px rgba(255,255,255,.05);}
 .page.active{display:block;}
-.page-land{bottom:0!important;}
+.page-land{bottom:0!important;display:flex;flex-direction:column;justify-content:space-between;}
 @keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .brand{display:flex;align-items:center;gap:0px;}
@@ -42,11 +42,11 @@ body::after{content:'';position:fixed;top:0;bottom:0;left:50%;transform:translat
 .land-tag{font-size:.62rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .land-sub{font-size:.76rem;color:var(--text2);line-height:1.55;margin-bottom:16px;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;text-align:left;}
-.feat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;flex:1;}
 .feat-icon{font-size:1rem;margin-bottom:3px;}
 .feat-title{font-size:.72rem;font-weight:600;margin-bottom:2px;}
 .feat-desc{font-size:.62rem;color:var(--text2);line-height:1.4;}
-.big-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 34px;background:linear-gradient(135deg,#7b5cf0,#4f8eff);border:none;border-radius:100px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(123,92,240,.4);transition:all .2s;}
+.big-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 34px;background:linear-gradient(135deg,#7b5cf0,#4f8eff);border:none;border-radius:100px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(123,92,240,.4);transition:all .2s;width:100%;}
 .big-btn:hover{transform:translateY(-2px);}
 .land-note{margin-top:8px;font-size:.67rem;color:var(--text3);}
 .land-note a{color:var(--accent2);}
