@@ -13,6 +13,31 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 80% -10%,rgba(123,92,240,.15) 0%,transparent 70%),radial-gradient(ellipse 500px 700px at -10% 90%,rgba(79,142,255,.1) 0%,transparent 70%);pointer-events:none;z-index:0;}
 .grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0;pointer-events:none;}
+
+/* ── SHARED TOP BAR (single instance, fixed at top) ── */
+#globalTopBar{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;
+  background:rgba(5,5,8,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:6px;}
+.brand svg{width:38px;height:38px;display:block;flex-shrink:0;}
+.brand-name{font-size:.95rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;line-height:1;}
+
+/* Connect button — two visual states */
+#connectBtn{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:7px 13px;font-family:'Space Grotesk',sans-serif;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(123,92,240,.35);white-space:nowrap;}
+#connectBtn.connected{background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.2);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.65rem;}
+
+.net-pill{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);border:1px solid rgba(0,229,195,.25);padding:3px 7px;border-radius:100px;background:rgba(0,229,195,.06);display:flex;align-items:center;gap:4px;}
+.net-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent3);box-shadow:0 0 5px var(--accent3);animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,18,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border2);padding:5px 0 10px;display:none;}
 .bottom-nav.show{display:block;}
 .nav-items{display:flex;max-width:480px;margin:0 auto;padding:0 6px;}
@@ -20,25 +45,20 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .nav-btn .ni{font-size:1.05rem;transition:transform .2s;}
 .nav-btn.active{color:var(--accent);}
 .nav-btn.active .ni{transform:scale(1.15);}
-.page{display:none;position:fixed;top:0;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 6px;max-width:480px;margin:0 auto;animation:up .3s ease both;scrollbar-width:none;-ms-overflow-style:none;}
+
+/* ── PAGES ── */
+/* top padding = top bar height (~57px), bottom padding = nav bar height (~60px) */
+.page{display:none;position:fixed;top:57px;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 6px;max-width:480px;margin:0 auto;animation:up .3s ease both;scrollbar-width:none;-ms-overflow-style:none;}
 .page::-webkit-scrollbar{display:none;}
 body::after{content:'';position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:480px;pointer-events:none;z-index:50;box-shadow:0 0 80px rgba(123,92,240,.12),inset 0 0 0 1px rgba(255,255,255,.05);}
 .page.active{display:block;}
+
+/* Landing page sits under the top bar, no bottom nav needed */
 .page-land{bottom:0!important;display:flex;flex-direction:column;justify-content:space-between;}
+
 @keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.brand{display:flex;align-items:center;gap:0px;}
-.brand svg{width:52px;height:52px;display:block;}
-.brand-name{font-size:.95rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;line-height:1;}
-.brand>div{display:flex;flex-direction:column;justify-content:center;}
-.brand-tag{display:none;}
-.net-pill{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);border:1px solid rgba(0,229,195,.25);padding:3px 7px;border-radius:100px;background:rgba(0,229,195,.06);display:flex;align-items:center;gap:4px;}
-.net-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent3);box-shadow:0 0 5px var(--accent3);animation:pulse 2s ease infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-#connectBtn{background:linear-gradient(135deg,#7b5cf0,#4f8eff);color:#fff;border:none;border-radius:100px;padding:7px 13px;font-family:'Space Grotesk',sans-serif;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(123,92,240,.35);white-space:nowrap;}
-#connectBtn.connected{background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.2);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.65rem;}
-#page-land{text-align:center;padding-top:8px;padding-bottom:16px;}
-.land-title{display:none;}
+
+/* ── REST OF STYLES (unchanged) ── */
 .land-tag{font-size:.62rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .land-sub{font-size:.76rem;color:var(--text2);line-height:1.55;margin-bottom:16px;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;text-align:left;}
@@ -164,6 +184,38 @@ a:hover{color:var(--accent3);}
 </head>
 <body>
 <div class="grid"></div>
+
+<!-- ═══════════════════════════════════════════════
+     SINGLE GLOBAL TOP BAR — rendered once, always visible
+     Logo appears here only. No other page duplicates it.
+     ═══════════════════════════════════════════════ -->
+<div id="globalTopBar">
+  <div class="brand">
+    <svg width="38" height="38" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#a78bfa"/>
+        <stop offset="50%" stop-color="#4f8eff"/>
+        <stop offset="100%" stop-color="#00e5c3"/>
+      </linearGradient></defs>
+      <circle cx="0" cy="0" r="42" fill="none" stroke="url(#g1)" stroke-width="2"/>
+      <path d="M-20,-20 Q0,0 20,20" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M-20,0 Q0,0 20,0" fill="none" stroke="#4f8eff" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M-20,20 Q0,0 20,-20" fill="none" stroke="#00e5c3" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="0" cy="0" r="5" fill="url(#g1)"/>
+    </svg>
+    <div class="brand-name">Nan</div>
+  </div>
+
+  <!-- RIGHT SIDE: shows network pill when disconnected, wallet address when connected -->
+  <div id="topBarRight">
+    <!-- Disconnected state -->
+    <div id="netPillWrap" class="net-pill">Arc Testnet</div>
+    <!-- Connected state (hidden until wallet connects) -->
+    <button id="connectBtn" onclick="connectWallet()" style="display:none;">Connect Wallet</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV (hidden until connected) -->
 <nav class="bottom-nav" id="bottomNav">
   <div class="nav-items">
     <button class="nav-btn active" onclick="goPage('send')"><span class="ni">↑↓</span>Send</button>
@@ -174,37 +226,29 @@ a:hover{color:var(--accent3);}
   </div>
 </nav>
 
-<!-- LANDING -->
+<!-- ═══════════════════════════════════════════════
+     LANDING PAGE
+     No logo here — the global top bar handles it.
+     ═══════════════════════════════════════════════ -->
 <div class="page page-land active" id="page-land" style="text-align:center;">
-  <div class="top-bar">
-    <div class="brand">
-      <svg width="52" height="52" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="50%" stop-color="#4f8eff"/><stop offset="100%" stop-color="#00e5c3"/></linearGradient></defs><circle cx="0" cy="0" r="42" fill="none" stroke="url(#g1)" stroke-width="2"/><path d="M-20,-20 Q0,0 20,20" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/><path d="M-20,0 Q0,0 20,0" fill="none" stroke="#4f8eff" stroke-width="2.5" stroke-linecap="round"/><path d="M-20,20 Q0,0 20,-20" fill="none" stroke="#00e5c3" stroke-width="2.5" stroke-linecap="round"/><circle cx="0" cy="0" r="5" fill="url(#g1)"/></svg>
-      <div><div class="brand-name">Nan</div><div class="brand-tag">Weave. Connect. Build.</div></div>
+  <div style="padding-top:16px;">
+    <div class="land-tag">Weave. Connect. Build.</div>
+    <div class="land-sub">Send, receive, swap and stake USDC and EURC on Arc — the stablecoin-native blockchain by Circle.</div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-icon">↑↓</div><div class="feat-title">Send & Receive</div><div class="feat-desc">Transfer USDC by wallet, Twitter or Discord</div></div>
+      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC and EURC at live FX rates</div></div>
+      <div class="feat"><div class="feat-icon">🔒</div><div class="feat-title">Stake</div><div class="feat-desc">Earn 5.2% APY staking USDC</div></div>
+      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Social Handles</div><div class="feat-desc">Send to Twitter or Discord username</div></div>
     </div>
-    <div class="net-pill">Arc Testnet</div>
+    <button class="big-btn" onclick="connectWallet()">Connect Wallet →</button>
+    <div class="land-note">Get free testnet tokens at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
   </div>
-  <div class="land-title">Nan</div>
-  <div class="land-tag">Weave. Connect. Build.</div>
-  <div class="land-sub">Send, receive, swap and stake USDC and EURC on Arc — the stablecoin-native blockchain by Circle.</div>
-  <div class="feat-grid">
-    <div class="feat"><div class="feat-icon">↑↓</div><div class="feat-title">Send & Receive</div><div class="feat-desc">Transfer USDC by wallet, Twitter or Discord</div></div>
-    <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC and EURC at live FX rates</div></div>
-    <div class="feat"><div class="feat-icon">🔒</div><div class="feat-title">Stake</div><div class="feat-desc">Earn 5.2% APY staking USDC</div></div>
-    <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Social Handles</div><div class="feat-desc">Send to Twitter or Discord username</div></div>
-  </div>
-  <button class="big-btn" onclick="connectWallet()">Connect Wallet →</button>
-  <div class="land-note">Get free testnet tokens at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
 </div>
 
-<!-- SEND PAGE -->
+<!-- ═══════════════════════════════════════════════
+     SEND PAGE — no top-bar / logo inside
+     ═══════════════════════════════════════════════ -->
 <div class="page" id="page-send">
-  <div class="top-bar">
-    <div class="brand">
-      <svg width="52" height="52" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="50%" stop-color="#4f8eff"/><stop offset="100%" stop-color="#00e5c3"/></linearGradient></defs><circle cx="0" cy="0" r="42" fill="none" stroke="url(#g1)" stroke-width="2"/><path d="M-20,-20 Q0,0 20,20" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/><path d="M-20,0 Q0,0 20,0" fill="none" stroke="#4f8eff" stroke-width="2.5" stroke-linecap="round"/><path d="M-20,20 Q0,0 20,-20" fill="none" stroke="#00e5c3" stroke-width="2.5" stroke-linecap="round"/><circle cx="0" cy="0" r="5" fill="url(#g1)"/></svg>
-      <div><div class="brand-name">Nan</div></div>
-    </div>
-    <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-  </div>
   <div class="alert">🧪 Testnet · <a href="https://faucet.circle.com" target="_blank">Get USDC & EURC</a> · <a href="https://testnet.arcscan.app" target="_blank">Explorer</a></div>
   <div class="bal-card">
     <div class="bal-head"><div class="bal-lbl">Balance</div><div class="bal-badge">● Arc Testnet</div></div>
@@ -411,11 +455,31 @@ function detectWallet(){
 }
 let _tt;
 function toast(msg,type='info',ms=4000){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;clearTimeout(_tt);_tt=setTimeout(()=>el.className='',ms);}
+
+// ── updateTopBar: the ONE function that controls header right-side state ──
+function updateTopBar(connected){
+  const pill=document.getElementById('netPillWrap');
+  const btn=document.getElementById('connectBtn');
+  if(connected){
+    pill.style.display='none';
+    btn.style.display='block';
+    btn.textContent=short(userAddr);
+    btn.className='connected';
+    btn.onclick=null; // connected button does nothing (or could show wallet info)
+  } else {
+    pill.style.display='flex';
+    btn.style.display='none';
+    btn.className='';
+    btn.onclick=connectWallet;
+  }
+}
+
 async function connectWallet(){
   wp=detectWallet();
   if(!wp){toast('No wallet! Install Rabby from rabby.io','error',7000);return;}
-  const btn=document.getElementById('connectBtn');
-  btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;
+  // Show loading state on whichever button was clicked
+  const landBtn=document.querySelector('.big-btn');
+  if(landBtn){landBtn.innerHTML='<span class="spinner"></span>Connecting...';landBtn.disabled=true;}
   try{
     await wp.request({method:'eth_requestAccounts'});
     try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
@@ -425,29 +489,37 @@ async function connectWallet(){
   }catch(err){
     if(err.code===4001)toast('Cancelled','error');
     else toast((err?.message||'Failed').slice(0,120),'error');
-    btn.innerHTML='Connect Wallet';btn.disabled=false;
+    if(landBtn){landBtn.innerHTML='Connect Wallet →';landBtn.disabled=false;}
   }
 }
+
 async function onConnected(){
+  // Hide landing, show send page
   document.getElementById('page-land').classList.remove('active');
   document.getElementById('page-send').classList.add('active');
   document.getElementById('bottomNav').classList.add('show');
-  const btn=document.getElementById('connectBtn');
-  btn.innerHTML=short(userAddr);btn.disabled=false;btn.className='connected';
+
+  // Update the single top bar
+  updateTopBar(true);
+
+  // Update internal send-page wallet details
   document.getElementById('walAddr').textContent=userAddr;
   document.getElementById('recvAddr').textContent=userAddr;
   document.getElementById('walInit').textContent=userAddr.slice(2,4).toUpperCase();
+
   await refreshBalances();renderQR(userAddr);renderHistory();renderAllHandles();showMyHandles();updateStakeUI();startRewardTimer();
   if(wp?.on){wp.on('accountsChanged',()=>location.reload());wp.on('chainChanged',()=>location.reload());}
 }
+
 function disconnect(){
   provider=signer=userAddr=wp=null;
   document.getElementById('bottomNav').classList.remove('show');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-land').classList.add('active');
-  const btn=document.getElementById('connectBtn');btn.innerHTML='Connect Wallet';btn.className='';btn.disabled=false;
+  updateTopBar(false);
   toast('Disconnected','info',2000);
 }
+
 async function refreshBalances(){
   if(!provider||!userAddr)return;
   try{
@@ -678,6 +750,7 @@ function copyAddr(){if(!userAddr)return;navigator.clipboard.writeText(userAddr).
 function renderQR(a){const b=document.getElementById('qrBox');b.innerHTML='';try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#050508',colorLight:'#ffffff'});}catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}}
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
 window.addEventListener('load',async()=>{
+  updateTopBar(false); // start disconnected
   setInterval(()=>{if(userAddr)refreshBalances();},30000);
 });
 </script>
