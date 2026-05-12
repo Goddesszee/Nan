@@ -48,13 +48,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* ── PAGES ── */
 /* top padding = top bar height (~57px), bottom padding = nav bar height (~60px) */
-.page{display:none;position:fixed;top:57px;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 6px;max-width:480px;margin:0 auto;animation:up .3s ease both;scrollbar-width:none;-ms-overflow-style:none;}
+.page{display:none;position:fixed;top:57px;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 6px;max-width:480px;margin:0 auto;animation:up .3s ease both;scrollbar-width:none;-ms-overflow-style:none;background:transparent;}
 .page::-webkit-scrollbar{display:none;}
 body::after{content:'';position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:480px;pointer-events:none;z-index:50;box-shadow:0 0 80px rgba(123,92,240,.12),inset 0 0 0 1px rgba(255,255,255,.05);}
 .page.active{display:block;}
 
 /* Landing page sits under the top bar, no bottom nav needed */
-.page-land{bottom:0!important;display:flex;flex-direction:column;justify-content:space-between;}
+/* display is controlled by .page (none) and .page.active (block) — do NOT set display here */
+.page-land{bottom:0!important;flex-direction:column;justify-content:space-between;}
+.page-land.active{display:flex;}
 
 @keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
