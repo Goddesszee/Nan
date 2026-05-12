@@ -4,43 +4,54 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Nan — Weave. Connect. Build.</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%2300c07a'/%3E%3Cpath d='M9 23V9l14 14V9' stroke='%23021a0f' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%238b5cf6'/%3E%3Cpath d='M9 23V9l14 14V9' stroke='%23ede9fe' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --green: #00c07a;
-    --green-border: rgba(0,192,122,0.22);
-    --green-border-strong: rgba(0,192,122,0.45);
-    --bg: #060d09;
-    --surface: #0b1610;
-    --surface2: #0f1f16;
-    --text: #e8f5ee;
-    --muted: #7aaa90;
-    --faint: rgba(0,192,122,0.06);
+    --violet:      #8b5cf6;
+    --violet-dark: #7c3aed;
+    --violet-light:#a78bfa;
+    --violet-border: rgba(139,92,246,0.22);
+    --violet-border-strong: rgba(139,92,246,0.45);
+    --bg:      #07081a;
+    --surface: #0e1030;
+    --surface2:#131640;
+    --text:    #ede9fe;
+    --muted:   #a594f9;
+    --faint:   rgba(139,92,246,0.06);
+    --glow:    #6d28d9;
+    --success: #34d399;
+    --gold:    #fbbf24;
+    --danger:  #f87171;
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
+  /* grid overlay */
   body::before{
     content:'';position:fixed;inset:0;
-    background-image:linear-gradient(rgba(0,192,122,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,192,122,.03) 1px,transparent 1px);
+    background-image:
+      linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);
     background-size:60px 60px;pointer-events:none;z-index:0;
   }
+  /* ambient glow */
   body::after{
     content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(0,192,122,.11) 0%,transparent 60%),
-               radial-gradient(ellipse 400px 400px at -5% 80%,rgba(0,192,122,.06) 0%,transparent 60%);
+    background:
+      radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),
+      radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);
     pointer-events:none;z-index:0;
   }
 
   /* ── NAV ── */
   nav{
     position:sticky;top:0;z-index:100;
-    background:rgba(6,13,9,.95);
+    background:rgba(7,8,26,.95);
     backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-    border-bottom:1px solid var(--green-border);
+    border-bottom:1px solid var(--violet-border);
     padding:0 28px;height:62px;
     display:flex;align-items:center;
   }
@@ -49,44 +60,42 @@
     display:flex;align-items:center;justify-content:space-between;
   }
 
-  /* BRAND — tighter, more refined */
   .brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
   .brand-logo{
     width:34px;height:34px;border-radius:8px;
-    background:var(--green);
+    background:var(--violet);
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 12px rgba(0,192,122,.35);
+    box-shadow:0 0 12px rgba(139,92,246,.45);
     flex-shrink:0;transition:box-shadow .2s, transform .2s;
   }
   .brand-logo svg{width:18px;height:18px;display:block;}
-  .brand:hover .brand-logo{box-shadow:0 0 22px rgba(0,192,122,.65);transform:scale(1.05);}
-  /* Brand name — slimmer, spaced correctly */
+  .brand:hover .brand-logo{box-shadow:0 0 26px rgba(139,92,246,.75);transform:scale(1.05);}
   .brand-name{
     font-size:1.05rem;font-weight:700;color:var(--text);
     letter-spacing:.12em;text-transform:uppercase;
-    line-height:1;padding-top:1px; /* optical alignment */
+    line-height:1;padding-top:1px;
   }
 
   .nav-right{display:flex;align-items:center;gap:12px;}
   .net-pill{
-    font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--green);
-    border:1px solid var(--green-border);padding:5px 13px;border-radius:100px;
+    font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--violet-light);
+    border:1px solid var(--violet-border);padding:5px 13px;border-radius:100px;
     background:var(--faint);display:flex;align-items:center;gap:6px;letter-spacing:.05em;
   }
   .pulse-dot{
     width:6px;height:6px;border-radius:50%;flex-shrink:0;
-    background:var(--green);box-shadow:0 0 6px var(--green);
+    background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);
     animation:blink 2s ease infinite;
   }
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
 
   .launch-btn{
-    background:var(--green);color:#021a0f;border:none;border-radius:8px;
+    background:var(--violet);color:#ede9fe;border:none;border-radius:8px;
     padding:9px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;
     cursor:pointer;text-decoration:none;letter-spacing:.04em;
-    transition:all .18s;box-shadow:0 0 14px rgba(0,192,122,.3);white-space:nowrap;
+    transition:all .18s;box-shadow:0 0 14px rgba(139,92,246,.4);white-space:nowrap;
   }
-  .launch-btn:hover{background:#00d988;box-shadow:0 0 22px rgba(0,192,122,.55);transform:translateY(-1px);}
+  .launch-btn:hover{background:#9d70f8;box-shadow:0 0 24px rgba(139,92,246,.65);transform:translateY(-1px);}
 
   /* ── MAIN ── */
   main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 28px;}
@@ -95,8 +104,8 @@
   .hero{text-align:center;padding:104px 24px 76px;}
   .hero-badge{
     display:inline-flex;align-items:center;gap:8px;
-    background:var(--faint);border:1px solid var(--green-border);border-radius:6px;
-    padding:6px 15px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--green);
+    background:var(--faint);border:1px solid var(--violet-border);border-radius:6px;
+    padding:6px 15px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--violet-light);
     margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;
     animation:fadeDown .6s ease both;
   }
@@ -105,7 +114,7 @@
     margin-bottom:24px;color:var(--text);
     animation:fadeUp .7s .1s ease both;
   }
-  .hero h1 .green{color:var(--green);}
+  .hero h1 .accent{color:var(--violet-light);}
   .hero-sub{
     font-size:1.05rem;color:var(--muted);line-height:1.8;
     max-width:520px;margin:0 auto 44px;font-weight:400;
@@ -114,126 +123,119 @@
   .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
 
   .btn-primary{
-    background:var(--green);color:#021a0f;border:none;border-radius:8px;
+    background:var(--violet);color:#ede9fe;border:none;border-radius:8px;
     padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;
     cursor:pointer;text-decoration:none;letter-spacing:.03em;
-    box-shadow:0 0 22px rgba(0,192,122,.38);transition:all .18s;display:inline-block;
+    box-shadow:0 0 22px rgba(139,92,246,.45);transition:all .18s;display:inline-block;
   }
-  .btn-primary:hover{background:#00d988;transform:translateY(-2px);box-shadow:0 0 32px rgba(0,192,122,.55);}
+  .btn-primary:hover{background:#9d70f8;transform:translateY(-2px);box-shadow:0 0 34px rgba(139,92,246,.65);}
   .btn-secondary{
-    background:transparent;border:1px solid var(--green-border-strong);border-radius:8px;
+    background:transparent;border:1px solid var(--violet-border-strong);border-radius:8px;
     padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:600;
     color:var(--muted);cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;
   }
-  .btn-secondary:hover{border-color:var(--green);color:var(--green);background:var(--faint);}
+  .btn-secondary:hover{border-color:var(--violet);color:var(--violet-light);background:var(--faint);}
 
   /* ── STATS ── */
   .stats{
     display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:72px 0;
-    background:var(--green-border);border:1px solid var(--green-border);border-radius:14px;overflow:hidden;
+    background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;
   }
   .stat{background:var(--surface);padding:32px 20px;text-align:center;transition:background .2s;}
   .stat:hover{background:var(--surface2);}
-  .stat-num{font-size:2.4rem;font-weight:800;color:var(--green);margin-bottom:6px;letter-spacing:-1.5px;font-family:'IBM Plex Mono',monospace;}
+  .stat-num{font-size:2.4rem;font-weight:800;color:var(--violet-light);margin-bottom:6px;letter-spacing:-1.5px;font-family:'IBM Plex Mono',monospace;}
   .stat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
 
   /* ── SECTIONS ── */
   .section{padding:72px 0;}
-  .section-tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--green);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
+  .section-tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
   .section-title{font-size:2rem;font-weight:800;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;}
   .section-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:44px;}
 
   /* ── FEATURE GRID ── */
-  /* No border-left hack — use top accent on hover instead (no clipping issue) */
-  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--green-border);border:1px solid var(--green-border);border-radius:14px;overflow:hidden;}
+  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
   .feat-card{background:var(--surface);padding:32px;transition:background .2s;}
   .feat-card:hover{background:var(--surface2);}
   .feat-icon{
     width:42px;height:42px;border-radius:10px;
-    background:var(--faint);border:1px solid var(--green-border);
+    background:var(--faint);border:1px solid var(--violet-border);
     display:flex;align-items:center;justify-content:center;margin-bottom:16px;
     transition:border-color .2s, background .2s;
   }
-  .feat-card:hover .feat-icon{border-color:rgba(0,192,122,.5);background:rgba(0,192,122,.1);}
-  .feat-icon svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .feat-card:hover .feat-icon{border-color:rgba(139,92,246,.55);background:rgba(139,92,246,.12);}
+  .feat-icon svg{width:18px;height:18px;stroke:var(--violet-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .feat-title{font-size:.97rem;font-weight:700;margin-bottom:8px;color:var(--text);}
   .feat-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
 
   /* ── HOW IT WORKS ── */
   .how-section{
-    background:var(--surface);border:1px solid var(--green-border);
-    border-top:2px solid var(--green);
+    background:var(--surface);border:1px solid var(--violet-border);
+    border-top:2px solid var(--violet);
     border-radius:14px;padding:44px;margin:72px 0;
   }
-  /* Added sub text for breathing room */
   .how-sub{font-size:.88rem;color:var(--muted);margin-bottom:0;margin-top:8px;line-height:1.65;}
   .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
-  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid rgba(0,192,122,.08);}
+  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid rgba(139,92,246,.10);}
   .step:last-child{border-bottom:none;padding-bottom:0;}
   .step:first-child{padding-top:0;}
   .step-num{
-    width:36px;height:36px;border-radius:8px;background:var(--green);
+    width:36px;height:36px;border-radius:8px;background:var(--violet);
     display:flex;align-items:center;justify-content:center;
-    font-weight:700;font-size:.8rem;color:#021a0f;flex-shrink:0;margin-top:1px;
+    font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;margin-top:1px;
     font-family:'IBM Plex Mono',monospace;
+    box-shadow:0 0 12px rgba(139,92,246,.35);
   }
   .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
   .step-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
 
   /* ── TOKENS ── */
   .tokens-section{padding:72px 0;}
-  .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--green-border);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
+  .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:12px;overflow:hidden;}
   .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
   .tok-card:hover{background:var(--surface2);}
   .tok-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
   .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
   .tok-desc{font-size:.72rem;color:var(--muted);}
-  .tok-bal{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--green);margin-left:auto;background:var(--faint);border:1px solid var(--green-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
+  .tok-bal{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
 
   /* ── CTA ── */
   .cta-section{
-    background:var(--surface);border:1px solid var(--green-border);
-    border-top:2px solid var(--green);
+    background:var(--surface);border:1px solid var(--violet-border);
+    border-top:2px solid var(--violet);
     border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;
     position:relative;overflow:hidden;
   }
   .cta-section::before{
     content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(0,192,122,.13) 0%,transparent 65%);
+    background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(139,92,246,.16) 0%,transparent 65%);
     pointer-events:none;
   }
-  /* "Nan" in green in the CTA heading */
   .cta-section h2{font-size:2.3rem;font-weight:800;letter-spacing:-.7px;margin-bottom:14px;position:relative;line-height:1.1;}
-  .cta-section h2 .green{color:var(--green);}
+  .cta-section h2 .accent{color:var(--violet-light);}
   .cta-section p{font-size:.95rem;color:var(--muted);margin-bottom:36px;position:relative;line-height:1.7;}
 
   /* ── FOOTER ── */
-  footer{border-top:1px solid var(--green-border);padding:44px 28px;text-align:center;position:relative;z-index:1;max-width:1100px;margin:0 auto;}
+  footer{border-top:1px solid var(--violet-border);padding:44px 28px;text-align:center;position:relative;z-index:1;max-width:1100px;margin:0 auto;}
   .footer-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;}
   .footer-logo{
-    width:26px;height:26px;border-radius:6px;background:var(--green);
+    width:26px;height:26px;border-radius:6px;background:var(--violet);
     display:flex;align-items:center;justify-content:center;
   }
   .footer-logo svg{width:14px;height:14px;display:block;}
   .footer-name{font-size:.88rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .footer-links{display:flex;gap:28px;justify-content:center;margin-bottom:22px;flex-wrap:wrap;}
   .footer-links a{font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .18s;font-weight:500;}
-  .footer-links a:hover{color:var(--green);}
-  .footer-divider{height:1px;background:var(--green-border);margin-bottom:22px;}
-  /* Fixed contrast: #6a9a7a passes WCAG AA for small text on dark bg */
-  .footer-note{font-size:.67rem;color:#6a9a7a;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
+  .footer-links a:hover{color:var(--violet-light);}
+  .footer-divider{height:1px;background:var(--violet-border);margin-bottom:22px;}
+  .footer-note{font-size:.67rem;color:#7a6aaa;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
 
   /* ── ANIMATIONS ── */
   @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
   .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
   .reveal.visible{opacity:1;transform:translateY(0);}
-  /* Stagger children inside revealed sections */
-  .reveal .section-tag{transition-delay:.05s;}
-  .reveal .section-title{transition-delay:.1s;}
-  .reveal .section-sub,.reveal .how-sub{transition-delay:.15s;}
 
-  /* ── TABLET breakpoint (missing before) ── */
+  /* ── TABLET ── */
   @media(max-width:900px){
     .hero h1{font-size:3.2rem;letter-spacing:-2px;}
     .hero{padding:80px 24px 60px;}
@@ -262,11 +264,10 @@
 
 <nav>
   <div class="nav-inner">
-    <!-- Refined logo: N lettermark as SVG path, not text -->
     <a class="brand" href="#">
       <div class="brand-logo">
         <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 15V3l12 12V3" stroke="#021a0f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 15V3l12 12V3" stroke="#ede9fe" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <span class="brand-name">Nan</span>
@@ -283,7 +284,7 @@
   <!-- HERO -->
   <div class="hero">
     <div class="hero-badge"><span class="pulse-dot"></span>Now live on Arc Testnet</div>
-    <h1>Weave. Connect.<br/><span class="green">Build on Arc.</span></h1>
+    <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
     <p class="hero-sub">Nan is the simplest way to send, receive, swap and stake USDC and EURC on Arc — Circle's stablecoin-native blockchain. For everyone, everywhere.</p>
     <div class="hero-btns">
       <a class="btn-primary" href="index.html">Launch App →</a>
@@ -386,7 +387,7 @@
 
   <!-- CTA -->
   <div class="cta-section reveal">
-    <h2>Ready to try <span class="green">Nan</span>?</h2>
+    <h2>Ready to try <span class="accent">Nan</span>?</h2>
     <p>Connect your wallet and experience the future of stablecoin finance on Arc.</p>
     <a class="btn-primary" href="index.html">Launch App →</a>
   </div>
@@ -397,7 +398,7 @@
   <div class="footer-brand">
     <div class="footer-logo">
       <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 15V3l12 12V3" stroke="#021a0f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 15V3l12 12V3" stroke="#ede9fe" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
     <span class="footer-name">Nan</span>
@@ -414,9 +415,7 @@
   <div class="footer-note">Built on Arc Testnet · Powered by Circle · Built by Goddesszee</div>
 </footer>
 
-<script src="agent.js"></script>
 <script>
-  // Scroll-triggered reveal
   const reveals = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
