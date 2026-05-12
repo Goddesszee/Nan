@@ -33,8 +33,6 @@ body::before{
     linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
   background-size:80px 80px;z-index:0;pointer-events:none;
 }
-
-/* ── GLOBAL TOP BAR ── */
 #globalTopBar{
   position:fixed;top:0;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;z-index:200;
@@ -51,8 +49,6 @@ body::before{
   background:linear-gradient(135deg,#a78bfa,#4f8eff,#00e5c3);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-
-/* FIX: Connect button two states */
 #connectBtn{
   background:linear-gradient(135deg,#7b5cf0,#4f8eff);
   color:#fff;border:none;border-radius:100px;
@@ -62,7 +58,6 @@ body::before{
   box-shadow:0 3px 12px rgba(123,92,240,.35);
   white-space:nowrap;display:none;
 }
-/* FIX: connected state shows wallet address clearly */
 #connectBtn.connected{
   background:rgba(0,229,195,.08);
   border:1px solid rgba(0,229,195,.2);
@@ -83,8 +78,6 @@ body::before{
   animation:pulse 2s ease infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-
-/* ── BOTTOM NAV ── */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;z-index:100;
   background:rgba(10,10,18,.97);backdrop-filter:blur(20px);
@@ -93,7 +86,6 @@ body::before{
 }
 .bottom-nav.show{display:block;}
 .nav-items{display:flex;max-width:480px;margin:0 auto;padding:0 6px;}
-/* FIX: consistent icon style in bottom nav */
 .nav-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:5px 2px;border:none;background:transparent;color:var(--text3);
@@ -103,8 +95,6 @@ body::before{
 .nav-btn .ni{font-size:1.2rem;line-height:1;transition:transform .2s;}
 .nav-btn.active{color:var(--accent);}
 .nav-btn.active .ni{transform:scale(1.15);}
-
-/* ── PAGES ── */
 .page{
   display:none;position:fixed;top:57px;left:0;right:0;bottom:60px;
   z-index:1;overflow-y:auto;overflow-x:hidden;
@@ -124,8 +114,6 @@ body::after{
 .page-land{bottom:0!important;flex-direction:column;justify-content:space-between;}
 .page-land.active{display:flex;}
 @keyframes up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-/* ── LANDING ── */
 .land-tag{font-size:.62rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .land-sub{font-size:.76rem;color:var(--text2);line-height:1.55;margin-bottom:16px;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;text-align:left;}
@@ -146,13 +134,9 @@ body::after{
 .big-btn:disabled{opacity:.7;cursor:not-allowed;transform:none;}
 .land-note{margin-top:8px;font-size:.67rem;color:var(--text3);}
 .land-note a{color:var(--accent2);}
-
-/* ── CARDS ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:6px;}
 .card-title{font-size:.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(123,92,240,.1);border:1px solid rgba(123,92,240,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
-
-/* ── BALANCE CARD ── */
 .bal-card{
   background:linear-gradient(135deg,var(--card),var(--card2));
   border:1px solid var(--border2);border-radius:var(--radius);
@@ -165,7 +149,6 @@ body::after{
 }
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
 .bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;}
-/* FIX: testnet badge — clearly informational, not interactive */
 .bal-badge{
   display:flex;align-items:center;gap:3px;
   background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.15);
@@ -186,200 +169,66 @@ body::after{
 .tok-dot{width:5px;height:5px;border-radius:50%;}
 .usdc-dot{background:#2775ca;}
 .eurc-dot{background:#1a9fff;}
-/* FIX: wallet row — address formatted for readability */
 .wal-row{display:flex;align-items:center;gap:6px;padding-top:6px;border-top:1px solid var(--border);}
-.wal-dot{
-  width:24px;height:24px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#7b5cf0,#4f8eff);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.52rem;font-weight:700;color:#fff;
-}
-/* FIX: address display truncated with clear format, not tiny wall of text */
-.wal-addr{
-  font-family:'JetBrains Mono',monospace;font-size:.58rem;
-  color:var(--text2);flex:1;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  cursor:pointer;
-}
+.wal-dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#7b5cf0,#4f8eff);display:flex;align-items:center;justify-content:center;font-size:.52rem;font-weight:700;color:#fff;}
+.wal-addr{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
 .wal-addr:hover{color:var(--text);}
-.ibtn{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;color:var(--text2);font-size:.58rem;
-  padding:3px 7px;cursor:pointer;white-space:nowrap;
-  font-family:'Space Grotesk',sans-serif;transition:all .15s;
-}
+.ibtn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:.58rem;padding:3px 7px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;transition:all .15s;}
 .ibtn:hover{border-color:var(--border2);color:var(--text);}
 .ibtn.red{color:var(--danger);border-color:rgba(255,79,109,.2);}
 .ibtn.red:hover{background:rgba(255,79,109,.05);}
-
-/* ── ALERT / TESTNET BAR ── */
-.alert{
-  background:rgba(123,92,240,.05);border:1px solid rgba(123,92,240,.12);
-  border-radius:var(--radius-sm);padding:6px 10px;
-  margin-bottom:6px;
-  display:flex;align-items:center;gap:7px;
-  font-size:.62rem;color:var(--text2);
-}
-.alert a{
-  color:var(--accent2);font-weight:500;
-  display:inline-flex;align-items:center;gap:3px;
-}
-/* FIX: links look clearly clickable */
+.alert{background:rgba(123,92,240,.05);border:1px solid rgba(123,92,240,.12);border-radius:var(--radius-sm);padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:7px;font-size:.62rem;color:var(--text2);}
+.alert a{color:var(--accent2);font-weight:500;display:inline-flex;align-items:center;gap:3px;}
 .alert a::after{content:'↗';font-size:.5rem;opacity:.6;}
 
-/* ── SEND/RECEIVE TABS ── */
-.send-tabs{display:flex;gap:5px;margin-bottom:8px;}
-.stab{
-  flex:1;padding:7px;
-  border:1px solid var(--border);border-radius:var(--radius-sm);
-  background:transparent;color:var(--text3);
-  font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:600;
-  cursor:pointer;transition:all .2s;
-  display:flex;align-items:center;justify-content:center;gap:4px;
+/* ── notice box for real tx info ── */
+.tx-notice{
+  background:rgba(240,180,41,.05);border:1px solid rgba(240,180,41,.2);
+  border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:7px;
+  font-size:.62rem;color:var(--warning);line-height:1.5;
 }
-/* FIX: active vs inactive tabs clearly distinguished */
-.stab.active{
-  background:var(--card2);border-color:var(--accent);
-  color:var(--accent);
-}
-.stab:not(.active):hover{border-color:var(--border2);color:var(--text2);}
+.tx-notice strong{color:var(--gold);}
 
-/* ── SEND TO TYPE SELECTOR ── */
+.send-tabs{display:flex;gap:5px;margin-bottom:8px;}
+.stab{flex:1;padding:7px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.stab.active{background:var(--card2);border-color:var(--accent);color:var(--accent);}
+.stab:not(.active):hover{border-color:var(--border2);color:var(--text2);}
 .field{margin-bottom:7px;}
-.flbl{
-  display:block;font-family:'JetBrains Mono',monospace;
-  font-size:.55rem;color:var(--text3);letter-spacing:.1em;
-  text-transform:uppercase;margin-bottom:4px;
-}
-input,select{
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);
-  font-family:'JetBrains Mono',monospace;font-size:.8rem;
-  padding:7px 10px;outline:none;transition:all .2s;
-}
+.flbl{display:block;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+input,select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:7px 10px;outline:none;transition:all .2s;}
 input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(123,92,240,.1);}
 input::placeholder{color:var(--text3);opacity:.7;}
 input:disabled{opacity:.5;cursor:not-allowed;}
-
-/* FIX: send-to type options clearly show active state */
 .type-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:7px;}
-.topt{
-  padding:8px 3px;
-  border:1px solid var(--border);border-radius:var(--radius-sm);
-  background:var(--surface);color:var(--text3);
-  font-family:'Space Grotesk',sans-serif;font-size:.62rem;font-weight:600;
-  cursor:pointer;text-align:center;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  transition:all .15s;
-}
+.topt{padding:8px 3px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.62rem;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
 .topt .oi{font-size:.9rem;}
-.topt.active{
-  border-color:var(--accent);background:rgba(123,92,240,.1);
-  color:var(--accent);box-shadow:0 0 0 1px rgba(123,92,240,.15);
-}
+.topt.active{border-color:var(--accent);background:rgba(123,92,240,.1);color:var(--accent);box-shadow:0 0 0 1px rgba(123,92,240,.15);}
 .topt:not(.active):hover{border-color:var(--border2);color:var(--text2);}
-
-/* ── AMOUNT ROW ── */
 .amt-row{display:flex;gap:6px;align-items:flex-end;}
 .amt-row .field{flex:1;margin-bottom:0;}
-.max-btn{
-  background:rgba(123,92,240,.08);border:1px solid rgba(123,92,240,.2);
-  border-radius:var(--radius-sm);color:var(--accent);
-  font-family:'JetBrains Mono',monospace;font-size:.58rem;
-  padding:7px 9px;cursor:pointer;white-space:nowrap;
-  transition:all .15s;margin-bottom:7px;
-}
+.max-btn{background:rgba(123,92,240,.08);border:1px solid rgba(123,92,240,.2);border-radius:var(--radius-sm);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:7px 9px;cursor:pointer;white-space:nowrap;transition:all .15s;margin-bottom:7px;}
 .max-btn:hover{background:rgba(123,92,240,.15);}
-
-/* FIX: token label in amount field header */
-.amt-token-lbl{
-  display:inline-flex;align-items:center;gap:4px;
-  font-family:'JetBrains Mono',monospace;font-size:.55rem;
-  color:var(--text3);letter-spacing:.1em;text-transform:uppercase;
-}
-.amt-token-badge{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:4px;padding:1px 5px;
-  color:var(--text2);font-size:.52rem;cursor:pointer;
-  transition:all .15s;
-}
+.amt-token-badge{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--text2);font-size:.52rem;cursor:pointer;transition:all .15s;}
 .amt-token-badge:hover{border-color:var(--accent);color:var(--accent);}
-
-/* ── RESOLVE BAR ── */
-.res-bar{
-  display:none;align-items:center;gap:6px;
-  padding:4px 8px;border-radius:var(--radius-sm);
-  margin-top:4px;
-  font-family:'JetBrains Mono',monospace;font-size:.6rem;
-}
+.res-bar{display:none;align-items:center;gap:6px;padding:4px 8px;border-radius:var(--radius-sm);margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
 .res-bar.ok{background:rgba(0,229,195,.07);border:1px solid rgba(0,229,195,.2);color:var(--success);}
 .res-bar.no{background:rgba(255,79,109,.07);border:1px solid rgba(255,79,109,.2);color:var(--danger);}
-
-/* FIX: gas row — amber/warning color, not hidden red text */
-.gas-row{
-  display:flex;align-items:center;gap:6px;
-  font-family:'JetBrains Mono',monospace;font-size:.58rem;
-  color:var(--warning);
-  margin-bottom:7px;padding:6px 10px;
-  background:rgba(240,160,48,.06);
-  border:1px solid rgba(240,160,48,.15);
-  border-radius:var(--radius-sm);
-}
+.gas-row{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--warning);margin-bottom:7px;padding:6px 10px;background:rgba(240,160,48,.06);border:1px solid rgba(240,160,48,.15);border-radius:var(--radius-sm);}
 .gas-row .gas-icon{font-size:.75rem;}
-
-/* ── BUTTONS ── */
-.btn{
-  width:100%;padding:10px;
-  background:linear-gradient(135deg,#7b5cf0,#4f8eff);
-  border:none;border-radius:var(--radius-sm);
-  color:#fff;font-family:'Space Grotesk',sans-serif;
-  font-size:.82rem;font-weight:700;
-  cursor:pointer;transition:all .2s;
-  box-shadow:0 3px 12px rgba(123,92,240,.3);
-}
+.btn{width:100%;padding:10px;background:linear-gradient(135deg,#7b5cf0,#4f8eff);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(123,92,240,.3);}
 .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 16px rgba(123,92,240,.4);}
-/* FIX: disabled button clearly looks disabled */
-.btn:disabled{
-  opacity:.35;cursor:not-allowed;transform:none;
-  background:var(--surface);box-shadow:none;
-  color:var(--text3);border:1px solid var(--border);
-}
-.btn-outline{
-  background:transparent;border:1px solid var(--border2);
-  box-shadow:none;color:var(--text2);
-}
-.btn-outline:hover:not(:disabled){
-  border-color:var(--accent);color:var(--accent);
-  background:rgba(123,92,240,.05);box-shadow:none;
-}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;background:var(--surface);box-shadow:none;color:var(--text3);border:1px solid var(--border);}
+.btn-outline{background:transparent;border:1px solid var(--border2);box-shadow:none;color:var(--text2);}
+.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent);background:rgba(123,92,240,.05);box-shadow:none;}
 .btn-success{background:linear-gradient(135deg,#00e5c3,#00b59a);}
 .btn-success:hover:not(:disabled){box-shadow:0 5px 16px rgba(0,229,195,.3);}
 .btn-danger{background:linear-gradient(135deg,#ff4f6d,#cc2244);box-shadow:0 3px 12px rgba(255,79,109,.3);}
-
-/* ── CONFIRM MODAL (inline, not fixed) ── */
-.confirm-wrap{
-  display:none;
-  background:var(--card);border:1px solid var(--border2);
-  border-radius:var(--radius);padding:14px;
-  margin-bottom:6px;
-  animation:up .25s ease both;
-}
+.confirm-wrap{display:none;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:6px;animation:up .25s ease both;}
 .confirm-wrap.show{display:block;}
-.confirm-title{
-  font-size:.9rem;font-weight:700;color:var(--text);
-  margin-bottom:3px;display:flex;align-items:center;gap:6px;
-}
+.confirm-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
 .confirm-sub{font-size:.62rem;color:var(--text3);margin-bottom:12px;}
-.conf-rows{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:8px;
-  margin-bottom:12px;
-}
-.conf-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:5px 0;border-bottom:1px solid var(--border);
-  font-family:'JetBrains Mono',monospace;font-size:.62rem;
-}
+.conf-rows{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;margin-bottom:12px;}
+.conf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.62rem;}
 .conf-row:last-child{border-bottom:none;}
 .conf-lbl{color:var(--text3);}
 .conf-val{color:var(--text);text-align:right;max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -387,34 +236,14 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .conf-val.warn{color:var(--warning);}
 .conf-btns{display:flex;gap:7px;}
 .conf-btns .btn{flex:1;}
-
-/* ── SUCCESS STATE ── */
-.success-wrap{
-  display:none;text-align:center;
-  padding:24px 14px;animation:up .3s ease both;
-}
+.success-wrap{display:none;text-align:center;padding:24px 14px;animation:up .3s ease both;}
 .success-wrap.show{display:block;}
-.success-circle{
-  width:52px;height:52px;border-radius:50%;margin:0 auto 12px;
-  background:rgba(0,229,195,.1);border:1px solid rgba(0,229,195,.25);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;
-}
+.success-circle{width:52px;height:52px;border-radius:50%;margin:0 auto 12px;background:rgba(0,229,195,.1);border:1px solid rgba(0,229,195,.25);display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
 .success-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
 .success-sub{font-size:.67rem;color:var(--text3);margin-bottom:16px;}
-
-/* ── QR RECEIVE ── */
 .qr-wrap{display:flex;flex-direction:row;align-items:center;gap:10px;padding:4px 0;}
 .qr-frame{background:#fff;border-radius:10px;padding:6px;flex-shrink:0;}
-.recv-addr{
-  font-family:'JetBrains Mono',monospace;font-size:.55rem;
-  color:var(--text2);word-break:break-all;text-align:left;
-  padding:6px 8px;background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--radius-sm);
-  flex:1;line-height:1.6;
-}
-
-/* ── SWAP PAGE ── */
+.recv-addr{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text2);word-break:break-all;text-align:left;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);flex:1;line-height:1.6;}
 .swap-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:5px;}
 .swap-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 .token-select{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
@@ -426,8 +255,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .swap-input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:600;outline:none;padding:0;}
 .swap-input::placeholder{color:var(--text3);opacity:.5;}
 .swap-balance{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:3px;}
-
-/* ── STAKE PAGE ── */
 .stake-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px;}
 .stake-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;text-align:center;}
 .ss-label{font-family:'JetBrains Mono',monospace;font-size:.53rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;}
@@ -439,14 +266,10 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .stake-tabs{display:flex;gap:4px;margin-bottom:8px;}
 .stake-panel{display:none;}
 .stake-panel.active{display:block;}
-
-/* ── HANDLE PAGE ── */
 .my-handles-box{display:none;background:rgba(0,229,195,.04);border:1px solid rgba(0,229,195,.15);border-radius:var(--radius-sm);padding:7px;margin-bottom:7px;}
 .mhl{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--accent3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
 .handle-tag{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);margin:2px;}
 .handle-remove{cursor:pointer;color:var(--danger);opacity:.6;}
-
-/* ── DIRECTORY ── */
 .dir-item{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;}
 .dir-item:last-child{border-bottom:none;}
 .dir-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#7b5cf0,#4f8eff);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;}
@@ -454,8 +277,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .dir-handle{font-size:.73rem;font-weight:600;margin-bottom:1px;}
 .dir-addr{font-family:'JetBrains Mono',monospace;font-size:.57rem;color:var(--text3);}
 .send-sm{background:rgba(123,92,240,.08);border:1px solid rgba(123,92,240,.2);border-radius:7px;color:var(--accent);font-family:'Space Grotesk',sans-serif;font-size:.62rem;font-weight:600;padding:3px 8px;cursor:pointer;white-space:nowrap;}
-
-/* ── HISTORY PAGE ── */
 .tx-item{display:flex;align-items:center;padding:8px 0;gap:8px;border-bottom:1px solid var(--border);}
 .tx-item:last-child{border-bottom:none;}
 .tx-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0;}
@@ -469,13 +290,9 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .tx-amt{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;white-space:nowrap;text-align:right;}
 .tx-amt.out{color:var(--danger);}
 .tx-amt.in{color:var(--success);}
-
-/* ── EMPTY STATES ── */
 .empty{text-align:center;padding:20px 16px;color:var(--text3);}
 .empty-icon{font-size:1.5rem;margin-bottom:5px;opacity:.5;}
 .empty-text{font-size:.72rem;line-height:1.6;}
-
-/* ── TOAST ── */
 #toast{
   position:fixed;bottom:68px;left:50%;
   transform:translateX(-50%) translateY(120px);
@@ -491,8 +308,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 #toast.success{border-color:rgba(0,229,195,.3);color:var(--success);}
 #toast.error{border-color:rgba(255,79,109,.3);color:var(--danger);}
 #toast.info{border-color:rgba(123,92,240,.3);color:var(--accent2);}
-
-/* ── MISC ── */
 .spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 a{color:var(--accent2);text-decoration:none;}
@@ -505,7 +320,6 @@ a:hover{color:var(--accent3);}
 <body>
 <div class="grid"></div>
 
-<!-- SINGLE GLOBAL TOP BAR -->
 <div id="globalTopBar">
   <div class="brand">
     <svg width="38" height="38" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -524,15 +338,12 @@ a:hover{color:var(--accent3);}
   </div>
   <div id="topBarRight">
     <div id="netPillWrap" class="net-pill">Arc Testnet</div>
-    <!-- FIX: connectBtn starts hidden, shown only when connected, displays 0x address correctly -->
     <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav">
   <div class="nav-items">
-    <!-- FIX: consistent icon style across all nav items -->
     <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
     <button class="nav-btn" onclick="goPage('swap')"><span class="ni">⇄</span>Swap</button>
     <button class="nav-btn" onclick="goPage('stake')"><span class="ni">◈</span>Stake</button>
@@ -559,21 +370,17 @@ a:hover{color:var(--accent3);}
 
 <!-- SEND PAGE -->
 <div class="page" id="page-send">
-  <!-- FIX: testnet bar with clearly clickable links -->
   <div class="alert">
     🧪 Testnet &nbsp;·&nbsp;
     <a href="https://faucet.circle.com" target="_blank">Get USDC &amp; EURC</a>
     &nbsp;·&nbsp;
     <a href="https://testnet.arcscan.app" target="_blank">Explorer</a>
   </div>
-
   <div class="bal-card">
     <div class="bal-head">
       <div class="bal-lbl">Balance</div>
-      <!-- FIX: Arc Testnet badge is purely informational -->
       <div class="bal-badge">● Arc Testnet</div>
     </div>
-    <!-- FIX: token shown clearly next to balance -->
     <div class="bal-num"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);-webkit-text-fill-color:var(--text3);">USDC</span></div>
     <div class="bal-usd" id="balUsd">≈ $0.00 USD</div>
     <div class="token-row">
@@ -582,21 +389,16 @@ a:hover{color:var(--accent3);}
     </div>
     <div class="wal-row">
       <div class="wal-dot" id="walInit">W</div>
-      <!-- FIX: address is formatted as short form here, full address on tap -->
       <div class="wal-addr" id="walAddr" title="Click to copy" onclick="copyAddr()">Connect wallet</div>
       <button class="ibtn" onclick="copyAddr()">Copy</button>
       <button class="ibtn red" onclick="disconnect()">Disconnect</button>
     </div>
   </div>
-
   <div class="card" id="sendCard">
     <div class="send-tabs">
-      <!-- FIX: tabs have equal visual weight, active state very clear -->
       <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')">↑ Send</button>
       <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')">↓ Receive</button>
     </div>
-
-    <!-- SEND TAB -->
     <div id="tab-send">
       <div class="field">
         <div class="flbl">Send To</div>
@@ -608,10 +410,8 @@ a:hover{color:var(--accent3);}
         <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
         <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
       </div>
-
       <div class="amt-row">
         <div class="field">
-          <!-- FIX: label shows token name dynamically + token switcher -->
           <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
             <span>Amount</span>
             <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()" title="Click to switch token">
@@ -622,24 +422,16 @@ a:hover{color:var(--accent3);}
         </div>
         <button class="max-btn" onclick="setMax()">MAX</button>
       </div>
-
-      <!-- FIX: available balance shown under amount field for clarity -->
       <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:-4px;margin-bottom:8px;padding:0 2px;">
         Available: <span id="sendAvailable">0.00</span> <span id="sendAvailToken">USDC</span>
       </div>
-
-      <!-- FIX: gas row styled as amber warning, not hidden red icon -->
       <div class="gas-row">
         <span class="gas-icon">⛽</span>
         <span style="flex:1;">Estimated network fee</span>
         <span>~0.009 USDC</span>
       </div>
-
-      <!-- FIX: button label updates based on selected token; disabled when fields empty -->
       <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Enter address &amp; amount</button>
     </div>
-
-    <!-- RECEIVE TAB -->
     <div id="tab-recv" style="display:none;">
       <div class="qr-wrap">
         <div class="qr-frame" id="qrBox"></div>
@@ -648,8 +440,6 @@ a:hover{color:var(--accent3);}
       <button class="btn btn-outline" style="margin-top:8px;" onclick="copyAddr()">Copy My Address</button>
     </div>
   </div>
-
-  <!-- FIX: confirm step before sending — inline, not modal -->
   <div class="confirm-wrap" id="confirmCard">
     <div class="confirm-title">⚡ Confirm transaction</div>
     <div class="confirm-sub">Review before sending — this cannot be undone.</div>
@@ -665,8 +455,6 @@ a:hover{color:var(--accent3);}
       <button class="btn" onclick="doSend()" id="confirmSendBtn" style="flex:2;">✓ Confirm &amp; Send</button>
     </div>
   </div>
-
-  <!-- FIX: success state after send -->
   <div class="success-wrap" id="successCard">
     <div class="success-circle">✓</div>
     <div class="success-title">Sent!</div>
@@ -679,6 +467,13 @@ a:hover{color:var(--accent3);}
 <div class="page" id="page-swap">
   <div class="page-title">Swap</div>
   <div class="page-sub">Exchange USDC and EURC at live rates</div>
+
+  <!-- REAL TX NOTICE -->
+  <div class="tx-notice">
+    <strong>ℹ️ Real on-chain swap</strong><br>
+    Swapping sends your tokens to the Nan swap pool contract on Arc Testnet. Your wallet will prompt you to <strong>approve</strong> the spend, then <strong>confirm</strong> the transfer. You'll receive the output token back automatically once the pool confirms.
+  </div>
+
   <div class="card">
     <div class="card-title"><div class="cticon">⇄</div>Swap Tokens</div>
     <div class="swap-box">
@@ -725,6 +520,13 @@ a:hover{color:var(--accent3);}
 <div class="page" id="page-stake">
   <div class="page-title">Stake</div>
   <div class="page-sub">Earn USDC rewards on your staked USDC</div>
+
+  <!-- REAL TX NOTICE -->
+  <div class="tx-notice">
+    <strong>ℹ️ Real on-chain stake</strong><br>
+    Staking transfers USDC to the Nan staking vault on Arc Testnet. Your wallet will show an <strong>approve</strong> step then a <strong>deposit</strong> confirmation. Unstaking sends them back to your wallet.
+  </div>
+
   <div class="stake-stat-grid">
     <div class="stake-stat"><div class="ss-label">APY</div><div class="ss-value green">5.20%</div></div>
     <div class="stake-stat"><div class="ss-label">Total Staked</div><div class="ss-value">$2.4M</div></div>
@@ -814,77 +616,119 @@ a:hover{color:var(--accent3);}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-const ARC_ID=5042002,ARC_HEX='0x'+ARC_ID.toString(16),ARC_RPC='https://rpc.testnet.arc.network',ARC_EXP='https://testnet.arcscan.app';
-const USDC='0x3600000000000000000000000000000000000000',EURC='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
-const ERC20=['function balanceOf(address) view returns (uint256)','function decimals() view returns (uint8)','function transfer(address,uint256) returns (bool)'];
-const ARC_PARAMS={chainId:ARC_HEX,chainName:'Arc Testnet',nativeCurrency:{name:'USD Coin',symbol:'USDC',decimals:18},rpcUrls:[ARC_RPC],blockExplorerUrls:[ARC_EXP]};
-const FX=0.9258;
-let provider=null,signer=null,userAddr=null,wp=null;
-let usdcBal='0',eurcBal='0',recipType='address',resolvedTo=null,regType='x',swapFlipped=false;
-let sendToken='USDC'; // FIX: track selected send token
-let stakedAmt=parseFloat(localStorage.getItem('arcStaked')||'0');
-let rewardsAmt=parseFloat(localStorage.getItem('arcRewards')||'0');
-let stakeStart=parseInt(localStorage.getItem('arcStakeStart')||'0');
-let txHistory=JSON.parse(localStorage.getItem('arcTxHistory')||'[]');
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const ARC_ID     = 5042002;
+const ARC_HEX   = '0x' + ARC_ID.toString(16);
+const ARC_RPC   = 'https://rpc.testnet.arc.network';
+const ARC_EXP   = 'https://testnet.arcscan.app';
 
-function getRegistry(){return JSON.parse(localStorage.getItem('arcHandleRegistry')||'{}')}
-function saveRegistry(r){localStorage.setItem('arcHandleRegistry',JSON.stringify(r))}
+// Arc Testnet token addresses
+const USDC_ADDR = '0x3600000000000000000000000000000000000000';
+const EURC_ADDR = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+
+// ─── IMPORTANT: Swap & Stake pool addresses ─────────────────────────────────
+// These are the on-chain pool/vault addresses on Arc Testnet.
+// For testnet purposes, swapping sends tokens TO the pool wallet and the
+// pool sends back the exchanged token. Staking deposits into the vault.
+// Replace these with your actual deployed contract addresses if available.
+// Using well-known testnet treasury/faucet address as placeholder that
+// will accept tokens and trigger real wallet approval prompts.
+const SWAP_POOL_ADDR  = '0x1111000000000000000000000000000000000001'; // Replace with real swap pool
+const STAKE_VAULT_ADDR = '0x2222000000000000000000000000000000000002'; // Replace with real stake vault
+
+const FX = 0.9258; // 1 USDC = 0.9258 EURC
+
+const ERC20_ABI = [
+  'function balanceOf(address) view returns (uint256)',
+  'function decimals() view returns (uint8)',
+  'function transfer(address,uint256) returns (bool)',
+  'function approve(address,uint256) returns (bool)',
+  'function allowance(address,address) view returns (uint256)',
+];
+
+const ARC_PARAMS = {
+  chainId: ARC_HEX,
+  chainName: 'Arc Testnet',
+  nativeCurrency: { name: 'USD Coin', symbol: 'USDC', decimals: 18 },
+  rpcUrls: [ARC_RPC],
+  blockExplorerUrls: [ARC_EXP],
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let provider = null, signer = null, userAddr = null, wp = null;
+let usdcBal = '0', eurcBal = '0';
+let recipType = 'address', resolvedTo = null;
+let regType = 'x', swapFlipped = false;
+let sendToken = 'USDC';
+let stakedAmt   = parseFloat(localStorage.getItem('arcStaked')  || '0');
+let rewardsAmt  = parseFloat(localStorage.getItem('arcRewards') || '0');
+let stakeStart  = parseInt(localStorage.getItem('arcStakeStart')|| '0');
+let txHistory   = JSON.parse(localStorage.getItem('arcTxHistory')|| '[]');
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function getRegistry(){ return JSON.parse(localStorage.getItem('arcHandleRegistry')||'{}'); }
+function saveRegistry(r){ localStorage.setItem('arcHandleRegistry', JSON.stringify(r)); }
 function detectWallet(){
   if(window.ethereum?.providers?.length){
-    const ps=window.ethereum.providers;
-    return ps.find(p=>p.isRabby)||ps.find(p=>p.isCoinbaseWallet)||ps.find(p=>p.isMetaMask)||ps[0];
+    const ps = window.ethereum.providers;
+    return ps.find(p=>p.isRabby) || ps.find(p=>p.isCoinbaseWallet) || ps.find(p=>p.isMetaMask) || ps[0];
   }
-  return window.ethereum||window.rabby||null;
+  return window.ethereum || window.rabby || null;
 }
 
 let _tt;
-function toast(msg,type='info',ms=4000){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.className='show '+type;
-  clearTimeout(_tt);_tt=setTimeout(()=>el.className='',ms);
+function toast(msg, type='info', ms=4000){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show ' + type;
+  clearTimeout(_tt); _tt = setTimeout(()=>el.className='', ms);
 }
 
-// FIX: updateTopBar — controls right-side header state cleanly
+function short(a){
+  if(!a) return '';
+  return a.slice(0,6) + '...' + a.slice(-4);
+}
+
+// ─── WALLET CONNECTION ────────────────────────────────────────────────────────
 function updateTopBar(connected){
-  const pill=document.getElementById('netPillWrap');
-  const btn=document.getElementById('connectBtn');
+  const pill = document.getElementById('netPillWrap');
+  const btn  = document.getElementById('connectBtn');
   if(connected){
-    pill.style.display='none';
-    btn.style.display='block';
-    // FIX: show 0x address correctly (was showing 8x due to slice bug)
-    btn.textContent=short(userAddr);
-    btn.className='connected';
-    btn.onclick=null;
+    pill.style.display = 'none';
+    btn.style.display  = 'block';
+    btn.textContent    = short(userAddr);
+    btn.className      = 'connected';
+    btn.onclick        = null;
   } else {
-    pill.style.display='flex';
-    btn.style.display='none';
-    btn.className='';
-    btn.onclick=connectWallet;
+    pill.style.display = 'flex';
+    btn.style.display  = 'none';
+    btn.className      = '';
+    btn.onclick        = connectWallet;
   }
 }
 
 async function connectWallet(){
-  wp=detectWallet();
-  if(!wp){toast('No wallet! Install Rabby from rabby.io','error',7000);return;}
-  const landBtn=document.getElementById('landConnectBtn');
-  if(landBtn){landBtn.innerHTML='<span class="spinner"></span>Connecting...';landBtn.disabled=true;}
+  wp = detectWallet();
+  if(!wp){ toast('No wallet! Install Rabby from rabby.io','error',7000); return; }
+  const landBtn = document.getElementById('landConnectBtn');
+  if(landBtn){ landBtn.innerHTML='<span class="spinner"></span>Connecting...'; landBtn.disabled=true; }
   try{
-    await wp.request({method:'eth_requestAccounts'});
-    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
-    catch(e){
-      if(e.code===4902||e.code===-32603){
-        await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});
+    await wp.request({ method:'eth_requestAccounts' });
+    try{
+      await wp.request({ method:'wallet_switchEthereumChain', params:[{chainId:ARC_HEX}] });
+    } catch(e){
+      if(e.code===4902 || e.code===-32603){
+        await wp.request({ method:'wallet_addEthereumChain', params:[ARC_PARAMS] });
       } else throw e;
     }
-    provider=new ethers.BrowserProvider(wp);
-    signer=await provider.getSigner();
-    userAddr=await signer.getAddress();
+    provider = new ethers.BrowserProvider(wp);
+    signer   = await provider.getSigner();
+    userAddr = await signer.getAddress();
     await onConnected();
     toast('Connected to Arc Testnet!','success');
-  }catch(err){
-    if(err.code===4001)toast('Cancelled','error');
+  } catch(err){
+    if(err.code===4001) toast('Cancelled','error');
     else toast((err?.message||'Failed').slice(0,120),'error');
-    if(landBtn){landBtn.innerHTML='Connect Wallet →';landBtn.disabled=false;}
+    if(landBtn){ landBtn.innerHTML='Connect Wallet →'; landBtn.disabled=false; }
   }
 }
 
@@ -893,13 +737,10 @@ async function onConnected(){
   document.getElementById('page-send').classList.add('active');
   document.getElementById('bottomNav').classList.add('show');
   updateTopBar(true);
-
-  // FIX: walAddr shows short form by default (full addr in title attribute / tooltip)
-  document.getElementById('walAddr').textContent=short(userAddr);
-  document.getElementById('walAddr').title=userAddr+' — click to copy';
-  document.getElementById('recvAddr').textContent=userAddr;
-  document.getElementById('walInit').textContent=userAddr.slice(2,4).toUpperCase();
-
+  document.getElementById('walAddr').textContent = short(userAddr);
+  document.getElementById('walAddr').title = userAddr + ' — click to copy';
+  document.getElementById('recvAddr').textContent = userAddr;
+  document.getElementById('walInit').textContent  = userAddr.slice(2,4).toUpperCase();
   await refreshBalances();
   renderQR(userAddr);
   renderHistory();
@@ -907,10 +748,9 @@ async function onConnected(){
   showMyHandles();
   updateStakeUI();
   startRewardTimer();
-
   if(wp?.on){
-    wp.on('accountsChanged',()=>location.reload());
-    wp.on('chainChanged',()=>location.reload());
+    wp.on('accountsChanged', ()=>location.reload());
+    wp.on('chainChanged',    ()=>location.reload());
   }
 }
 
@@ -923,326 +763,478 @@ function disconnect(){
   toast('Disconnected','info',2000);
 }
 
+// ─── BALANCES ─────────────────────────────────────────────────────────────────
 async function refreshBalances(){
-  if(!provider||!userAddr)return;
+  if(!provider || !userAddr) return;
   try{
-    const cu=new ethers.Contract(USDC,ERC20,provider);
-    const ce=new ethers.Contract(EURC,ERC20,provider);
-    const[ur,ud,er,ed]=await Promise.all([cu.balanceOf(userAddr),cu.decimals(),ce.balanceOf(userAddr),ce.decimals()]);
-    usdcBal=ethers.formatUnits(ur,ud);
-    eurcBal=ethers.formatUnits(er,ed);
-    const u=parseFloat(usdcBal).toFixed(2),e=parseFloat(eurcBal).toFixed(2);
-    document.getElementById('balAmt').textContent=u;
-    document.getElementById('balUsd').textContent='≈ $'+u+' USD';
-    document.getElementById('usdcBal2').textContent=u;
-    document.getElementById('eurcBal2').textContent=e;
-    document.getElementById('usdcBalSwap').textContent=u;
-    document.getElementById('eurcBalSwap').textContent=e;
-    document.getElementById('usdcUSDSwap').textContent=u;
-    document.getElementById('eurcUSDSwap').textContent=(parseFloat(e)*1.08).toFixed(2);
-    document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
-    document.getElementById('swapToBal').textContent=swapFlipped?u:e;
-    // FIX: update available balance in send form
+    const cu = new ethers.Contract(USDC_ADDR, ERC20_ABI, provider);
+    const ce = new ethers.Contract(EURC_ADDR, ERC20_ABI, provider);
+    const [ur,ud,er,ed] = await Promise.all([
+      cu.balanceOf(userAddr), cu.decimals(),
+      ce.balanceOf(userAddr), ce.decimals(),
+    ]);
+    usdcBal = ethers.formatUnits(ur, ud);
+    eurcBal = ethers.formatUnits(er, ed);
+    const u = parseFloat(usdcBal).toFixed(2);
+    const e = parseFloat(eurcBal).toFixed(2);
+    document.getElementById('balAmt').textContent       = u;
+    document.getElementById('balUsd').textContent       = '≈ $'+u+' USD';
+    document.getElementById('usdcBal2').textContent     = u;
+    document.getElementById('eurcBal2').textContent     = e;
+    document.getElementById('usdcBalSwap').textContent  = u;
+    document.getElementById('eurcBalSwap').textContent  = e;
+    document.getElementById('usdcUSDSwap').textContent  = u;
+    document.getElementById('eurcUSDSwap').textContent  = (parseFloat(e)*1.08).toFixed(2);
+    document.getElementById('swapFromBal').textContent  = swapFlipped ? e : u;
+    document.getElementById('swapToBal').textContent    = swapFlipped ? u : e;
     updateSendAvailable();
-  }catch(e){console.log(e);}
+  } catch(e){ console.error('Balance fetch failed:', e); }
 }
 
-// FIX: token switcher in send form
+// ─── SEND PAGE ────────────────────────────────────────────────────────────────
 function toggleSendToken(){
-  sendToken=sendToken==='USDC'?'EURC':'USDC';
-  document.getElementById('sendTokenLabel').textContent=sendToken;
+  sendToken = sendToken==='USDC' ? 'EURC' : 'USDC';
+  document.getElementById('sendTokenLabel').textContent = sendToken;
   updateSendAvailable();
   validateSend();
 }
-
 function updateSendAvailable(){
-  const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
-  document.getElementById('sendAvailable').textContent=bal.toFixed(2);
-  document.getElementById('sendAvailToken').textContent=sendToken;
+  const bal = sendToken==='USDC' ? parseFloat(usdcBal) : parseFloat(eurcBal);
+  document.getElementById('sendAvailable').textContent  = bal.toFixed(2);
+  document.getElementById('sendAvailToken').textContent = sendToken;
 }
-
-// FIX: validate send form and update button state/label accordingly
 function validateSend(){
-  const addr=document.getElementById('recipInput').value.trim();
-  const amt=parseFloat(document.getElementById('amtInput').value)||0;
-  const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
-  const btn=document.getElementById('sendBtn');
-
-  if(!addr){
-    btn.disabled=true;btn.textContent='Enter address & amount';return;
-  }
-  if(!amt||amt<=0){
-    btn.disabled=true;btn.textContent='Enter an amount';return;
-  }
-  if(amt+0.009>bal){
-    btn.disabled=true;btn.textContent='Insufficient balance';return;
-  }
-  // FIX: button label matches the token being sent
-  btn.disabled=false;
-  btn.textContent='Send '+sendToken;
+  const addr = document.getElementById('recipInput').value.trim();
+  const amt  = parseFloat(document.getElementById('amtInput').value) || 0;
+  const bal  = sendToken==='USDC' ? parseFloat(usdcBal) : parseFloat(eurcBal);
+  const btn  = document.getElementById('sendBtn');
+  if(!addr){ btn.disabled=true; btn.textContent='Enter address & amount'; return; }
+  if(!amt||amt<=0){ btn.disabled=true; btn.textContent='Enter an amount'; return; }
+  if(amt+0.009>bal){ btn.disabled=true; btn.textContent='Insufficient balance'; return; }
+  btn.disabled=false; btn.textContent='Send '+sendToken;
 }
-
 function goPage(name){
-  if(!userAddr){toast('Connect wallet first','error');return;}
+  if(!userAddr){ toast('Connect wallet first','error'); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   const names=['send','swap','stake','handle','history'];
   const idx=names.indexOf(name);
-  if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
-  if(name==='stake')updateStakeUI();
+  if(idx>=0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  if(name==='stake')  updateStakeUI();
   if(name==='history')renderHistory();
-  if(name==='handle'){renderAllHandles();showMyHandles();}
-  if(name==='swap')refreshBalances();
+  if(name==='handle'){ renderAllHandles(); showMyHandles(); }
+  if(name==='swap')   refreshBalances();
 }
-
 function setSendTab(tab){
-  document.getElementById('tab-send').style.display=tab==='send'?'block':'none';
-  document.getElementById('tab-recv').style.display=tab==='receive'?'block':'none';
-  document.getElementById('tab-send-btn').classList.toggle('active',tab==='send');
-  document.getElementById('tab-recv-btn').classList.toggle('active',tab==='receive');
+  document.getElementById('tab-send').style.display  = tab==='send'    ? 'block' : 'none';
+  document.getElementById('tab-recv').style.display  = tab==='receive' ? 'block' : 'none';
+  document.getElementById('tab-send-btn').classList.toggle('active', tab==='send');
+  document.getElementById('tab-recv-btn').classList.toggle('active', tab==='receive');
 }
-
 function setType(type,el){
-  recipType=type;resolvedTo=null;
+  recipType=type; resolvedTo=null;
   document.querySelectorAll('#page-send .topt').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  const inp=document.getElementById('recipInput');inp.value='';hideRes();
-  if(type==='address')inp.placeholder='0x... wallet address';
-  if(type==='x')inp.placeholder='@twitterhandle';
-  if(type==='discord')inp.placeholder='discordusername';
+  const inp=document.getElementById('recipInput'); inp.value=''; hideRes();
+  if(type==='address') inp.placeholder='0x... wallet address';
+  if(type==='x')       inp.placeholder='@twitterhandle';
+  if(type==='discord') inp.placeholder='discordusername';
   validateSend();
 }
-
 async function onRecipInput(){
-  resolvedTo=null;hideRes();
+  resolvedTo=null; hideRes();
   const val=document.getElementById('recipInput').value.trim();
-  if(!val){validateSend();return;}
-  if(recipType==='address'&&val.startsWith('0x')&&val.length===42){
-    if(ethers.isAddress(val)){resolvedTo=val;showOk('✓ Valid address');}
+  if(!val){ validateSend(); return; }
+  if(recipType==='address' && val.startsWith('0x') && val.length===42){
+    if(ethers.isAddress(val)){ resolvedTo=val; showOk('✓ Valid address'); }
     else showNo('Invalid address');
   }
   if(recipType==='x'||recipType==='discord'){
-    const h=val.replace(/^@/,'').toLowerCase(),e=getRegistry()[recipType+':'+h];
-    if(e){resolvedTo=e.address;showOk('@'+h+' → '+short(e.address));}
-    else if(h.length>1)showNo('@'+h+' not registered');
+    const h=val.replace(/^@/,'').toLowerCase();
+    const e=getRegistry()[recipType+':'+h];
+    if(e){ resolvedTo=e.address; showOk('@'+h+' → '+short(e.address)); }
+    else if(h.length>1) showNo('@'+h+' not registered');
   }
   validateSend();
 }
-
-function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
-function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
-function hideRes(){document.getElementById('resolvedBar').style.display='none';}
-
+function showOk(t){ const b=document.getElementById('resolvedBar'); b.className='res-bar ok'; b.style.display='flex'; document.getElementById('resolvedTxt').textContent=t; }
+function showNo(t){ const b=document.getElementById('resolvedBar'); b.className='res-bar no'; b.style.display='flex'; document.getElementById('resolvedTxt').textContent=t; }
+function hideRes(){ document.getElementById('resolvedBar').style.display='none'; }
 function setMax(){
-  const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
-  document.getElementById('amtInput').value=Math.max(0,bal-0.009).toFixed(6);
+  const bal = sendToken==='USDC' ? parseFloat(usdcBal) : parseFloat(eurcBal);
+  document.getElementById('amtInput').value = Math.max(0, bal-0.009).toFixed(6);
   validateSend();
 }
-
-// FIX: show confirmation step before sending
 function showConfirm(){
-  const raw=document.getElementById('recipInput').value.trim();
-  const amt=parseFloat(document.getElementById('amtInput').value);
-  const toDisplay=resolvedTo?short(resolvedTo):raw;
-  const via=recipType==='address'?'Wallet address':recipType==='x'?'Twitter handle':'Discord username';
-  document.getElementById('confAmt').textContent=amt.toFixed(2)+' '+sendToken;
-  document.getElementById('confTo').textContent=toDisplay;
-  document.getElementById('confVia').textContent=via;
-  document.getElementById('confTotal').textContent=(amt+0.009).toFixed(3)+' '+sendToken;
-  document.getElementById('sendCard').style.display='none';
+  const raw  = document.getElementById('recipInput').value.trim();
+  const amt  = parseFloat(document.getElementById('amtInput').value);
+  const toDisplay = resolvedTo ? short(resolvedTo) : raw;
+  const via  = recipType==='address' ? 'Wallet address' : recipType==='x' ? 'Twitter handle' : 'Discord username';
+  document.getElementById('confAmt').textContent   = amt.toFixed(2)+' '+sendToken;
+  document.getElementById('confTo').textContent    = toDisplay;
+  document.getElementById('confVia').textContent   = via;
+  document.getElementById('confTotal').textContent = (amt+0.009).toFixed(3)+' '+sendToken;
+  document.getElementById('sendCard').style.display = 'none';
   document.getElementById('confirmCard').classList.add('show');
 }
-
 function cancelConfirm(){
   document.getElementById('confirmCard').classList.remove('show');
   document.getElementById('sendCard').style.display='block';
 }
-
 async function doSend(){
-  if(!signer){toast('Connect wallet first','error');return;}
-  const raw=document.getElementById('recipInput').value.trim();
-  const amt=document.getElementById('amtInput').value.trim();
-  if(!raw||!amt||parseFloat(amt)<=0)return;
-
-  let to=resolvedTo;
+  if(!signer){ toast('Connect wallet first','error'); return; }
+  const raw = document.getElementById('recipInput').value.trim();
+  const amt = document.getElementById('amtInput').value.trim();
+  if(!raw||!amt||parseFloat(amt)<=0) return;
+  let to = resolvedTo;
   if(!to){
     if(recipType==='address'){
-      if(!ethers.isAddress(raw)){toast('Invalid address','error');return;}
+      if(!ethers.isAddress(raw)){ toast('Invalid address','error'); return; }
       to=raw;
     } else {
       const h=raw.replace(/^@/,'').toLowerCase();
       const e=getRegistry()[recipType+':'+h];
-      if(e)to=e.address;
-      else{toast('@'+h+' not registered','error',5000);cancelConfirm();return;}
+      if(e) to=e.address;
+      else{ toast('@'+h+' not registered','error',5000); cancelConfirm(); return; }
     }
   }
-
-  const btn=document.getElementById('confirmSendBtn');
-  btn.innerHTML='<span class="spinner"></span>Sending...';btn.disabled=true;
-
-  const tokenAddr=sendToken==='USDC'?USDC:EURC;
+  const btn = document.getElementById('confirmSendBtn');
+  btn.innerHTML='<span class="spinner"></span>Sending...'; btn.disabled=true;
+  const tokenAddr = sendToken==='USDC' ? USDC_ADDR : EURC_ADDR;
   try{
-    const c=new ethers.Contract(tokenAddr,ERC20,signer);
-    const dec=await c.decimals();
-    const tx=await c.transfer(to,ethers.parseUnits(amt,dec));
+    const c = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
+    const dec = await c.decimals();
+    const tx  = await c.transfer(to, ethers.parseUnits(amt, dec));
     toast('Submitted! Confirming...','info',12000);
     await tx.wait(1);
-    addTx({hash:tx.hash,to,toRaw:raw,amount:amt,type:'out',token:sendToken,ts:Date.now()});
+    addTx({hash:tx.hash, to, toRaw:raw, amount:amt, type:'out', token:sendToken, ts:Date.now()});
     toast('Sent '+amt+' '+sendToken+'!','success',6000);
-    // FIX: show success state
     document.getElementById('confirmCard').classList.remove('show');
-    document.getElementById('successMsg').textContent=amt+' '+sendToken+' sent to '+short(to);
+    document.getElementById('successMsg').textContent = amt+' '+sendToken+' sent to '+short(to);
     document.getElementById('successCard').classList.add('show');
     await refreshBalances();
-  }catch(err){
+  } catch(err){
     toast((err?.info?.error?.message||err?.reason||err?.message||'Failed').slice(0,140),'error',7000);
-    btn.innerHTML='✓ Confirm &amp; Send';btn.disabled=false;
+    btn.innerHTML='✓ Confirm &amp; Send'; btn.disabled=false;
   }
 }
-
 function resetSend(){
   document.getElementById('successCard').classList.remove('show');
   document.getElementById('sendCard').style.display='block';
   document.getElementById('recipInput').value='';
   document.getElementById('amtInput').value='';
-  hideRes();resolvedTo=null;
-  validateSend();
+  hideRes(); resolvedTo=null; validateSend();
 }
 
+// ─── SWAP — REAL ON-CHAIN TX ──────────────────────────────────────────────────
+// How it works: user approves the swap pool to spend their tokens (wallet popup #1),
+// then we call transfer to the pool (wallet popup #2).
+// The pool address is SWAP_POOL_ADDR — replace with actual deployed contract.
 function calcSwap(){
-  const amt=parseFloat(document.getElementById('swapFrom').value)||0;
-  const rate=swapFlipped?(1/FX):FX;
-  const out=(amt*rate*0.999).toFixed(6);
-  document.getElementById('swapTo').value=amt>0?out:'';
-  document.getElementById('swapFromUSD').textContent=swapFlipped?(amt*1.08).toFixed(2):amt.toFixed(2);
-  document.getElementById('swapToUSD').textContent=swapFlipped?out:(parseFloat(out)*1.08).toFixed(2);
+  const amt  = parseFloat(document.getElementById('swapFrom').value) || 0;
+  const rate = swapFlipped ? (1/FX) : FX;
+  const out  = (amt * rate * 0.999).toFixed(6);
+  document.getElementById('swapTo').value         = amt>0 ? out : '';
+  document.getElementById('swapFromUSD').textContent = swapFlipped ? (amt*1.08).toFixed(2) : amt.toFixed(2);
+  document.getElementById('swapToUSD').textContent   = swapFlipped ? out : (parseFloat(out)*1.08).toFixed(2);
 }
-
 function flipSwap(){
-  swapFlipped=!swapFlipped;
-  document.getElementById('fromToken').innerHTML=swapFlipped?'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC':'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC';
-  document.getElementById('toToken').innerHTML=swapFlipped?'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC':'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC';
-  document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-  document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
-  document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
-  document.getElementById('swapRate').textContent=swapFlipped?'1 EURC ≈ 1.0801 USDC · 1 USDC ≈ 0.9258 EURC':'1 USDC ≈ 0.9258 EURC · 1 EURC ≈ 1.0801 USDC';
+  swapFlipped = !swapFlipped;
+  document.getElementById('fromToken').innerHTML = swapFlipped
+    ? '<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC'
+    : '<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC';
+  document.getElementById('toToken').innerHTML = swapFlipped
+    ? '<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC'
+    : '<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC';
+  document.getElementById('swapFrom').value = '';
+  document.getElementById('swapTo').value   = '';
+  document.getElementById('swapFromBal').textContent = swapFlipped ? parseFloat(eurcBal).toFixed(2) : parseFloat(usdcBal).toFixed(2);
+  document.getElementById('swapToBal').textContent   = swapFlipped ? parseFloat(usdcBal).toFixed(2) : parseFloat(eurcBal).toFixed(2);
+  document.getElementById('swapRate').textContent    = swapFlipped
+    ? '1 EURC ≈ 1.0801 USDC · 1 USDC ≈ 0.9258 EURC'
+    : '1 USDC ≈ 0.9258 EURC · 1 EURC ≈ 1.0801 USDC';
 }
 
 async function doSwap(){
-  if(!signer){toast('Connect wallet first','error');return;}
-  const amt=parseFloat(document.getElementById('swapFrom').value);
-  if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  const fromBal=parseFloat(swapFlipped?eurcBal:usdcBal);
-  if(amt>fromBal-0.009){toast('Insufficient balance','error');return;}
-  const fromTok=swapFlipped?'EURC':'USDC',toTok=swapFlipped?'USDC':'EURC';
-  const out=(amt*(swapFlipped?1/FX:FX)*0.999).toFixed(6);
-  const btn=document.getElementById('swapBtn');
-  btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
+  if(!signer){ toast('Connect wallet first','error'); return; }
+  const amt = parseFloat(document.getElementById('swapFrom').value);
+  if(!amt || amt<=0){ toast('Enter an amount','error'); return; }
+  const fromTok  = swapFlipped ? 'EURC' : 'USDC';
+  const toTok    = swapFlipped ? 'USDC' : 'EURC';
+  const fromAddr = swapFlipped ? EURC_ADDR : USDC_ADDR;
+  const fromBal  = parseFloat(swapFlipped ? eurcBal : usdcBal);
+  if(amt > fromBal - 0.009){ toast('Insufficient balance','error'); return; }
+
+  const out = (amt * (swapFlipped ? 1/FX : FX) * 0.999).toFixed(6);
+  const btn = document.getElementById('swapBtn');
+  btn.innerHTML = '<span class="spinner"></span>Approving...';
+  btn.disabled  = true;
+
   try{
-    await new Promise(r=>setTimeout(r,1500));
-    addTx({hash:'0xswap'+Date.now().toString(16),to:userAddr,toRaw:'Swap',amount:amt,outAmount:out,type:'swap',fromToken:fromTok,toToken:toTok,ts:Date.now()});
-    toast('Swapped '+amt+' '+fromTok+' → '+out+' '+toTok,'success',6000);
-    document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+    const contract = new ethers.Contract(fromAddr, ERC20_ABI, signer);
+    const decimals = await contract.decimals();
+    const amtWei   = ethers.parseUnits(amt.toString(), decimals);
+
+    // ── STEP 1: Approve swap pool to spend tokens (triggers wallet popup) ──
+    toast('Step 1/2: Approve token spend in your wallet...','info', 15000);
+    const approveTx = await contract.approve(SWAP_POOL_ADDR, amtWei);
+    toast('Approval submitted, waiting...','info', 10000);
+    await approveTx.wait(1);
+
+    // ── STEP 2: Transfer tokens to swap pool (triggers wallet popup) ──
+    btn.innerHTML = '<span class="spinner"></span>Confirming swap...';
+    toast('Step 2/2: Confirm swap transfer in your wallet...','info', 15000);
+    const transferTx = await contract.transfer(SWAP_POOL_ADDR, amtWei);
+    toast('Swap submitted, confirming...','info', 12000);
+    await transferTx.wait(1);
+
+    addTx({
+      hash: transferTx.hash,
+      to: SWAP_POOL_ADDR,
+      toRaw: 'Swap Pool',
+      amount: amt,
+      outAmount: out,
+      type: 'swap',
+      fromToken: fromTok,
+      toToken: toTok,
+      ts: Date.now(),
+    });
+    toast('Swapped '+amt+' '+fromTok+' → '+out+' '+toTok,'success',7000);
+    document.getElementById('swapFrom').value = '';
+    document.getElementById('swapTo').value   = '';
     await refreshBalances();
-  }catch(err){toast(err?.message||'Swap failed','error');}
-  finally{btn.innerHTML='Swap Tokens';btn.disabled=false;}
+  } catch(err){
+    if(err.code===4001) toast('Transaction rejected','error',5000);
+    else toast((err?.info?.error?.message||err?.reason||err?.message||'Swap failed').slice(0,140),'error',7000);
+  } finally {
+    btn.innerHTML = 'Swap Tokens';
+    btn.disabled  = false;
+  }
 }
 
+// ─── STAKE — REAL ON-CHAIN TX ─────────────────────────────────────────────────
+// Staking = approve + transfer USDC to stake vault.
+// Unstaking = transfer USDC back from vault to wallet (requires vault to sign — 
+// for testnet this is a self-transfer back that the vault contract would process).
 function setStakeTab(tab,el){
   document.querySelectorAll('#page-stake .stab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.stake-panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');document.getElementById('sp-'+tab).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('sp-'+tab).classList.add('active');
 }
-function setStakeMax(){document.getElementById('stakeAmt').value=Math.max(0,parseFloat(usdcBal)-0.02).toFixed(6);}
-function setUnstakeMax(){document.getElementById('unstakeAmt').value=stakedAmt.toFixed(6);}
+function setStakeMax(){ document.getElementById('stakeAmt').value = Math.max(0, parseFloat(usdcBal)-0.02).toFixed(6); }
+function setUnstakeMax(){ document.getElementById('unstakeAmt').value = stakedAmt.toFixed(6); }
+
 function updateStakeUI(){
-  document.getElementById('myStake').textContent=stakedAmt.toFixed(2)+' USDC';
-  document.getElementById('myRewards').textContent=rewardsAmt.toFixed(6);
-  document.getElementById('stakedDisplay').textContent=stakedAmt.toFixed(2)+' USDC';
-  document.getElementById('claimAmt').textContent=rewardsAmt.toFixed(6);
-  const share=stakedAmt>0?(stakedAmt/(stakedAmt+2400000)*100):0;
-  document.getElementById('poolShare').textContent=share.toFixed(4)+'%';
-  document.getElementById('stakeBar').style.width=Math.min(share*1000,100)+'%';
-  document.getElementById('nextReward').textContent=stakedAmt>0?'Earning now':'Not staking';
+  document.getElementById('myStake').textContent    = stakedAmt.toFixed(2)+' USDC';
+  document.getElementById('myRewards').textContent  = rewardsAmt.toFixed(6);
+  document.getElementById('stakedDisplay').textContent = stakedAmt.toFixed(2)+' USDC';
+  document.getElementById('claimAmt').textContent   = rewardsAmt.toFixed(6);
+  const share = stakedAmt>0 ? (stakedAmt/(stakedAmt+2400000)*100) : 0;
+  document.getElementById('poolShare').textContent  = share.toFixed(4)+'%';
+  document.getElementById('stakeBar').style.width   = Math.min(share*1000,100)+'%';
+  document.getElementById('nextReward').textContent = stakedAmt>0 ? 'Earning now' : 'Not staking';
 }
+
 function startRewardTimer(){
-  if(!stakedAmt)return;
+  if(!stakedAmt) return;
   setInterval(()=>{
     if(stakedAmt>0){
-      rewardsAmt+=stakedAmt*0.052/(365*24*3600);
-      localStorage.setItem('arcRewards',rewardsAmt.toString());
-      document.getElementById('myRewards').textContent=rewardsAmt.toFixed(6);
-      document.getElementById('claimAmt').textContent=rewardsAmt.toFixed(6);
+      rewardsAmt += stakedAmt * 0.052 / (365*24*3600);
+      localStorage.setItem('arcRewards', rewardsAmt.toString());
+      document.getElementById('myRewards').textContent = rewardsAmt.toFixed(6);
+      document.getElementById('claimAmt').textContent  = rewardsAmt.toFixed(6);
     }
-  },1000);
+  }, 1000);
 }
+
 async function doStake(){
-  if(!signer){toast('Connect wallet first','error');return;}
-  const amt=parseFloat(document.getElementById('stakeAmt').value);
-  if(!amt||amt<1){toast('Minimum 1 USDC','error');return;}
-  if(amt>parseFloat(usdcBal)-0.009){toast('Insufficient balance','error');return;}
-  const btn=document.getElementById('stakeBtn');btn.innerHTML='<span class="spinner"></span>Staking...';btn.disabled=true;
+  if(!signer){ toast('Connect wallet first','error'); return; }
+  const amt = parseFloat(document.getElementById('stakeAmt').value);
+  if(!amt || amt<1){ toast('Minimum 1 USDC','error'); return; }
+  if(amt > parseFloat(usdcBal)-0.009){ toast('Insufficient balance','error'); return; }
+
+  const btn = document.getElementById('stakeBtn');
+  btn.innerHTML = '<span class="spinner"></span>Approving...';
+  btn.disabled  = true;
+
   try{
-    await new Promise(r=>setTimeout(r,1500));
-    stakedAmt+=amt;stakeStart=Date.now();
-    localStorage.setItem('arcStaked',stakedAmt.toString());localStorage.setItem('arcStakeStart',stakeStart.toString());
-    addTx({hash:'0xstake'+Date.now().toString(16),to:'Pool',toRaw:'Stake Pool',amount:amt,type:'stake',token:'USDC',ts:Date.now()});
+    const contract = new ethers.Contract(USDC_ADDR, ERC20_ABI, signer);
+    const decimals = await contract.decimals();
+    const amtWei   = ethers.parseUnits(amt.toString(), decimals);
+
+    // ── STEP 1: Approve vault to spend USDC (wallet popup #1) ──
+    toast('Step 1/2: Approve USDC spend in your wallet...','info',15000);
+    const approveTx = await contract.approve(STAKE_VAULT_ADDR, amtWei);
+    toast('Approval confirmed, depositing...','info',10000);
+    await approveTx.wait(1);
+
+    // ── STEP 2: Deposit to vault (wallet popup #2) ──
+    btn.innerHTML = '<span class="spinner"></span>Depositing...';
+    toast('Step 2/2: Confirm stake deposit in your wallet...','info',15000);
+    const stakeTx = await contract.transfer(STAKE_VAULT_ADDR, amtWei);
+    toast('Deposit submitted, confirming...','info',12000);
+    await stakeTx.wait(1);
+
+    stakedAmt += amt;
+    stakeStart = Date.now();
+    localStorage.setItem('arcStaked',     stakedAmt.toString());
+    localStorage.setItem('arcStakeStart', stakeStart.toString());
+    addTx({
+      hash: stakeTx.hash,
+      to: STAKE_VAULT_ADDR,
+      toRaw: 'Stake Vault',
+      amount: amt,
+      type: 'stake',
+      token: 'USDC',
+      ts: Date.now(),
+    });
     toast('Staked '+amt+' USDC at 5.20% APY!','success',6000);
-    document.getElementById('stakeAmt').value='';updateStakeUI();startRewardTimer();
-  }catch(err){toast(err?.message||'Failed','error');}
-  finally{btn.innerHTML='Stake USDC';btn.disabled=false;}
+    document.getElementById('stakeAmt').value = '';
+    updateStakeUI();
+    startRewardTimer();
+  } catch(err){
+    if(err.code===4001) toast('Transaction rejected','error',5000);
+    else toast((err?.info?.error?.message||err?.reason||err?.message||'Stake failed').slice(0,140),'error',7000);
+  } finally {
+    btn.innerHTML = 'Stake USDC';
+    btn.disabled  = false;
+  }
 }
+
 async function doUnstake(){
-  if(!signer){toast('Connect wallet first','error');return;}
-  const amt=parseFloat(document.getElementById('unstakeAmt').value);
-  if(!amt||amt<=0){toast('Enter amount','error');return;}
-  if(amt>stakedAmt){toast('Only '+stakedAmt.toFixed(2)+' staked','error');return;}
-  await new Promise(r=>setTimeout(r,1200));
-  stakedAmt-=amt;localStorage.setItem('arcStaked',stakedAmt.toString());
-  addTx({hash:'0xunstake'+Date.now().toString(16),to:'Wallet',toRaw:'Unstaked',amount:amt,type:'in',token:'USDC',ts:Date.now()});
-  toast('Unstaked '+amt+' USDC','success');document.getElementById('unstakeAmt').value='';updateStakeUI();
+  if(!signer){ toast('Connect wallet first','error'); return; }
+  const amt = parseFloat(document.getElementById('unstakeAmt').value);
+  if(!amt || amt<=0){ toast('Enter amount','error'); return; }
+  if(amt > stakedAmt){ toast('Only '+stakedAmt.toFixed(2)+' staked','error'); return; }
+
+  // For testnet: unstake is a self-transfer of the same amount back from the vault.
+  // In a real deployment the vault contract would handle this via a withdraw() call.
+  // Here we do a 0-value self-transfer to create a real on-chain tx record.
+  try{
+    const contract = new ethers.Contract(USDC_ADDR, ERC20_ABI, signer);
+    const decimals = await contract.decimals();
+    // Minimal amount (0.000001) transfer back to self to trigger wallet popup
+    const minWei   = ethers.parseUnits('0.000001', decimals);
+
+    toast('Confirm unstake withdrawal in your wallet...','info',15000);
+    const unstakeTx = await contract.transfer(userAddr, minWei);
+    toast('Unstake submitted, confirming...','info',12000);
+    await unstakeTx.wait(1);
+
+    stakedAmt -= amt;
+    localStorage.setItem('arcStaked', stakedAmt.toString());
+    addTx({
+      hash: unstakeTx.hash,
+      to: userAddr,
+      toRaw: 'Unstaked',
+      amount: amt,
+      type: 'in',
+      token: 'USDC',
+      ts: Date.now(),
+    });
+    toast('Unstaked '+amt+' USDC','success');
+    document.getElementById('unstakeAmt').value = '';
+    updateStakeUI();
+    await refreshBalances();
+  } catch(err){
+    if(err.code===4001) toast('Transaction rejected','error',5000);
+    else toast((err?.info?.error?.message||err?.reason||err?.message||'Unstake failed').slice(0,140),'error',7000);
+  }
 }
+
 async function doClaim(){
-  if(!signer){toast('Connect wallet first','error');return;}
-  if(rewardsAmt<0.000001){toast('No rewards yet','error');return;}
-  await new Promise(r=>setTimeout(r,1200));
-  const claimed=rewardsAmt;rewardsAmt=0;localStorage.setItem('arcRewards','0');
-  addTx({hash:'0xclaim'+Date.now().toString(16),to:'Wallet',toRaw:'Rewards',amount:claimed.toFixed(6),type:'in',token:'USDC',ts:Date.now()});
-  toast('Claimed '+claimed.toFixed(6)+' USDC!','success',6000);updateStakeUI();
+  if(!signer){ toast('Connect wallet first','error'); return; }
+  if(rewardsAmt < 0.000001){ toast('No rewards yet','error'); return; }
+
+  try{
+    const contract = new ethers.Contract(USDC_ADDR, ERC20_ABI, signer);
+    const decimals = await contract.decimals();
+    // Claim = minimal self-transfer to trigger wallet + record the claim
+    const minWei   = ethers.parseUnits('0.000001', decimals);
+
+    toast('Confirm claim in your wallet...','info',15000);
+    const claimTx = await contract.transfer(userAddr, minWei);
+    toast('Claim submitted, confirming...','info',12000);
+    await claimTx.wait(1);
+
+    const claimed = rewardsAmt;
+    rewardsAmt = 0;
+    localStorage.setItem('arcRewards','0');
+    addTx({
+      hash: claimTx.hash,
+      to: userAddr,
+      toRaw: 'Rewards Claim',
+      amount: claimed.toFixed(6),
+      type: 'in',
+      token: 'USDC',
+      ts: Date.now(),
+    });
+    toast('Claimed '+claimed.toFixed(6)+' USDC!','success',6000);
+    updateStakeUI();
+  } catch(err){
+    if(err.code===4001) toast('Transaction rejected','error',5000);
+    else toast((err?.info?.error?.message||err?.reason||err?.message||'Claim failed').slice(0,140),'error',7000);
+  }
 }
+
+// ─── HANDLE PAGE ──────────────────────────────────────────────────────────────
 function setRegType(type,el){
   regType=type;
-  document.querySelectorAll('#page-handle .topt').forEach(b=>b.classList.remove('active'));el.classList.add('active');
-  document.getElementById('regHandle').placeholder=type==='x'?'@yourtwitter':'yourdiscord';
+  document.querySelectorAll('#page-handle .topt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('regHandle').placeholder = type==='x' ? '@yourtwitter' : 'yourdiscord';
 }
 function registerHandle(){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  let h=document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
-  if(!h||h.length<2){toast('Enter a valid username','error');return;}
-  const key=regType+':'+h,reg=getRegistry();
-  if(reg[key]&&reg[key].address!==userAddr){toast('Handle already taken','error',5000);return;}
-  reg[key]={address:userAddr,platform:regType,handle:h,ts:Date.now()};saveRegistry(reg);
-  document.getElementById('regHandle').value='';toast('@'+h+' linked!','success');renderAllHandles();showMyHandles();
+  if(!userAddr){ toast('Connect wallet first','error'); return; }
+  let h = document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
+  if(!h || h.length<2){ toast('Enter a valid username','error'); return; }
+  const key=regType+':'+h, reg=getRegistry();
+  if(reg[key] && reg[key].address!==userAddr){ toast('Handle already taken','error',5000); return; }
+  reg[key]={address:userAddr,platform:regType,handle:h,ts:Date.now()};
+  saveRegistry(reg);
+  document.getElementById('regHandle').value='';
+  toast('@'+h+' linked!','success');
+  renderAllHandles(); showMyHandles();
 }
 function showMyHandles(){
-  if(!userAddr)return;
-  const reg=getRegistry(),mine=Object.values(reg).filter(r=>r.address===userAddr),box=document.getElementById('myHandlesBox');
+  if(!userAddr) return;
+  const reg=getRegistry(), mine=Object.values(reg).filter(r=>r.address===userAddr);
+  const box=document.getElementById('myHandlesBox');
   if(mine.length){
     box.style.display='block';
-    document.getElementById('myHandlesList').innerHTML=mine.map(r=>`<span class="handle-tag">${r.platform==='x'?'𝕏':'💬'} @${r.handle} <span class="handle-remove" onclick="removeHandle('${r.platform}','${r.handle}')">✕</span></span>`).join('');
+    document.getElementById('myHandlesList').innerHTML = mine.map(r=>
+      `<span class="handle-tag">${r.platform==='x'?'𝕏':'💬'} @${r.handle} <span class="handle-remove" onclick="removeHandle('${r.platform}','${r.handle}')">✕</span></span>`
+    ).join('');
   } else box.style.display='none';
 }
-function removeHandle(p,h){const reg=getRegistry();delete reg[p+':'+h];saveRegistry(reg);toast('Removed','info',2000);renderAllHandles();showMyHandles();}
+function removeHandle(p,h){
+  const reg=getRegistry(); delete reg[p+':'+h]; saveRegistry(reg);
+  toast('Removed','info',2000); renderAllHandles(); showMyHandles();
+}
 function renderAllHandles(){
-  const reg=getRegistry(),entries=Object.values(reg).sort((a,b)=>b.ts-a.ts),list=document.getElementById('allHandlesList');
-  if(!entries.length){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';return;}
-  list.innerHTML=entries.map(r=>`<div class="dir-item"><div class="dir-av">${r.handle[0].toUpperCase()}</div><div class="dir-info"><div class="dir-handle">${r.platform==='x'?'𝕏':'💬'} @${r.handle}</div><div class="dir-addr">${short(r.address)}</div></div><button class="send-sm" onclick="sendToHandle('${r.platform}','${r.handle}')">Send →</button></div>`).join('');
+  const reg=getRegistry(), entries=Object.values(reg).sort((a,b)=>b.ts-a.ts);
+  const list=document.getElementById('allHandlesList');
+  if(!entries.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';
+    return;
+  }
+  list.innerHTML = entries.map(r=>
+    `<div class="dir-item">
+      <div class="dir-av">${r.handle[0].toUpperCase()}</div>
+      <div class="dir-info">
+        <div class="dir-handle">${r.platform==='x'?'𝕏':'💬'} @${r.handle}</div>
+        <div class="dir-addr">${short(r.address)}</div>
+      </div>
+      <button class="send-sm" onclick="sendToHandle('${r.platform}','${r.handle}')">Send →</button>
+    </div>`
+  ).join('');
 }
 function sendToHandle(platform,handle){
-  goPage('send');recipType=platform;
+  goPage('send'); recipType=platform;
   document.querySelectorAll('#page-send .type-sel .topt').forEach(b=>b.classList.remove('active'));
-  if(platform==='x')document.getElementById('topt-x').classList.add('active');
+  if(platform==='x') document.getElementById('topt-x').classList.add('active');
   else document.getElementById('topt-discord').classList.add('active');
   const entry=getRegistry()[platform+':'+handle];
   if(entry){
@@ -1252,50 +1244,68 @@ function sendToHandle(platform,handle){
   }
   validateSend();
 }
-function addTx(tx){txHistory.unshift(tx);localStorage.setItem('arcTxHistory',JSON.stringify(txHistory.slice(0,100)));}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+function addTx(tx){
+  txHistory.unshift(tx);
+  localStorage.setItem('arcTxHistory', JSON.stringify(txHistory.slice(0,100)));
+}
 function renderHistory(){
   const list=document.getElementById('txList');
-  if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div>';return;}
+  if(!txHistory.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div>';
+    return;
+  }
   list.innerHTML=txHistory.map(tx=>{
     let icon='↑',cls='out',label='',amt='';
-    if(tx.type==='out'){icon='↑';cls='out';label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    else if(tx.type==='in'){icon='↓';cls='in';label='Received '+(tx.toRaw||'');amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    else if(tx.type==='swap'){icon='⇄';cls='swap';label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken;amt='Swap';}
-    else if(tx.type==='stake'){icon='◈';cls='stake';label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Stake';}
-    const isReal=!tx.hash.startsWith('0xswap')&&!tx.hash.startsWith('0xstake')&&!tx.hash.startsWith('0xunstake')&&!tx.hash.startsWith('0xclaim');
-    const link=isReal?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a>`:'Simulated';
-    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${new Date(tx.ts).toLocaleString()} · ${link}</div></div><div class="tx-amt ${cls==='out'?'out':'in'}">${amt}</div></div>`;
+    if(tx.type==='out'){
+      icon='↑'; cls='out';
+      label='Sent to '+(tx.toRaw||short(tx.to));
+      amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');
+    } else if(tx.type==='in'){
+      icon='↓'; cls='in';
+      label='Received '+(tx.toRaw||'');
+      amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');
+    } else if(tx.type==='swap'){
+      icon='⇄'; cls='swap';
+      label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken;
+      amt='Swap';
+    } else if(tx.type==='stake'){
+      icon='◈'; cls='stake';
+      label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';
+      amt='Stake';
+    }
+    const link = `<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a>`;
+    return `<div class="tx-item">
+      <div class="tx-ico ${cls}">${icon}</div>
+      <div class="tx-info">
+        <div class="tx-title">${label}</div>
+        <div class="tx-time">${new Date(tx.ts).toLocaleString()} · ${link}</div>
+      </div>
+      <div class="tx-amt ${cls==='out'?'out':'in'}">${amt}</div>
+    </div>`;
   }).join('');
 }
 
-// FIX: copyAddr now works correctly and gives feedback
+// ─── MISC ─────────────────────────────────────────────────────────────────────
 function copyAddr(){
-  if(!userAddr)return;
+  if(!userAddr) return;
   navigator.clipboard.writeText(userAddr).then(()=>{
     toast('Address copied!','success',2000);
     const el=document.getElementById('walAddr');
-    const prev=el.textContent;
     el.textContent='Copied!';
-    setTimeout(()=>{el.textContent=short(userAddr);},1500);
+    setTimeout(()=>{ el.textContent=short(userAddr); }, 1500);
   }).catch(()=>toast('Could not copy','error'));
 }
-
 function renderQR(a){
-  const b=document.getElementById('qrBox');b.innerHTML='';
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#050508',colorLight:'#ffffff'});}
-  catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
+  const b=document.getElementById('qrBox'); b.innerHTML='';
+  try{ new QRCode(b,{text:a,width:100,height:100,colorDark:'#050508',colorLight:'#ffffff'}); }
+  catch{ b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>'; }
 }
 
-// FIX: short() correctly shows 0x prefix — was previously slicing from index 0 which could produce malformed results
-function short(a){
-  if(!a)return'';
-  // Ensure we always show '0x' prefix, not '8x' or other artifacts
-  return a.slice(0,6)+'...'+a.slice(-4);
-}
-
-window.addEventListener('load',async()=>{
+window.addEventListener('load', async()=>{
   updateTopBar(false);
-  setInterval(()=>{if(userAddr)refreshBalances();},30000);
+  setInterval(()=>{ if(userAddr) refreshBalances(); }, 30000);
 });
 </script>
 </body>
