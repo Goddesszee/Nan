@@ -9,248 +9,236 @@
 <style>
   :root {
     --green: #00c07a;
-    --green-dim: #00a066;
-    --green-glow: rgba(0,192,122,0.18);
     --green-border: rgba(0,192,122,0.22);
+    --green-border-strong: rgba(0,192,122,0.45);
     --bg: #060d09;
     --surface: #0b1610;
     --surface2: #0f1f16;
     --text: #e8f5ee;
-    --muted: #4d7a60;
+    --muted: #7aaa90;
     --faint: rgba(0,192,122,0.06);
   }
+
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-  /* Subtle grid */
   body::before{
     content:'';position:fixed;inset:0;
-    background-image:linear-gradient(rgba(0,192,122,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,192,122,.04) 1px,transparent 1px);
+    background-image:linear-gradient(rgba(0,192,122,.033) 1px,transparent 1px),linear-gradient(90deg,rgba(0,192,122,.033) 1px,transparent 1px);
     background-size:60px 60px;pointer-events:none;z-index:0;
   }
-  /* Radial glow top right */
   body::after{
     content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 600px 400px at 85% -5%,rgba(0,192,122,.1) 0%,transparent 65%);
+    background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(0,192,122,.11) 0%,transparent 60%),
+               radial-gradient(ellipse 400px 400px at -5% 80%,rgba(0,192,122,.06) 0%,transparent 60%);
     pointer-events:none;z-index:0;
   }
 
   /* NAV */
-  .nav-wrap{max-width:1100px;margin:0 auto;}
   nav{
     position:sticky;top:0;z-index:100;
-    background:rgba(6,13,9,.92);backdrop-filter:blur(20px);
+    background:rgba(6,13,9,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
     border-bottom:1px solid var(--green-border);
-    padding:12px 28px;
-    display:flex;align-items:center;justify-content:space-between;
-    max-width:1100px;margin:0 auto;
+    padding:0 28px;height:60px;
+    display:flex;align-items:center;
   }
-  .nav-right{display:flex;align-items:center;gap:12px;}
-
-  /* LOGO — matches app green square logo */
+  .nav-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
   .brand-logo{
-    width:38px;height:38px;border-radius:9px;
-    background:var(--green);
+    width:36px;height:36px;border-radius:8px;background:var(--green);
     display:flex;align-items:center;justify-content:center;
-    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:1.15rem;
-    color:#021a0f;letter-spacing:-1px;
-    box-shadow:0 0 16px rgba(0,192,122,.35);
-    flex-shrink:0;
+    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:1.1rem;color:#021a0f;
+    box-shadow:0 0 14px rgba(0,192,122,.4);flex-shrink:0;transition:box-shadow .2s;
   }
-  .brand-name{
-    font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.5px;
-  }
+  .brand:hover .brand-logo{box-shadow:0 0 24px rgba(0,192,122,.65);}
+  .brand-name{font-size:1.15rem;font-weight:800;color:var(--text);letter-spacing:-.5px;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
   .net-pill{
-    font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--green);
-    border:1px solid var(--green-border);padding:4px 12px;border-radius:100px;
-    background:var(--faint);display:flex;align-items:center;gap:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--green);
+    border:1px solid var(--green-border);padding:5px 13px;border-radius:100px;
+    background:var(--faint);display:flex;align-items:center;gap:6px;letter-spacing:.05em;
   }
-  .net-pill::before{
-    content:'';width:6px;height:6px;border-radius:50%;
-    background:var(--green);box-shadow:0 0 6px var(--green);
-    animation:blink 2s ease infinite;
-  }
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s ease infinite;flex-shrink:0;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
   .launch-btn{
     background:var(--green);color:#021a0f;border:none;border-radius:8px;
     padding:9px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;
-    cursor:pointer;text-decoration:none;letter-spacing:.02em;
-    transition:all .18s;box-shadow:0 0 14px rgba(0,192,122,.3);
+    cursor:pointer;text-decoration:none;letter-spacing:.03em;
+    transition:all .18s;box-shadow:0 0 14px rgba(0,192,122,.3);white-space:nowrap;
   }
-  .launch-btn:hover{background:#00d988;box-shadow:0 0 20px rgba(0,192,122,.5);transform:translateY(-1px);}
+  .launch-btn:hover{background:#00d988;box-shadow:0 0 22px rgba(0,192,122,.55);transform:translateY(-1px);}
 
   /* MAIN */
   main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 28px;}
 
   /* HERO */
-  .hero{text-align:center;padding:90px 24px 64px;}
+  .hero{text-align:center;padding:100px 24px 72px;}
   .hero-badge{
-    display:inline-flex;align-items:center;gap:7px;
-    background:var(--faint);border:1px solid var(--green-border);
-    border-radius:6px;padding:5px 14px;
-    font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--green);
-    margin-bottom:28px;letter-spacing:.08em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--faint);border:1px solid var(--green-border);border-radius:6px;
+    padding:6px 15px;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--green);
+    margin-bottom:32px;letter-spacing:.1em;text-transform:uppercase;
+    animation:fadeDown .6s ease both;
   }
   .hero h1{
-    font-size:3.4rem;font-weight:800;letter-spacing:-2.5px;line-height:1.08;
-    margin-bottom:22px;color:var(--text);
+    font-size:4.5rem;font-weight:800;letter-spacing:-3px;line-height:1.06;
+    margin-bottom:24px;color:var(--text);
+    animation:fadeUp .7s .1s ease both;
   }
-  .hero h1 span{color:var(--green);}
+  .hero h1 .green{color:var(--green);}
   .hero-sub{
-    font-size:1rem;color:#7aaa90;line-height:1.75;
-    max-width:540px;margin:0 auto 38px;font-weight:400;
+    font-size:1.05rem;color:var(--muted);line-height:1.78;
+    max-width:520px;margin:0 auto 42px;font-weight:400;
+    animation:fadeUp .7s .2s ease both;
   }
-  .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
+
   .btn-primary{
     background:var(--green);color:#021a0f;border:none;border-radius:8px;
-    padding:13px 32px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
-    cursor:pointer;text-decoration:none;letter-spacing:.02em;
-    box-shadow:0 0 20px rgba(0,192,122,.35);transition:all .18s;display:inline-block;
+    padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;
+    cursor:pointer;text-decoration:none;letter-spacing:.03em;
+    box-shadow:0 0 22px rgba(0,192,122,.38);transition:all .18s;display:inline-block;
   }
-  .btn-primary:hover{background:#00d988;transform:translateY(-2px);box-shadow:0 0 28px rgba(0,192,122,.5);}
+  .btn-primary:hover{background:#00d988;transform:translateY(-2px);box-shadow:0 0 32px rgba(0,192,122,.55);}
   .btn-secondary{
-    background:transparent;border:1px solid rgba(0,192,122,.45);border-radius:8px;
-    padding:13px 32px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;
-    color:#7aaa90;cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;
+    background:transparent;border:1px solid var(--green-border-strong);border-radius:8px;
+    padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:600;
+    color:var(--muted);cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;
   }
-  .btn-secondary:hover{border-color:var(--green);color:var(--green);}
+  .btn-secondary:hover{border-color:var(--green);color:var(--green);background:var(--faint);}
 
   /* STATS */
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:64px 0;background:var(--green-border);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
-  .stat{background:var(--surface);padding:28px 20px;text-align:center;}
-  .stat-num{font-size:2.2rem;font-weight:800;color:var(--green);margin-bottom:5px;letter-spacing:-1px;font-family:'IBM Plex Mono',monospace;}
-  .stat-lbl{font-size:.7rem;color:#7aaa90;letter-spacing:.15em;text-transform:uppercase;font-weight:500;}
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:72px 0;
+    background:var(--green-border);border:1px solid var(--green-border);border-radius:14px;overflow:hidden;
+  }
+  .stat{background:var(--surface);padding:32px 20px;text-align:center;transition:background .2s;}
+  .stat:hover{background:var(--surface2);}
+  .stat-num{font-size:2.4rem;font-weight:800;color:var(--green);margin-bottom:6px;letter-spacing:-1.5px;font-family:'IBM Plex Mono',monospace;}
+  .stat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
 
   /* SECTIONS */
-  .section{padding:64px 0;}
-  .section-tag{
-    font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--green);
-    letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;
-  }
-  .section-title{font-size:1.9rem;font-weight:800;letter-spacing:-.6px;margin-bottom:10px;}
-  .section-sub{font-size:.92rem;color:#7aaa90;line-height:1.65;max-width:480px;margin-bottom:40px;}
+  .section{padding:72px 0;}
+  .section-tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--green);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
+  .section-title{font-size:2rem;font-weight:800;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;}
+  .section-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:44px;}
 
   /* FEATURE GRID */
   .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--green-border);border:1px solid var(--green-border);border-radius:14px;overflow:hidden;}
-  .feat-card{background:var(--surface);padding:28px;transition:background .2s;}
-  .feat-card:hover{background:var(--surface2);}
-  .feat-icon{
-    width:38px;height:38px;border-radius:8px;
-    background:var(--faint);border:1px solid var(--green-border);
-    display:flex;align-items:center;justify-content:center;
-    font-size:1rem;margin-bottom:14px;color:var(--green);
-    font-family:'IBM Plex Mono',monospace;font-weight:700;
+  .feat-card{
+    background:var(--surface);padding:32px;
+    border-left:2px solid transparent;transition:all .2s;
   }
-  .feat-title{font-size:.95rem;font-weight:700;margin-bottom:6px;color:var(--text);}
-  .feat-desc{font-size:.8rem;color:#7aaa90;line-height:1.65;}
+  .feat-card:hover{background:var(--surface2);border-left-color:var(--green);}
+  .feat-icon{
+    width:42px;height:42px;border-radius:10px;
+    background:var(--faint);border:1px solid var(--green-border);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  }
+  .feat-icon svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .feat-title{font-size:.97rem;font-weight:700;margin-bottom:8px;color:var(--text);}
+  .feat-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
 
   /* HOW IT WORKS */
   .how-section{
-    background:var(--surface);border:1px solid var(--green-border);
-    border-radius:14px;padding:40px;margin:64px 0;
+    background:var(--surface);border:1px solid var(--green-border);border-top:2px solid var(--green);
+    border-radius:14px;padding:44px;margin:72px 0;
   }
-  .steps{display:flex;flex-direction:column;gap:0;margin-top:32px;}
-  .step{display:flex;gap:18px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(0,192,122,.08);}
+  .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
+  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid rgba(0,192,122,.08);}
   .step:last-child{border-bottom:none;padding-bottom:0;}
   .step:first-child{padding-top:0;}
   .step-num{
-    width:34px;height:34px;border-radius:7px;
-    background:var(--green);
+    width:36px;height:36px;border-radius:8px;background:var(--green);
     display:flex;align-items:center;justify-content:center;
-    font-weight:700;font-size:.82rem;color:#021a0f;flex-shrink:0;
+    font-weight:700;font-size:.8rem;color:#021a0f;flex-shrink:0;margin-top:1px;
     font-family:'IBM Plex Mono',monospace;
   }
-  .step-title{font-size:.93rem;font-weight:700;margin-bottom:4px;color:var(--text);}
-  .step-desc{font-size:.8rem;color:#7aaa90;line-height:1.65;}
+  .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
+  .step-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
 
   /* TOKENS */
-  .tokens-section{padding:64px 0;}
+  .tokens-section{padding:72px 0;}
   .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--green-border);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
-  .tok-card{background:var(--surface);padding:22px 24px;display:flex;align-items:center;gap:14px;transition:background .2s;}
+  .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
   .tok-card:hover{background:var(--surface2);}
-  .tok-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-  .tok-name{font-size:1rem;font-weight:700;margin-bottom:2px;color:var(--text);}
-  .tok-desc{font-size:.72rem;color:#7aaa90;}
-  .tok-bal{
-    font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--green);
-    margin-left:auto;background:var(--faint);border:1px solid var(--green-border);
-    padding:3px 10px;border-radius:5px;white-space:nowrap;
-  }
+  .tok-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+  .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
+  .tok-desc{font-size:.72rem;color:var(--muted);}
+  .tok-bal{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--green);margin-left:auto;background:var(--faint);border:1px solid var(--green-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
 
   /* CTA */
   .cta-section{
-    background:var(--surface);border:1px solid var(--green-border);
-    border-radius:14px;padding:64px 40px;text-align:center;margin:64px 0;
+    background:var(--surface);border:1px solid var(--green-border);border-top:2px solid var(--green);
+    border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;
     position:relative;overflow:hidden;
   }
   .cta-section::before{
     content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 500px 300px at 50% 50%,rgba(0,192,122,.07) 0%,transparent 70%);
+    background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(0,192,122,.12) 0%,transparent 65%);
     pointer-events:none;
   }
-  .cta-section h2{font-size:2.1rem;font-weight:800;letter-spacing:-.6px;margin-bottom:12px;position:relative;}
-  .cta-section p{font-size:.92rem;color:#7aaa90;margin-bottom:32px;position:relative;}
+  .cta-section h2{font-size:2.3rem;font-weight:800;letter-spacing:-.7px;margin-bottom:14px;position:relative;line-height:1.1;}
+  .cta-section p{font-size:.95rem;color:var(--muted);margin-bottom:36px;position:relative;line-height:1.7;}
 
   /* FOOTER */
-  footer{
-    border-top:1px solid var(--green-border);padding:40px 28px;text-align:center;
-    position:relative;z-index:1;max-width:1100px;margin:0 auto;
-  }
-  .footer-brand{
-    display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:20px;
-  }
-  .footer-logo{
-    width:30px;height:30px;border-radius:7px;background:var(--green);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.9rem;color:#021a0f;
-  }
-  .footer-name{font-size:1rem;font-weight:800;color:var(--text);}
-  .footer-links{display:flex;gap:28px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
-  .footer-links a{font-size:.78rem;color:#7aaa90;text-decoration:none;transition:color .18s;font-weight:500;}
+  footer{border-top:1px solid var(--green-border);padding:44px 28px;text-align:center;position:relative;z-index:1;max-width:1100px;margin:0 auto;}
+  .footer-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;}
+  .footer-logo{width:28px;height:28px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.85rem;color:#021a0f;}
+  .footer-name{font-size:.95rem;font-weight:800;color:var(--text);}
+  .footer-links{display:flex;gap:28px;justify-content:center;margin-bottom:22px;flex-wrap:wrap;}
+  .footer-links a{font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .18s;font-weight:500;}
   .footer-links a:hover{color:var(--green);}
-  .footer-note{font-size:.68rem;color:#3a6050;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;}
+  .footer-divider{height:1px;background:var(--green-border);margin-bottom:22px;}
+  .footer-note{font-size:.67rem;color:#4a7a5e;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
 
-  /* DIVIDER LINE */
-  .divider{height:1px;background:var(--green-border);margin:0;}
+  /* ANIMATIONS */
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
 
+  /* MOBILE */
   @media(max-width:640px){
-    nav{padding:10px 16px;}
-    .hero{padding:50px 12px 40px;}
-    .hero h1{font-size:2.1rem;}
-    .hero-sub{font-size:.88rem;}
-    .stats{grid-template-columns:1fr;}
+    nav{padding:0 16px;height:54px;}
+    .hero{padding:56px 12px 44px;}
+    .hero h1{font-size:2.5rem;letter-spacing:-2px;}
+    .hero-sub{font-size:.9rem;}
+    .btn-primary,.btn-secondary{padding:12px 26px;font-size:.86rem;}
+    .stats{grid-template-columns:1fr;margin:40px 0;}
     .feat-grid{grid-template-columns:1fr;}
     .tok-grid{grid-template-columns:1fr;}
     main{padding:0 16px;}
-    .how-section{padding:24px 18px;margin:30px 0;}
-    .cta-section{padding:36px 20px;margin:30px 0;}
-    .section{padding:36px 0;}
-    .section-title{font-size:1.5rem;}
+    .how-section{padding:26px 20px;margin:36px 0;}
+    .cta-section{padding:40px 20px;margin:36px 0;}
+    .section,.tokens-section{padding:40px 0;}
+    .section-title{font-size:1.55rem;}
     .net-pill{display:none;}
+    .feat-card{border-left:none;}
   }
 </style>
 </head>
 <body>
-<div class="nav-wrap">
+
 <nav>
-  <a class="brand" href="#">
-    <div class="brand-logo">N</div>
-    <span class="brand-name">Nan</span>
-  </a>
-  <div class="nav-right">
-    <div class="net-pill">Arc Testnet</div>
-    <a class="launch-btn" href="index.html">Launch App →</a>
+  <div class="nav-inner">
+    <a class="brand" href="#">
+      <div class="brand-logo">N</div>
+      <span class="brand-name">Nan</span>
+    </a>
+    <div class="nav-right">
+      <div class="net-pill"><span class="pulse-dot"></span>Arc Testnet</div>
+      <a class="launch-btn" href="index.html">Launch App →</a>
+    </div>
   </div>
 </nav>
-</div>
 
 <main>
+
   <div class="hero">
-    <div class="hero-badge">⬡ Now live on Arc Testnet</div>
-    <h1>Weave. Connect.<br/><span>Build on Arc.</span></h1>
+    <div class="hero-badge"><span class="pulse-dot"></span>Now live on Arc Testnet</div>
+    <h1>Weave. Connect.<br/><span class="green">Build on Arc.</span></h1>
     <p class="hero-sub">Nan is the simplest way to send, receive, swap and stake USDC and EURC on Arc — Circle's stablecoin-native blockchain. For everyone, everywhere.</p>
     <div class="hero-btns">
       <a class="btn-primary" href="index.html">Launch App →</a>
@@ -258,41 +246,49 @@
     </div>
   </div>
 
-  <div class="stats">
+  <div class="stats reveal">
     <div class="stat"><div class="stat-num">5.2%</div><div class="stat-lbl">Staking APY</div></div>
     <div class="stat"><div class="stat-num">~0.009</div><div class="stat-lbl">Gas per tx (USDC)</div></div>
     <div class="stat"><div class="stat-num">$0</div><div class="stat-lbl">Platform fees</div></div>
   </div>
 
-  <div class="section">
+  <div class="section reveal">
     <div class="section-tag">Features</div>
     <div class="section-title">Everything in one place</div>
-    <p class="section-sub">Nan gives you all the tools you need to manage your stablecoins on Arc.</p>
+    <p class="section-sub">All the tools you need to manage stablecoins on Arc — sending, swapping, staking and more.</p>
     <div class="feat-grid">
       <div class="feat-card">
-        <div class="feat-icon">↑↓</div>
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="3"/><polyline points="7 8 12 3 17 8"/></svg>
+        </div>
         <div class="feat-title">Send &amp; Receive</div>
         <div class="feat-desc">Send USDC instantly to any wallet address, Twitter handle or Discord username. No bank needed.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">⇄</div>
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
         <div class="feat-title">Swap Tokens</div>
         <div class="feat-desc">Exchange USDC and EURC at live FX rates with just one click. Fast, cheap and transparent.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">⬡</div>
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
         <div class="feat-title">Stake &amp; Earn</div>
         <div class="feat-desc">Earn 5.2% APY by staking your USDC in the Nan pool. No lockup — unstake anytime.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">@</div>
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
         <div class="feat-title">Social Handles</div>
         <div class="feat-desc">Link your Twitter or Discord username to your wallet. Anyone can pay you by typing your handle.</div>
       </div>
     </div>
   </div>
 
-  <div class="how-section">
+  <div class="how-section reveal">
     <div class="section-tag">How it works</div>
     <div class="section-title">Get started in minutes</div>
     <div class="steps">
@@ -314,35 +310,36 @@
         <div class="step-num">3</div>
         <div>
           <div class="step-title">Launch Nan</div>
-          <div class="step-desc">Open nan-swart.vercel.app, connect your wallet, switch to Arc Testnet and start using the app!</div>
+          <div class="step-desc">Open nan-swart.vercel.app, connect your wallet, switch to Arc Testnet and start exploring.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="tokens-section">
+  <div class="tokens-section reveal">
     <div class="section-tag">Tokens</div>
     <div class="section-title">Supported stablecoins</div>
     <p class="section-sub">Nan supports the leading stablecoins on Arc. More tokens coming soon.</p>
     <div class="tok-grid">
       <div class="tok-card">
-        <div class="tok-dot" style="background:#2775ca;"></div>
+        <div class="tok-dot" style="background:#2775ca;box-shadow:0 0 8px rgba(39,117,202,.4);"></div>
         <div><div class="tok-name">USDC</div><div class="tok-desc">USD Coin — issued by Circle</div></div>
         <div class="tok-bal">Live ✓</div>
       </div>
       <div class="tok-card">
-        <div class="tok-dot" style="background:#1a9fff;"></div>
+        <div class="tok-dot" style="background:#1a9fff;box-shadow:0 0 8px rgba(26,159,255,.4);"></div>
         <div><div class="tok-name">EURC</div><div class="tok-desc">Euro Coin — issued by Circle</div></div>
         <div class="tok-bal">Live ✓</div>
       </div>
     </div>
   </div>
 
-  <div class="cta-section">
+  <div class="cta-section reveal">
     <h2>Ready to try Nan?</h2>
     <p>Connect your wallet and experience the future of stablecoin finance on Arc.</p>
     <a class="btn-primary" href="index.html">Launch App →</a>
   </div>
+
 </main>
 
 <footer>
@@ -358,9 +355,19 @@
     <a href="https://github.com/Goddesszee/Nan" target="_blank">GitHub</a>
     <a href="https://x.com/zarafatoluu?s=21" target="_blank">𝕏 @zarafatoluu</a>
   </div>
+  <div class="footer-divider"></div>
   <div class="footer-note">Built on Arc Testnet · Powered by Circle · Built by Goddesszee</div>
 </footer>
 
 <script src="agent.js"></script>
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
