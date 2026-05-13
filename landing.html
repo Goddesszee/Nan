@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Nan — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
   :root {
     --violet:      #8b5cf6;
     --violet-dark: #7c3aed;
     --violet-light:#a78bfa;
     --violet-border: rgba(139,92,246,0.22);
-    --violet-border-strong: rgba(139,92,246,0.45);
+    --violet-border-strong: rgba(139,92,246,0.55);
     --bg:      #07081a;
     --surface: #0e1030;
     --surface2:#131640;
     --text:    #ede9fe;
-    --muted:   #a594f9;
+    --muted:   #c4b5fd;
     --faint:   rgba(139,92,246,0.06);
     --glow:    #6d28d9;
     --success: #34d399;
@@ -27,7 +27,7 @@
 
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
-  body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
   /* grid overlay */
   body::before{
@@ -78,7 +78,7 @@
 
   .nav-right{display:flex;align-items:center;gap:12px;}
   .net-pill{
-    font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--violet-light);
+    font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--violet-light);
     border:1px solid var(--violet-border);padding:5px 13px;border-radius:100px;
     background:var(--faint);display:flex;align-items:center;gap:6px;letter-spacing:.05em;
   }
@@ -91,7 +91,7 @@
 
   .launch-btn{
     background:var(--violet);color:#ede9fe;border:none;border-radius:8px;
-    padding:9px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;
+    padding:9px 20px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
     cursor:pointer;text-decoration:none;letter-spacing:.04em;
     transition:all .18s;box-shadow:0 0 14px rgba(139,92,246,.4);white-space:nowrap;
   }
@@ -105,12 +105,12 @@
   .hero-badge{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--faint);border:1px solid var(--violet-border);border-radius:6px;
-    padding:6px 15px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--violet-light);
+    padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);
     margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;
     animation:fadeDown .6s ease both;
   }
   .hero h1{
-    font-size:4.6rem;font-weight:800;letter-spacing:-3px;line-height:1.06;
+    font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;
     margin-bottom:24px;color:var(--text);
     animation:fadeUp .7s .1s ease both;
   }
@@ -124,17 +124,17 @@
 
   .btn-primary{
     background:var(--violet);color:#ede9fe;border:none;border-radius:8px;
-    padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;
+    padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;
     cursor:pointer;text-decoration:none;letter-spacing:.03em;
     box-shadow:0 0 22px rgba(139,92,246,.45);transition:all .18s;display:inline-block;
   }
   .btn-primary:hover{background:#9d70f8;transform:translateY(-2px);box-shadow:0 0 34px rgba(139,92,246,.65);}
   .btn-secondary{
-    background:transparent;border:1px solid var(--violet-border-strong);border-radius:8px;
-    padding:14px 34px;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:600;
-    color:var(--muted);cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;
+    background:transparent;border:2px solid var(--violet-border-strong);border-radius:8px;
+    padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;
+    color:#ede9fe;cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;
   }
-  .btn-secondary:hover{border-color:var(--violet);color:var(--violet-light);background:var(--faint);}
+  .btn-secondary:hover{border-color:var(--violet);color:#ede9fe;background:var(--faint);}
 
   /* ── STATS ── */
   .stats{
@@ -143,13 +143,13 @@
   }
   .stat{background:var(--surface);padding:32px 20px;text-align:center;transition:background .2s;}
   .stat:hover{background:var(--surface2);}
-  .stat-num{font-size:2.4rem;font-weight:800;color:var(--violet-light);margin-bottom:6px;letter-spacing:-1.5px;font-family:'IBM Plex Mono',monospace;}
+  .stat-num{font-size:2.4rem;font-weight:700;color:#ede9fe;margin-bottom:6px;letter-spacing:-1.5px;font-family:'JetBrains Mono',monospace;}
   .stat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
 
   /* ── SECTIONS ── */
   .section{padding:72px 0;}
-  .section-tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
-  .section-title{font-size:2rem;font-weight:800;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;}
+  .section-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
+  .section-title{font-size:2rem;font-weight:700;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;}
   .section-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:44px;}
 
   /* ── FEATURE GRID ── */
@@ -182,7 +182,7 @@
     width:36px;height:36px;border-radius:8px;background:var(--violet);
     display:flex;align-items:center;justify-content:center;
     font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;margin-top:1px;
-    font-family:'IBM Plex Mono',monospace;
+    font-family:'JetBrains Mono',monospace;
     box-shadow:0 0 12px rgba(139,92,246,.35);
   }
   .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
@@ -196,7 +196,7 @@
   .tok-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
   .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
   .tok-desc{font-size:.72rem;color:var(--muted);}
-  .tok-bal{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
+  .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
 
   /* ── CTA ── */
   .cta-section{
@@ -210,7 +210,7 @@
     background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(139,92,246,.16) 0%,transparent 65%);
     pointer-events:none;
   }
-  .cta-section h2{font-size:2.3rem;font-weight:800;letter-spacing:-.7px;margin-bottom:14px;position:relative;line-height:1.1;}
+  .cta-section h2{font-size:2.3rem;font-weight:700;letter-spacing:-.7px;margin-bottom:14px;position:relative;line-height:1.1;}
   .cta-section h2 .accent{color:var(--violet-light);}
   .cta-section p{font-size:.95rem;color:var(--muted);margin-bottom:36px;position:relative;line-height:1.7;}
 
@@ -227,7 +227,7 @@
   .footer-links a{font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .18s;font-weight:500;}
   .footer-links a:hover{color:var(--violet-light);}
   .footer-divider{height:1px;background:var(--violet-border);margin-bottom:22px;}
-  .footer-note{font-size:.67rem;color:#7a6aaa;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
+  .footer-note{font-size:.67rem;color:#9d8fd4;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;}
 
   /* ── ANIMATIONS ── */
   @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
