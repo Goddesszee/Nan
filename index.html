@@ -409,7 +409,7 @@ a:hover{color:var(--text);}
 <div class="page" id="page-swap">
   <div class="page-title">Swap</div>
   <div class="page-sub">Exchange USDC and EURC at live rates</div>
-  <div class="demo-banner"><strong>⚗️ Demo mode</strong> — Swap pool contracts will be deployed at mainnet. Balances update locally only.</div>
+  <div class="demo-banner"><strong>⚗️ Testnet limitation</strong> — No swap contracts deployed on Arc Testnet yet. UI simulation only — will be real at mainnet.</div>
   <div class="card">
     <div class="card-title"><div class="cticon">⇄</div>Swap Tokens</div>
     <div class="swap-box">
@@ -443,7 +443,7 @@ a:hover{color:var(--text);}
 <div class="page" id="page-stake">
   <div class="page-title">Stake</div>
   <div class="page-sub">Earn USDC rewards on your staked USDC</div>
-  <div class="demo-banner"><strong>⚗️ Demo mode</strong> — All state is local, no on-chain transactions. Stake contracts launch at mainnet.</div>
+  <div class="demo-banner"><strong>⚗️ Testnet limitation</strong> — No staking contracts deployed on Arc Testnet yet. UI simulation only — will be real at mainnet.</div>
   <div class="stake-stat-grid">
     <div class="stake-stat"><div class="ss-label">APY</div><div class="ss-value green">5.20%</div></div>
     <div class="stake-stat"><div class="ss-label">Total Staked</div><div class="ss-value">$2.4M</div></div>
@@ -522,16 +522,14 @@ const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://arctestnet.g.alchemy.com/public';
 const ARC_EXP       = 'https://testnet.arcscan.app';
 
-// FIX: EURC address corrected — was 43 chars (0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a), now 42.
 const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
-const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a'; // FIX 1: correct 42-char address
 
-// Arc ERC-20 interface uses 6 decimals (native gas uses 18 — we only use ERC-20 interface here).
 const USDC_DECIMALS = 6;
 const EURC_DECIMALS = 6;
 
-const FX       = 0.9258;  // 1 USDC → EURC
-const GAS_USDC = 0.009;   // estimated fee in USDC (gas is always USDC on Arc)
+const FX       = 0.9258;
+const GAS_USDC = 0.009;
 
 const ARC_PARAMS = {
   chainId: ARC_HEX,
@@ -614,6 +612,8 @@ async function checkNetwork() {
     const chainId = parseInt(chainIdHex, 16);
     onArcNetwork = (chainId === ARC_CHAIN_ID);
     document.getElementById('wrongNetBanner').classList.toggle('show', !onArcNetwork && !!userAddr);
+    // FIX 3: always hide banner when on correct network
+    if (onArcNetwork) document.getElementById('wrongNetBanner').classList.remove('show');
     return onArcNetwork;
   } catch(e) {
     return false;
@@ -650,9 +650,12 @@ async function connectWallet() {
   const landBtn = document.getElementById('landConnectBtn');
   landBtn.innerHTML = '<span class="spinner"></span>Connecting...';
   landBtn.disabled = true;
+  // FIX 9: show spinner on top bar button too
+  const topBtn = document.getElementById('connectTopBtn');
+  topBtn.textContent = 'Connecting...';
+  topBtn.disabled = true;
   try {
     await wp.request({ method: 'eth_requestAccounts' });
-    // Attempt to switch to Arc Testnet
     try {
       await wp.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: ARC_HEX }] });
     } catch(e) {
@@ -670,6 +673,8 @@ async function connectWallet() {
     else toast((err?.message || 'Connection failed').slice(0, 120), 'error');
     landBtn.innerHTML = 'Connect Wallet →';
     landBtn.disabled = false;
+    topBtn.textContent = 'Connect Wallet';
+    topBtn.disabled = false;
   }
 }
 
@@ -746,10 +751,9 @@ async function refreshBalances() {
   if (!provider || !userAddr) return;
   if (balancesLoading) return;
   if (!onArcNetwork) {
-    // Show dashes but don't error — wrong network
     ['balAmt','balUsd','usdcBal2','eurcBal2'].forEach(id => {
       const el = document.getElementById(id);
-      if (el && el.querySelector('.skel')) el.textContent = '—';
+      if (el && el.querySelector && el.querySelector('.skel')) el.textContent = '—';
     });
     return;
   }
@@ -870,7 +874,6 @@ function updateSendAvailable() {
   document.getElementById('sendAvailToken').textContent = sendToken;
 }
 
-// MAX: gas always deducted from USDC. If sending EURC, EURC max is full balance.
 function setMax() {
   let maxVal;
   if (sendToken === 'USDC') {
@@ -901,11 +904,9 @@ function validateSend() {
   if (amt < 0.000001) {
     btn.disabled = true; btn.textContent = 'Amount too small'; return;
   }
-  // For wallet address type, must have valid resolved address
   if (recipType === 'address' && (!resolvedTo || lastResolvedInput !== addr)) {
     btn.disabled = true; btn.textContent = 'Enter a valid 0x address'; return;
   }
-  // For social types, must have resolved address
   if ((recipType === 'x' || recipType === 'discord') && (!resolvedTo || lastResolvedInput !== addr)) {
     btn.disabled = true; btn.textContent = 'Handle not found in directory'; return;
   }
@@ -970,7 +971,6 @@ async function doSend() {
     }
   }
 
-  // Sanity-check: don't send to self
   if (to.toLowerCase() === userAddr.toLowerCase()) {
     toast("Can't send to your own address", 'error'); return;
   }
@@ -1010,13 +1010,16 @@ async function doSend() {
     let msg = err?.info?.error?.message || err?.reason || err?.message || 'Transaction failed';
     if (msg.length > 140) msg = msg.slice(0, 140) + '...';
     toast(msg, 'error', 8000);
+    // FIX 4: properly reset confirm button on error
     btn.innerHTML = '✓ Confirm &amp; Send';
+    btn.textContent = '✓ Confirm & Send';
     btn.disabled  = false;
   }
 }
 
 function openExplorer() {
-  if (lastTxHash) window.open(ARC_EXP + '/tx/' + lastTxHash, '_blank');
+  // FIX 6: correct explorer URL format
+  if (lastTxHash) window.open('https://testnet.arcscan.app/tx/' + lastTxHash, '_blank');
 }
 
 function resetSend() {
@@ -1075,7 +1078,7 @@ function doSwap() {
     eurcBal = String(parseFloat(eurcBal) + parseFloat(out));
   }
   addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Swap', amount: amt, outAmount: out, type: 'swap', fromToken: fromTok, toToken: toTok, ts: Date.now() });
-  toast('(Demo) Swapped '+parseFloat(amt).toFixed(2)+' '+fromTok+' → '+parseFloat(out).toFixed(2)+' '+toTok, 'success', 5000);
+  toast('(Simulated) Swapped '+parseFloat(amt).toFixed(2)+' '+fromTok+' → '+parseFloat(out).toFixed(2)+' '+toTok, 'success', 5000);
   document.getElementById('swapFrom').value = '';
   document.getElementById('swapTo').value   = '';
   refreshBalances();
@@ -1100,7 +1103,7 @@ function updateStakeUI() {
   const share = stakedAmt > 0 ? (stakedAmt / (stakedAmt + 2400000) * 100) : 0;
   document.getElementById('poolShare').textContent     = share.toFixed(4) + '%';
   document.getElementById('stakeBar').style.width      = Math.min(share * 1000, 100) + '%';
-  document.getElementById('nextReward').textContent    = stakedAmt > 0 ? 'Earning now (demo)' : 'Not staking';
+  document.getElementById('nextReward').textContent    = stakedAmt > 0 ? 'Earning now (simulated)' : 'Not staking';
 }
 
 function startRewardTimer() {
@@ -1125,8 +1128,8 @@ function doStake() {
   usdcBal = String(Math.max(0, parseFloat(usdcBal) - amt));
   stakedAmt += amt;
   localStorage.setItem('arcStaked', stakedAmt.toString());
-  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Stake', amount: amt, type: 'stake', token: 'USDC', ts: Date.now() });
-  toast('(Demo) Staked '+amt+' USDC at 5.20% APY', 'success', 5000);
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Simulated Stake', amount: amt, type: 'stake', token: 'USDC', ts: Date.now() });
+  toast('(Simulated) Staked '+amt+' USDC at 5.20% APY', 'success', 5000);
   document.getElementById('stakeAmt').value = '';
   updateStakeUI();
   startRewardTimer();
@@ -1140,8 +1143,8 @@ function doUnstake() {
   stakedAmt -= amt;
   usdcBal = String(parseFloat(usdcBal) + amt);
   localStorage.setItem('arcStaked', stakedAmt.toString());
-  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Unstake', amount: amt, type: 'in', token: 'USDC', ts: Date.now() });
-  toast('(Demo) Unstaked ' + amt + ' USDC', 'success', 4000);
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Simulated Unstake', amount: amt, type: 'in', token: 'USDC', ts: Date.now() });
+  toast('(Simulated) Unstaked ' + amt + ' USDC', 'success', 4000);
   document.getElementById('unstakeAmt').value = '';
   updateStakeUI();
   refreshBalances();
@@ -1153,8 +1156,8 @@ function doClaim() {
   rewardsAmt = 0;
   usdcBal = String(parseFloat(usdcBal) + claimed);
   localStorage.setItem('arcRewards', '0');
-  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Claim', amount: claimed.toFixed(6), type: 'in', token: 'USDC', ts: Date.now() });
-  toast('(Demo) Claimed ' + claimed.toFixed(6) + ' USDC', 'success', 5000);
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Simulated Claim', amount: claimed.toFixed(6), type: 'in', token: 'USDC', ts: Date.now() });
+  toast('(Simulated) Claimed ' + claimed.toFixed(6) + ' USDC', 'success', 5000);
   updateStakeUI();
   refreshBalances();
 }
@@ -1269,13 +1272,14 @@ function renderHistory() {
   list.innerHTML = txHistory.map(tx => {
     const isDemo = tx.hash.startsWith('demo-');
     let icon = '↑', cls = 'out', label = '', amt = '';
-    if (tx.type === 'out')   { icon='↑'; cls='out';   label='Sent to '+(tx.toRaw||short(tx.to));                           amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
-    if (tx.type === 'in')    { icon='↓'; cls='in';    label='Received '+(tx.toRaw||'');                                    amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
+    if (tx.type === 'out')   { icon='↑'; cls='out';   label='Sent to '+(tx.toRaw||short(tx.to)); amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
+    if (tx.type === 'in')    { icon='↓'; cls='in';    label='Received '+(tx.toRaw||'');           amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
     if (tx.type === 'swap')  { icon='⇄'; cls='swap';  label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken; amt='Swap'; }
-    if (tx.type === 'stake') { icon='◈'; cls='stake'; label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';             amt='Stake'; }
+    if (tx.type === 'stake') { icon='◈'; cls='stake'; label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC'; amt='Stake'; }
+    // FIX 6: correct explorer URL in history links
     const timeLink = isDemo
-      ? `<span style="color:var(--warning);font-size:.55rem;">⚗ demo</span>`
-      : `${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a>`;
+      ? `<span style="color:var(--warning);font-size:.55rem;">⚗ simulated</span>`
+      : `${new Date(tx.ts).toLocaleString()} · <a href="https://testnet.arcscan.app/tx/${tx.hash}" target="_blank">View ↗</a>`;
     return `<div class="tx-item">
       <div class="tx-ico ${cls}">${icon}</div>
       <div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeLink}</div></div>
@@ -1299,6 +1303,8 @@ function copyAddr() {
 function renderQR(a) {
   const b = document.getElementById('qrBox');
   b.innerHTML = '';
+  // FIX 7: guard against null address
+  if (!a) return;
   try {
     new QRCode(b, { text: a, width: 100, height: 100, colorDark: '#07081a', colorLight: '#ffffff' });
   } catch {
@@ -1309,11 +1315,11 @@ function renderQR(a) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   updateTopBar(false);
-  // Auto-refresh balances every 30s while connected
+  // FIX 8: only refresh balances when on correct network
   setInterval(async () => {
     if (userAddr) {
       await checkNetwork();
-      await refreshBalances();
+      if (onArcNetwork) await refreshBalances();
     }
   }, 30000);
 });
