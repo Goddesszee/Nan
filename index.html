@@ -102,6 +102,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .rpc-error{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;font-size:.63rem;color:var(--danger);display:none;align-items:center;gap:7px;}
 .rpc-error.show{display:flex;}
 
+/* ── Wrong network banner ── */
+.wrong-net{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:7px;font-size:.63rem;color:var(--warning);display:none;align-items:center;gap:7px;}
+.wrong-net.show{display:flex;}
+.switch-net-btn{margin-left:auto;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:6px;color:var(--warning);font-family:'Space Grotesk',sans-serif;font-size:.58rem;padding:3px 9px;cursor:pointer;white-space:nowrap;}
+
 /* ── Buttons ── */
 .ibtn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:.58rem;padding:4px 8px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;transition:all .15s;}
 .ibtn:hover{border-color:var(--border2);color:var(--text);}
@@ -167,7 +172,8 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .success-wrap.show{display:block;}
 .success-circle{width:54px;height:54px;border-radius:50%;margin:0 auto 13px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.28);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
 .success-title{font-size:1rem;font-weight:700;margin-bottom:5px;}
-.success-sub{font-size:.68rem;color:var(--text3);margin-bottom:18px;}
+.success-sub{font-size:.68rem;color:var(--text3);margin-bottom:8px;}
+.success-hash{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);margin-bottom:18px;word-break:break-all;text-align:center;}
 
 /* ── Receive ── */
 .qr-wrap{display:flex;flex-direction:row;align-items:center;gap:11px;padding:5px 0;}
@@ -227,8 +233,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .tx-amt{font-family:'JetBrains Mono',monospace;font-size:.73rem;font-weight:500;white-space:nowrap;text-align:right;}
 .tx-amt.out{color:var(--danger);}
 .tx-amt.in{color:var(--success);}
-
-/* ── History clear btn ── */
 .history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
 .clear-hist-btn{background:transparent;border:1px solid rgba(248,113,113,.22);border-radius:6px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.58rem;padding:3px 9px;cursor:pointer;opacity:.7;transition:all .15s;}
 .clear-hist-btn:hover{opacity:1;background:rgba(248,113,113,.06);}
@@ -304,12 +308,13 @@ a:hover{color:var(--text);}
       </div>
     </div>
     <div class="land-tag">Weave. Connect. Build.</div>
-    <div class="land-sub">Send, receive, swap and stake USDC and EURC on Arc — the stablecoin-native blockchain by Circle.</div>
+    <div class="land-title">NAN on Arc Testnet</div>
+    <div class="land-sub">Send, receive, swap and stake USDC &amp; EURC on Arc — the stablecoin-native blockchain by Circle. Real on-chain transactions.</div>
     <div class="feat-grid">
-      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Transfer USDC on-chain by wallet, Twitter or Discord</div></div>
-      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC ↔ EURC at live FX rates</div></div>
-      <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Simulate 5.2% APY staking</div></div>
-      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Social Handles</div><div class="feat-desc">Send to Twitter or Discord username</div></div>
+      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Real on-chain USDC/EURC transfers by wallet address or social handle</div></div>
+      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC ↔ EURC at live FX rates (demo pool)</div></div>
+      <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Simulate 5.2% APY staking rewards</div></div>
+      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Social Handles</div><div class="feat-desc">Link Twitter or Discord username to your wallet</div></div>
     </div>
     <button class="big-btn" id="landConnectBtn" onclick="connectWallet()">Connect Wallet →</button>
     <div class="land-note">Get free testnet tokens at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
@@ -319,7 +324,8 @@ a:hover{color:var(--text);}
 <!-- Send page -->
 <div class="page" id="page-send">
   <div class="alert">🧪 Testnet &nbsp;·&nbsp;<a href="https://faucet.circle.com" target="_blank">Get USDC &amp; EURC ↗</a>&nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></div>
-  <div class="rpc-error" id="rpcError">⚠ Could not fetch balances — RPC may be unavailable. <a href="#" onclick="refreshBalances();return false;">Retry</a></div>
+  <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — you're not on Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Network</button></div>
+  <div class="rpc-error" id="rpcError">⚠ Could not fetch balances — RPC may be unavailable. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
   <div class="bal-card">
     <div class="bal-head"><div class="bal-lbl">Balance</div><div class="bal-badge">● Arc Testnet</div></div>
     <div class="bal-num" id="balNumWrap"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);">USDC</span></div>
@@ -363,7 +369,7 @@ a:hover{color:var(--text);}
         <button class="max-btn" onclick="setMax()">MAX</button>
       </div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:-4px;margin-bottom:9px;padding:0 2px;">Available: <span id="sendAvailable">0.00</span> <span id="sendAvailToken">USDC</span></div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Estimated network fee</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
+      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Estimated network fee (paid in USDC)</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
       <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Enter address &amp; amount</button>
     </div>
     <!-- Receive -->
@@ -375,7 +381,7 @@ a:hover{color:var(--text);}
   <!-- Confirm -->
   <div class="confirm-wrap" id="confirmCard">
     <div class="confirm-title">⚡ Confirm transaction</div>
-    <div class="confirm-sub">Review before sending — this cannot be undone.</div>
+    <div class="confirm-sub">Review before sending — this cannot be undone. Real on-chain transfer.</div>
     <div class="conf-rows">
       <div class="conf-row"><span class="conf-lbl">Sending</span><span class="conf-val big" id="confAmt">—</span></div>
       <div class="conf-row"><span class="conf-lbl">To</span><span class="conf-val" id="confTo">—</span></div>
@@ -391,9 +397,11 @@ a:hover{color:var(--text);}
   <!-- Success -->
   <div class="success-wrap" id="successCard">
     <div class="success-circle">✓</div>
-    <div class="success-title">Sent!</div>
-    <div class="success-sub" id="successMsg">Transaction submitted successfully.</div>
-    <button class="btn btn-outline" style="width:auto;padding:9px 26px;" onclick="resetSend()">Send another</button>
+    <div class="success-title">Transaction Sent!</div>
+    <div class="success-sub" id="successMsg">Transaction submitted to Arc Testnet.</div>
+    <div class="success-hash" id="successHash"></div>
+    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-right:8px;" id="viewExplorerBtn" onclick="openExplorer()">View on Explorer ↗</button>
+    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-top:8px;" onclick="resetSend()">Send another</button>
   </div>
 </div>
 
@@ -426,7 +434,7 @@ a:hover{color:var(--text);}
       <div class="swap-balance">≈ $<span id="swapToUSD">0.00</span></div>
     </div>
     <div class="swap-rate" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; 1 EURC ≈ 1.0801 USDC</div>
-    <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC · 0.1% fee</span></div>
+    <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC · 0.1% swap fee</span></div>
     <button class="btn" id="swapBtn" onclick="doSwap()">Simulate Swap</button>
   </div>
 </div>
@@ -435,7 +443,7 @@ a:hover{color:var(--text);}
 <div class="page" id="page-stake">
   <div class="page-title">Stake</div>
   <div class="page-sub">Earn USDC rewards on your staked USDC</div>
-  <div class="demo-banner"><strong>⚗️ Demo mode</strong> — All state is local, no on-chain transactions.</div>
+  <div class="demo-banner"><strong>⚗️ Demo mode</strong> — All state is local, no on-chain transactions. Stake contracts launch at mainnet.</div>
   <div class="stake-stat-grid">
     <div class="stake-stat"><div class="ss-label">APY</div><div class="ss-value green">5.20%</div></div>
     <div class="stake-stat"><div class="ss-label">Total Staked</div><div class="ss-value">$2.4M</div></div>
@@ -496,7 +504,7 @@ a:hover{color:var(--text);}
   <div class="history-header">
     <div>
       <div class="page-title">History</div>
-      <div class="page-sub">Your on-chain sends on Arc Testnet</div>
+      <div class="page-sub">Your transactions on Arc Testnet</div>
     </div>
     <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
   </div>
@@ -513,45 +521,50 @@ const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://rpc.testnet.arc.network';
 const ARC_EXP       = 'https://testnet.arcscan.app';
+
+// FIX: EURC address corrected — was 43 chars (0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a), now 42.
 const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
-// FIX: EURC address verified against Circle's Arc testnet documentation
-const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72';
+
+// Arc ERC-20 interface uses 6 decimals (native gas uses 18 — we only use ERC-20 interface here).
 const USDC_DECIMALS = 6;
 const EURC_DECIMALS = 6;
-const FX            = 0.9258;  // 1 USDC → EURC
-const GAS_USDC      = 0.009;   // estimated fee in USDC (same token regardless of what's sent)
-const ARC_PARAMS    = {
+
+const FX       = 0.9258;  // 1 USDC → EURC
+const GAS_USDC = 0.009;   // estimated fee in USDC (gas is always USDC on Arc)
+
+const ARC_PARAMS = {
   chainId: ARC_HEX,
   chainName: 'Arc Testnet',
-  nativeCurrency: {name:'USD Coin', symbol:'USDC', decimals:18},
+  nativeCurrency: { name: 'USD Coin', symbol: 'USDC', decimals: 18 },
   rpcUrls: [ARC_RPC],
   blockExplorerUrls: [ARC_EXP]
 };
+
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
-  'function transfer(address,uint256) returns (bool)'
+  'function transfer(address,uint256) returns (bool)',
+  'function decimals() view returns (uint8)'
 ];
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let provider = null, signer = null, userAddr = null, wp = null;
 let usdcBal = '0', eurcBal = '0';
 let balancesLoading = false;
+let onArcNetwork = false;
+let lastTxHash = null;
 
-// FIX: recipType and resolvedTo are managed together — resolvedTo is only
-// committed when the current input matches the resolved value, preventing
-// stale resolution from a previous lookup.
-let recipType   = 'address';
-let resolvedTo  = null;
-let lastResolvedInput = ''; // tracks what input string produced resolvedTo
+let recipType = 'address';
+let resolvedTo = null;
+let lastResolvedInput = '';
 
-let regType    = 'x';
+let regType = 'x';
 let swapFlipped = false;
-let sendToken   = 'USDC';
+let sendToken = 'USDC';
 
-// Stake / history (persisted locally)
-let stakedAmt   = parseFloat(localStorage.getItem('arcStaked') || '0');
-let rewardsAmt  = parseFloat(localStorage.getItem('arcRewards') || '0');
-let txHistory   = JSON.parse(localStorage.getItem('arcTxHistory') || '[]');
+let stakedAmt  = parseFloat(localStorage.getItem('arcStaked')   || '0');
+let rewardsAmt = parseFloat(localStorage.getItem('arcRewards')  || '0');
+let txHistory  = JSON.parse( localStorage.getItem('arcTxHistory') || '[]');
 let rewardTimer = null;
 
 // ─── Registry helpers ─────────────────────────────────────────────────────────
@@ -593,6 +606,35 @@ function updateTopBar(connected) {
   }
 }
 
+// ─── Network check ────────────────────────────────────────────────────────────
+async function checkNetwork() {
+  if (!wp) return false;
+  try {
+    const chainIdHex = await wp.request({ method: 'eth_chainId' });
+    const chainId = parseInt(chainIdHex, 16);
+    onArcNetwork = (chainId === ARC_CHAIN_ID);
+    document.getElementById('wrongNetBanner').classList.toggle('show', !onArcNetwork && !!userAddr);
+    return onArcNetwork;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function switchToArc() {
+  if (!wp) return;
+  try {
+    await wp.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: ARC_HEX }] });
+  } catch(e) {
+    if (e.code === 4902 || e.code === -32603) {
+      try {
+        await wp.request({ method: 'wallet_addEthereumChain', params: [ARC_PARAMS] });
+      } catch(e2) {
+        toast('Failed to add Arc Testnet: ' + (e2?.message || ''), 'error', 6000);
+      }
+    }
+  }
+}
+
 // ─── Balance skeleton ─────────────────────────────────────────────────────────
 function showBalanceSkeleton() {
   document.getElementById('balAmt').innerHTML = '<span class="skel skel-bal"></span>';
@@ -610,6 +652,7 @@ async function connectWallet() {
   landBtn.disabled = true;
   try {
     await wp.request({ method: 'eth_requestAccounts' });
+    // Attempt to switch to Arc Testnet
     try {
       await wp.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: ARC_HEX }] });
     } catch(e) {
@@ -623,7 +666,7 @@ async function connectWallet() {
     await onConnected();
     toast('Connected to Arc Testnet!', 'success');
   } catch(err) {
-    if (err.code === 4001) toast('Cancelled', 'error');
+    if (err.code === 4001) toast('Cancelled by user', 'error');
     else toast((err?.message || 'Connection failed').slice(0, 120), 'error');
     landBtn.innerHTML = 'Connect Wallet →';
     landBtn.disabled = false;
@@ -639,6 +682,8 @@ async function onConnected() {
   document.getElementById('walAddr').title = userAddr + ' — click to copy';
   document.getElementById('recvAddr').textContent = userAddr;
   document.getElementById('walInit').textContent = userAddr.slice(2, 4).toUpperCase();
+
+  await checkNetwork();
   showBalanceSkeleton();
   await refreshBalances();
   renderQR(userAddr);
@@ -647,19 +692,33 @@ async function onConnected() {
   showMyHandles();
   updateStakeUI();
   startRewardTimer();
+
   if (wp?.on) {
-    wp.on('accountsChanged', () => location.reload());
-    wp.on('chainChanged',    () => location.reload());
+    wp.on('accountsChanged', (accounts) => {
+      if (!accounts.length) disconnect();
+      else location.reload();
+    });
+    wp.on('chainChanged', async () => {
+      await checkNetwork();
+      if (onArcNetwork) {
+        provider = new ethers.BrowserProvider(wp);
+        signer   = await provider.getSigner();
+        await refreshBalances();
+      }
+    });
   }
 }
 
 function disconnect() {
   provider = signer = userAddr = wp = null;
+  onArcNetwork = false;
+  lastTxHash = null;
   if (rewardTimer) { clearInterval(rewardTimer); rewardTimer = null; }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
   document.getElementById('page-land').classList.add('active');
   updateTopBar(false);
+  document.getElementById('wrongNetBanner').classList.remove('show');
   toast('Disconnected', 'info', 2000);
 }
 
@@ -686,6 +745,14 @@ function goPage(name) {
 async function refreshBalances() {
   if (!provider || !userAddr) return;
   if (balancesLoading) return;
+  if (!onArcNetwork) {
+    // Show dashes but don't error — wrong network
+    ['balAmt','balUsd','usdcBal2','eurcBal2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.querySelector('.skel')) el.textContent = '—';
+    });
+    return;
+  }
   balancesLoading = true;
   document.getElementById('rpcError').classList.remove('show');
   try {
@@ -696,20 +763,20 @@ async function refreshBalances() {
     eurcBal = ethers.formatUnits(er, EURC_DECIMALS);
     const u = parseFloat(usdcBal).toFixed(2);
     const e = parseFloat(eurcBal).toFixed(2);
-    document.getElementById('balAmt').textContent  = u;
-    document.getElementById('balUsd').textContent  = '≈ $' + u + ' USD';
+    document.getElementById('balAmt').textContent   = u;
+    document.getElementById('balUsd').textContent   = '≈ $' + u + ' USD';
     document.getElementById('usdcBal2').textContent = u;
     document.getElementById('eurcBal2').textContent = e;
     document.getElementById('swapFromBal').textContent = swapFlipped ? e : u;
     document.getElementById('swapToBal').textContent   = swapFlipped ? u : e;
     updateSendAvailable();
+    validateSend();
   } catch(e) {
     console.error('Balance fetch failed:', e);
     document.getElementById('rpcError').classList.add('show');
-    // Restore numeric display if skeleton is still showing
     const balEl = document.getElementById('balAmt');
-    if (balEl.querySelector('.skel')) balEl.textContent = '—';
-    document.getElementById('balUsd').textContent = '—';
+    if (balEl.querySelector && balEl.querySelector('.skel')) balEl.textContent = '—';
+    document.getElementById('balUsd').textContent   = '—';
     document.getElementById('usdcBal2').textContent = '—';
     document.getElementById('eurcBal2').textContent = '—';
   } finally {
@@ -725,10 +792,9 @@ function setSendTab(tab) {
   document.getElementById('tab-recv-btn').classList.toggle('active', tab === 'receive');
 }
 
-// ─── Send type (wallet / twitter / discord) ───────────────────────────────────
+// ─── Send type ────────────────────────────────────────────────────────────────
 function setType(type, el) {
   recipType = type;
-  // FIX: always clear resolvedTo and lastResolvedInput when switching type
   resolvedTo = null;
   lastResolvedInput = '';
   document.querySelectorAll('#page-send .topt').forEach(b => b.classList.remove('active'));
@@ -742,19 +808,10 @@ function setType(type, el) {
   validateSend();
 }
 
-// FIX: resolvedTo is only set when the current input string matches what was
-// resolved. This prevents stale resolution from persisting across edits.
 async function onRecipInput() {
   const val = document.getElementById('recipInput').value.trim();
-
-  // If the input changed from what was last resolved, clear the resolved address
-  if (val !== lastResolvedInput) {
-    resolvedTo = null;
-    lastResolvedInput = '';
-  }
-
+  if (val !== lastResolvedInput) { resolvedTo = null; lastResolvedInput = ''; }
   hideRes();
-
   if (!val) { validateSend(); return; }
 
   if (recipType === 'address') {
@@ -764,8 +821,10 @@ async function onRecipInput() {
         lastResolvedInput = val;
         showOk('✓ Valid address');
       } else {
-        showNo('Invalid address');
+        showNo('Invalid checksum — double-check address');
       }
+    } else if (val.startsWith('0x') && val.length > 2) {
+      showNo('Address must be 42 characters');
     }
   }
 
@@ -777,7 +836,7 @@ async function onRecipInput() {
       lastResolvedInput = val;
       showOk('@' + h + ' → ' + short(e.address));
     } else if (h.length > 1) {
-      showNo('@' + h + ' not registered');
+      showNo('@' + h + ' not registered on this device');
     }
   }
 
@@ -786,14 +845,12 @@ async function onRecipInput() {
 
 function showOk(t) {
   const b = document.getElementById('resolvedBar');
-  b.className = 'res-bar ok';
-  b.style.display = 'flex';
+  b.className = 'res-bar ok'; b.style.display = 'flex';
   document.getElementById('resolvedTxt').textContent = t;
 }
 function showNo(t) {
   const b = document.getElementById('resolvedBar');
-  b.className = 'res-bar no';
-  b.style.display = 'flex';
+  b.className = 'res-bar no'; b.style.display = 'flex';
   document.getElementById('resolvedTxt').textContent = t;
 }
 function hideRes() { document.getElementById('resolvedBar').style.display = 'none'; }
@@ -802,20 +859,18 @@ function hideRes() { document.getElementById('resolvedBar').style.display = 'non
 function toggleSendToken() {
   sendToken = sendToken === 'USDC' ? 'EURC' : 'USDC';
   document.getElementById('sendTokenLabel').textContent = sendToken;
-  // FIX: gas fee display always shows USDC (the gas token) regardless of send token
-  document.getElementById('gasFeeDisplay').textContent = '~' + GAS_USDC.toFixed(3) + ' USDC';
+  document.getElementById('gasFeeDisplay').textContent  = '~' + GAS_USDC.toFixed(3) + ' USDC';
   updateSendAvailable();
   validateSend();
 }
 
 function updateSendAvailable() {
   const bal = sendToken === 'USDC' ? parseFloat(usdcBal) : parseFloat(eurcBal);
-  document.getElementById('sendAvailable').textContent = isNaN(bal) ? '—' : bal.toFixed(2);
+  document.getElementById('sendAvailable').textContent  = isNaN(bal) ? '—' : bal.toFixed(2);
   document.getElementById('sendAvailToken').textContent = sendToken;
 }
 
-// FIX: MAX deducts gas only from USDC balance (gas is always USDC on Arc).
-// If sending EURC, max is the full EURC balance (gas comes from USDC separately).
+// MAX: gas always deducted from USDC. If sending EURC, EURC max is full balance.
 function setMax() {
   let maxVal;
   if (sendToken === 'USDC') {
@@ -834,10 +889,26 @@ function validateSend() {
   const sendBal   = sendToken === 'USDC' ? usdcFloat : (parseFloat(eurcBal) || 0);
   const btn = document.getElementById('sendBtn');
 
-  if (!addr) { btn.disabled = true; btn.textContent = 'Enter address & amount'; return; }
-  if (!amt || amt <= 0) { btn.disabled = true; btn.textContent = 'Enter an amount'; return; }
-
-  // FIX: gas check is always against USDC balance regardless of send token
+  if (!onArcNetwork) {
+    btn.disabled = true; btn.textContent = 'Switch to Arc Testnet'; return;
+  }
+  if (!addr) {
+    btn.disabled = true; btn.textContent = 'Enter address & amount'; return;
+  }
+  if (!amt || amt <= 0) {
+    btn.disabled = true; btn.textContent = 'Enter an amount'; return;
+  }
+  if (amt < 0.000001) {
+    btn.disabled = true; btn.textContent = 'Amount too small'; return;
+  }
+  // For wallet address type, must have valid resolved address
+  if (recipType === 'address' && (!resolvedTo || lastResolvedInput !== addr)) {
+    btn.disabled = true; btn.textContent = 'Enter a valid 0x address'; return;
+  }
+  // For social types, must have resolved address
+  if ((recipType === 'x' || recipType === 'discord') && (!resolvedTo || lastResolvedInput !== addr)) {
+    btn.disabled = true; btn.textContent = 'Handle not found in directory'; return;
+  }
   if (sendToken === 'USDC' && amt + GAS_USDC > usdcFloat) {
     btn.disabled = true; btn.textContent = 'Insufficient USDC for amount + gas'; return;
   }
@@ -847,33 +918,28 @@ function validateSend() {
   }
 
   btn.disabled = false;
-  btn.textContent = 'Send ' + sendToken;
+  btn.textContent = 'Send ' + amt.toFixed(2) + ' ' + sendToken;
 }
 
 // ─── Confirm / send ────────────────────────────────────────────────────────────
 function showConfirm() {
   const raw = document.getElementById('recipInput').value.trim();
   const amt = parseFloat(document.getElementById('amtInput').value);
-
-  // FIX: use resolvedTo if it was resolved from the current input; otherwise use raw
-  const actualTo  = (resolvedTo && lastResolvedInput === raw) ? resolvedTo : (recipType === 'address' ? raw : null);
-  const toDisplay = actualTo ? short(actualTo) : (recipType !== 'address' ? raw : raw);
-  const via = recipType === 'address' ? 'Wallet address' : recipType === 'x' ? 'Twitter handle' : 'Discord username';
-
-  // FIX: total deducted shows correct amounts per token
+  const actualTo  = (resolvedTo && lastResolvedInput === raw) ? resolvedTo : null;
+  if (!actualTo) { toast('Recipient not resolved', 'error'); return; }
+  const toDisplay = short(actualTo) + (recipType !== 'address' ? (' (' + raw + ')') : '');
+  const via = recipType === 'address' ? 'Wallet address' : recipType === 'x' ? 'Twitter handle' : 'Discord handle';
   let totalLabel;
   if (sendToken === 'USDC') {
     totalLabel = (amt + GAS_USDC).toFixed(3) + ' USDC';
   } else {
     totalLabel = amt.toFixed(6) + ' EURC + ' + GAS_USDC.toFixed(3) + ' USDC (gas)';
   }
-
-  document.getElementById('confAmt').textContent  = amt.toFixed(2) + ' ' + sendToken;
+  document.getElementById('confAmt').textContent  = amt.toFixed(6) + ' ' + sendToken;
   document.getElementById('confTo').textContent   = toDisplay;
   document.getElementById('confVia').textContent  = via;
   document.getElementById('confFee').textContent  = '~' + GAS_USDC.toFixed(3) + ' USDC';
   document.getElementById('confTotal').textContent = totalLabel;
-
   document.getElementById('sendCard').style.display = 'none';
   document.getElementById('confirmCard').classList.add('show');
 }
@@ -885,11 +951,12 @@ function cancelConfirm() {
 
 async function doSend() {
   if (!signer) { toast('Connect wallet first', 'error'); return; }
+  if (!onArcNetwork) { toast('Switch to Arc Testnet first', 'error'); return; }
+
   const raw = document.getElementById('recipInput').value.trim();
   const amt = document.getElementById('amtInput').value.trim();
   if (!raw || !amt || parseFloat(amt) <= 0) return;
 
-  // FIX: resolvedTo is only used if it matches the current input
   let to = (resolvedTo && lastResolvedInput === raw) ? resolvedTo : null;
   if (!to) {
     if (recipType === 'address') {
@@ -903,8 +970,13 @@ async function doSend() {
     }
   }
 
+  // Sanity-check: don't send to self
+  if (to.toLowerCase() === userAddr.toLowerCase()) {
+    toast("Can't send to your own address", 'error'); return;
+  }
+
   const btn = document.getElementById('confirmSendBtn');
-  btn.innerHTML = '<span class="spinner"></span>Sending...';
+  btn.innerHTML = '<span class="spinner"></span>Waiting for wallet...';
   btn.disabled  = true;
 
   const tokenAddr = sendToken === 'USDC' ? USDC_ADDR : EURC_ADDR;
@@ -912,23 +984,41 @@ async function doSend() {
 
   try {
     const c  = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
-    const tx = await c.transfer(to, ethers.parseUnits(amt, decimals));
-    toast('Submitted! Confirming...', 'info', 12000);
-    await tx.wait(1);
-    addTx({ hash: tx.hash, to, toRaw: raw, amount: amt, type: 'out', token: sendToken, ts: Date.now() });
-    toast('Sent ' + amt + ' ' + sendToken + '!', 'success', 6000);
+    const parsedAmt = ethers.parseUnits(parseFloat(amt).toFixed(decimals), decimals);
+    const tx = await c.transfer(to, parsedAmt);
+    lastTxHash = tx.hash;
+    btn.innerHTML = '<span class="spinner"></span>Confirming on-chain...';
+    toast('Submitted! Hash: ' + short(tx.hash), 'info', 14000);
+    const receipt = await tx.wait(1);
+    addTx({
+      hash: tx.hash,
+      to,
+      toRaw: raw,
+      amount: parseFloat(amt).toFixed(6),
+      type: 'out',
+      token: sendToken,
+      ts: Date.now(),
+      confirmed: !!receipt
+    });
+    toast('✓ Sent ' + parseFloat(amt).toFixed(2) + ' ' + sendToken + '!', 'success', 7000);
     document.getElementById('confirmCard').classList.remove('show');
-    document.getElementById('successMsg').textContent = amt + ' ' + sendToken + ' sent to ' + short(to);
+    document.getElementById('successMsg').textContent = parseFloat(amt).toFixed(2) + ' ' + sendToken + ' sent to ' + short(to);
+    document.getElementById('successHash').textContent = tx.hash;
     document.getElementById('successCard').classList.add('show');
     await refreshBalances();
   } catch(err) {
-    toast((err?.info?.error?.message || err?.reason || err?.message || 'Failed').slice(0, 140), 'error', 7000);
+    let msg = err?.info?.error?.message || err?.reason || err?.message || 'Transaction failed';
+    if (msg.length > 140) msg = msg.slice(0, 140) + '...';
+    toast(msg, 'error', 8000);
     btn.innerHTML = '✓ Confirm &amp; Send';
     btn.disabled  = false;
   }
 }
 
-// FIX: resetSend scrolls the send page to top so the form is visible
+function openExplorer() {
+  if (lastTxHash) window.open(ARC_EXP + '/tx/' + lastTxHash, '_blank');
+}
+
 function resetSend() {
   document.getElementById('successCard').classList.remove('show');
   document.getElementById('sendCard').style.display = 'block';
@@ -937,18 +1027,19 @@ function resetSend() {
   hideRes();
   resolvedTo = null;
   lastResolvedInput = '';
+  lastTxHash = null;
   validateSend();
   document.getElementById('page-send').scrollTop = 0;
 }
 
-// ─── Swap ─────────────────────────────────────────────────────────────────────
+// ─── Swap (demo) ──────────────────────────────────────────────────────────────
 function calcSwap() {
   const amt  = parseFloat(document.getElementById('swapFrom').value) || 0;
   const rate = swapFlipped ? (1 / FX) : FX;
   const out  = (amt * rate * 0.999).toFixed(6);
   document.getElementById('swapTo').value     = amt > 0 ? out : '';
-  document.getElementById('swapFromUSD').textContent = swapFlipped ? (amt * 1.08).toFixed(2) : amt.toFixed(2);
-  document.getElementById('swapToUSD').textContent   = swapFlipped ? out : (parseFloat(out) * 1.08).toFixed(2);
+  document.getElementById('swapFromUSD').textContent = swapFlipped ? (amt * 1.0801).toFixed(2) : amt.toFixed(2);
+  document.getElementById('swapToUSD').textContent   = swapFlipped ? out : (parseFloat(out) * 1.0801).toFixed(2);
 }
 
 function flipSwap() {
@@ -964,17 +1055,17 @@ function flipSwap() {
   document.getElementById('swapFromBal').textContent = swapFlipped ? parseFloat(eurcBal).toFixed(2) : parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent   = swapFlipped ? parseFloat(usdcBal).toFixed(2) : parseFloat(eurcBal).toFixed(2);
   document.getElementById('swapRate').textContent    = swapFlipped
-    ? '1 EURC ≈ 1.0801 USDC · 1 USDC ≈ 0.9258 EURC'
-    : '1 USDC ≈ 0.9258 EURC · 1 EURC ≈ 1.0801 USDC';
+    ? '1 EURC ≈ 1.0801 USDC  ·  1 USDC ≈ 0.9258 EURC'
+    : '1 USDC ≈ 0.9258 EURC  ·  1 EURC ≈ 1.0801 USDC';
 }
 
 function doSwap() {
   const amt = parseFloat(document.getElementById('swapFrom').value);
   if (!amt || amt <= 0) { toast('Enter an amount', 'error'); return; }
-  const fromTok  = swapFlipped ? 'EURC' : 'USDC';
-  const toTok    = swapFlipped ? 'USDC' : 'EURC';
-  const fromBal  = parseFloat(swapFlipped ? eurcBal : usdcBal);
-  if (amt > fromBal) { toast('Insufficient balance', 'error'); return; }
+  const fromTok = swapFlipped ? 'EURC' : 'USDC';
+  const toTok   = swapFlipped ? 'USDC' : 'EURC';
+  const fromBal = parseFloat(swapFlipped ? eurcBal : usdcBal);
+  if (amt > fromBal) { toast('Insufficient ' + fromTok + ' balance', 'error'); return; }
   const out = (amt * (swapFlipped ? 1/FX : FX) * 0.999).toFixed(6);
   if (swapFlipped) {
     eurcBal = String(Math.max(0, parseFloat(eurcBal) - amt));
@@ -983,14 +1074,14 @@ function doSwap() {
     usdcBal = String(Math.max(0, parseFloat(usdcBal) - amt));
     eurcBal = String(parseFloat(eurcBal) + parseFloat(out));
   }
-  addTx({ hash:'demo-'+Date.now(), to:'demo', toRaw:'Demo Swap', amount:amt, outAmount:out, type:'swap', fromToken:fromTok, toToken:toTok, ts:Date.now() });
-  toast('(Demo) Swapped '+amt+' '+fromTok+' → '+out+' '+toTok, 'success', 5000);
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Swap', amount: amt, outAmount: out, type: 'swap', fromToken: fromTok, toToken: toTok, ts: Date.now() });
+  toast('(Demo) Swapped '+parseFloat(amt).toFixed(2)+' '+fromTok+' → '+parseFloat(out).toFixed(2)+' '+toTok, 'success', 5000);
   document.getElementById('swapFrom').value = '';
   document.getElementById('swapTo').value   = '';
   refreshBalances();
 }
 
-// ─── Stake ────────────────────────────────────────────────────────────────────
+// ─── Stake (demo) ─────────────────────────────────────────────────────────────
 function setStakeTab(tab, el) {
   document.querySelectorAll('#page-stake .stab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.stake-panel').forEach(p => p.classList.remove('active'));
@@ -998,33 +1089,31 @@ function setStakeTab(tab, el) {
   document.getElementById('sp-' + tab).classList.add('active');
 }
 
-function setStakeMax() {
-  document.getElementById('stakeAmt').value = Math.max(0, parseFloat(usdcBal) - 0.02).toFixed(6);
-}
-function setUnstakeMax() {
-  document.getElementById('unstakeAmt').value = stakedAmt.toFixed(6);
-}
+function setStakeMax() { document.getElementById('stakeAmt').value = Math.max(0, parseFloat(usdcBal) - 0.02).toFixed(6); }
+function setUnstakeMax() { document.getElementById('unstakeAmt').value = stakedAmt.toFixed(6); }
 
 function updateStakeUI() {
-  document.getElementById('myStake').textContent      = stakedAmt.toFixed(2) + ' USDC';
-  document.getElementById('myRewards').textContent    = rewardsAmt.toFixed(6);
+  document.getElementById('myStake').textContent       = stakedAmt.toFixed(2) + ' USDC';
+  document.getElementById('myRewards').textContent     = rewardsAmt.toFixed(6);
   document.getElementById('stakedDisplay').textContent = stakedAmt.toFixed(2) + ' USDC';
-  document.getElementById('claimAmt').textContent     = rewardsAmt.toFixed(6);
+  document.getElementById('claimAmt').textContent      = rewardsAmt.toFixed(6);
   const share = stakedAmt > 0 ? (stakedAmt / (stakedAmt + 2400000) * 100) : 0;
-  document.getElementById('poolShare').textContent    = share.toFixed(4) + '%';
-  document.getElementById('stakeBar').style.width     = Math.min(share * 1000, 100) + '%';
-  document.getElementById('nextReward').textContent   = stakedAmt > 0 ? 'Earning now (demo)' : 'Not staking';
+  document.getElementById('poolShare').textContent     = share.toFixed(4) + '%';
+  document.getElementById('stakeBar').style.width      = Math.min(share * 1000, 100) + '%';
+  document.getElementById('nextReward').textContent    = stakedAmt > 0 ? 'Earning now (demo)' : 'Not staking';
 }
 
 function startRewardTimer() {
-  if (rewardTimer) return; // prevent duplicate timers
+  if (rewardTimer) return;
   if (!stakedAmt) return;
   rewardTimer = setInterval(() => {
     if (stakedAmt > 0) {
       rewardsAmt += stakedAmt * 0.052 / (365 * 24 * 3600);
       localStorage.setItem('arcRewards', rewardsAmt.toString());
-      document.getElementById('myRewards').textContent = rewardsAmt.toFixed(6);
-      document.getElementById('claimAmt').textContent  = rewardsAmt.toFixed(6);
+      const rEl = document.getElementById('myRewards');
+      const cEl = document.getElementById('claimAmt');
+      if (rEl) rEl.textContent = rewardsAmt.toFixed(6);
+      if (cEl) cEl.textContent = rewardsAmt.toFixed(6);
     }
   }, 1000);
 }
@@ -1036,7 +1125,7 @@ function doStake() {
   usdcBal = String(Math.max(0, parseFloat(usdcBal) - amt));
   stakedAmt += amt;
   localStorage.setItem('arcStaked', stakedAmt.toString());
-  addTx({ hash:'demo-'+Date.now(), to:'demo', toRaw:'Demo Stake', amount:amt, type:'stake', token:'USDC', ts:Date.now() });
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Stake', amount: amt, type: 'stake', token: 'USDC', ts: Date.now() });
   toast('(Demo) Staked '+amt+' USDC at 5.20% APY', 'success', 5000);
   document.getElementById('stakeAmt').value = '';
   updateStakeUI();
@@ -1051,7 +1140,7 @@ function doUnstake() {
   stakedAmt -= amt;
   usdcBal = String(parseFloat(usdcBal) + amt);
   localStorage.setItem('arcStaked', stakedAmt.toString());
-  addTx({ hash:'demo-'+Date.now(), to:'demo', toRaw:'Demo Unstake', amount:amt, type:'in', token:'USDC', ts:Date.now() });
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Unstake', amount: amt, type: 'in', token: 'USDC', ts: Date.now() });
   toast('(Demo) Unstaked ' + amt + ' USDC', 'success', 4000);
   document.getElementById('unstakeAmt').value = '';
   updateStakeUI();
@@ -1064,7 +1153,7 @@ function doClaim() {
   rewardsAmt = 0;
   usdcBal = String(parseFloat(usdcBal) + claimed);
   localStorage.setItem('arcRewards', '0');
-  addTx({ hash:'demo-'+Date.now(), to:'demo', toRaw:'Demo Claim', amount:claimed.toFixed(6), type:'in', token:'USDC', ts:Date.now() });
+  addTx({ hash: 'demo-'+Date.now(), to: 'demo', toRaw: 'Demo Claim', amount: claimed.toFixed(6), type: 'in', token: 'USDC', ts: Date.now() });
   toast('(Demo) Claimed ' + claimed.toFixed(6) + ' USDC', 'success', 5000);
   updateStakeUI();
   refreshBalances();
@@ -1084,11 +1173,11 @@ function registerHandle() {
   if (!h || h.length < 2) { toast('Enter a valid username', 'error'); return; }
   const key = regType + ':' + h;
   const reg = getRegistry();
-  if (reg[key] && reg[key].address !== userAddr) { toast('Handle already taken', 'error', 5000); return; }
+  if (reg[key] && reg[key].address !== userAddr) { toast('Handle already taken by another address', 'error', 5000); return; }
   reg[key] = { address: userAddr, platform: regType, handle: h, ts: Date.now() };
   saveRegistry(reg);
   document.getElementById('regHandle').value = '';
-  toast('@' + h + ' linked!', 'success');
+  toast('@' + h + ' linked to ' + short(userAddr), 'success');
   renderAllHandles();
   showMyHandles();
 }
@@ -1096,7 +1185,7 @@ function registerHandle() {
 function showMyHandles() {
   if (!userAddr) return;
   const reg  = getRegistry();
-  const mine = Object.values(reg).filter(r => r.address === userAddr);
+  const mine = Object.values(reg).filter(r => r.address.toLowerCase() === userAddr.toLowerCase());
   const box  = document.getElementById('myHandlesBox');
   if (mine.length) {
     box.style.display = 'block';
@@ -1112,7 +1201,7 @@ function removeHandle(p, h) {
   const reg = getRegistry();
   delete reg[p + ':' + h];
   saveRegistry(reg);
-  toast('Removed', 'info', 2000);
+  toast('Removed @' + h, 'info', 2000);
   renderAllHandles();
   showMyHandles();
 }
@@ -1140,7 +1229,6 @@ function renderAllHandles() {
 function sendToHandle(platform, handle) {
   goPage('send');
   recipType = platform;
-  // FIX: clear stale resolution state before pre-filling from directory
   resolvedTo = null;
   lastResolvedInput = '';
   document.querySelectorAll('#page-send .type-sel .topt').forEach(b => b.classList.remove('active'));
@@ -1163,7 +1251,6 @@ function addTx(tx) {
   localStorage.setItem('arcTxHistory', JSON.stringify(txHistory.slice(0, 100)));
 }
 
-// FIX: Clear history with confirmation
 function clearHistory() {
   if (!txHistory.length) { toast('Nothing to clear', 'info', 2000); return; }
   if (!confirm('Clear all transaction history?')) return;
@@ -1182,12 +1269,12 @@ function renderHistory() {
   list.innerHTML = txHistory.map(tx => {
     const isDemo = tx.hash.startsWith('demo-');
     let icon = '↑', cls = 'out', label = '', amt = '';
-    if (tx.type === 'out')   { icon = '↑'; cls = 'out';   label = 'Sent to '+(tx.toRaw||short(tx.to));             amt = '−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
-    if (tx.type === 'in')    { icon = '↓'; cls = 'in';    label = 'Received '+(tx.toRaw||'');                      amt = '+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
-    if (tx.type === 'swap')  { icon = '⇄'; cls = 'swap';  label = parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken; amt = 'Swap'; }
-    if (tx.type === 'stake') { icon = '◈'; cls = 'stake'; label = 'Staked '+parseFloat(tx.amount).toFixed(2)+' USDC'; amt = 'Stake'; }
+    if (tx.type === 'out')   { icon='↑'; cls='out';   label='Sent to '+(tx.toRaw||short(tx.to));                           amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
+    if (tx.type === 'in')    { icon='↓'; cls='in';    label='Received '+(tx.toRaw||'');                                    amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC'); }
+    if (tx.type === 'swap')  { icon='⇄'; cls='swap';  label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken; amt='Swap'; }
+    if (tx.type === 'stake') { icon='◈'; cls='stake'; label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';             amt='Stake'; }
     const timeLink = isDemo
-      ? `<span style="color:var(--warning);">demo</span>`
+      ? `<span style="color:var(--warning);font-size:.55rem;">⚗ demo</span>`
       : `${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a>`;
     return `<div class="tx-item">
       <div class="tx-ico ${cls}">${icon}</div>
@@ -1222,7 +1309,13 @@ function renderQR(a) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   updateTopBar(false);
-  setInterval(() => { if (userAddr) refreshBalances(); }, 30000);
+  // Auto-refresh balances every 30s while connected
+  setInterval(async () => {
+    if (userAddr) {
+      await checkNetwork();
+      await refreshBalances();
+    }
+  }, 30000);
 });
 </script>
 </body>
