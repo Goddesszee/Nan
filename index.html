@@ -831,7 +831,7 @@ function goPage(name) {
   showPage(name);
   if (name === 'stake')   { initStakeUI(); refreshStakeInfo(); }
   if (name === 'history') renderHistory();
-  if (name === 'handle')  { renderAllHandles(); showMyHandles(); }
+  if (name === 'handle')  { renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); }
   if (name === 'swap')    refreshBalances();
 }
 
@@ -1213,12 +1213,12 @@ async function registerHandle() {
   if (!userAddr) { toast('Connect wallet first','error'); return; }
   let h = document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
   if (!h || h.length < 2) { toast('Enter a valid username','error'); return; }
-  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer); try {const tx = await contract.register(regType+':'+h); toast('Confirming...','info',3000); await tx.wait(); document.getElementById('regHandle').value = ''; toast('@'+h+' linked on-chain!','success'); renderAllHandles(); showMyHandles(); } catch(e) { toast(e.reason || 'Failed','error'); } 
+  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer); try {const tx = await contract.register(regType+':'+h); toast('Confirming...','info',3000); await tx.wait(); document.getElementById('regHandle').value = ''; toast('@'+h+' linked on-chain!','success'); renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); } catch(e) { toast(e.reason || 'Failed','error'); } 
   
   
   document.getElementById('regHandle').value = '';
   
-  renderAllHandles(); showMyHandles();
+  renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000);
 }
 
 function showMyHandles() {
@@ -1231,7 +1231,7 @@ function showMyHandles() {
   } else box.style.display='none';
 }
 
-function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; (reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); }
+function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; (reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); }
 
 function renderAllHandles() {
   const entries = Object.values({}).sort((a,b)=>b.ts-a.ts);
