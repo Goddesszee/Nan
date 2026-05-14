@@ -1175,7 +1175,7 @@ async function doSwap() {
 
   // ── Real swap if contract is set ─────────────────────────────────────────
   if (hasSwap() && signer && onArcNetwork) {
-    toast('Real swap coming soon — contract ABI needed', 'info', 4000);
+    if (hasSwap() && signer && onArcNetwork) {   const SWAP_ABI = [     'function swapUSDCtoEURC(uint256 amount) external',     'function swapEURCtoUSDC(uint256 amount) external',     'function approve(address spender, uint256 amount) external returns (bool)'   ];   const ERC20_ABI = ['function approve(address spender, uint256 amount) external returns (bool)'];   const amtParsed = ethers.parseUnits(amt.toString(), 6);   const tokenAddr = swapFlipped ? '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a' : '0x3600000000000000000000000000000000000000';   const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, signer);   const swapContract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);   setSwapBtn(true, 'Approving...');   await tokenContract.approve(SWAP_CONTRACT_ADDRESS, amtParsed);   setSwapBtn(true, 'Swapping...');   const tx = swapFlipped ? await swapContract.swapEURCtoUSDC(amtParsed) : await swapContract.swapUSDCtoEURC(amtParsed);   await tx.wait();   toast('Swap successful!', 'success');   await refreshBalances();   setSwapBtn(false, 'Swap');   return; }
     // When you have a real swap contract ABI, implement here.
     // Pattern: approve → swap → await receipt → addTx → refreshBalances
     return;
