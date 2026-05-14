@@ -513,26 +513,24 @@ a:hover{color:var(--text);}
 <button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:70px;right:14px;z-index:300;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:57px;bottom:60px;left:0;right:0;max-width:480px;margin:0 auto;background:#0b0b1f;border-left:1px solid rgba(139,92,246,.3);border-right:1px solid rgba(139,92,246,.3);border-bottom:1px solid rgba(139,92,246,.3);border-top:none;border-radius:0 0 16px 16px;z-index:250;flex-direction:column;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);height:calc(100vh - 57px - 60px);">
+<div id="agentPanel" style="display:none;position:fixed;top:57px;bottom:60px;left:0;right:0;max-width:480px;margin:0 auto;background:#0b0b1f;border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
 
-  <!-- FIXED: single header, no duplicate logo box -->
-  <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);">
-    <div style="display:flex;align-items:center;gap:7px;">
-      <div>
-        <div style="font-size:.88rem;font-weight:700;color:#ede9fe;">✦ NAN AI</div>
-        <div style="font-size:.58rem;color:#8b5cf6;display:flex;align-items:center;gap:4px;">
-          <span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>Live
-        </div>
+  <!-- Header — fixed at top -->
+  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#0b0b1f;border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
+    <div>
+      <div style="font-size:.88rem;font-weight:700;color:#ede9fe;">✦ NAN AI</div>
+      <div style="font-size:.58rem;color:#8b5cf6;display:flex;align-items:center;gap:4px;">
+        <span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>Live
       </div>
     </div>
     <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;line-height:1;">✕</button>
   </div>
 
-  <!-- Messages -->
-  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px;min-height:0;"></div>
+  <!-- Messages — fills middle space -->
+  <div id="agentMessages" style="position:absolute;top:52px;bottom:108px;left:0;right:0;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px;"></div>
 
-  <!-- Input area -->
-  <div style="padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
+  <!-- Input area — fixed at bottom -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);background:#0b0b1f;">
     <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:7px;align-items:center;">
       <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:10px 13px;color:#ede9fe;font-size:.8rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
@@ -1186,7 +1184,7 @@ function toggleAgent() {
   agentOpen = !agentOpen;
   const panel = document.getElementById('agentPanel');
   const fab   = document.getElementById('aiBtn');
-  panel.style.display = agentOpen ? 'flex' : 'none';
+  panel.style.display = agentOpen ? 'block' : 'none';
   if (fab) fab.style.display = agentOpen ? 'none' : 'flex';
   if (agentOpen) { renderAgentMsgs(); renderAgentChips(); scrollAgentBottom(); }
 }
