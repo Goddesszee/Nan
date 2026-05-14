@@ -1202,7 +1202,6 @@ function renderAgentMsgs() {
   const el = document.getElementById('agentMessages');
   el.innerHTML = agentMsgs.map(m => `
     <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      ${m.role==='assistant' ? '<div style="width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:9px;margin-bottom:3px;color:#fff;">✦</div>' : ''}
       <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'rgba(255,255,255,0.06)'};border:${m.role==='user'?'none':'1px solid rgba(255,255,255,0.08)'};color:#ede9fe;font-size:.75rem;line-height:1.55;">${m.content}</div>
       ${m.action ? `<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ Execute: ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>` : ''}
     </div>
