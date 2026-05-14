@@ -107,7 +107,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .live-badge{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--success);line-height:1.55;display:flex;align-items:center;gap:7px;}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 1.5s ease infinite;flex-shrink:0;}
 .info-banner{background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:#93c5fd;line-height:1.55;}
-.display:none;{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--warning);line-height:1.55;}
 .alert{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;display:flex;align-items:center;gap:7px;font-size:.63rem;color:var(--text2);}
 .alert a{color:var(--accent3);font-weight:500;}
 
@@ -232,7 +231,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
 .clear-hist-btn{background:transparent;border:1px solid rgba(248,113,113,.22);border-radius:6px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.58rem;padding:3px 9px;cursor:pointer;opacity:.7;transition:all .15s;}
 .clear-hist-btn:hover{opacity:1;background:rgba(248,113,113,.06);}
-.handle-notice{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.18);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:8px;font-size:.62rem;color:var(--warning);line-height:1.5;}
 .empty{text-align:center;padding:22px 16px;color:var(--text3);}
 .empty-icon{font-size:1.6rem;margin-bottom:6px;opacity:.5;}
 .empty-text{font-size:.73rem;line-height:1.65;}
@@ -253,9 +251,7 @@ a:hover{color:var(--text);}
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════
-     TOP BAR
-══════════════════════════════════════════════════════ -->
+<!-- TOP BAR -->
 <div id="globalTopBar">
   <div class="brand">
     <div class="brand-logo">
@@ -276,9 +272,7 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     BOTTOM NAV
-══════════════════════════════════════════════════════ -->
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav">
   <div class="nav-items">
     <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
@@ -289,9 +283,7 @@ a:hover{color:var(--text);}
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════════════════════
-     LANDING
-══════════════════════════════════════════════════════ -->
+<!-- LANDING -->
 <div class="page page-land active" id="page-land">
   <div class="land-inner">
     <div class="land-logo-wrap">
@@ -320,9 +312,7 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     SEND PAGE
-══════════════════════════════════════════════════════ -->
+<!-- SEND PAGE -->
 <div class="page" id="page-send">
   <div class="alert">🧪 Testnet &nbsp;·&nbsp;<a href="https://faucet.circle.com" target="_blank">Get USDC &amp; EURC ↗</a>&nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></div>
   <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
@@ -349,7 +339,6 @@ a:hover{color:var(--text);}
       <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')">↑ Send</button>
       <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')">↓ Receive</button>
     </div>
-    <!-- Send form -->
     <div id="tab-send">
       <div class="field">
         <div class="flbl">Send To</div>
@@ -375,14 +364,12 @@ a:hover{color:var(--text);}
       <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
       <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Enter address &amp; amount</button>
     </div>
-    <!-- Receive form -->
     <div id="tab-recv" style="display:none;">
       <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
       <button class="btn btn-outline" style="margin-top:9px;" onclick="copyAddr()">Copy My Address</button>
     </div>
   </div>
 
-  <!-- Confirm -->
   <div class="confirm-wrap" id="confirmCard">
     <div class="confirm-title">⚡ Confirm Transaction</div>
     <div class="confirm-sub">Real on-chain transfer — cannot be undone.</div>
@@ -399,7 +386,6 @@ a:hover{color:var(--text);}
     </div>
   </div>
 
-  <!-- Success -->
   <div class="success-wrap" id="successCard">
     <div class="success-circle">✓</div>
     <div class="success-title">Transaction Sent!</div>
@@ -410,25 +396,10 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     SWAP PAGE
-══════════════════════════════════════════════════════ -->
+<!-- SWAP PAGE -->
 <div class="page" id="page-swap">
   <div class="page-title">Swap</div>
   <div class="page-sub">Exchange USDC and EURC at live rates</div>
-  <!--
-    ╔══════════════════════════════════════════════════════════╗
-    ║  SWAP CONTRACT — ADD YOUR ADDRESS HERE WHEN READY        ║
-    ║                                                          ║
-    ║  Once you deploy a swap contract on Arc Testnet,         ║
-    ║  find this line in the <script> below:                   ║
-    ║                                                          ║
-    ║    const SWAP_CONTRACT_ADDRESS = '0xfdFEFAC1bEfA3472F19c5483b770Ee9FCea1EC1a';                     ║
-    ║                                                          ║
-    ║  Paste your deployed address there and the swap          ║
-    ║  will automatically switch from simulated to real.       ║
-    ╚══════════════════════════════════════════════════════════╝
-  -->
   <div class="info-banner" id="swapModeBanner">⚗️ <strong>Simulated swap</strong> — No swap contract on Arc Testnet yet. Once you deploy one and add <code>SWAP_CONTRACT_ADDRESS</code>, this becomes real.</div>
   <div class="live-badge" id="swapLiveBadge" style="display:none;"><div class="live-dot"></div>Live on-chain swap — Arc Testnet</div>
 
@@ -461,28 +432,12 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     STAKE PAGE
-══════════════════════════════════════════════════════ -->
+<!-- STAKE PAGE -->
 <div class="page" id="page-stake">
   <div class="page-title">Stake</div>
   <div class="page-sub">Earn 5.20% APY on your USDC</div>
-
-  <!--
-    ╔══════════════════════════════════════════════════════════╗
-    ║  STAKING CONTRACT — ADD YOUR ADDRESS HERE                ║
-    ║                                                          ║
-    ║  1. Deploy USDCStaking contract on Remix (Arc Testnet)   ║
-    ║  2. Find this line in the <script> below:                ║
-    ║                                                          ║
-    ║    const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';                  ║
-    ║                                                          ║
-    ║  3. Paste your deployed address between the quotes       ║
-    ║  4. Save and redeploy — staking goes live automatically  ║
-    ╚══════════════════════════════════════════════════════════╝
-  -->
   <div class="display:none;" id="stakeSetupBanner" style="display:none;">
-    ⚙️ <strong>Setup needed</strong> — Deploy the staking contract on Remix, then paste the address into <code>STAKING_CONTRACT_ADDRESS</code> in this file. See the comment block in the &lt;script&gt; for instructions.
+    ⚙️ <strong>Setup needed</strong> — Deploy the staking contract on Remix, then paste the address into <code>STAKING_CONTRACT_ADDRESS</code>.
   </div>
   <div class="live-badge" id="stakeLiveBadge" style="display:none;"><div class="live-dot"></div>Live on Arc Testnet — real on-chain staking</div>
   <div class="info-banner" id="approveNotice" style="display:none;">ℹ️ First stake requires 2 transactions: <strong>1) Approve</strong> USDC, then <strong>2) Stake</strong>. MetaMask will prompt for both.</div>
@@ -506,8 +461,6 @@ a:hover{color:var(--text);}
       <button class="stab" onclick="setStakeTab('unstake',this)">Unstake</button>
       <button class="stab" onclick="setStakeTab('claim',this)">Claim</button>
     </div>
-
-    <!-- Stake panel -->
     <div class="stake-panel active" id="sp-stake">
       <div class="field">
         <div class="flbl">Amount (min 1 USDC)</div>
@@ -519,8 +472,6 @@ a:hover{color:var(--text);}
       <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Approve + Stake (2 txns)</span><span>~0.009 USDC each</span></div>
       <button class="btn" id="stakeBtn" onclick="doStake()">Stake USDC</button>
     </div>
-
-    <!-- Unstake panel -->
     <div class="stake-panel" id="sp-unstake">
       <div style="text-align:center;padding:9px 0;"><div style="font-size:1.5rem;font-weight:700;margin-bottom:9px;" id="stakedDisplay">0.00 USDC</div></div>
       <div class="field">
@@ -532,8 +483,6 @@ a:hover{color:var(--text);}
       </div>
       <button class="btn btn-outline" onclick="doUnstake()">Unstake &amp; Claim Rewards</button>
     </div>
-
-    <!-- Claim panel -->
     <div class="stake-panel" id="sp-claim">
       <div style="text-align:center;padding:15px 0;">
         <div style="font-size:.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Available to claim</div>
@@ -545,13 +494,10 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     HANDLE PAGE
-══════════════════════════════════════════════════════ -->
+<!-- HANDLE PAGE -->
 <div class="page" id="page-handle">
   <div class="page-title">My Handle</div>
   <div class="page-sub">Link your social username to your wallet</div>
-  
   <div class="card">
     <div class="card-title"><div class="cticon">@</div>Register Handle</div>
     <div class="my-handles-box" id="myHandlesBox" style="display:block;"><div class="mhl">Your Linked Handles</div><div id="myHandlesList"></div></div>
@@ -571,9 +517,7 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     HISTORY PAGE
-══════════════════════════════════════════════════════ -->
+<!-- HISTORY PAGE -->
 <div class="page" id="page-history">
   <div class="history-header">
     <div><div class="page-title">History</div><div class="page-sub">Your transactions on Arc Testnet</div></div>
@@ -585,41 +529,50 @@ a:hover{color:var(--text);}
 <div id="toast"></div>
 
 <!-- ══════════════════════════════════════════════════════
-     LIBRARIES
+     NAN AI — Button + Panel (inserted after toast)
 ══════════════════════════════════════════════════════ -->
+
+<!-- AI Button -->
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:70px;right:14px;z-index:300;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;">✦</button>
+
+<!-- AI Panel -->
+<div id="agentPanel" style="display:none;position:fixed;bottom:60px;left:0;right:0;max-width:480px;margin:0 auto;height:70vh;background:#0b0b1f;border-top:1px solid rgba(139,92,246,.3);border-radius:20px 20px 0 0;z-index:250;flex-direction:column;font-family:'Space Grotesk',sans-serif;">
+  <div style="padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;">✦</div>
+      <div>
+        <div style="font-size:.85rem;font-weight:700;color:#ede9fe;">NAN AI</div>
+        <div style="font-size:.58rem;color:#8b5cf6;display:flex;align-items:center;gap:4px;">
+          <span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>Live
+        </div>
+      </div>
+    </div>
+    <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;">✕</button>
+  </div>
+  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;"></div>
+  <div style="padding:8px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
+    <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="agentChips"></div>
+    <div style="display:flex;gap:7px;align-items:center;">
+      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:10px 13px;color:#ede9fe;font-size:.8rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
+      <button onclick="sendAgentMsg()" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1rem;cursor:pointer;flex-shrink:0;">↑</button>
+    </div>
+    <div style="font-size:.55rem;color:#3d3d6b;text-align:center;margin-top:6px;">Powered by Claude · Reads your live on-chain data</div>
+  </div>
+</div>
+
+<!-- LIBRARIES -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
-//
-//  ████████╗ ██████╗     ██████╗  ██████╗
-//     ██╔══╝██╔═══██╗    ██╔══██╗██╔═══██╗
-//     ██║   ██║   ██║    ██║  ██║██║   ██║
-//     ██║   ██║   ██║    ██║  ██║██║   ██║
-//     ██║   ╚██████╔╝    ██████╔╝╚██████╔╝
-//     ╚═╝    ╚═════╝     ╚═════╝  ╚═════╝
-//
-//  ┌─────────────────────────────────────────────────────────────┐
-//  │  STEP 1 — STAKING (required)                                │
-//  │                                                             │
-//  │  Deploy USDCStaking.sol on Remix → Arc Testnet              │
-//  │  Constructor arg: 0x3600000000000000000000000000000000000000│
-//  │  Then paste your contract address below:                    │
-//  └─────────────────────────────────────────────────────────────┘
-const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0'; // ← PASTE HERE e.g. '0xAbCd1234...'
-
-//  ┌─────────────────────────────────────────────────────────────┐
-//  │  STEP 2 — SWAP (optional, when ready)                       │
-//  │                                                             │
-//  │  If you deploy a swap contract later, paste its address     │
-//  │  below and swap will automatically go real on-chain.        │
-//  │  Leave empty to keep swap simulated.                        │
-//  └─────────────────────────────────────────────────────────────┘
-const SWAP_CONTRACT_ADDRESS = '0xfdFEFAC1bEfA3472F19c5483b770Ee9FCea1EC1a'; // ← PASTE HERE when you have one
+//  CONTRACT ADDRESSES — paste yours here
+// ══════════════════════════════════════════════════════════════════════════════
+const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
+const SWAP_CONTRACT_ADDRESS    = '0xfdFEFAC1bEfA3472F19c5483b770Ee9FCea1EC1a';
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  Arc Testnet config — do not change these
+//  Arc Testnet config
 // ══════════════════════════════════════════════════════════════════════════════
 const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
@@ -637,7 +590,7 @@ const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
 const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 const USDC_DECIMALS = 6;
 const EURC_DECIMALS = 6;
-const FX            = 0.9258; // USDC → EURC rate
+const FX            = 0.9258;
 const GAS_USDC      = 0.009;
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -650,7 +603,6 @@ const ERC20_ABI = [
   'function allowance(address,address) view returns (uint256)',
   'function decimals() view returns (uint8)'
 ];
-
 const STAKING_ABI = [
   'function stake(uint256 amount) external',
   'function unstake(uint256 amount) external',
@@ -676,11 +628,17 @@ let txHistory = JSON.parse(localStorage.getItem('arcTxHistory') || '[]');
 const hasStaking = () => STAKING_CONTRACT_ADDRESS && STAKING_CONTRACT_ADDRESS.length === 42;
 const hasSwap    = () => SWAP_CONTRACT_ADDRESS    && SWAP_CONTRACT_ADDRESS.length    === 42;
 
-// ── Registry ──────────────────────────────────────────────────────────────────
 const HANDLE_REGISTRY_ADDRESS = '0x604E8204F111eFC4e0ce69932b3BFb3ca64FC3aC';
-const HANDLE_REGISTRY_ABI = ['function register(string calldata handle) external','function remove(string calldata handle) external','function resolve(string calldata handle) external view returns (address)','function getHandles(address wallet) external view returns (string[] memory)'];
+const HANDLE_REGISTRY_ABI = [
+  'function register(string calldata handle) external',
+  'function remove(string calldata handle) external',
+  'function resolve(string calldata handle) external view returns (address)',
+  'function getHandles(address wallet) external view returns (string[] memory)'
+];
 
-// ── Wallet detection ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  Wallet detection
+// ══════════════════════════════════════════════════════════════════════════════
 function detectWallet() {
   if (window.ethereum?.providers?.length) {
     const ps = window.ethereum.providers;
@@ -689,7 +647,9 @@ function detectWallet() {
   return window.ethereum || window.rabby || null;
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  Toast
+// ══════════════════════════════════════════════════════════════════════════════
 let _tt;
 function toast(msg, type='info', ms=4000) {
   const el = document.getElementById('toast');
@@ -698,14 +658,18 @@ function toast(msg, type='info', ms=4000) {
 }
 function short(a) { return a ? a.slice(0,6) + '...' + a.slice(-4) : ''; }
 
-// ── Top bar ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  Top bar
+// ══════════════════════════════════════════════════════════════════════════════
 function updateTopBar(connected) {
   const btn = document.getElementById('connectTopBtn');
   if (connected) { btn.textContent = short(userAddr); btn.className = 'connected'; btn.onclick = null; }
   else { btn.textContent = 'Connect Wallet'; btn.className = ''; btn.onclick = connectWallet; }
 }
 
-// ── Network ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  Network
+// ══════════════════════════════════════════════════════════════════════════════
 async function checkNetwork() {
   if (!wp) return false;
   try {
@@ -728,7 +692,9 @@ async function switchToArc() {
   }
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  Skeleton
+// ══════════════════════════════════════════════════════════════════════════════
 function showBalSkeleton() {
   document.getElementById('balAmt').innerHTML = '<span class="skel skel-bal"></span>';
   document.getElementById('balUsd').innerHTML = '<span class="skel skel-small"></span>';
@@ -789,6 +755,8 @@ async function onConnected() {
   initStakeUI();
   await refreshStakeInfo();
   startStakeTimer();
+  // Show AI button when connected
+  showAIBtn(true);
   if (wp?.on) {
     wp.on('accountsChanged', (a) => { if (!a.length) disconnect(); else location.reload(); });
     wp.on('chainChanged', async () => {
@@ -812,6 +780,10 @@ function disconnect() {
   document.getElementById('page-land').classList.add('active');
   updateTopBar(false);
   document.getElementById('wrongNetBanner').classList.remove('show');
+  // Hide AI button + close panel on disconnect
+  showAIBtn(false);
+  agentOpen = false;
+  document.getElementById('agentPanel').style.display = 'none';
   toast('Disconnected', 'info', 2000);
 }
 
@@ -831,7 +803,7 @@ function goPage(name) {
   showPage(name);
   if (name === 'stake')   { initStakeUI(); refreshStakeInfo(); }
   if (name === 'history') renderHistory();
-  if (name === 'handle')  { renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); }
+  if (name === 'handle')  { renderAllHandles(); showMyHandles(); }
   if (name === 'swap')    refreshBalances();
 }
 
@@ -865,7 +837,7 @@ async function refreshBalances() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  STAKE — on-chain read
+//  STAKE — read
 // ══════════════════════════════════════════════════════════════════════════════
 async function refreshStakeInfo() {
   if (!provider || !userAddr || !hasStaking()) return;
@@ -902,7 +874,7 @@ function initStakeUI() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  STAKE — on-chain write
+//  STAKE — write
 // ══════════════════════════════════════════════════════════════════════════════
 async function doStake() {
   if (!signer || !onArcNetwork) { toast('Connect wallet & switch to Arc Testnet', 'error'); return; }
@@ -913,7 +885,6 @@ async function doStake() {
   const parsed = ethers.parseUnits(amt.toFixed(USDC_DECIMALS), USDC_DECIMALS);
   const btn = document.getElementById('stakeBtn');
   try {
-    // 1) Approve
     btn.innerHTML = '<span class="spinner"></span>Step 1/2: Approving USDC...'; btn.disabled = true;
     const usdc = new ethers.Contract(USDC_ADDR, ERC20_ABI, signer);
     const allowance = await usdc.allowance(userAddr, STAKING_CONTRACT_ADDRESS);
@@ -923,7 +894,6 @@ async function doStake() {
       await appTx.wait(1);
       toast('Approved! Now staking...', 'info', 4000);
     }
-    // 2) Stake
     btn.innerHTML = '<span class="spinner"></span>Step 2/2: Staking...';
     const sc = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_ABI, signer);
     const tx = await sc.stake(parsed);
@@ -1032,12 +1002,6 @@ async function onRecipInput() {
       else showNo('Invalid checksum');
     } else if (val.startsWith('0x') && val.length > 2) showNo('Address must be 42 characters');
   }
-  if (recipType === 'x' || recipType === 'discord') {
-    const h = val.replace(/^@/, '').toLowerCase();
-    const e = {}[recipType + ':' + h];
-    if (e) { resolvedTo = e.address; lastResolvedInput = val; showOk('@' + h + ' → ' + short(e.address)); }
-    else if (h.length > 1) showNo('@' + h + ' not registered');
-  }
   validateSend();
 }
 
@@ -1108,9 +1072,9 @@ async function doSend() {
   let to = (resolvedTo && lastResolvedInput===raw) ? resolvedTo : null;
   if (!to) {
     if (recipType==='address') { if (!ethers.isAddress(raw)) { toast('Invalid address','error'); return; } to=raw; }
-    else { const h=raw.replace(/^@/,'').toLowerCase(); const e={}[recipType+':'+h]; if(e){to=e.address;}else{toast('@'+h+' not registered','error',5000);cancelConfirm();return;} }
+    else { toast('Handle not resolved','error'); cancelConfirm(); return; }
   }
-  if (to.toLowerCase()===userAddr.toLowerCase()) { toast("",'error'); return; }
+  if (to.toLowerCase()===userAddr.toLowerCase()) { toast('Cannot send to yourself','error'); return; }
   const btn = document.getElementById('confirmSendBtn');
   btn.innerHTML='<span class="spinner"></span>Waiting for wallet...'; btn.disabled=true;
   const tokenAddr = sendToken==='USDC' ? USDC_ADDR : EURC_ADDR;
@@ -1173,15 +1137,26 @@ async function doSwap() {
   const fromBal = swapFlipped ? parseFloat(eurcBal) : parseFloat(usdcBal);
   if (amt > fromBal) { toast('Insufficient ' + fromTok, 'error'); return; }
 
-  // ── Real swap if contract is set ─────────────────────────────────────────
   if (hasSwap() && signer && onArcNetwork) {
-    if (hasSwap() && signer && onArcNetwork) {   const SWAP_ABI = [     'function swapUSDCtoEURC(uint256 amount) external',     'function swapEURCtoUSDC(uint256 amount) external',     'function approve(address spender, uint256 amount) external returns (bool)'   ];   const ERC20_ABI = ['function approve(address spender, uint256 amount) external returns (bool)'];   const amtParsed = ethers.parseUnits(amt.toString(), 6);   const tokenAddr = swapFlipped ? '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a' : '0x3600000000000000000000000000000000000000';   const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, signer);   const swapContract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);      await tokenContract.approve(SWAP_CONTRACT_ADDRESS, amtParsed);   setSwapBtn(true, 'Swapping...');   const tx = swapFlipped ? await swapContract.swapEURCtoUSDC(amtParsed) : await swapContract.swapUSDCtoEURC(amtParsed);   await tx.wait();   toast('Swap successful!', 'success');   await refreshBalances();   setSwapBtn(false, 'Swap');   return; }
-    // When you have a real swap contract ABI, implement here.
-    // Pattern: approve → swap → await receipt → addTx → refreshBalances
+    const SWAP_ABI = [
+      'function swapUSDCtoEURC(uint256 amount) external',
+      'function swapEURCtoUSDC(uint256 amount) external'
+    ];
+    const amtParsed = ethers.parseUnits(amt.toString(), 6);
+    const tokenAddr = swapFlipped ? EURC_ADDR : USDC_ADDR;
+    const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
+    const swapContract  = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
+    try {
+      await tokenContract.approve(SWAP_CONTRACT_ADDRESS, amtParsed);
+      const tx = swapFlipped ? await swapContract.swapEURCtoUSDC(amtParsed) : await swapContract.swapUSDCtoEURC(amtParsed);
+      await tx.wait();
+      toast('Swap successful!', 'success');
+      await refreshBalances();
+    } catch(e) { toast('Swap failed: ' + (e?.reason || e?.message || ''), 'error', 6000); }
     return;
   }
 
-  // ── Simulated swap ────────────────────────────────────────────────────────
+  // Simulated
   const out = (amt * (swapFlipped ? 1/FX : FX) * 0.999).toFixed(6);
   if (swapFlipped) { eurcBal = String(Math.max(0, parseFloat(eurcBal)-amt)); usdcBal = String(parseFloat(usdcBal)+parseFloat(out)); }
   else             { usdcBal = String(Math.max(0, parseFloat(usdcBal)-amt)); eurcBal = String(parseFloat(eurcBal)+parseFloat(out)); }
@@ -1191,7 +1166,6 @@ async function doSwap() {
   refreshBalances();
 }
 
-// Update swap UI based on whether contract is set
 function initSwapUI() {
   const real = hasSwap();
   document.getElementById('swapModeBanner').style.display = real ? 'none' : 'block';
@@ -1200,7 +1174,7 @@ function initSwapUI() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  HANDLE / DIRECTORY
+//  HANDLE
 // ══════════════════════════════════════════════════════════════════════════════
 function setRegType(type, el) {
   regType = type;
@@ -1213,41 +1187,26 @@ async function registerHandle() {
   if (!userAddr) { toast('Connect wallet first','error'); return; }
   let h = document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
   if (!h || h.length < 2) { toast('Enter a valid username','error'); return; }
-  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer); try {const tx = await contract.register(regType+':'+h); toast('Confirming...','info',3000); await tx.wait(); document.getElementById('regHandle').value = ''; toast('@'+h+' linked on-chain!','success'); renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); } catch(e) { toast(e.reason || 'Failed','error'); } 
-  
-  
-  document.getElementById('regHandle').value = '';
-  
-  renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000);
+  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer);
+  try {
+    const tx = await contract.register(regType+':'+h);
+    toast('Confirming...','info',3000);
+    await tx.wait();
+    document.getElementById('regHandle').value = '';
+    toast('@'+h+' linked on-chain!','success');
+    renderAllHandles(); showMyHandles();
+  } catch(e) { toast(e.reason || 'Failed','error'); }
 }
 
 function showMyHandles() {
   if (!userAddr) return;
-  const reg = {}; const mine = Object.values(reg).filter(r => r.address.toLowerCase()===userAddr.toLowerCase());
   const box = document.getElementById('myHandlesBox');
-  if (mine.length) {
-    box.style.display='block';
-    document.getElementById('myHandlesList').innerHTML = mine.map(r => `<span class="handle-tag">${r.platform==='x'?'𝕏':'💬'} @${r.handle} <span class="handle-remove" onclick="removeHandle('${r.platform}','${r.handle}')">✕</span></span>`).join('');
-  } else box.style.display='none';
+  box.style.display='none';
 }
-
-function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; (reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); toast('✅ Handle registered successfully!','success',5000); }
 
 function renderAllHandles() {
-  const entries = Object.values({}).sort((a,b)=>b.ts-a.ts);
   const list = document.getElementById('allHandlesList');
-  if (!entries.length) { list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>'; return; }
-  list.innerHTML = entries.map(r => `<div class="dir-item"><div class="dir-av">${r.handle[0].toUpperCase()}</div><div class="dir-info"><div class="dir-handle">${r.platform==='x'?'𝕏':'💬'} @${r.handle}</div><div class="dir-addr">${short(r.address)}</div></div><button class="send-sm" onclick="sendToHandle('${r.platform}','${r.handle}')">Send →</button></div>`).join('');
-}
-
-function sendToHandle(platform, handle) {
-  goPage('send'); recipType=platform; resolvedTo=null; lastResolvedInput='';
-  document.querySelectorAll('#page-send .type-sel .topt').forEach(b=>b.classList.remove('active'));
-  if (platform==='x') document.getElementById('topt-x').classList.add('active');
-  else document.getElementById('topt-discord').classList.add('active');
-  const entry = {}[platform+':'+handle];
-  if (entry) { resolvedTo=entry.address; const dv='@'+handle; lastResolvedInput=dv; document.getElementById('recipInput').value=dv; showOk('@'+handle+' → '+short(entry.address)); }
-  validateSend();
+  list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1295,12 +1254,157 @@ function renderQR(a) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  NAN AI AGENT
+// ══════════════════════════════════════════════════════════════════════════════
+let agentMsgs = [{
+  role: 'assistant',
+  content: "Hey! I'm NAN AI ✦  I can see your live wallet — balances, staking rewards, history. Ask me anything, or say things like \"send 10 USDC\" and I'll set it up for you."
+}];
+let agentOpen = false;
+
+function toggleAgent() {
+  agentOpen = !agentOpen;
+  const panel = document.getElementById('agentPanel');
+  panel.style.display = agentOpen ? 'flex' : 'none';
+  if (agentOpen) { renderAgentMsgs(); renderAgentChips(); scrollAgentBottom(); }
+}
+
+function showAIBtn(show) {
+  document.getElementById('aiBtn').style.display = show ? 'flex' : 'none';
+}
+
+function renderAgentMsgs() {
+  const el = document.getElementById('agentMessages');
+  el.innerHTML = agentMsgs.map(m => `
+    <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
+      ${m.role==='assistant' ? '<div style="width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:9px;margin-bottom:3px;color:#fff;">✦</div>' : ''}
+      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'rgba(255,255,255,0.06)'};border:${m.role==='user'?'none':'1px solid rgba(255,255,255,0.08)'};color:#ede9fe;font-size:.75rem;line-height:1.55;">${m.content}</div>
+      ${m.action ? `<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ Execute: ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderAgentChips() {
+  if (agentMsgs.length > 1) { document.getElementById('agentChips').innerHTML = ''; return; }
+  const chips = ["What's my balance?", "How much staked?", "My rewards?", "Send USDC", "Swap USDC → EURC", "Stake USDC"];
+  document.getElementById('agentChips').innerHTML = chips.map(c =>
+    `<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:#a78bfa;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`
+  ).join('');
+}
+
+function scrollAgentBottom() {
+  const el = document.getElementById('agentMessages');
+  setTimeout(() => { el.scrollTop = el.scrollHeight; }, 50);
+}
+
+async function sendAgentMsg(text) {
+  const input = document.getElementById('agentInput');
+  const msg = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  document.getElementById('agentChips').innerHTML = '';
+  agentMsgs.push({ role: 'user', content: msg });
+
+  // Typing indicator
+  agentMsgs.push({ role: 'assistant', content: '...' });
+  renderAgentMsgs(); scrollAgentBottom();
+
+  // Live wallet context — reads live variables
+  const context = `You are NAN AI, an assistant embedded in the NAN wallet app on Arc Testnet.
+
+LIVE WALLET DATA (real-time):
+- Address: ${userAddr || 'Not connected'}
+- USDC Balance: ${parseFloat(usdcBal || 0).toFixed(2)} USDC
+- EURC Balance: ${parseFloat(eurcBal || 0).toFixed(2)} EURC
+- On Arc Testnet: ${onArcNetwork}
+- Staked USDC: ${onChainStaked.toFixed(2)} USDC
+- Claimable Rewards: ${onChainClaimable.toFixed(6)} USDC
+- Staking APY: 5.20%
+- Network fee: ~0.009 USDC per tx
+- 1 USDC = 0.9258 EURC
+
+RECENT TRANSACTIONS (last 5):
+${txHistory.slice(0,5).map(t => `${t.type} ${t.amount} ${t.token||''} - ${new Date(t.ts).toLocaleDateString()}`).join('\n') || 'None yet'}
+
+RULES:
+- Use the real numbers above, never make up balances
+- Keep replies under 100 words
+- Be specific and helpful
+- If user asks to DO something, include an <ACTION> block:
+  send:     {"action":"send","amount":10,"token":"USDC","to":"0x..."}
+  swap:     {"action":"swap","amount":50,"from":"USDC","to":"EURC"}
+  stake:    {"action":"stake","amount":100}
+  navigate: {"action":"navigate","tab":"history"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: context,
+        messages: agentMsgs
+          .slice(0, -1)
+          .filter(m => m.content !== '...')
+          .map(m => ({ role: m.role, content: m.content }))
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || "Sorry, couldn't reach the AI.";
+
+    // Parse action if present
+    const actionMatch = reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
+    let action = null;
+    try { if (actionMatch) action = JSON.parse(actionMatch[1].trim()); } catch {}
+    const clean = reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g, '').trim();
+
+    agentMsgs[agentMsgs.length - 1] = { role: 'assistant', content: clean, action };
+  } catch {
+    agentMsgs[agentMsgs.length - 1] = { role: 'assistant', content: "Connection error — please try again." };
+  }
+
+  renderAgentMsgs(); scrollAgentBottom();
+}
+
+function executeAgentAction(action) {
+  toggleAgent();
+  switch (action.action) {
+    case 'send':
+      goPage('send');
+      setTimeout(() => {
+        document.getElementById('recipInput').value = action.to || '';
+        document.getElementById('amtInput').value = action.amount || '';
+        sendToken = action.token || 'USDC';
+        document.getElementById('sendTokenLabel').textContent = sendToken;
+        validateSend();
+      }, 200);
+      break;
+    case 'swap':
+      goPage('swap');
+      setTimeout(() => {
+        document.getElementById('swapFrom').value = action.amount || '';
+        calcSwap();
+      }, 200);
+      break;
+    case 'stake':
+      goPage('stake');
+      setTimeout(() => {
+        document.getElementById('stakeAmt').value = action.amount || '';
+      }, 200);
+      break;
+    case 'navigate':
+      goPage(action.tab);
+      break;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════════════════════
 window.addEventListener('load', () => {
   updateTopBar(false);
   initSwapUI();
-  // Auto-refresh every 30s when connected
   setInterval(async () => {
     if (userAddr) {
       await checkNetwork();
