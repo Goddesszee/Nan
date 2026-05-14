@@ -1231,7 +1231,7 @@ function showMyHandles() {
   } else box.style.display='none';
 }
 
-function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; saveRegistry(reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); }
+function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; (reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); }
 
 function renderAllHandles() {
   const entries = Object.values({}).sort((a,b)=>b.ts-a.ts);
