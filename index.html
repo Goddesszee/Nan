@@ -107,7 +107,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .live-badge{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--success);line-height:1.55;display:flex;align-items:center;gap:7px;}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 1.5s ease infinite;flex-shrink:0;}
 .info-banner{background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:#93c5fd;line-height:1.55;}
-.warn-banner{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--warning);line-height:1.55;}
+.display:none;{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--warning);line-height:1.55;}
 .alert{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;display:flex;align-items:center;gap:7px;font-size:.63rem;color:var(--text2);}
 .alert a{color:var(--accent3);font-weight:500;}
 
@@ -481,7 +481,7 @@ a:hover{color:var(--text);}
     ║  4. Save and redeploy — staking goes live automatically  ║
     ╚══════════════════════════════════════════════════════════╝
   -->
-  <div class="warn-banner" id="stakeSetupBanner">
+  <div class="display:none;" id="stakeSetupBanner">
     ⚙️ <strong>Setup needed</strong> — Deploy the staking contract on Remix, then paste the address into <code>STAKING_CONTRACT_ADDRESS</code> in this file. See the comment block in the &lt;script&gt; for instructions.
   </div>
   <div class="live-badge" id="stakeLiveBadge" style="display:none;"><div class="live-dot"></div>Live on Arc Testnet — real on-chain staking</div>
