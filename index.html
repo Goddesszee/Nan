@@ -1110,7 +1110,7 @@ async function doSend() {
     if (recipType==='address') { if (!ethers.isAddress(raw)) { toast('Invalid address','error'); return; } to=raw; }
     else { const h=raw.replace(/^@/,'').toLowerCase(); const e=getRegistry()[recipType+':'+h]; if(e){to=e.address;}else{toast('@'+h+' not registered','error',5000);cancelConfirm();return;} }
   }
-  if (to.toLowerCase()===userAddr.toLowerCase()) { toast("Can't send to yourself",'error'); return; }
+  if (to.toLowerCase()===userAddr.toLowerCase()) { toast("",'error'); return; }
   const btn = document.getElementById('confirmSendBtn');
   btn.innerHTML='<span class="spinner"></span>Waiting for wallet...'; btn.disabled=true;
   const tokenAddr = sendToken==='USDC' ? USDC_ADDR : EURC_ADDR;
