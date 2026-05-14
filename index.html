@@ -549,9 +549,9 @@ a:hover{color:var(--text);}
     </div>
     <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;">✕</button>
   </div>
-  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:0;"></div>
-  <div style="padding:8px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-    <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="agentChips"></div>
+  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-height:0;"></div>
+  <div style="padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
+    <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:7px;align-items:center;">
       <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:10px 13px;color:#ede9fe;font-size:.8rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1rem;cursor:pointer;flex-shrink:0;">↑</button>
