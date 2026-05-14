@@ -20,7 +20,6 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 600px 400px at 85% -5%,rgba(139,92,246,.12) 0%,transparent 70%),radial-gradient(ellipse 400px 600px at -5% 95%,rgba(109,40,217,.07) 0%,transparent 70%);pointer-events:none;z-index:0;}
 
-/* ── Top bar ── */
 #globalTopBar{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(7,8,26,.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border2);}
 .brand{display:flex;align-items:center;gap:9px;}
 .brand-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);}
@@ -33,7 +32,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 #connectTopBtn:hover{transform:translateY(-1px);background:#9d70f8;}
 #connectTopBtn.connected{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.02em;cursor:default;}
 
-/* ── Bottom nav ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border2);padding:5px 0 env(safe-area-inset-bottom,10px);display:none;}
 .bottom-nav.show{display:block;}
 .nav-items{display:flex;max-width:480px;margin:0 auto;padding:0 6px;}
@@ -42,7 +40,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .nav-btn.active{color:var(--accent3);}
 .nav-btn.active .ni{transform:scale(1.15);}
 
-/* ── Pages ── */
 .page{display:none;position:fixed;top:57px;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:10px 13px 8px;max-width:480px;margin:0 auto;animation:up .28s ease both;scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}
@@ -50,7 +47,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .page-land.active{display:flex;}
 @keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── Landing ── */
 .land-inner{padding:20px 4px 24px;text-align:center;}
 .land-logo-wrap{display:flex;justify-content:center;margin-bottom:18px;}
 .land-logo{width:70px;height:70px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 36px rgba(139,92,246,.45);}
@@ -69,12 +65,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .land-note{font-size:.67rem;color:var(--text3);}
 .land-note a{color:var(--accent3);}
 
-/* ── Cards ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:11px;margin-bottom:7px;}
 .card-title{font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
 
-/* ── Balance card ── */
 .bal-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:var(--radius);padding:11px;margin-bottom:7px;position:relative;overflow:hidden;}
 .bal-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);pointer-events:none;}
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
@@ -92,13 +86,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .wal-addr{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
 .wal-addr:hover{color:var(--text);}
 
-/* ── Skeleton ── */
 .skel{display:inline-block;background:linear-gradient(90deg,rgba(139,92,246,.08) 25%,rgba(139,92,246,.18) 50%,rgba(139,92,246,.08) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:4px;}
 @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 .skel-bal{width:80px;height:28px;border-radius:6px;}
 .skel-small{width:50px;height:14px;border-radius:4px;}
 
-/* ── Banners ── */
 .rpc-error{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;font-size:.63rem;color:var(--danger);display:none;align-items:center;gap:7px;}
 .rpc-error.show{display:flex;}
 .wrong-net{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:7px;font-size:.63rem;color:var(--warning);display:none;align-items:center;gap:7px;}
@@ -110,7 +102,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .alert{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;display:flex;align-items:center;gap:7px;font-size:.63rem;color:var(--text2);}
 .alert a{color:var(--accent3);font-weight:500;}
 
-/* ── Buttons & inputs ── */
 .ibtn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:.58rem;padding:4px 8px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;transition:all .15s;}
 .ibtn:hover{border-color:var(--border2);color:var(--text);}
 .ibtn.red{color:var(--danger);border-color:rgba(248,113,113,.22);}
@@ -149,7 +140,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .btn-green{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--success);box-shadow:none;}
 .btn-green:hover:not(:disabled){background:rgba(52,211,153,.25);box-shadow:none;}
 
-/* ── Confirm / success ── */
 .confirm-wrap{display:none;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:15px;margin-bottom:7px;animation:up .25s ease both;}
 .confirm-wrap.show{display:block;}
 .confirm-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
@@ -170,12 +160,10 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .success-sub{font-size:.68rem;color:var(--text3);margin-bottom:8px;}
 .success-hash{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);margin-bottom:18px;word-break:break-all;text-align:center;}
 
-/* ── QR / receive ── */
 .qr-wrap{display:flex;flex-direction:row;align-items:center;gap:11px;padding:5px 0;}
 .qr-frame{background:#fff;border-radius:10px;padding:7px;flex-shrink:0;}
 .recv-addr{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text2);word-break:break-all;text-align:left;padding:7px 9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);flex:1;line-height:1.65;}
 
-/* ── Swap ── */
 .swap-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px;margin-bottom:6px;}
 .swap-label{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
 .token-select{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
@@ -188,7 +176,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .swap-input::placeholder{color:var(--text3);opacity:.5;}
 .swap-balance{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:4px;}
 
-/* ── Stake ── */
 .stake-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
 .stake-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;text-align:center;}
 .ss-label{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
@@ -201,7 +188,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .stake-panel{display:none;}
 .stake-panel.active{display:block;}
 
-/* ── Handle ── */
 .my-handles-box{display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:var(--radius-sm);padding:8px;margin-bottom:8px;}
 .mhl{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 .handle-tag{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--text);margin:2px;}
@@ -214,7 +200,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .dir-addr{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);}
 .send-sm{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:7px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.63rem;font-weight:600;padding:4px 9px;cursor:pointer;white-space:nowrap;}
 
-/* ── History ── */
 .tx-item{display:flex;align-items:center;padding:9px 0;gap:9px;border-bottom:1px solid var(--border);}
 .tx-item:last-child{border-bottom:none;}
 .tx-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;}
@@ -235,7 +220,6 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .empty-icon{font-size:1.6rem;margin-bottom:6px;opacity:.5;}
 .empty-text{font-size:.73rem;line-height:1.65;}
 
-/* ── Toast ── */
 #toast{position:fixed;bottom:68px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:.76rem;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #toast.success{border-color:rgba(52,211,153,.35);color:var(--success);}
@@ -436,9 +420,6 @@ a:hover{color:var(--text);}
 <div class="page" id="page-stake">
   <div class="page-title">Stake</div>
   <div class="page-sub">Earn 5.20% APY on your USDC</div>
-  <div class="display:none;" id="stakeSetupBanner" style="display:none;">
-    ⚙️ <strong>Setup needed</strong> — Deploy the staking contract on Remix, then paste the address into <code>STAKING_CONTRACT_ADDRESS</code>.
-  </div>
   <div class="live-badge" id="stakeLiveBadge" style="display:none;"><div class="live-dot"></div>Live on Arc Testnet — real on-chain staking</div>
   <div class="info-banner" id="approveNotice" style="display:none;">ℹ️ First stake requires 2 transactions: <strong>1) Approve</strong> USDC, then <strong>2) Stake</strong>. MetaMask will prompt for both.</div>
 
@@ -528,17 +509,15 @@ a:hover{color:var(--text);}
 
 <div id="toast"></div>
 
-<!-- ══════════════════════════════════════════════════════
-     NAN AI — Button + Panel (inserted after toast)
-══════════════════════════════════════════════════════ -->
-
-<!-- AI Button -->
+<!-- ══ AI FAB Button ══ -->
 <button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:70px;right:14px;z-index:300;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
 
-<!-- AI Panel: sits above the bottom nav (60px), fills up to just below the top bar (57px) -->
-<div id="agentPanel" style="display:none;position:fixed;top:57px;bottom:60px;left:0;right:0;max-width:480px;margin:0 auto;background:#0b0b1f;border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:250;flex-direction:column;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">   <div style="padding:8px 12px;display:flex;justify-content:flex-end;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.05);">     <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;">✕</button>   </div>
-  <div style="padding:8px 12px;display:flex;justify-content:flex-end;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    
+<!-- ══ AI Panel — FIXED: single header, display:flex on open ══ -->
+<div id="agentPanel" style="display:none;position:fixed;top:57px;bottom:60px;left:0;right:0;max-width:480px;margin:0 auto;background:#0b0b1f;border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:250;flex-direction:column;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
+
+  <!-- Single clean header row -->
+  <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="display:flex;align-items:center;gap:9px;">
       <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;">✦</div>
       <div>
         <div style="font-size:.85rem;font-weight:700;color:#ede9fe;">NAN AI</div>
@@ -547,9 +526,13 @@ a:hover{color:var(--text);}
         </div>
       </div>
     </div>
-    <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;">✕</button>
+    <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b6b9b;cursor:pointer;font-size:14px;line-height:1;">✕</button>
   </div>
-  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-height:0;"></div>
+
+  <!-- Messages -->
+  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px;min-height:0;"></div>
+
+  <!-- Input area -->
   <div style="padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
     <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:7px;align-items:center;">
@@ -565,15 +548,9 @@ a:hover{color:var(--text);}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════════════
-//  CONTRACT ADDRESSES — paste yours here
-// ══════════════════════════════════════════════════════════════════════════════
 const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
 const SWAP_CONTRACT_ADDRESS    = '0xfdFEFAC1bEfA3472F19c5483b770Ee9FCea1EC1a';
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Arc Testnet config
-// ══════════════════════════════════════════════════════════════════════════════
 const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://rpc.testnet.arc.network';
@@ -593,9 +570,6 @@ const EURC_DECIMALS = 6;
 const FX            = 0.9258;
 const GAS_USDC      = 0.009;
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  ABIs
-// ══════════════════════════════════════════════════════════════════════════════
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function transfer(address,uint256) returns (bool)',
@@ -612,9 +586,6 @@ const STAKING_ABI = [
   'function totalStaked() view returns (uint256)'
 ];
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  App state
-// ══════════════════════════════════════════════════════════════════════════════
 let provider = null, signer = null, userAddr = null, wp = null;
 let usdcBal = '0', eurcBal = '0';
 let onArcNetwork = false, balancesLoading = false;
@@ -636,9 +607,6 @@ const HANDLE_REGISTRY_ABI = [
   'function getHandles(address wallet) external view returns (string[] memory)'
 ];
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Wallet detection
-// ══════════════════════════════════════════════════════════════════════════════
 function detectWallet() {
   if (window.ethereum?.providers?.length) {
     const ps = window.ethereum.providers;
@@ -647,9 +615,6 @@ function detectWallet() {
   return window.ethereum || window.rabby || null;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Toast
-// ══════════════════════════════════════════════════════════════════════════════
 let _tt;
 function toast(msg, type='info', ms=4000) {
   const el = document.getElementById('toast');
@@ -658,18 +623,12 @@ function toast(msg, type='info', ms=4000) {
 }
 function short(a) { return a ? a.slice(0,6) + '...' + a.slice(-4) : ''; }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Top bar
-// ══════════════════════════════════════════════════════════════════════════════
 function updateTopBar(connected) {
   const btn = document.getElementById('connectTopBtn');
   if (connected) { btn.textContent = short(userAddr); btn.className = 'connected'; btn.onclick = null; }
   else { btn.textContent = 'Connect Wallet'; btn.className = ''; btn.onclick = connectWallet; }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Network
-// ══════════════════════════════════════════════════════════════════════════════
 async function checkNetwork() {
   if (!wp) return false;
   try {
@@ -692,9 +651,6 @@ async function switchToArc() {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Skeleton
-// ══════════════════════════════════════════════════════════════════════════════
 function showBalSkeleton() {
   document.getElementById('balAmt').innerHTML = '<span class="skel skel-bal"></span>';
   document.getElementById('balUsd').innerHTML = '<span class="skel skel-small"></span>';
@@ -702,9 +658,6 @@ function showBalSkeleton() {
   document.getElementById('eurcBal2').innerHTML = '<span class="skel skel-small"></span>';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  CONNECT
-// ══════════════════════════════════════════════════════════════════════════════
 async function connectWallet() {
   wp = detectWallet();
   if (!wp) { toast('No wallet found — install Rabby or MetaMask', 'error', 8000); return; }
@@ -755,7 +708,6 @@ async function onConnected() {
   initStakeUI();
   await refreshStakeInfo();
   startStakeTimer();
-  // Show AI button when connected
   showAIBtn(true);
   if (wp?.on) {
     wp.on('accountsChanged', (a) => { if (!a.length) disconnect(); else location.reload(); });
@@ -780,16 +732,12 @@ function disconnect() {
   document.getElementById('page-land').classList.add('active');
   updateTopBar(false);
   document.getElementById('wrongNetBanner').classList.remove('show');
-  // Hide AI button + close panel on disconnect
   showAIBtn(false);
   agentOpen = false;
   document.getElementById('agentPanel').style.display = 'none';
   toast('Disconnected', 'info', 2000);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  PAGE ROUTING
-// ══════════════════════════════════════════════════════════════════════════════
 function showPage(name) {
   document.querySelectorAll('.page:not(.page-land)').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -807,9 +755,6 @@ function goPage(name) {
   if (name === 'swap')    refreshBalances();
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  BALANCES
-// ══════════════════════════════════════════════════════════════════════════════
 async function refreshBalances() {
   if (!provider || !userAddr || balancesLoading || !onArcNetwork) return;
   balancesLoading = true;
@@ -836,9 +781,6 @@ async function refreshBalances() {
   } finally { balancesLoading = false; }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  STAKE — read
-// ══════════════════════════════════════════════════════════════════════════════
 async function refreshStakeInfo() {
   if (!provider || !userAddr || !hasStaking()) return;
   try {
@@ -866,16 +808,12 @@ function startStakeTimer() {
 
 function initStakeUI() {
   const ok = hasStaking();
-  document.getElementById('stakeSetupBanner').style.display = ok ? 'none'  : 'block';
   document.getElementById('stakeLiveBadge').style.display   = ok ? 'flex'  : 'none';
   document.getElementById('approveNotice').style.display    = (ok && onChainStaked === 0) ? 'block' : 'none';
   document.getElementById('stakeBtn').disabled = !ok || !onArcNetwork;
   if (!ok) document.getElementById('stakeBtn').textContent = 'Contract not set up yet';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  STAKE — write
-// ══════════════════════════════════════════════════════════════════════════════
 async function doStake() {
   if (!signer || !onArcNetwork) { toast('Connect wallet & switch to Arc Testnet', 'error'); return; }
   if (!hasStaking()) { toast('Paste STAKING_CONTRACT_ADDRESS first', 'error'); return; }
@@ -969,9 +907,6 @@ function setStakeTab(tab, el) {
   document.getElementById('sp-' + tab).classList.add('active');
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  SEND
-// ══════════════════════════════════════════════════════════════════════════════
 function setSendTab(tab) {
   document.getElementById('tab-send').style.display  = tab === 'send'    ? 'block' : 'none';
   document.getElementById('tab-recv').style.display  = tab === 'receive' ? 'block' : 'none';
@@ -1028,7 +963,6 @@ function validateSend() {
   const amt  = parseFloat(document.getElementById('amtInput').value) || 0;
   const uF   = parseFloat(usdcBal) || 0;
   const eF   = parseFloat(eurcBal) || 0;
-  const sendBal = sendToken === 'USDC' ? uF : eF;
   const btn = document.getElementById('sendBtn');
   if (!onArcNetwork)  { btn.disabled=true; btn.textContent='Switch to Arc Testnet'; return; }
   if (!addr)          { btn.disabled=true; btn.textContent='Enter address & amount'; return; }
@@ -1108,9 +1042,6 @@ function resetSend() {
   validateSend(); document.getElementById('page-send').scrollTop=0;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  SWAP
-// ══════════════════════════════════════════════════════════════════════════════
 function calcSwap() {
   const amt  = parseFloat(document.getElementById('swapFrom').value) || 0;
   const rate = swapFlipped ? (1/FX) : FX;
@@ -1156,7 +1087,6 @@ async function doSwap() {
     return;
   }
 
-  // Simulated
   const out = (amt * (swapFlipped ? 1/FX : FX) * 0.999).toFixed(6);
   if (swapFlipped) { eurcBal = String(Math.max(0, parseFloat(eurcBal)-amt)); usdcBal = String(parseFloat(usdcBal)+parseFloat(out)); }
   else             { usdcBal = String(Math.max(0, parseFloat(usdcBal)-amt)); eurcBal = String(parseFloat(eurcBal)+parseFloat(out)); }
@@ -1173,9 +1103,6 @@ function initSwapUI() {
   document.getElementById('swapBtn').textContent = real ? 'Swap' : 'Simulate Swap';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  HANDLE
-// ══════════════════════════════════════════════════════════════════════════════
 function setRegType(type, el) {
   regType = type;
   document.querySelectorAll('#page-handle .topt').forEach(b => b.classList.remove('active'));
@@ -1209,9 +1136,6 @@ function renderAllHandles() {
   list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  HISTORY
-// ══════════════════════════════════════════════════════════════════════════════
 function addTx(tx) { txHistory.unshift(tx); localStorage.setItem('arcTxHistory', JSON.stringify(txHistory.slice(0,100))); }
 function clearHistory() {
   if (!txHistory.length) { toast('Nothing to clear','info',2000); return; }
@@ -1235,9 +1159,6 @@ function renderHistory() {
   }).join('');
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════════════════════════════════════
 function copyAddr() {
   if (!userAddr) return;
   navigator.clipboard.writeText(userAddr).then(() => {
@@ -1254,7 +1175,7 @@ function renderQR(a) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  NAN AI AGENT
+//  NAN AI AGENT — FIXED
 // ══════════════════════════════════════════════════════════════════════════════
 let agentMsgs = [{
   role: 'assistant',
@@ -1266,8 +1187,8 @@ function toggleAgent() {
   agentOpen = !agentOpen;
   const panel = document.getElementById('agentPanel');
   const fab   = document.getElementById('aiBtn');
+  // KEY FIX: use 'flex' not 'block' so flex-direction:column layout works
   panel.style.display = agentOpen ? 'flex' : 'none';
-  // Hide the FAB while panel is open so they don't overlap
   if (fab) fab.style.display = agentOpen ? 'none' : 'flex';
   if (agentOpen) { renderAgentMsgs(); renderAgentChips(); scrollAgentBottom(); }
 }
@@ -1308,12 +1229,9 @@ async function sendAgentMsg(text) {
   input.value = '';
   document.getElementById('agentChips').innerHTML = '';
   agentMsgs.push({ role: 'user', content: msg });
-
-  // Typing indicator
   agentMsgs.push({ role: 'assistant', content: '...' });
   renderAgentMsgs(); scrollAgentBottom();
 
-  // Live wallet context — reads live variables
   const context = `You are NAN AI, an assistant embedded in the NAN wallet app on Arc Testnet.
 
 LIVE WALLET DATA (real-time):
@@ -1356,23 +1274,18 @@ RULES:
     });
     const data = await res.json();
     const reply = data.content?.[0]?.text || "Sorry, couldn't reach the AI.";
-
-    // Parse action if present
     const actionMatch = reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action = null;
     try { if (actionMatch) action = JSON.parse(actionMatch[1].trim()); } catch {}
     const clean = reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g, '').trim();
-
     agentMsgs[agentMsgs.length - 1] = { role: 'assistant', content: clean, action };
   } catch {
     agentMsgs[agentMsgs.length - 1] = { role: 'assistant', content: "Connection error — please try again." };
   }
-
   renderAgentMsgs(); scrollAgentBottom();
 }
 
 function executeAgentAction(action) {
-  // Close panel and restore FAB
   agentOpen = false;
   document.getElementById('agentPanel').style.display = 'none';
   showAIBtn(true);
@@ -1389,16 +1302,11 @@ function executeAgentAction(action) {
       break;
     case 'swap':
       goPage('swap');
-      setTimeout(() => {
-        document.getElementById('swapFrom').value = action.amount || '';
-        calcSwap();
-      }, 200);
+      setTimeout(() => { document.getElementById('swapFrom').value = action.amount || ''; calcSwap(); }, 200);
       break;
     case 'stake':
       goPage('stake');
-      setTimeout(() => {
-        document.getElementById('stakeAmt').value = action.amount || '';
-      }, 200);
+      setTimeout(() => { document.getElementById('stakeAmt').value = action.amount || ''; }, 200);
       break;
     case 'navigate':
       goPage(action.tab);
@@ -1406,9 +1314,6 @@ function executeAgentAction(action) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════════════════════════════
 window.addEventListener('load', () => {
   updateTopBar(false);
   initSwapUI();
