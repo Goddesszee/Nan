@@ -1217,7 +1217,7 @@ async function registerHandle() {
   reg[key] = { address:userAddr, platform:regType, handle:h, ts:Date.now() }; saveRegistry(reg);
   reg[key] = { address:userAddr, platform:regType, handle:h, ts:Date.now() }; saveRegistry(reg);
   document.getElementById('regHandle').value = '';
-  toast('@'+h+' linked to '+short(userAddr),'success');
+  
   renderAllHandles(); showMyHandles();
 }
 
