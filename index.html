@@ -1034,7 +1034,7 @@ async function onRecipInput() {
   }
   if (recipType === 'x' || recipType === 'discord') {
     const h = val.replace(/^@/, '').toLowerCase();
-    const e = getRegistry()[recipType + ':' + h];
+    const e = {}[recipType + ':' + h];
     if (e) { resolvedTo = e.address; lastResolvedInput = val; showOk('@' + h + ' → ' + short(e.address)); }
     else if (h.length > 1) showNo('@' + h + ' not registered');
   }
@@ -1108,7 +1108,7 @@ async function doSend() {
   let to = (resolvedTo && lastResolvedInput===raw) ? resolvedTo : null;
   if (!to) {
     if (recipType==='address') { if (!ethers.isAddress(raw)) { toast('Invalid address','error'); return; } to=raw; }
-    else { const h=raw.replace(/^@/,'').toLowerCase(); const e=getRegistry()[recipType+':'+h]; if(e){to=e.address;}else{toast('@'+h+' not registered','error',5000);cancelConfirm();return;} }
+    else { const h=raw.replace(/^@/,'').toLowerCase(); const e={}[recipType+':'+h]; if(e){to=e.address;}else{toast('@'+h+' not registered','error',5000);cancelConfirm();return;} }
   }
   if (to.toLowerCase()===userAddr.toLowerCase()) { toast("",'error'); return; }
   const btn = document.getElementById('confirmSendBtn');
@@ -1223,7 +1223,7 @@ async function registerHandle() {
 
 function showMyHandles() {
   if (!userAddr) return;
-  const reg = getRegistry(); const mine = Object.values(reg).filter(r => r.address.toLowerCase()===userAddr.toLowerCase());
+  const reg = {}; const mine = Object.values(reg).filter(r => r.address.toLowerCase()===userAddr.toLowerCase());
   const box = document.getElementById('myHandlesBox');
   if (mine.length) {
     box.style.display='block';
@@ -1231,10 +1231,10 @@ function showMyHandles() {
   } else box.style.display='none';
 }
 
-function removeHandle(p, h) { const reg=getRegistry(); delete reg[p+':'+h]; saveRegistry(reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); }
+function removeHandle(p, h) { const reg={}; delete reg[p+':'+h]; saveRegistry(reg); toast('Removed @'+h,'info',2000); renderAllHandles(); showMyHandles(); }
 
 function renderAllHandles() {
-  const entries = Object.values(getRegistry()).sort((a,b)=>b.ts-a.ts);
+  const entries = Object.values({}).sort((a,b)=>b.ts-a.ts);
   const list = document.getElementById('allHandlesList');
   if (!entries.length) { list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>'; return; }
   list.innerHTML = entries.map(r => `<div class="dir-item"><div class="dir-av">${r.handle[0].toUpperCase()}</div><div class="dir-info"><div class="dir-handle">${r.platform==='x'?'𝕏':'💬'} @${r.handle}</div><div class="dir-addr">${short(r.address)}</div></div><button class="send-sm" onclick="sendToHandle('${r.platform}','${r.handle}')">Send →</button></div>`).join('');
@@ -1245,7 +1245,7 @@ function sendToHandle(platform, handle) {
   document.querySelectorAll('#page-send .type-sel .topt').forEach(b=>b.classList.remove('active'));
   if (platform==='x') document.getElementById('topt-x').classList.add('active');
   else document.getElementById('topt-discord').classList.add('active');
-  const entry = getRegistry()[platform+':'+handle];
+  const entry = {}[platform+':'+handle];
   if (entry) { resolvedTo=entry.address; const dv='@'+handle; lastResolvedInput=dv; document.getElementById('recipInput').value=dv; showOk('@'+handle+' → '+short(entry.address)); }
   validateSend();
 }
