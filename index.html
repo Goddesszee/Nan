@@ -678,7 +678,7 @@ const hasSwap    = () => SWAP_CONTRACT_ADDRESS    && SWAP_CONTRACT_ADDRESS.lengt
 
 // ── Registry ──────────────────────────────────────────────────────────────────
 const HANDLE_REGISTRY_ADDRESS = '0x604E8204F111eFC4e0ce69932b3BFb3ca64FC3aC';
-function saveRegistry(r) { localStorage.setItem('arcHandleRegistry', JSON.stringify(r)); }
+const HANDLE_REGISTRY_ABI = ['function register(string calldata handle) external','function remove(string calldata handle) external','function resolve(string calldata handle) external view returns (address)','function getHandles(address wallet) external view returns (string[] memory)'];
 
 // ── Wallet detection ──────────────────────────────────────────────────────────
 function detectWallet() {
