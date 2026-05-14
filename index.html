@@ -1209,7 +1209,7 @@ function setRegType(type, el) {
   document.getElementById('regHandle').placeholder = type==='x' ? '@yourtwitter' : 'yourdiscord';
 }
 
-function registerHandle() {
+async function registerHandle() {
   if (!userAddr) { toast('Connect wallet first','error'); return; }
   let h = document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
   if (!h || h.length < 2) { toast('Enter a valid username','error'); return; }
