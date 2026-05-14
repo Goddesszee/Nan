@@ -1213,7 +1213,7 @@ async function registerHandle() {
   if (!userAddr) { toast('Connect wallet first','error'); return; }
   let h = document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
   if (!h || h.length < 2) { toast('Enter a valid username','error'); return; }
-  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer); try {const tx = await contract.register(regType+':'+h); toast('Confirming...','info',3000); await tx.wait(); document.getElementById('regHandle').value = ''; toast('@'+h+' linked on-chain!','success'); renderAllHandles(); showMyHandles(); } catch(e) { toast(e.reason || 'Failed','error'); } const dummy =
+  const contract = new ethers.Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, signer); try {const tx = await contract.register(regType+':'+h); toast('Confirming...','info',3000); await tx.wait(); document.getElementById('regHandle').value = ''; toast('@'+h+' linked on-chain!','success'); renderAllHandles(); showMyHandles(); } catch(e) { toast(e.reason || 'Failed','error'); } 
   reg[key] = { address:userAddr, platform:regType, handle:h, ts:Date.now() }; saveRegistry(reg);
   reg[key] = { address:userAddr, platform:regType, handle:h, ts:Date.now() }; saveRegistry(reg);
   document.getElementById('regHandle').value = '';
