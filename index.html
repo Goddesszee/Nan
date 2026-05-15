@@ -1056,7 +1056,7 @@ function copyAddr(){
 function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff'});}
+  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 
