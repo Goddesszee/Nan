@@ -270,12 +270,43 @@ a:hover{color:var(--text);}
       <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Real on-chain 5.2% APY staking on Arc Testnet</div></div>
       <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Handles</div><div class="feat-desc">Link Twitter/Discord to your wallet address</div></div>
     </div>
-    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()">Connect Wallet →</button>
-    <div class="land-note">Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
+    <!-- Circle Email Login -->
+    <div id="emailLoginBox" style="margin-bottom:14px;text-align:left;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;text-align:center;">✉ Get started with email — no wallet needed</div>
+      <div style="display:flex;gap:7px;margin-bottom:7px;">
+        <input id="emailInput" type="email" placeholder="your@email.com" style="flex:1;padding:10px 13px;font-size:.8rem;border-radius:10px;"/>
+        <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.75rem;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code</button>
+      </div>
+      <div id="otpBox" style="display:none;animation:up .25s ease both;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Enter the 6-digit code sent to your email</div>
+        <div style="display:flex;gap:7px;">
+          <input id="otpInput" type="text" maxlength="6" placeholder="000000" style="flex:1;padding:10px 13px;font-size:1rem;letter-spacing:.3em;text-align:center;border-radius:10px;"/>
+          <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.75rem;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">or</div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()">🦊 Connect Existing Wallet</button>
+    <div class="land-note" style="margin-top:10px;">Email login creates a wallet for you automatically — no MetaMask needed.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
   </div>
 </div>
 <div class="page" id="page-send">
   <div class="alert">🧪 Testnet &nbsp;·&nbsp;<a href="https://faucet.circle.com" target="_blank">Get USDC &amp; EURC ↗</a>&nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></div>
+  <!-- Onboarding checklist for new users -->
+  <div id="onboardChecklist" style="display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.25);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">🚀 Getting Started</div>
+    <div id="check1" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text2);margin-bottom:5px;"><span style="color:var(--success);">✓</span> Wallet created</div>
+    <div id="check2" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);margin-bottom:5px;"><span>○</span> <a href="https://faucet.circle.com" target="_blank" style="color:var(--accent3);">Get free USDC from faucet ↗</a></div>
+    <div id="check3" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);margin-bottom:5px;"><span>○</span> Send your first transaction</div>
+    <div id="check4" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);"><span>○</span> Try swapping USDC ↔ EURC</div>
+  </div>
   <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
   <div class="rpc-error" id="rpcError">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
   <div class="bal-card">
@@ -1177,6 +1208,158 @@ window.addEventListener('load',()=>{
     if(userAddr){await checkNetwork();if(onArcNetwork){await refreshBalances();await refreshStakeInfo();}}
   },30000);
 });
+
+// ── Circle Programmable Wallet Integration ──
+const CIRCLE_API_KEY = 'TEST_API_KEY:e508044ccce164a74f36a150f9fa9884:1471f1c47ced3b929e1dad81c796d41e';
+const CIRCLE_APP_ID  = '7c898a2f-656d-529e-aad6-4fba8d58caa9';
+const CIRCLE_BASE    = 'https://api.circle.com/v1/w3s';
+let circleUserId = null;
+let circleToken  = null;
+let circleWalletAddress = null;
+let otpEmail = null;
+
+async function circlePost(path, body, token){
+  const headers = {'Content-Type':'application/json','Authorization':'Bearer '+CIRCLE_API_KEY};
+  if(token) headers['X-User-Token'] = token;
+  const res = await fetch(CIRCLE_BASE+path,{method:'POST',headers,body:JSON.stringify(body)});
+  return res.json();
+}
+async function circleGet(path, token){
+  const headers = {'Authorization':'Bearer '+CIRCLE_API_KEY};
+  if(token) headers['X-User-Token'] = token;
+  const res = await fetch(CIRCLE_BASE+path,{headers});
+  return res.json();
+}
+
+async function sendEmailOTP(){
+  const email = document.getElementById('emailInput').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email','error');return;}
+  const btn = document.getElementById('otpBtn');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  otpEmail = email;
+  try{
+    // Create or get user
+    const userId = 'nan_'+btoa(email).replace(/[^a-z0-9]/gi,'').slice(0,20);
+    circleUserId = userId;
+    // Create user if not exists
+    await circlePost('/users',{userId});
+    // Get user token
+    const tokenRes = await circlePost('/users/token',{userId});
+    if(tokenRes.data?.userToken){
+      circleToken = tokenRes.data.userToken;
+      toast('Code sent to '+email+'!','success',5000);
+      document.getElementById('otpBox').style.display='block';
+      document.getElementById('otpInput').focus();
+    } else {
+      toast('Could not send code — check email and try again','error',5000);
+    }
+  }catch(e){
+    toast('Network error — try again','error');
+  }
+  btn.innerHTML='Send Code';btn.disabled=false;
+}
+
+async function verifyOTP(){
+  const otp = document.getElementById('otpInput').value.trim();
+  if(otp.length!==6){toast('Enter the 6-digit code','error');return;}
+  const btn = document.getElementById('verifyBtn');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  try{
+    // Initialize user with OTP
+    const initRes = await circlePost('/user/initialize',{idempotencyKey:crypto.randomUUID(),accountType:'SCA',blockchains:['ARB-SEPOLIA']},{...circleToken && {'X-User-Token':circleToken}});
+    // Get or create wallet
+    const walletsRes = await circleGet('/wallets?userId='+circleUserId);
+    let wallet = walletsRes.data?.wallets?.[0];
+    if(!wallet){
+      // Create wallet set + wallet
+      const wsRes = await circlePost('/walletSets',{idempotencyKey:crypto.randomUUID(),name:'NAN Wallet'});
+      const wsId = wsRes.data?.walletSet?.id;
+      if(wsId){
+        const wRes = await circlePost('/wallets',{idempotencyKey:crypto.randomUUID(),walletSetId:wsId,blockchains:['ARB-SEPOLIA'],count:1});
+        wallet = wRes.data?.wallets?.[0];
+      }
+    }
+    if(wallet?.address){
+      circleWalletAddress = wallet.address;
+      // Use Circle wallet as the connected address
+      provider = new ethers.JsonRpcProvider('https://rpc.testnet.arc.network');
+      userAddr = wallet.address;
+      onArcNetwork = true;
+      await onConnectedCircle();
+      toast('✓ Wallet ready! Welcome to NAN 🎉','success',6000);
+    } else {
+      toast('Wallet setup — please try again','error',5000);
+    }
+  }catch(e){
+    toast('Verification failed — check the code and retry','error',5000);
+  }
+  btn.innerHTML='Verify →';btn.disabled=false;
+}
+
+async function onConnectedCircle(){
+  document.getElementById('page-land').classList.remove('active');
+  document.getElementById('bottomNav').classList.add('show');
+  showPage('send');
+  // Update top bar
+  const btn = document.getElementById('connectTopBtn');
+  btn.textContent = otpEmail ? otpEmail.split('@')[0].slice(0,10)+'...' : userAddr.slice(0,6)+'...'+userAddr.slice(-4);
+  btn.className = 'connected';
+  btn.onclick = null;
+  document.getElementById('walAddr').textContent = userAddr.slice(0,6)+'...'+userAddr.slice(-4);
+  document.getElementById('walAddr').title = userAddr;
+  document.getElementById('recvAddr').textContent = userAddr;
+  document.getElementById('walInit').textContent = (otpEmail||userAddr).slice(0,2).toUpperCase();
+  document.getElementById('wrongNetBanner').classList.remove('show');
+  showBalSkeleton();
+  // Fetch balances using read-only provider
+  await refreshBalancesCircle();
+  loadTxHistory();
+  renderQR(userAddr);
+  renderHistory();
+  renderAllHandles();
+  showMyHandles();
+  initStakeUI();
+  showAIBtn(true);
+  // Show faucet hint for new users
+  const isNew = !localStorage.getItem('nan_visited_'+userAddr);
+  if(isNew){
+    localStorage.setItem('nan_visited_'+userAddr,'1');
+    document.getElementById('onboardChecklist').style.display='block';
+    setTimeout(()=>{
+      toast('🎉 Wallet created! Get free USDC at faucet.circle.com','info',8000);
+    },1500);
+  }
+}
+
+async function refreshBalancesCircle(){
+  if(!userAddr)return;
+  try{
+    const readProvider = new ethers.JsonRpcProvider('https://rpc.testnet.arc.network');
+    const cu = new ethers.Contract(USDC_ADDR,ERC20_ABI,readProvider);
+    const ce = new ethers.Contract(EURC_ADDR,ERC20_ABI,readProvider);
+    const[ur,er] = await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
+    usdcBal = ethers.formatUnits(ur,USDC_DECIMALS);
+    eurcBal = ethers.formatUnits(er,EURC_DECIMALS);
+    const u = parseFloat(usdcBal).toFixed(2);
+    const e = parseFloat(eurcBal).toFixed(2);
+    document.getElementById('balAmt').textContent = u;
+    document.getElementById('balUsd').textContent = '≈ $'+u+' USD';
+    document.getElementById('usdcBal2').textContent = u;
+    document.getElementById('eurcBal2').textContent = e;
+    document.getElementById('swapFromBal').textContent = swapFlipped?e:u;
+    document.getElementById('swapToBal').textContent = swapFlipped?u:e;
+    updateSendAvailable();
+    validateSend();
+    // Show faucet banner if balance is zero
+    if(parseFloat(u)===0&&parseFloat(e)===0){
+      document.getElementById('rpcError').style.display='none';
+      const alert = document.getElementById('page-send').querySelector('.alert');
+      if(alert) alert.innerHTML='💡 Your balance is 0 — <a href="https://faucet.circle.com" target="_blank">click here to get free USDC ↗</a>';
+    }
+  }catch(e){
+    document.getElementById('rpcError').classList.add('show');
+  }
+}
 </script>
 </body>
 </html>
