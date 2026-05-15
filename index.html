@@ -804,7 +804,7 @@ let _recipTimer=null; async function onRecipInput(){   clearTimeout(_recipTimer)
   validateSend();
 }
 
-},400); }  function showOk},400); }  function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
+function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function hideRes(){document.getElementById('resolvedBar').style.display='none';}
 function toggleSendToken(){sendToken=sendToken==='USDC'?'EURC':'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;updateSendAvailable();validateSend();}
@@ -1056,7 +1056,7 @@ function copyAddr(){
 function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});}
+  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff'});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 
