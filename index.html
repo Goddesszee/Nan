@@ -1261,49 +1261,21 @@ async function sendEmailOTP(){
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   otpEmail = email;
   try{
-    // Step 1: Create user
-    const userId = 'nan_'+email.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,30);
-    circleUserId = userId;
-    await circlePost('/users',{userId});
-
-    // Step 2: Get user token
-    const tokenRes = await circlePost('/users/token',{userId});
-    circleToken = tokenRes?.data?.userToken;
-    const encryptionKey = tokenRes?.data?.encryptionKey;
-
-    if(!circleToken){
-      toast('Could not create session — try again','error',5000);
-      btn.innerHTML='Send Code';btn.disabled=false;
-      return;
-    }
-
-    // Step 3: Send OTP to email using correct endpoint
-    const deviceId = localStorage.getItem('nan_device_id') || crypto.randomUUID();
-    localStorage.setItem('nan_device_id', deviceId);
-
-    const otpRes = await circlePost('/users/email/token',{
-      idempotencyKey: crypto.randomUUID(),
-      deviceId,
-      email
-    }, circleToken);
-
-    console.log('OTP response:', JSON.stringify(otpRes));
-
-    if(otpRes?.data?.deviceToken){
-      // Store device token for verification
-      circleDeviceToken = otpRes.data.deviceToken;
-      circleDeviceEncKey = otpRes.data.deviceEncryptionKey;
-      circleOtpToken = otpRes.data.otpToken;
+    const res = await fetch('/api/otp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'send', email})
+    });
+    const data = await res.json();
+    if(data.success){
       toast('✓ Code sent to '+email+' — check your inbox','success',6000);
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
     } else {
-      const msg = otpRes?.message || otpRes?.code || 'Failed to send code';
-      toast(msg+' — check Circle Console SMTP settings','error',8000);
-      console.error('OTP error:', otpRes);
+      toast(data.error||'Failed to send code — try again','error',6000);
     }
   }catch(e){
-    console.error('OTP error:',e);
+    console.error('Send OTP error:',e);
     toast('Network error — try again','error');
   }
   btn.innerHTML='Send Code';btn.disabled=false;
@@ -1315,54 +1287,28 @@ async function verifyOTP(){
   const btn = document.getElementById('verifyBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
-    // Step 4: Verify OTP using deviceToken + otpToken
-    const verifyRes = await circlePost('/users/email/token/verify',{
-      deviceToken: circleDeviceToken,
-      deviceEncryptionKey: circleDeviceEncKey,
-      otpToken: circleOtpToken,
-      otp
-    }, circleToken);
-
-    console.log('Verify response:', JSON.stringify(verifyRes));
-
-    if(verifyRes?.code && verifyRes.code !== 0){
-      toast(verifyRes?.message||'Wrong code — try again','error',5000);
-      btn.innerHTML='Verify →';btn.disabled=false;
-      return;
-    }
-
-    // Step 5: Initialize user wallet
-    btn.innerHTML='<span class="spinner"></span>Setting up wallet...';
-    const initRes = await circlePost('/user/initialize',{
-      idempotencyKey: crypto.randomUUID(),
-      accountType: 'SCA',
-      blockchains: ['ETH-SEPOLIA']
-    }, circleToken);
-
-    console.log('Init response:', JSON.stringify(initRes));
-
-    // Step 6: Poll for wallet
-    btn.innerHTML='<span class="spinner"></span>Creating wallet...';
-    let wallet = null;
-    for(let i=0;i<12;i++){
-      await new Promise(r=>setTimeout(r,2000));
-      const walletsRes = await circleGet('/wallets?userId='+circleUserId, circleToken);
-      wallet = walletsRes?.data?.wallets?.[0];
-      if(wallet?.address) break;
-    }
-
-    if(wallet?.address){
-      circleWalletAddress = wallet.address;
-      userAddr = wallet.address;
+    const res = await fetch('/api/otp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify', email:otpEmail, otp})
+    });
+    const data = await res.json();
+    if(data.success){
+      // Create a deterministic wallet address from email for demo
+      // In production this would be a real wallet
+      const emailHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(otpEmail));
+      const hashArray = Array.from(new Uint8Array(emailHash));
+      const hashHex = hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
+      userAddr = '0x'+hashHex.slice(0,40);
       onArcNetwork = true;
       await onConnectedCircle();
-      toast('✓ Wallet ready! Welcome to NAN 🎉','success',6000);
+      toast('✓ Welcome to NAN! 🎉','success',6000);
     } else {
-      toast('Wallet is being set up — try refreshing in a moment','info',6000);
+      toast(data.error||'Wrong code — try again','error',5000);
     }
   }catch(e){
-    console.error('Verify error:',e);
-    toast('Verification failed — check the code and retry','error',5000);
+    console.error('Verify OTP error:',e);
+    toast('Network error — try again','error');
   }
   btn.innerHTML='Verify →';btn.disabled=false;
 }
