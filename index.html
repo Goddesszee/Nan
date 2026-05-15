@@ -564,7 +564,7 @@ const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
 const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 const USDC_DECIMALS = 6;
 const EURC_DECIMALS = 6;
-let FX = 0.9258; let fxLastUpdated = null;
+function calcSwap() {   const amt = parseFloat(document.getElementById('swapFrom').value) || 0;   const rate = swapFlipped ? (1 / FX) : FX;   const out = (amt * rate * 0.999).toFixed(6);   document.getElementById('swapTo').value = amt > 0 ? out : '';   document.getElementById('swapFromUSD').textContent = swapFlipped ? (amt * (1/FX)).toFixed(2) : amt.toFixed(2);   document.getElementById('swapToUSD').textContent = swapFlipped ? parseFloat(out).toFixed(2) : (parseFloat(out) * (1/FX)).toFixed(2); }
 const GAS_USDC      = 0.009;
 
 const ERC20_ABI = [
