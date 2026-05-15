@@ -780,7 +780,7 @@ function setStakeTab(tab,el){document.querySelectorAll('#page-stake .stab').forE
 function setSendTab(tab){document.getElementById('tab-send').style.display=tab==='send'?'block':'none';document.getElementById('tab-recv').style.display=tab==='receive'?'block':'none';document.getElementById('tab-send-btn').classList.toggle('active',tab==='send');document.getElementById('tab-recv-btn').classList.toggle('active',tab==='receive');}
 function setType(type,el){recipType=type;resolvedTo=null;lastResolvedInput='';document.querySelectorAll('#page-send .topt').forEach(b=>b.classList.remove('active'));el.classList.add('active');const inp=document.getElementById('recipInput');inp.value='';hideRes();if(type==='address')inp.placeholder='0x... wallet address';if(type==='x')inp.placeholder='@twitterhandle';if(type==='discord')inp.placeholder='discordusername';validateSend();}
 
-async function onRecipInput(){
+let _recipTimer=null; async function onRecipInput(){   clearTimeout(_recipTimer);   _recipTimer=setTimeout(async()=>{
   const val=document.getElementById('recipInput').value.trim();
   if(val!==lastResolvedInput){resolvedTo=null;lastResolvedInput='';}
   hideRes();
