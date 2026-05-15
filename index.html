@@ -804,7 +804,7 @@ let _recipTimer=null; async function onRecipInput(){   clearTimeout(_recipTimer)
   validateSend();
 }
 
-function showOkfunction showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
+},400); }  function showOk},400); }  function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function hideRes(){document.getElementById('resolvedBar').style.display='none';}
 function toggleSendToken(){sendToken=sendToken==='USDC'?'EURC':'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;updateSendAvailable();validateSend();}
