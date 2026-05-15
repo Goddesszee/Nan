@@ -792,17 +792,7 @@ async function onRecipInput(){
     }else if(val.startsWith('0x')&&val.length>2)showNo('Address must be 42 characters');
   }
   validateSend();
-}if(recipType==='x'||recipType==='discord'){
-    const prefix=recipType==='x'?'x:':'discord:';
-    const handle=prefix+val.toLowerCase().replace(/^@/,'');
-    try{
-      const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
-      const addr=await contract.resolve(handle);
-      if(addr&&addr!==ethers.ZeroAddress){
-        resolvedTo=addr;lastResolvedInput=val;showOk('✓ Resolved to '+short(addr));
-      }else{showNo('Handle not found');}
-    }catch(e){showNo('Handle not found');}
-  }
+}
 
 function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
