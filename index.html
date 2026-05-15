@@ -598,7 +598,7 @@ async function onConnected(){
   await checkNetwork();
   showBalSkeleton();
   await refreshBalances();
-  renderQR(userAddr);
+  loadTxHistory();   renderQR(userAddr);
   renderHistory();
   renderAllHandles();
   showMyHandles();
