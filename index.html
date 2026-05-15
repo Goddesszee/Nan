@@ -1028,7 +1028,7 @@ function addTx(tx){txHistory.unshift(tx);saveTxHistory();}
 function clearHistory(){
   if(!txHistory.length){toast('Nothing to clear','info',2000);return;}
   if(!confirm('Clear all history?'))return;
-  txHistory=[];localStorage.removeItem('arcTxHistory');renderHistory();toast('Cleared','info',2000);
+  txHistory=[];localStorage.removeItem('arcTxHistory_'+userAddr);renderHistory();toast('Cleared','info',2000);
 }
 function renderHistory(){
   const list=document.getElementById('txList');
