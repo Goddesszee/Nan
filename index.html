@@ -46,7 +46,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .page-land{bottom:0!important;display:none;flex-direction:column;justify-content:flex-start;}
 .page-land.active{display:flex;}
 @keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
-.land-inner{padding:20px 4px 24px;text-align:center;}
+.land-inner{padding:10px 4px 24px;text-align:center;}
 .land-logo-wrap{display:flex;justify-content:center;margin-bottom:18px;}
 .land-logo{width:70px;height:70px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 36px rgba(139,92,246,.45);}
 .land-tag{font-size:.62rem;letter-spacing:.22em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
@@ -252,21 +252,9 @@ a:hover{color:var(--text);}
 </nav>
 <div class="page page-land active" id="page-land">
   <div class="land-inner">
-    <div class="land-logo-wrap">
-      <div class="land-logo">
-        <svg width="42" height="42" viewBox="0 0 72 72" fill="none">
-          <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
-          <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
-          <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
-          <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-        </svg>
-      </div>
-    </div>
-    <div class="land-tag">Weave. Connect. Build.</div>
-    <div class="land-title">NAN on Arc Testnet</div>
-    <div class="land-sub">Send, swap and stake USDC &amp; EURC. No crypto experience needed.</div>
+    <div class="land-tag" style="margin-top:8px;">Weave. Connect. Build.</div>
+    <div class="land-title" style="font-size:1.3rem;margin-bottom:5px;">NAN on Arc Testnet</div>
+    <div class="land-sub" style="margin-bottom:14px;font-size:.75rem;">Send, swap and stake USDC &amp; EURC. No crypto experience needed.</div>
 
     <!-- Email Login FIRST -->
     <div id="emailLoginBox" style="margin-bottom:14px;text-align:left;">
@@ -294,13 +282,12 @@ a:hover{color:var(--text);}
     <!-- Wallet connect SECOND -->
     <button class="big-btn" id="landConnectBtn" onclick="connectWallet()" style="margin-bottom:22px;">🦊 Connect Existing Wallet</button>
 
-    <!-- Features LAST -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;text-align:center;">What you can do</div>
-    <div class="feat-grid" style="margin-bottom:14px;">
-      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Real on-chain USDC/EURC transfers by wallet or handle</div></div>
-      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC ↔ EURC at live FX rates on Arc</div></div>
-      <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Earn 5.2% APY staking on Arc Testnet</div></div>
-      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Handles</div><div class="feat-desc">Link Twitter/Discord to your wallet address</div></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;text-align:center;">What you can do</div>
+    <div class="feat-grid" style="margin-bottom:12px;gap:6px;">
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇅</div><div class="feat-title" style="font-size:.7rem;">Send &amp; Receive</div><div class="feat-desc" style="font-size:.6rem;">Real on-chain USDC/EURC transfers</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇄</div><div class="feat-title" style="font-size:.7rem;">Swap</div><div class="feat-desc" style="font-size:.6rem;">USDC ↔ EURC at live FX rates</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">◈</div><div class="feat-title" style="font-size:.7rem;">Stake</div><div class="feat-desc" style="font-size:.6rem;">Earn 5.2% APY on Arc Testnet</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">@</div><div class="feat-title" style="font-size:.7rem;">Handles</div><div class="feat-desc" style="font-size:.6rem;">Link Twitter/Discord to wallet</div></div>
     </div>
 
     <div class="land-note">No wallet needed — email login creates one automatically.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
