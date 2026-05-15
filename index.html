@@ -507,11 +507,11 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 <div id="toast"></div>
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;left:calc(50% + 260px);transform:translate(-50%,-50%);z-index:300;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:all .2s;" title="NAN AI Assistant">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;left:calc(50% + 250px);transform:translateY(-50%);z-index:300;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:all .2s;" title="NAN AI Assistant">
   <span>✦</span>
   <span style="font-size:.5rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;opacity:.9;">AI</span>
 </button>
-<div id="agentPanel" style="display:none;position:fixed;top:0;bottom:0;left:calc(50% + 242px);width:360px;background:#07081a;border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.15);margin:12px 0;">
+<div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;left:calc(50% + 250px);width:340px;background:#07081a;border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.15);">
   <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:#07081a;border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div>
       <div style="font-size:1rem;font-weight:700;color:#ede9fe;display:flex;align-items:center;gap:8px;">
@@ -520,7 +520,7 @@ a:hover{color:var(--text);}
       </div>
       <div style="font-size:.62rem;color:#6b5fa0;margin-top:3px;">Reads your live wallet · Claude-powered</div>
     </div>
-    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:15px;line-height:1;transition:all .15s;" onmouseover="this.style.background='rgba(248,113,113,.1)';this.style.color='#f87171';" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='#6b5fa0';">✕</button>
+    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:15px;line-height:1;">✕</button>
   </div>
   <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:#07081a;">
@@ -1135,7 +1135,7 @@ function toggleAgent(){
     fab.style.display='flex';
     fab.style.opacity=agentOpen?'0.5':'1';
   }
-  if(agentOpen){renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
+  if(agentOpen){positionAI();renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
 }
 function showAIBtn(show){const fab=document.getElementById('aiBtn');if(fab)fab.style.display=show?'flex':'none';}
 function renderAgentMsgs(){
@@ -1233,7 +1233,27 @@ function executeAgentAction(action){
   }
 }
 
-// ── Built-in Faucet ──
+function positionAI(){
+  const btn = document.getElementById('aiBtn');
+  const panel = document.getElementById('agentPanel');
+  const appRight = window.innerWidth/2 + 240;
+  const spaceRight = window.innerWidth - appRight;
+  if(spaceRight > 80){
+    // Enough space — show beside app
+    const btnLeft = appRight + Math.min(spaceRight/2 - 28, 60);
+    if(btn) btn.style.left = btnLeft+'px';
+    if(panel){
+      panel.style.left = (appRight + 10)+'px';
+      panel.style.width = Math.min(spaceRight - 20, 360)+'px';
+    }
+  } else {
+    // Not enough space — button centre bottom, panel full overlay
+    if(btn){ btn.style.left='50%'; btn.style.transform='translateX(-50%) translateY(-50%)';}
+    if(panel){ panel.style.left='50%'; panel.style.transform='translateX(-50%)'; panel.style.width='460px';}
+  }
+}
+window.addEventListener('resize', positionAI);
+positionAI();
 async function claimFaucet(){
   if(!userAddr){toast('Connect wallet first','error');return;}
   const btn = document.getElementById('faucetBtn');
