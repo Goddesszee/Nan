@@ -1230,16 +1230,20 @@ let circleToken  = null;
 let circleWalletAddress = null;
 let otpEmail = null;
 
-async function circlePost(path, body, token){
-  const headers = {'Content-Type':'application/json','Authorization':'Bearer '+CIRCLE_API_KEY};
-  if(token) headers['X-User-Token'] = token;
-  const res = await fetch(CIRCLE_BASE+path,{method:'POST',headers,body:JSON.stringify(body)});
+async function circlePost(path, body, userToken){
+  const res = await fetch('/api/circle',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({path, body, userToken})
+  });
   return res.json();
 }
-async function circleGet(path, token){
-  const headers = {'Authorization':'Bearer '+CIRCLE_API_KEY};
-  if(token) headers['X-User-Token'] = token;
-  const res = await fetch(CIRCLE_BASE+path,{headers});
+async function circleGet(path, userToken){
+  const res = await fetch('/api/circle',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({path, userToken})
+  });
   return res.json();
 }
 
