@@ -303,7 +303,10 @@ a:hover{color:var(--text);}
   </div>
 </div>
 <div class="page" id="page-send">
-  <div class="alert">🧪 Testnet &nbsp;·&nbsp;<a href="https://faucet.circle.com" target="_blank">Get USDC &amp; EURC ↗</a>&nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></div>
+  <div class="alert" style="justify-content:space-between;">
+    <span>🧪 Testnet &nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></span>
+    <button onclick="claimFaucet()" id="faucetBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(139,92,246,.4);">💧 Get Free Tokens</button>
+  </div>
   <!-- Onboarding checklist for new users -->
   <div id="onboardChecklist" style="display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.25);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:8px;">
     <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">🚀 Getting Started</div>
@@ -504,7 +507,10 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 <div id="toast"></div>
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:100px;right:calc(50% - 260px);z-index:300;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:all .2s;">✦</button>
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;right:calc(50% - 260px - 56px);transform:translateY(-50%);z-index:300;width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;" title="NAN AI Assistant">
+  <span>✦</span>
+  <span style="font-size:.45rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;opacity:.8;">AI</span>
+</button>
 <div id="agentPanel" style="display:none;position:absolute;top:57px;bottom:0;left:0;right:0;background:var(--bg);border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
   <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
     <div>
@@ -1221,7 +1227,40 @@ function executeAgentAction(action){
   }
 }
 
-// ── Theme Toggle ──
+// ── Built-in Faucet ──
+async function claimFaucet(){
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  const btn = document.getElementById('faucetBtn');
+  btn.innerHTML='<span class="spinner"></span>Claiming...';
+  btn.disabled=true;
+  try{
+    const res = await fetch('/api/faucet',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address: userAddr})
+    });
+    const data = await res.json();
+    if(data.success){
+      toast('💧 Tokens on the way! Check balance in ~30s','success',7000);
+      setTimeout(()=>refreshBalances(), 15000);
+      setTimeout(()=>refreshBalances(), 30000);
+    } else {
+      // Fallback to faucet website if API fails
+      const msg = data.error||'';
+      if(msg.toLowerCase().includes('limit')||msg.toLowerCase().includes('rate')){
+        toast('⏳ Limit reached — try again in 2 hours','error',6000);
+      } else {
+        toast('Opening faucet website...','info',3000);
+        window.open('https://faucet.circle.com','_blank');
+      }
+    }
+  }catch(e){
+    toast('Opening faucet website...','info',3000);
+    window.open('https://faucet.circle.com','_blank');
+  }
+  btn.innerHTML='💧 Get Free Tokens';
+  btn.disabled=false;
+}
 function toggleTheme(){
   const root = document.documentElement;
   const isLight = root.getAttribute('data-theme') === 'light';
