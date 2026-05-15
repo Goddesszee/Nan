@@ -16,10 +16,10 @@
   --radius:14px;--radius-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
-/* Center everything in desktop view */
-#app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow:hidden;background:var(--bg);box-shadow:0 0 60px rgba(0,0,0,.5);}
+html,body{height:100%;overflow:hidden;background:#030410;}
+body{font-family:'Space Grotesk',sans-serif;background:#030410;color:var(--text);}
+/* Center app on desktop with dark sides */
+#app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 #globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(7,8,26,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
@@ -238,7 +238,7 @@ a:hover{color:var(--text);}
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <div class="net-pill" id="netPill">Arc Testnet</div>
-    <button id="connectTopBtn" onclick="connectWallet()">Connect Wallet</button>
+    <button id="connectTopBtn" style="display:none;" onclick="connectWallet()">Connect Wallet</button>
   </div>
 </div>
 <nav class="bottom-nav" id="bottomNav">
@@ -495,7 +495,7 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 <div id="toast"></div>
-<button id="aiBtn" onclick="toggleAgent()" style="position:absolute;bottom:70px;right:14px;z-index:300;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
+<button id="aiBtn" onclick="toggleAgent()" style="position:absolute;bottom:80px;right:14px;z-index:300;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
 <div id="agentPanel" style="display:none;position:absolute;top:57px;bottom:0;left:0;right:0;background:#07081a;border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
   <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#07081a;border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
     <div>
@@ -583,7 +583,20 @@ function detectWallet() {
 let _tt;
 function toast(msg,type='info',ms=4000){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);}
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
-function updateTopBar(connected){const btn=document.getElementById('connectTopBtn');if(connected){btn.textContent=short(userAddr);btn.className='connected';btn.onclick=null;}else{btn.textContent='Connect Wallet';btn.className='';btn.onclick=connectWallet;}}
+function updateTopBar(connected){
+  const btn=document.getElementById('connectTopBtn');
+  if(connected){
+    btn.style.display='block';
+    btn.textContent=short(userAddr);
+    btn.className='connected';
+    btn.onclick=null;
+  }else{
+    btn.style.display='none';
+    btn.textContent='Connect Wallet';
+    btn.className='';
+    btn.onclick=connectWallet;
+  }
+}
 async function checkNetwork(){if(!wp)return false;try{const hex=await wp.request({method:'eth_chainId'});onArcNetwork=parseInt(hex,16)===ARC_CHAIN_ID;document.getElementById('wrongNetBanner').classList.toggle('show',!onArcNetwork&&!!userAddr);return onArcNetwork;}catch{return false;}}
 async function switchToArc(){if(!wp)return;try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}catch(e){if(e.code===4902||e.code===-32603){try{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch(e2){toast('Failed to add Arc Testnet: '+(e2?.message||''),'error',6000);}}}}
 function showBalSkeleton(){document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';document.getElementById('balUsd').innerHTML='<span class="skel skel-small"></span>';document.getElementById('usdcBal2').innerHTML='<span class="skel skel-small"></span>';document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';}
@@ -643,12 +656,16 @@ async function onConnected(){
 function disconnect(){
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=null;
+  circleUserId=null;circleToken=null;circleWalletAddress=null;otpEmail=null;
   if(stakeTimer){clearInterval(stakeTimer);stakeTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
   document.getElementById('page-land').style.display='flex';
-  updateTopBar(false);
+  document.getElementById('connectTopBtn').style.display='none';
   document.getElementById('wrongNetBanner').classList.remove('show');
+  // Reset email login form
+  document.getElementById('emailInput').value='';
+  document.getElementById('otpBox').style.display='none';
   showAIBtn(false);
   agentOpen=false;
   document.getElementById('agentPanel').style.display='none';
@@ -1241,22 +1258,32 @@ async function sendEmailOTP(){
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   otpEmail = email;
   try{
-    // Create or get user
-    const userId = 'nan_'+btoa(email).replace(/[^a-z0-9]/gi,'').slice(0,20);
+    // Step 1: Create user with email as userId
+    const userId = 'nan_'+email.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,30);
     circleUserId = userId;
-    // Create user if not exists
     await circlePost('/users',{userId});
-    // Get user token
+
+    // Step 2: Get user token
     const tokenRes = await circlePost('/users/token',{userId});
-    if(tokenRes.data?.userToken){
-      circleToken = tokenRes.data.userToken;
-      toast('Code sent to '+email+'!','success',5000);
+    circleToken = tokenRes?.data?.userToken;
+
+    if(!circleToken){
+      toast('Could not create session — try again','error',5000);
+      btn.innerHTML='Send Code';btn.disabled=false;
+      return;
+    }
+
+    // Step 3: Send OTP email via Circle
+    const otpRes = await circlePost('/users/email/otp',{email}, circleToken);
+    if(otpRes?.data || otpRes?.message?.includes('sent') || !otpRes?.code){
+      toast('✓ Code sent to '+email,'success',5000);
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
     } else {
-      toast('Could not send code — check email and try again','error',5000);
+      toast(otpRes?.message||'Failed to send code — try again','error',6000);
     }
   }catch(e){
+    console.error('OTP error:',e);
     toast('Network error — try again','error');
   }
   btn.innerHTML='Send Code';btn.disabled=false;
@@ -1268,32 +1295,42 @@ async function verifyOTP(){
   const btn = document.getElementById('verifyBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
-    // Initialize user with OTP
-    const initRes = await circlePost('/user/initialize',{idempotencyKey:crypto.randomUUID(),accountType:'SCA',blockchains:['ARB-SEPOLIA']},{...circleToken && {'X-User-Token':circleToken}});
-    // Get or create wallet
-    const walletsRes = await circleGet('/wallets?userId='+circleUserId);
-    let wallet = walletsRes.data?.wallets?.[0];
-    if(!wallet){
-      // Create wallet set + wallet
-      const wsRes = await circlePost('/walletSets',{idempotencyKey:crypto.randomUUID(),name:'NAN Wallet'});
-      const wsId = wsRes.data?.walletSet?.id;
-      if(wsId){
-        const wRes = await circlePost('/wallets',{idempotencyKey:crypto.randomUUID(),walletSetId:wsId,blockchains:['ARB-SEPOLIA'],count:1});
-        wallet = wRes.data?.wallets?.[0];
-      }
+    // Step 4: Verify OTP
+    const verifyRes = await circlePost('/users/email/otp/verify',{otp}, circleToken);
+    if(verifyRes?.code&&verifyRes.code!==0){
+      toast(verifyRes?.message||'Wrong code — try again','error',5000);
+      btn.innerHTML='Verify →';btn.disabled=false;
+      return;
     }
+
+    // Step 5: Initialize user wallet
+    await circlePost('/user/initialize',{
+      idempotencyKey: crypto.randomUUID(),
+      accountType:'SCA',
+      blockchains:['ETH-SEPOLIA']
+    }, circleToken);
+
+    // Step 6: Poll for wallet address
+    btn.innerHTML='<span class="spinner"></span>Creating wallet...';
+    let wallet = null;
+    for(let i=0;i<10;i++){
+      await new Promise(r=>setTimeout(r,1500));
+      const walletsRes = await circleGet('/wallets?userId='+circleUserId, circleToken);
+      wallet = walletsRes?.data?.wallets?.[0];
+      if(wallet?.address) break;
+    }
+
     if(wallet?.address){
       circleWalletAddress = wallet.address;
-      // Use Circle wallet as the connected address
-      provider = new ethers.JsonRpcProvider('https://rpc.testnet.arc.network');
       userAddr = wallet.address;
       onArcNetwork = true;
       await onConnectedCircle();
       toast('✓ Wallet ready! Welcome to NAN 🎉','success',6000);
     } else {
-      toast('Wallet setup — please try again','error',5000);
+      toast('Wallet is being created — try again in a moment','error',5000);
     }
   }catch(e){
+    console.error('Verify error:',e);
     toast('Verification failed — check the code and retry','error',5000);
   }
   btn.innerHTML='Verify →';btn.disabled=false;
@@ -1303,8 +1340,9 @@ async function onConnectedCircle(){
   document.getElementById('page-land').style.display='none';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
-  // Update top bar
+  // Update top bar for circle login
   const btn = document.getElementById('connectTopBtn');
+  btn.style.display = 'block';
   btn.textContent = otpEmail ? otpEmail.split('@')[0].slice(0,10)+'...' : userAddr.slice(0,6)+'...'+userAddr.slice(-4);
   btn.className = 'connected';
   btn.onclick = null;
