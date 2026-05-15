@@ -1125,7 +1125,7 @@ RULES:
   try{
     const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
       body:JSON.stringify({
         system:context,
         messages:agentMsgs.slice(0,-1).filter(m=>m.content!=='...').map(m=>({role:m.role,content:m.content}))
