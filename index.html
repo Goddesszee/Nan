@@ -1093,7 +1093,7 @@ async function doSwap() {
   refreshBalances();
 }
 
-function initSwapUI() {
+async function fetchLiveFX() {   try {     const res = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');     const data = await res.json();     const eurRate = parseFloat(data.data.rates.EUR);     if (!isNaN(eurRate) && eurRate > 0) {       FX = eurRate;       fxLastUpdated = new Date();       updateSwapRateDisplay();     }   } catch (e) {     console.warn('FX fetch failed, using fallback:', e);   } }  function updateSwapRateDisplay() {   const time = fxLastUpdated     ? fxLastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })     : 'fallback';   const eurcPerUsdc = FX.toFixed(4);   const usdcPerEurc = (1 / FX).toFixed(4);   const el = document.getElementById('swapRate');   if (!el) return;   if (swapFlipped) {     el.innerHTML = `1 EURC ≈ ${usdcPerEurc} USDC &nbsp;·&nbsp; 1 USDC ≈ ${eurcPerUsdc} EURC &nbsp;<span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`;   } else {     el.innerHTML = `1 USDC ≈ ${eurcPerUsdc} EURC &nbsp;·&nbsp; 1 EURC ≈ ${usdcPerEurc} USDC &nbsp;<span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`;   } }  function initSwapUI() {
   const real = hasSwap();
   document.getElementById('swapModeBanner').style.display = real ? 'none' : 'block';
   document.getElementById('swapLiveBadge').style.display  = real ? 'flex' : 'none';
