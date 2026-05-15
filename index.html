@@ -1127,7 +1127,7 @@ NAN APP GUIDE: - Send/Receive: go to Send tab, enter wallet address or Twitter/D
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
       body:JSON.stringify({
-        system:context,
+        model:'llama-3.3-70b-versatile', system:context,
         messages:agentMsgs.slice(0,-1).filter(m=>m.content!=='...').map(m=>({role:m.role,content:m.content}))
       })
     });
