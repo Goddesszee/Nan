@@ -247,8 +247,8 @@ a:hover{color:var(--text);}
     <button class="nav-btn" onclick="goPage('history')"><span class="ni">⟳</span>History</button>
   </div>
 </nav>
-<div class="page page-land active" id="page-land">
-  <div class="land-inner">
+<div class="page page-land active" id="page-land" style="display:none;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow-y:auto;z-index:10;background:var(--bg);">
+  <div class="land-inner" style="padding:32px 20px 40px;">
     <div class="land-logo-wrap">
       <div class="land-logo">
         <svg width="42" height="42" viewBox="0 0 72 72" fill="none">
@@ -263,25 +263,20 @@ a:hover{color:var(--text);}
     </div>
     <div class="land-tag">Weave. Connect. Build.</div>
     <div class="land-title">NAN on Arc Testnet</div>
-    <div class="land-sub">Send, receive, swap and stake USDC &amp; EURC on Arc — the stablecoin-native blockchain by Circle.</div>
-    <div class="feat-grid">
-      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Real on-chain USDC/EURC transfers by wallet or handle</div></div>
-      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC ↔ EURC at live FX rates on Arc</div></div>
-      <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Real on-chain 5.2% APY staking on Arc Testnet</div></div>
-      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Handles</div><div class="feat-desc">Link Twitter/Discord to your wallet address</div></div>
-    </div>
-    <!-- Circle Email Login -->
+    <div class="land-sub">Send, swap and stake USDC &amp; EURC. No crypto experience needed.</div>
+
+    <!-- Email Login FIRST -->
     <div id="emailLoginBox" style="margin-bottom:14px;text-align:left;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;text-align:center;">✉ Get started with email — no wallet needed</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;text-align:center;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:6px;">✉ Start with email — no wallet needed</div>
       <div style="display:flex;gap:7px;margin-bottom:7px;">
-        <input id="emailInput" type="email" placeholder="your@email.com" style="flex:1;padding:10px 13px;font-size:.8rem;border-radius:10px;"/>
-        <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.75rem;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code</button>
+        <input id="emailInput" type="email" placeholder="your@email.com" style="flex:1;padding:11px 13px;font-size:.82rem;border-radius:10px;"/>
+        <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code</button>
       </div>
       <div id="otpBox" style="display:none;animation:up .25s ease both;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Enter the 6-digit code sent to your email</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--success);letter-spacing:.1em;margin-bottom:6px;">✓ Code sent — check your email</div>
         <div style="display:flex;gap:7px;">
-          <input id="otpInput" type="text" maxlength="6" placeholder="000000" style="flex:1;padding:10px 13px;font-size:1rem;letter-spacing:.3em;text-align:center;border-radius:10px;"/>
-          <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.75rem;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
+          <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.1rem;letter-spacing:.3em;text-align:center;border-radius:10px;"/>
+          <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
         </div>
       </div>
     </div>
@@ -293,8 +288,19 @@ a:hover{color:var(--text);}
       <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
 
-    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()">🦊 Connect Existing Wallet</button>
-    <div class="land-note" style="margin-top:10px;">Email login creates a wallet for you automatically — no MetaMask needed.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
+    <!-- Wallet connect SECOND -->
+    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()" style="margin-bottom:22px;">🦊 Connect Existing Wallet</button>
+
+    <!-- Features LAST -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;text-align:center;">What you can do</div>
+    <div class="feat-grid" style="margin-bottom:14px;">
+      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Real on-chain USDC/EURC transfers by wallet or handle</div></div>
+      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">Swap USDC ↔ EURC at live FX rates on Arc</div></div>
+      <div class="feat"><div class="feat-icon">◈</div><div class="feat-title">Stake</div><div class="feat-desc">Earn 5.2% APY staking on Arc Testnet</div></div>
+      <div class="feat"><div class="feat-icon">@</div><div class="feat-title">Handles</div><div class="feat-desc">Link Twitter/Discord to your wallet address</div></div>
+    </div>
+
+    <div class="land-note">No wallet needed — email login creates one automatically.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
   </div>
 </div>
 <div class="page" id="page-send">
@@ -619,7 +625,7 @@ async function connectWallet(){
 }
 
 async function onConnected(){
-  document.getElementById('page-land').classList.remove('active');
+  document.getElementById('page-land').style.display='none';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
   updateTopBar(true);
@@ -650,7 +656,7 @@ function disconnect(){
   if(stakeTimer){clearInterval(stakeTimer);stakeTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
-  document.getElementById('page-land').classList.add('active');
+  document.getElementById('page-land').style.display='flex';
   updateTopBar(false);
   document.getElementById('wrongNetBanner').classList.remove('show');
   showAIBtn(false);
@@ -1200,6 +1206,9 @@ function executeAgentAction(action){
 }
 
 window.addEventListener('load',()=>{
+  // Show landing page correctly
+  const land = document.getElementById('page-land');
+  land.style.display='flex';
   updateTopBar(false);
   initSwapUI();
   fetchLiveFX();
@@ -1297,7 +1306,7 @@ async function verifyOTP(){
 }
 
 async function onConnectedCircle(){
-  document.getElementById('page-land').classList.remove('active');
+  document.getElementById('page-land').style.display='none';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
   // Update top bar
