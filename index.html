@@ -508,6 +508,68 @@ a:hover{color:var(--text);}
 </div>
 <div id="toast"></div>
 
+<!-- AI Button -->
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:80px;right:16px;z-index:9999;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(255,255,255,.15);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.7);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;" title="NAN AI Assistant">
+  <span style="font-size:1rem;">✦</span>
+  <span style="font-size:.45rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
+</button>
+
+<!-- AI Panel - full screen on mobile, side panel on desktop -->
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#07081a;border:1px solid rgba(139,92,246,.35);z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
+  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:#07081a;border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
+    <div>
+      <div style="font-size:1rem;font-weight:700;color:#ede9fe;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
+      <div style="font-size:.62rem;color:#6b5fa0;margin-top:3px;">Reads your live wallet · Claude-powered</div>
+    </div>
+    <button onclick="toggleAgent()" style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:16px;line-height:1;">✕</button>
+  </div>
+  <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:#07081a;">
+    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:#ede9fe;font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
+      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
+    </div>
+    <div style="font-size:.58rem;color:#3d3d6b;text-align:center;margin-top:8px;">Powered by Claude · Reads your live on-chain data</div>
+  </div>
+</div>
+
+<script>
+// Resize AI panel for desktop vs mobile
+function resizeAIPanel(){
+  const panel = document.getElementById('agentPanel');
+  const btn = document.getElementById('aiBtn');
+  if(!panel) return;
+  if(window.innerWidth > 900){
+    // Desktop - side panel right of app
+    panel.style.left = 'auto';
+    panel.style.top = '12px';
+    panel.style.bottom = '12px';
+    panel.style.right = '90px';
+    panel.style.width = '340px';
+    panel.style.borderRadius = '16px';
+    btn.style.bottom = 'auto';
+    btn.style.top = '50%';
+    btn.style.right = '24px';
+    btn.style.transform = 'translateY(-50%)';
+  } else {
+    // Mobile - full screen
+    panel.style.left = '0';
+    panel.style.top = '0';
+    panel.style.bottom = '0';
+    panel.style.right = '0';
+    panel.style.width = '100%';
+    panel.style.borderRadius = '0';
+    btn.style.top = 'auto';
+    btn.style.bottom = '80px';
+    btn.style.right = '16px';
+    btn.style.transform = 'none';
+  }
+}
+window.addEventListener('resize', resizeAIPanel);
+resizeAIPanel();
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
