@@ -82,7 +82,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .bal-num{font-size:3.2rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;color:var(--text);}
 .bal-usd{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:7px;}
 .token-row{display:flex;gap:7px;margin-bottom:8px;}
-.tok{display:flex;align-items:center;gap:5px;background:rgba(7,8,26,.6);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
+.tok{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
 .tok-dot{width:6px;height:6px;border-radius:50%;}
 .usdc-dot{background:var(--accent3);}
 .eurc-dot{background:#60a5fa;}
@@ -508,40 +508,13 @@ a:hover{color:var(--text);}
 </div>
 <div id="toast"></div>
 
-<!-- AI Button -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:80px;right:16px;z-index:9999;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(255,255,255,.15);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.7);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;" title="NAN AI Assistant">
-  <span style="font-size:1rem;">✦</span>
-  <span style="font-size:.45rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
-</button>
-
-<!-- AI Panel - full screen on mobile, side panel on desktop -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border:1px solid rgba(139,92,246,.35);z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
-  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
-    <div>
-      <div style="font-size:1rem;font-weight:700;color:#ede9fe;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
-      <div style="font-size:.62rem;color:#6b5fa0;margin-top:3px;">Reads your live wallet · Claude-powered</div>
-    </div>
-    <button onclick="toggleAgent()" style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:16px;line-height:1;">✕</button>
-  </div>
-  <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
-    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
-      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
-    </div>
-    <div style="font-size:.58rem;color:#3d3d6b;text-align:center;margin-top:8px;">Powered by Claude · Reads your live on-chain data</div>
-  </div>
-</div>
-
 <script>
-// Resize AI panel for desktop vs mobile
+// AI panel responsive layout - single unified function
 function resizeAIPanel(){
   const panel = document.getElementById('agentPanel');
   const btn = document.getElementById('aiBtn');
-  if(!panel) return;
+  if(!panel||!btn) return;
   if(window.innerWidth > 900){
-    // Desktop - side panel right of app
     panel.style.left = 'auto';
     panel.style.top = '12px';
     panel.style.bottom = '12px';
@@ -553,7 +526,6 @@ function resizeAIPanel(){
     btn.style.right = '24px';
     btn.style.transform = 'translateY(-50%)';
   } else {
-    // Mobile - full screen
     panel.style.left = '0';
     panel.style.top = '0';
     panel.style.bottom = '0';
@@ -567,7 +539,6 @@ function resizeAIPanel(){
   }
 }
 window.addEventListener('resize', resizeAIPanel);
-resizeAIPanel();
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
@@ -1173,7 +1144,7 @@ function toggleAgent(){
     fab.style.display='flex';
     fab.style.opacity=agentOpen?'0.5':'1';
   }
-  if(agentOpen){positionAI();renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
+  if(agentOpen){resizeAIPanel();renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
 }
 function showAIBtn(show){
   const fab=document.getElementById('aiBtn');
@@ -1183,7 +1154,7 @@ function renderAgentMsgs(){
   const el=document.getElementById('agentMessages');
   el.innerHTML=agentMsgs.map(m=>`
     <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'rgba(255,255,255,0.06)'};border:${m.role==='user'?'none':'1px solid rgba(255,255,255,0.08)'};color:#ede9fe;font-size:.75rem;line-height:1.55;">${m.content}</div>
+      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
       ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ Execute: ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
     </div>
   `).join('');
@@ -1274,27 +1245,7 @@ function executeAgentAction(action){
   }
 }
 
-function positionAI(){
-  const btn = document.getElementById('aiBtn');
-  const panel = document.getElementById('agentPanel');
-  const appRight = window.innerWidth/2 + 240;
-  const spaceRight = window.innerWidth - appRight;
-  if(spaceRight > 80){
-    // Enough space — show beside app
-    const btnLeft = appRight + Math.min(spaceRight/2 - 28, 60);
-    if(btn) btn.style.left = btnLeft+'px';
-    if(panel){
-      panel.style.left = (appRight + 10)+'px';
-      panel.style.width = Math.min(spaceRight - 20, 360)+'px';
-    }
-  } else {
-    // Not enough space — button centre bottom, panel full overlay
-    if(btn){ btn.style.left='50%'; btn.style.transform='translateX(-50%) translateY(-50%)';}
-    if(panel){ panel.style.left='50%'; panel.style.transform='translateX(-50%)'; panel.style.width='460px';}
-  }
-}
-window.addEventListener('resize', positionAI);
-positionAI();
+
 async function claimFaucet(){
   if(!userAddr){toast('Connect wallet first','error');return;}
   const btn = document.getElementById('faucetBtn');
@@ -1349,6 +1300,7 @@ function initTheme(){
 
 window.addEventListener('load',()=>{
   initTheme();
+  resizeAIPanel();
   // Show landing page correctly
   const land = document.getElementById('page-land');
   land.style.display='flex';
@@ -1362,15 +1314,9 @@ window.addEventListener('load',()=>{
 });
 
 // ── Circle Programmable Wallet Integration ──
-const CIRCLE_API_KEY = 'TEST_API_KEY:e508044ccce164a74f36a150f9fa9884:1471f1c47ced3b929e1dad81c796d41e';
-const CIRCLE_APP_ID  = '7c898a2f-656d-529e-aad6-4fba8d58caa9';
-const CIRCLE_BASE    = 'https://api.circle.com/v1/w3s';
 let circleUserId = null;
 let circleToken  = null;
 let circleWalletAddress = null;
-let circleDeviceToken = null;
-let circleDeviceEncKey = null;
-let circleOtpToken = null;
 let otpEmail = null;
 
 async function circlePost(path, body, userToken){
@@ -1525,10 +1471,10 @@ async function refreshBalancesCircle(){
 <div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;right:100px;width:340px;background:var(--bg);border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
   <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div>
-      <div style="font-size:1rem;font-weight:700;color:#ede9fe;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;">
         <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI
       </div>
-      <div style="font-size:.62rem;color:#6b5fa0;margin-top:3px;">Reads your live wallet · Claude-powered</div>
+      <div style="font-size:.62rem;color:var(--text3);margin-top:3px;">Reads your live wallet · Claude-powered</div>
     </div>
     <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:15px;line-height:1;">✕</button>
   </div>
