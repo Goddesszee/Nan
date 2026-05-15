@@ -1309,7 +1309,7 @@ function executeAgentAction(action) {
   }
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', () => {   fetchLiveFX();   setInterval(fetchLiveFX, 60000);
   updateTopBar(false);
   initSwapUI();
   setInterval(async () => {
