@@ -506,7 +506,7 @@ const GAS_USDC = 0.009;
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)','function transfer(address,uint256) returns (bool)','function approve(address,uint256) returns (bool)','function allowance(address,address) view returns (uint256)','function decimals() view returns (uint8)'];
 const STAKING_ABI = ['function stake(uint256 amount) external','function unstake(uint256 amount) external','function claimReward() external','function pendingReward(address user) view returns (uint256)','function getUserInfo(address user) view returns (uint256 stakedAmount, uint256 pending, uint256 claimable)','function totalStaked() view returns (uint256)'];
 const HANDLE_REGISTRY_ADDRESS = '0x604E8204F111eFC4e0ce69932b3BFb3ca64FC3aC';
-const HANDLE_REGISTRY_ABI = ['function register(string calldata handle) external','function remove(string calldata handle) external','function resolve(string calldata handle) external view returns (address)','function getHandles(address wallet) external view returns (string[] memory)'];
+const HANDLE_REGISTRY_ABI = ['function register(string calldata handle) external','function remove(string calldata handle) external','function resolve(string calldata handle) external view returns (address)','function getHandles(address wallet) external view returns (string[] memory)','event HandleRegistered(address indexed wallet, string handle)'];
 let provider=null,signer=null,userAddr=null,wp=null;
 let usdcBal='0',eurcBal='0';
 let onArcNetwork=false,balancesLoading=false;
