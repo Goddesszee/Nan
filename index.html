@@ -515,7 +515,7 @@ let recipType='address',resolvedTo=null,lastResolvedInput='';
 let regType='x',swapFlipped=false,sendToken='USDC';
 let onChainStaked=0,onChainClaimable=0;
 let stakeTimer=null;
-let txHistory=JSON.parse(localStorage.getItem('arcTxHistory')||'[]');
+let txHistory=[]; function loadTxHistory(){txHistory=JSON.parse(localStorage.getItem('arcTxHistory_'+(userAddr||''))||'[]');} function saveTxHistory(){localStorage.setItem('arcTxHistory_'+userAddr,JSON.stringify(txHistory.slice(0,100)));}
 const hasStaking=()=>STAKING_CONTRACT_ADDRESS&&STAKING_CONTRACT_ADDRESS.length===42;
 const hasSwap=()=>SWAP_CONTRACT_ADDRESS&&SWAP_CONTRACT_ADDRESS.length===42;
 
