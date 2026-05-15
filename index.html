@@ -1134,7 +1134,7 @@ function renderAllHandles() {   const list = document.getElementById('allHandles
 }
 
 function addTx(tx) { txHistory.unshift(tx); localStorage.setItem('arcTxHistory', JSON.stringify(txHistory.slice(0,100))); }
-function clearHistory() {
+function prefillSend(addr) {   goPage('send');   setTimeout(() => {     setType('address', document.getElementById('topt-address'));     document.getElementById('recipInput').value = addr;     onRecipInput();   }, 200); }  function clearHistory() {
   if (!txHistory.length) { toast('Nothing to clear','info',2000); return; }
   if (!confirm('Clear all history?')) return;
   txHistory=[]; localStorage.removeItem('arcTxHistory'); renderHistory(); toast('Cleared','info',2000);
