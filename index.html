@@ -1051,7 +1051,7 @@ function copyAddr(){
     toast('Address copied!','success',2000);
     const el=document.getElementById('walAddr');el.textContent='Copied!';
     setTimeout(()=>{el.textContent=short(userAddr);},1500);
-  }).catch(()=>toast('Could not copy','error'));
+  }).catch(()=>{const el=document.createElement('textarea');el.value=userAddr;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);toast('Address copied!','success',2000);});
 }
 function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
