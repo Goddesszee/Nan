@@ -1054,7 +1054,7 @@ function flipSwap() {
   document.getElementById('swapFrom').value=''; document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent = swapFlipped ? parseFloat(eurcBal).toFixed(2) : parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent   = swapFlipped ? parseFloat(usdcBal).toFixed(2) : parseFloat(eurcBal).toFixed(2);
-  document.getElementById('swapRate').textContent    = swapFlipped ? '1 EURC ≈ 1.0801 USDC  ·  1 USDC ≈ 0.9258 EURC' : '1 USDC ≈ 0.9258 EURC  ·  1 EURC ≈ 1.0801 USDC';
+  updateSwapRateDisplay();
 }
 
 async function doSwap() {
