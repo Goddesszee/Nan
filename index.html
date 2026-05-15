@@ -947,7 +947,7 @@ function setRegType(type,el){
   el.classList.add('active');
   document.getElementById('regHandle').placeholder=type==='x'?'@yourtwitter':'yourdiscord';
 }
-async function removeHandle(handle){
+async function removeHandle(handle){   if(!signer){toast('Connect wallet first','error');return;}   const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);   try{     const tx=await contract.remove(handle);     toast('Removing handle...','info',3000);     await tx.wait();     toast('Handle removed!','success');     showMyHandles();   }catch(e){     console.error('Remove error:',e);     toast(e.reason||e.message||'Failed to remove','error');   } }
   if(!signer){toast('Connect wallet first','error');return;}
   const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);
   try{
