@@ -49,19 +49,19 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .land-inner{padding:10px 4px 24px;text-align:center;}
 .land-logo-wrap{display:flex;justify-content:center;margin-bottom:18px;}
 .land-logo{width:70px;height:70px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 36px rgba(139,92,246,.45);}
-.land-tag{font-size:.62rem;letter-spacing:.22em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
-.land-title{font-size:1.5rem;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
-.land-sub{font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:22px;max-width:320px;margin-left:auto;margin-right:auto;}
+.land-tag{font-size:.68rem;letter-spacing:.15em;color:var(--text2);text-transform:uppercase;margin-bottom:10px;}
+.land-title{font-size:1.6rem;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
+.land-sub{font-size:.86rem;color:var(--text2);line-height:1.65;margin-bottom:18px;max-width:320px;margin-left:auto;margin-right:auto;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px;text-align:left;}
 .feat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:15px;transition:border-color .2s;}
 .feat:hover{border-color:var(--border2);}
 .feat-icon{font-size:1.1rem;margin-bottom:6px;color:var(--accent3);}
-.feat-title{font-size:.74rem;font-weight:700;margin-bottom:3px;}
-.feat-desc{font-size:.63rem;color:var(--text2);line-height:1.45;}
+.feat-title{font-size:.8rem;font-weight:700;margin-bottom:4px;}
+.feat-desc{font-size:.72rem;color:var(--text2);line-height:1.5;}
 .big-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 34px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:100px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 5px 24px rgba(139,92,246,.45);transition:all .2s;width:100%;margin-bottom:10px;}
 .big-btn:hover{transform:translateY(-2px);background:#9d70f8;}
 .big-btn:disabled{opacity:.7;cursor:not-allowed;transform:none;}
-.land-note{font-size:.67rem;color:var(--text3);}
+.land-note{font-size:.75rem;color:var(--text3);line-height:1.6;}
 .land-note a{color:var(--accent3);}
 .card{background:var(--card);border:1px solid var(--border);border-top:2px solid rgba(139,92,246,.45);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
 .card-title{font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent3);}
@@ -284,10 +284,10 @@ a:hover{color:var(--text);}
 
     <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;text-align:center;">What you can do</div>
     <div class="feat-grid" style="margin-bottom:12px;gap:6px;">
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇅</div><div class="feat-title" style="font-size:.7rem;">Send &amp; Receive</div><div class="feat-desc" style="font-size:.6rem;">Real on-chain USDC/EURC transfers</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇄</div><div class="feat-title" style="font-size:.7rem;">Swap</div><div class="feat-desc" style="font-size:.6rem;">USDC ↔ EURC at live FX rates</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">◈</div><div class="feat-title" style="font-size:.7rem;">Stake</div><div class="feat-desc" style="font-size:.6rem;">Earn 5.2% APY on Arc Testnet</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">@</div><div class="feat-title" style="font-size:.7rem;">Handles</div><div class="feat-desc" style="font-size:.6rem;">Link Twitter/Discord to wallet</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇅</div><div class="feat-title" style="font-size:.8rem;">Send &amp; Receive</div><div class="feat-desc" style="font-size:.72rem;">Real on-chain USDC/EURC transfers</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇄</div><div class="feat-title" style="font-size:.8rem;">Swap</div><div class="feat-desc" style="font-size:.72rem;">USDC ↔ EURC at live FX rates</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">◈</div><div class="feat-title" style="font-size:.8rem;">Stake</div><div class="feat-desc" style="font-size:.72rem;">Earn 5.2% APY on Arc Testnet</div></div>
+      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">@</div><div class="feat-title" style="font-size:.8rem;">Handles</div><div class="feat-desc" style="font-size:.72rem;">Link Twitter/Discord to wallet</div></div>
     </div>
 
     <div class="land-note">No wallet needed — email login creates one automatically.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
@@ -346,7 +346,7 @@ a:hover{color:var(--text);}
         </div>
         <button class="max-btn" onclick="setMax()">MAX</button>
       </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2);margin-top:-2px;margin-bottom:10px;padding:0 2px;">Available: <span id="sendAvailable">0.00</span> <span id="sendAvailToken">USDC</span></div>
+      <div style="display:none;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2);margin-top:-2px;margin-bottom:10px;padding:0 2px;">Available: <span id="sendAvailable">0.00</span> <span id="sendAvailToken">USDC</span></div>
       <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
       <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Enter address &amp; amount</button>
     </div>
@@ -495,7 +495,7 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 <div id="toast"></div>
-<button id="aiBtn" onclick="toggleAgent()" style="position:absolute;bottom:68px;right:14px;z-index:300;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
+<button id="aiBtn" onclick="toggleAgent()" style="position:absolute;top:65px;right:14px;z-index:300;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.85rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
 <div id="agentPanel" style="display:none;position:absolute;top:57px;bottom:0;left:0;right:0;background:#07081a;border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
   <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#07081a;border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
     <div>
