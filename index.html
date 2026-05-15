@@ -1128,7 +1128,7 @@ async function showMyHandles() {   if (!userAddr || !provider) return;   const b
   box.style.display='none';
 }
 
-function renderAllHandles() {
+function renderAllHandles() {   const list = document.getElementById('allHandlesList');   list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>'; } {
   const list = document.getElementById('allHandlesList');
   list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';
 }
