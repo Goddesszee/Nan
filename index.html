@@ -1024,7 +1024,7 @@ function prefillSend(addr){
   },200);
 }
 
-function addTx(tx){txHistory.unshift(tx);localStorage.setItem('arcTxHistory',JSON.stringify(txHistory.slice(0,100)));}
+function addTx(tx){txHistory.unshift(tx);saveTxHistory();}
 function clearHistory(){
   if(!txHistory.length){toast('Nothing to clear','info',2000);return;}
   if(!confirm('Clear all history?'))return;
