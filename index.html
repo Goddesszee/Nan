@@ -1136,7 +1136,7 @@ RULES:
     const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action=null;
     try{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
-    const clean=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').trim();
+    const clean=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').replace(/\{[^}]*"action"[^}]*\}/g,'').trim();
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
   }catch{
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:"Connection error — please try again."};
