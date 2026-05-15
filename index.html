@@ -919,7 +919,7 @@ async function doSwap(){
     const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
     const swapContract=new ethers.Contract(SWAP_CONTRACT_ADDRESS,SWAP_ABI,signer);
     try{
-      const approveTx=await tokenContract.approve(SWAP_CONTRACT_ADDRESS,amtParsed);await approveTx.wait(1);
+      const approveTx=const approveTx=await tokenContract.approve(SWAP_CONTRACT_ADDRESS,amtParsed);await approveTx.wait(1);await approveTx.wait(1);
       const tx=swapFlipped?await swapContract.swapEURCtoUSDC(amtParsed):await swapContract.swapUSDCtoEURC(amtParsed);
       await tx.wait();toast('Swap successful!','success');await refreshBalances();
     }catch(e){toast('Swap failed: '+(e?.reason||e?.message||''),'error',6000);}
