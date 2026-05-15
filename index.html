@@ -1132,7 +1132,7 @@ NAN APP GUIDE: - Send/Receive: go to Send tab, enter wallet address or Twitter/D
       })
     });
     const data=await res.json();
-    const reply=data.reply||"Sorry, couldn't reach the AI.";
+    const reply=data.choices?.[0]?.message?.content||"Sorry, couldn't reach the AI.";
     const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action=null;
     try{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
