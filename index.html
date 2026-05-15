@@ -14,15 +14,23 @@
   --text:#ede9fe;--text2:#c4b5fd;--text3:#6b5fa0;
   --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#f59e0b;
   --radius:14px;--radius-sm:10px;
+  --topbar-bg:rgba(7,8,26,.96);--nav-bg:rgba(7,8,26,.97);
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;background:#030410;}
-body{font-family:'Space Grotesk',sans-serif;background:#030410;color:var(--text);}
-/* Center app on desktop with dark sides */
+[data-theme="light"]{
+  --bg:#f4f3ff;--surface:#ffffff;--card:rgba(139,92,246,0.06);--card2:rgba(139,92,246,0.1);
+  --border:rgba(139,92,246,0.2);--border2:rgba(139,92,246,0.35);
+  --accent:#7c3aed;--accent2:#7c3aed;--accent3:#6d28d9;
+  --text:#1e1040;--text2:#4c1d95;--text3:#7c3aed;
+  --danger:#dc2626;--success:#059669;--gold:#d97706;--warning:#d97706;
+  --topbar-bg:rgba(244,243,255,.96);--nav-bg:rgba(244,243,255,.97);
+}
+*{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s ease,border-color .25s ease,color .25s ease;}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
 #app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
-#globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(7,8,26,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+#globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
 .brand{display:flex;align-items:center;gap:9px;}
 .brand-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);}
 .brand-logo svg{width:20px;height:20px;display:block;}
@@ -33,7 +41,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #connectTopBtn{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#ede9fe;border:none;border-radius:100px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(139,92,246,0.4);white-space:nowrap;}
 #connectTopBtn:hover{transform:translateY(-1px);background:#9d70f8;}
 #connectTopBtn.connected{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.02em;cursor:default;}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;z-index:100;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:5px 0 env(safe-area-inset-bottom,10px);display:none;}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:5px 0 env(safe-area-inset-bottom,10px);display:none;}
 .bottom-nav.show{display:block;}
 .nav-items{display:flex;max-width:480px;margin:0 auto;padding:0 6px;}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border:none;background:transparent;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.05em;}
@@ -237,6 +245,7 @@ a:hover{color:var(--text);}
     <div class="brand-name">NAN</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
+    <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">🌙</button>
     <div class="net-pill" id="netPill">Arc Testnet</div>
     <button id="connectTopBtn" style="display:none;" onclick="connectWallet()">Connect Wallet</button>
   </div>
@@ -496,8 +505,8 @@ a:hover{color:var(--text);}
 </div>
 <div id="toast"></div>
 <button id="aiBtn" onclick="toggleAgent()" style="position:absolute;top:65px;right:14px;z-index:300;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.85rem;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;">✦</button>
-<div id="agentPanel" style="display:none;position:absolute;top:57px;bottom:0;left:0;right:0;background:#07081a;border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
-  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#07081a;border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
+<div id="agentPanel" style="display:none;position:absolute;top:57px;bottom:0;left:0;right:0;background:var(--bg);border:1px solid rgba(139,92,246,.3);z-index:250;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);">
+  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(255,255,255,0.06);z-index:2;">
     <div>
       <div style="font-size:.88rem;font-weight:700;color:#ede9fe;">✦ NAN AI</div>
       <div style="font-size:.58rem;color:#8b5cf6;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>Live</div>
@@ -505,7 +514,7 @@ a:hover{color:var(--text);}
     <button onclick="toggleAgent()" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b5fa0;cursor:pointer;font-size:14px;line-height:1;">✕</button>
   </div>
   <div id="agentMessages" style="position:absolute;top:52px;bottom:108px;left:0;right:0;overflow-y:auto;padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px;scrollbar-width:none;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);background:#07081a;">
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 12px 14px;border-top:1px solid rgba(255,255,255,0.05);background:var(--bg);">
     <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:7px;align-items:center;">
       <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:10px 13px;color:#ede9fe;font-size:.8rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
@@ -1212,7 +1221,26 @@ function executeAgentAction(action){
   }
 }
 
+// ── Theme Toggle ──
+function toggleTheme(){
+  const root = document.documentElement;
+  const isLight = root.getAttribute('data-theme') === 'light';
+  const newTheme = isLight ? 'dark' : 'light';
+  root.setAttribute('data-theme', newTheme);
+  localStorage.setItem('nan_theme', newTheme);
+  document.getElementById('themeToggle').textContent = newTheme === 'light' ? '🌙' : '☀️';
+  // Update body/html background
+  document.body.style.background = 'var(--bg)';
+}
+
+function initTheme(){
+  const saved = localStorage.getItem('nan_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : '');
+  document.getElementById('themeToggle').textContent = saved === 'light' ? '🌙' : '☀️';
+}
+
 window.addEventListener('load',()=>{
+  initTheme();
   // Show landing page correctly
   const land = document.getElementById('page-land');
   land.style.display='flex';
