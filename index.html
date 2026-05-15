@@ -985,7 +985,7 @@ async function showMyHandles(){
     list.innerHTML=handles.map(h=>`
       <span class="handle-tag">
         ${h.startsWith('x:')?'𝕏':'💬'} @${h.replace('x:','').replace('discord:','')}
-        <span class="handle-remove" onclick="removeHandle('${h}')">✕</span>
+        <span class="handle-remove" onclick="removeHandle('${regType+':'+h.replace('x:','').replace('discord:','')}')">✕</span>
       </span>
     `).join('');
   }catch(e){console.warn('Could not load your handles:',e);box.style.display='none';}
