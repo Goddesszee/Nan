@@ -556,8 +556,8 @@ let _tt;
 function toast(msg,type='info',ms=4000){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);}
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
 function updateTopBar(connected){const btn=document.getElementById('connectTopBtn');if(connected){btn.textContent=short(userAddr);btn.className='connected';btn.onclick=null;}else{btn.textContent='Connect Wallet';btn.className='';btn.onclick=connectWallet;}}
-async function checkNetwork(){if(!wp)return false;try{const hex=await wp.request({method:'eth_chainId'});onArcNetwork=parseInt(hex,16)===ARC_CHAIN_ID;document.getElementById('wrongNetBanner').classList.toggle('show',!onArcNetwork&&!!userAddr);return onArcNetwork;}catch{return false;}}
-async function switchToArc(){if(!wp)return;try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}catch(e){if(e.code===4902||e.code===-32603){try{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch(e2){toast('Failed to add Arc Testnet: '+(e2?.message||''),'error',6000);}}}}
+async function checkNetwork(){if(!wp)return false;ttry{const hex=await wp.request({method:'eth_chainId'});onArcNetwork=parseInt(hex,16)===ARC_CHAIN_ID;document.getElementById('wrongNetBanner').classList.toggle('show',!onArcNetwork&&!!userAddr);return onArcNetwork;}catch{return false;}}
+async function switchToArc(){if(!wp)return;ttry{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}catch(e){if(e.code===4902||e.code===-32603){ttry{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch(e2){toast('Failed to add Arc Testnet: '+(e2?.message||''),'error',6000);}}}}
 function showBalSkeleton(){document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';document.getElementById('balUsd').innerHTML='<span class="skel skel-small"></span>';document.getElementById('usdcBal2').innerHTML='<span class="skel skel-small"></span>';document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';}
 
 async function connectWallet(){
@@ -568,9 +568,9 @@ async function connectWallet(){
   landBtn.innerHTML='<span class="spinner"></span>Connecting...';
   landBtn.disabled=topBtn.disabled=true;
   topBtn.textContent='Connecting...';
-  try{
+  ttry{
     await wp.request({method:'eth_requestAccounts'});
-    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
+    ttry{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
     catch(e){if(e.code===4902||e.code===-32603){await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}}
     provider=new ethers.BrowserProvider(wp);
     signer=await provider.getSigner();
@@ -648,7 +648,7 @@ async function refreshBalances(){
   if(!provider||!userAddr||balancesLoading||!onArcNetwork)return;
   balancesLoading=true;
   document.getElementById('rpcError').classList.remove('show');
-  try{
+  ttry{
     const cu=new ethers.Contract(USDC_ADDR,ERC20_ABI,provider);
     const ce=new ethers.Contract(EURC_ADDR,ERC20_ABI,provider);
     const[ur,er]=await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
@@ -670,7 +670,7 @@ async function refreshBalances(){
 
 async function refreshStakeInfo(){
   if(!provider||!userAddr||!hasStaking())return;
-  try{
+  ttry{
     const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,provider);
     const[info,totalRaw]=await Promise.all([sc.getUserInfo(userAddr),sc.totalStaked()]);
     onChainStaked=parseFloat(ethers.formatUnits(info.stakedAmount,USDC_DECIMALS));
@@ -706,7 +706,7 @@ async function doStake(){
   if(amt>parseFloat(usdcBal)){toast('Insufficient USDC balance','error');return;}
   const parsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
   const btn=document.getElementById('stakeBtn');
-  try{
+  ttry{
     btn.innerHTML='<span class="spinner"></span>Step 1/2: Approving USDC...';btn.disabled=true;
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,STAKING_CONTRACT_ADDRESS);
@@ -744,7 +744,7 @@ async function doUnstake(){
   const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,signer);
   const btn=document.querySelector('#sp-unstake .btn');
   btn.innerHTML='<span class="spinner"></span>Unstaking...';btn.disabled=true;
-  try{
+  ttry{
     const tx=await sc.unstake(parsed);lastTxHash=tx.hash;
     toast('Unstake submitted: '+short(tx.hash),'info',10000);
     await tx.wait(1);
@@ -763,7 +763,7 @@ async function doClaim(){
   const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,signer);
   const btn=document.querySelector('#sp-claim .btn');
   btn.innerHTML='<span class="spinner"></span>Claiming...';btn.disabled=true;
-  try{
+  ttry{
     const tx=await sc.claimReward();lastTxHash=tx.hash;
     toast('Claim submitted: '+short(tx.hash),'info',10000);
     await tx.wait(1);
@@ -793,7 +793,7 @@ async function onRecipInput(){
   }if(recipType==='x'||recipType==='discord'){
     const prefix=recipType==='x'?'x:':'discord:';
     const handle=prefix+val.toLowerCase().replace(/^@/,'');
-    try{
+    ttry{
       const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
       const addr=await contract.resolve(handle);
       if(addr&&addr!==ethers.ZeroAddress){
@@ -857,7 +857,7 @@ async function doSend(){
   btn.innerHTML='<span class="spinner"></span>Waiting for wallet...';btn.disabled=true;
   const tokenAddr=sendToken==='USDC'?USDC_ADDR:EURC_ADDR;
   const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
-  try{
+  ttry{
     const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
     const tx=await c.transfer(to,ethers.parseUnits(parseFloat(amt).toFixed(decimals),decimals));
     lastTxHash=tx.hash;btn.innerHTML='<span class="spinner"></span>Confirming...';
@@ -918,7 +918,7 @@ async function doSwap(){
     const tokenAddr=swapFlipped?EURC_ADDR:USDC_ADDR;
     const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
     const swapContract=new ethers.Contract(SWAP_CONTRACT_ADDRESS,SWAP_ABI,signer);
-    try{
+    ttry{
       const approveTx=await tokenContract.approve(SWAP_CONTRACT_ADDRESS,amtParsed);await approveTx.wait(1);
       const tx=swapFlipped?await swapContract.swapEURCtoUSDC(amtParsed):await swapContract.swapUSDCtoEURC(amtParsed);
       await tx.wait();toast('Swap successful!','success');await refreshBalances();
@@ -950,7 +950,7 @@ function setRegType(type,el){
 async function removeHandle(handle){
   if(!signer){toast('Connect wallet first','error');return;}
   const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);
-  try{
+  ttry{
     const tx=await contract.remove(handle);
     toast('Removing handle...','info',3000);
     await tx.wait();
@@ -963,7 +963,7 @@ async function registerHandle(){
   let h=document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
   if(!h||h.length<2){toast('Enter a valid username','error');return;}
   const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);
-  try{
+  ttry{
     const tx=await contract.register(regType+':'+h);
     toast('Confirming...','info',3000);
     await tx.wait();
@@ -977,7 +977,7 @@ async function showMyHandles(){
   if(!userAddr||!provider)return;
   const box=document.getElementById('myHandlesBox');
   const list=document.getElementById('myHandlesList');
-  try{
+  ttry{
     const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
     const handles=await contract.getHandles(userAddr);
     if(!handles||handles.length===0){box.style.display='none';return;}
@@ -994,7 +994,7 @@ async function showMyHandles(){
 async function renderAllHandles(){
   const list=document.getElementById('allHandlesList');
   list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading handles...</div></div>';
-  try{
+  ttry{
     const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
     const filter=contract.filters.HandleRegistered?.();
     if(!filter){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';return;}
@@ -1056,7 +1056,7 @@ function copyAddr(){
 function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff'});}
+  ttry{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff'});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 
@@ -1122,7 +1122,7 @@ NAN APP GUIDE: - Send/Receive: go to Send tab, enter wallet address or Twitter/D
   swap: {"action":"swap","amount":50,"from":"USDC","to":"EURC"}
   stake: {"action":"stake","amount":100}
   navigate: {"action":"navigate","tab":"history"}`;
-  try{
+  ttry{
     const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
@@ -1135,7 +1135,7 @@ NAN APP GUIDE: - Send/Receive: go to Send tab, enter wallet address or Twitter/D
     const reply=data.choices?.[0]?.message?.content||"Sorry, couldn't reach the AI.";
     const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action=null;
-    try{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
+    ttry{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
     const clean=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').trim();
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
   }catch{
