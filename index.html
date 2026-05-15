@@ -1123,7 +1123,7 @@ RULES:
   stake: {"action":"stake","amount":100}
   navigate: {"action":"navigate","tab":"history"}`;
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
