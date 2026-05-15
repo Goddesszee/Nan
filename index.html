@@ -507,7 +507,7 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 <div id="toast"></div>
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;right:30px;transform:translateY(-50%);z-index:9999;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(139,92,246,.5);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;" title="NAN AI Assistant">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;right:30px;transform:translateY(-50%);z-index:9999;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(139,92,246,.5);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;" title="NAN AI Assistant">
   <span>✦</span>
   <span style="font-size:.5rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
@@ -1137,7 +1137,10 @@ function toggleAgent(){
   }
   if(agentOpen){positionAI();renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
 }
-function showAIBtn(show){const fab=document.getElementById('aiBtn');if(fab)fab.style.display=show?'flex':'none';}
+function showAIBtn(show){
+  const fab=document.getElementById('aiBtn');
+  if(fab) fab.style.display='flex';
+}
 function renderAgentMsgs(){
   const el=document.getElementById('agentMessages');
   el.innerHTML=agentMsgs.map(m=>`
