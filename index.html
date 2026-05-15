@@ -544,7 +544,7 @@ window.addEventListener('resize', resizeAIPanel);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-const GROQ_KEY='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'; const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
+const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
 const SWAP_CONTRACT_ADDRESS    = '0x09C5A9Ae45D38DBdA2bBD3bd721Fd957ac2b1A69';
 const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
@@ -1128,7 +1128,8 @@ function copyAddr(){
 function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:'#07081a',colorLight:'#ffffff'});}
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#07081a':'#1e1040',colorLight:'#ffffff'});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 
@@ -1162,7 +1163,7 @@ function renderAgentMsgs(){
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
   const chips=["What's my balance?","How much staked?","My rewards?","Send USDC","Swap USDC → EURC","Stake USDC"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:#a78bfa;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
+  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -1476,13 +1477,13 @@ async function refreshBalancesCircle(){
       </div>
       <div style="font-size:.62rem;color:var(--text3);margin-top:3px;">Reads your live wallet · Claude-powered</div>
     </div>
-    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:#6b5fa0;cursor:pointer;font-size:15px;line-height:1;">✕</button>
+    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;line-height:1;">✕</button>
   </div>
   <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
+      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
     </div>
     <div style="font-size:.58rem;color:#3d3d6b;text-align:center;margin-top:8px;">Powered by Claude · Reads your live on-chain data</div>
