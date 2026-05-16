@@ -1761,10 +1761,17 @@ async function doSwap(){
     // Check if pool has liquidity first
     const readProvider=getArcProvider();
     const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
-    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
-    const hasLiquidity=isUSDCtoEURC
-      ? parseFloat(ethers.formatUnits(eurcLiq,6))>fromAmt
-      : parseFloat(ethers.formatUnits(usdcLiq,6))>fromAmt;
+    let hasLiquidity=false;
+    try{
+      const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+      const usdcInPool=parseFloat(ethers.formatUnits(usdcLiq,6));
+      const eurcInPool=parseFloat(ethers.formatUnits(eurcLiq,6));
+      hasLiquidity=isUSDCtoEURC?eurcInPool>0.01:usdcInPool>0.01;
+      console.log('Pool liquidity — USDC:',usdcInPool,'EURC:',eurcInPool);
+    }catch(e){
+      console.log('Liquidity check failed:',e.message);
+      hasLiquidity=true; // assume liquidity if check fails
+    }
 
     if(!hasLiquidity||!signer){
       // Simulate swap
