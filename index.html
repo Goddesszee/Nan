@@ -486,7 +486,7 @@ a:hover{color:var(--text);}
     <div class="success-hash" id="successHash"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
       <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="openExplorer()">View on Explorer ↗</button>
-      <button class="btn" style="width:auto;padding:9px 22px;background:#000;border-color:#000;" onclick="shareOnX()">𝕏 Share Receipt</button>
+      <button class="btn" style="width:auto;padding:9px 22px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;" onclick="showReceipt()">🧾 View Receipt</button>
       <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="resetSend()">Send another</button>
     </div>
   </div>
@@ -924,8 +924,10 @@ const STAKING_ABI = [
   'function totalStaked() view returns (uint256)',
 ];
 const CCTP_ABI = [
+  // TokenMessengerV2 depositForBurn
+  'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken, bytes32 destinationCaller, uint256 maxFee, uint32 minFinalityThreshold) external returns (uint64 nonce)',
+  // Also support V1 for compatibility
   'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken) external returns (uint64 nonce)',
-  'function localMinter() view returns (address)',
 ];
 const HANDLE_ABI = [
   'function register(string calldata handle) external',
@@ -1059,8 +1061,35 @@ async function switchToArc(){
   catch(e){if(e.code===4902||e.code===-32603){try{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch{}}}
 }
 async function connectWallet(){
-  // Always show picker instead of auto-connecting
   showWalletPicker();
+}
+async function _doConnect(detectedWp, walletType){
+  wp=detectedWp;
+  const btn=document.getElementById('landConnectBtn');
+  if(btn){btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;}
+  try{
+    await wp.request({method:'eth_requestAccounts'});
+    try{
+      await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});
+    }catch(e){
+      if(e.code===4902||e.code===-32603){
+        await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});
+      }
+    }
+    provider=new ethers.BrowserProvider(wp);
+    signer=await provider.getSigner();
+    userAddr=await signer.getAddress();
+    isCircleWallet=false;
+    const chainHex=await wp.request({method:'eth_chainId'});
+    onArcNetwork=parseInt(chainHex,16)===ARC_CHAIN_ID;
+    await onConnected(false);
+    toast('✓ Connected via '+walletType+'!','success',4000);
+  }catch(err){
+    if(err.code===4001)toast('Connection cancelled','error');
+    else toast((err?.message||'Connection failed').slice(0,120),'error');
+  }finally{
+    if(btn){btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;}
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1530,11 +1559,107 @@ function showSendSuccess(amt,to,hash){
   btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
 }
 function openExplorer(){if(lastTxHash)window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');}
+
 function shareOnX(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
   const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
-  const text=`Just sent ${msg} on Arc Testnet using NAN Wallet! ⚡\n\n🔗 Tx: ${explorerUrl}\n\nBuilt with @circle USDC on Arc — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN`;
+  const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
+  window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+}
+
+function showReceipt(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const shortHash=hash?hash.slice(0,10)+'...'+hash.slice(-6):'pending';
+  const now=new Date().toLocaleString();
+  const modal=document.createElement('div');
+  modal.id='receiptModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
+  modal.innerHTML=`
+    <div style="max-width:360px;width:100%;position:relative;">
+      <div id="receiptCard" style="background:linear-gradient(135deg,#07081a 0%,#0e1030 50%,#07081a 100%);border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(139,92,246,.3);">
+        <!-- Background glow -->
+        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(139,92,246,.25) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(109,40,217,.2) 0%,transparent 70%);pointer-events:none;"></div>
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:30px;height:30px;background:#8b5cf6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#ede9fe;box-shadow:0 0 12px rgba(139,92,246,.5);">N</div>
+            <div>
+              <div style="font-size:.75rem;font-weight:700;color:#ede9fe;letter-spacing:.08em;">NAN WALLET</div>
+              <div style="font-size:.55rem;color:#a78bfa;letter-spacing:.12em;">ARC TESTNET</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:.6rem;color:#a78bfa;font-family:monospace;">RECEIPT</div>
+            <div style="font-size:.55rem;color:#6b5fa0;font-family:monospace;">${now}</div>
+          </div>
+        </div>
+
+        <!-- Success check -->
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.1));border:2px solid rgba(52,211,153,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(52,211,153,.2);">✓</div>
+          <div style="font-size:1.3rem;font-weight:700;color:#ede9fe;margin-bottom:4px;">Transaction Confirmed</div>
+          <div style="font-size:.75rem;color:#a78bfa;">${msg}</div>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top:1px dashed rgba(139,92,246,.25);margin:16px 0;"></div>
+
+        <!-- Details -->
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
+            <span style="font-size:.68rem;color:#a78bfa;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#a78bfa;border-radius:50%;display:inline-block;box-shadow:0 0 4px #a78bfa;"></span>Arc Testnet</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
+            <span style="font-size:.68rem;color:#34d399;font-family:monospace;">● Confirmed</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
+            <span style="font-size:.68rem;color:#ede9fe;font-family:monospace;">~0.009 USDC</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
+            <a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.6rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top:1px dashed rgba(139,92,246,.25);margin:16px 0;"></div>
+
+        <!-- Powered by -->
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:.55rem;color:#6b5fa0;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
+            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">Circle USDC</span>
+            <span style="color:#6b5fa0;">·</span>
+            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">Arc Network</span>
+            <span style="color:#6b5fa0;">·</span>
+            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">NAN Wallet</span>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:8px;">
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Share</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function shareReceiptX(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
+  const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
 function resetSend(){
@@ -1581,37 +1706,48 @@ async function doSwap(){
   const fromBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
   if(fromAmt>fromBal){toast('Insufficient balance','error');return;}
   const btn=document.getElementById('swapBtn');
-  btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Checking pool...';btn.disabled=true;
   try{
-    if(!signer){toast('No signer available','error');btn.innerHTML='Simulate Swap';btn.disabled=false;return;}
+    // Check if pool has liquidity first
+    const readProvider=getArcProvider();
+    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
+    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+    const hasLiquidity=isUSDCtoEURC
+      ? parseFloat(ethers.formatUnits(eurcLiq,6))>fromAmt
+      : parseFloat(ethers.formatUnits(usdcLiq,6))>fromAmt;
+
+    if(!hasLiquidity||!signer){
+      // Simulate swap
+      toast('Pool needs liquidity — using simulated swap','info',4000);
+      _doSimulatedSwap(fromAmt,isUSDCtoEURC);
+      btn.innerHTML='Swap on Arc';btn.disabled=false;
+      return;
+    }
+
     const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
     const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
     const tokenContract=new ethers.Contract(tokenIn,ERC20_ABI,signer);
     const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
-    // Approve swap contract
+
     btn.innerHTML='<span class="spinner"></span>Approving...';
     const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn);
     await approveTx.wait(1);
-    // Execute swap
+
     btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
     const swapTx=isUSDCtoEURC
       ? await swapContract.swapUSDCtoEURC(amtIn)
       : await swapContract.swapEURCtoUSDC(amtIn);
     const receipt=await swapTx.wait(1);
     toast('✓ Swap confirmed on Arc Testnet!','success',6000);
-    addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap Contract',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
+    addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
     await refreshBalances();
     document.getElementById('swapFrom').value='';
     document.getElementById('swapTo').value='';
   }catch(err){
-    // Fallback to simulation if liquidity error
     const msg=err?.reason||err?.message||'Swap failed';
-    if(msg.includes('liquidity')||msg.includes('insufficient')){
-      toast('Pool needs liquidity — simulating swap','warning',5000);
-      _doSimulatedSwap(fromAmt,isUSDCtoEURC);
-    } else {
-      toast(msg.slice(0,120),'error',6000);
-    }
+    toast('Swap failed: '+msg.slice(0,100),'error',6000);
+    // Always fallback to simulation
+    _doSimulatedSwap(fromAmt,isUSDCtoEURC);
   }
   btn.innerHTML='Swap on Arc';btn.disabled=false;
 }
@@ -1758,10 +1894,23 @@ async function doBridge(){
 
     btn.innerHTML='<span class="spinner"></span>Step 2/2: Burning USDC on Arc…';
 
-    // Convert address to bytes32 for CCTP
+    // Convert address to bytes32 for CCTP V2
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
+    const destinationCaller=ethers.zeroPadValue('0x0000000000000000000000000000000000000000',32);
     const messenger=new ethers.Contract(CCTP_TOKEN_MESSENGER,CCTP_ABI,signer);
-    const tx=await messenger.depositForBurn(amtParsed,domain,mintRecipient,USDC_ADDR);
+
+    // Try CCTP V2 first (7 params), fall back to V1 (4 params)
+    let tx;
+    try{
+      tx=await messenger['depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)'](
+        amtParsed,domain,mintRecipient,USDC_ADDR,destinationCaller,0,1000
+      );
+    }catch(e2){
+      console.log('V2 failed, trying V1:',e2.message);
+      tx=await messenger['depositForBurn(uint256,uint32,bytes32,address)'](
+        amtParsed,domain,mintRecipient,USDC_ADDR
+      );
+    }
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Waiting for Circle attestation…';
     toast('Burn tx submitted: '+short(tx.hash),'info',10000);
@@ -2003,7 +2152,7 @@ function hideWalletPicker(e){
 async function connectSpecific(walletType){
   hideWalletPicker();
   if(walletType==='walletconnect'){
-    toast('WalletConnect — use MetaMask mobile or any WalletConnect-compatible wallet','info',5000);
+    toast('WalletConnect — use MetaMask mobile or scan QR','info',5000);
     return;
   }
   if(walletType==='circle'){
@@ -2012,8 +2161,6 @@ async function connectSpecific(walletType){
     if(emailInput)emailInput.focus();
     return;
   }
-
-  // Detect wallet provider
   let detectedWp=null;
   const providers=window.ethereum?.providers;
   if(providers?.length){
@@ -2024,40 +2171,8 @@ async function connectSpecific(walletType){
   } else {
     detectedWp=window.ethereum||null;
   }
-
-  if(!detectedWp){
-    toast(walletType+' not found — is it installed?','error',6000);
-    return;
-  }
-
-  wp=detectedWp;
-  const btn=document.getElementById('landConnectBtn');
-  if(btn){btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;}
-  try{
-    await wp.request({method:'eth_requestAccounts'});
-    // Switch to Arc Testnet
-    try{
-      await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});
-    }catch(e){
-      if(e.code===4902||e.code===-32603){
-        await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});
-      }
-    }
-    provider=new ethers.BrowserProvider(wp);
-    signer=await provider.getSigner();
-    userAddr=await signer.getAddress();
-    isCircleWallet=false;
-    // Force onArcNetwork true after switching
-    const chainHex=await wp.request({method:'eth_chainId'});
-    onArcNetwork=parseInt(chainHex,16)===ARC_CHAIN_ID;
-    await onConnected(false);
-    toast('✓ Connected via '+walletType+'!','success',4000);
-  }catch(err){
-    if(err.code===4001)toast('Connection cancelled','error');
-    else toast((err?.message||'Connection failed').slice(0,120),'error');
-  }finally{
-    if(btn){btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;}
-  }
+  if(!detectedWp){toast(walletType+' not found — is it installed?','error',6000);return;}
+  await _doConnect(detectedWp, walletType);
 }
 
 // ═══════════════════════════════════════════
