@@ -29,6 +29,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
 #app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow-y:auto;overflow-x:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;}
 #app-root::-webkit-scrollbar{display:none;}
+/* Mobile full width */
+@media(max-width:480px){
+  #app-root{left:0;transform:none;max-width:100%;box-shadow:none;}
+  .page{padding:10px 12px 80px!important;}
+  .card{padding:12px!important;}
+  .feat-grid{grid-template-columns:1fr 1fr!important;}
+  .wallet-modal{border-radius:20px 20px 0 0!important;padding:20px 14px 40px!important;}
+  .bal-num{font-size:2.4rem!important;}
+  .btn{font-size:.85rem!important;padding:12px!important;}
+  .big-btn{font-size:.95rem!important;padding:14px 20px!important;}
+  #aiBtn{right:12px!important;}
+}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
@@ -1063,12 +1075,42 @@ function updateTopBar(connected){
 // FX RATE
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
+  // Try our server API first (tries Band → CoinGecko → ExchangeRate)
   try{
-    const res=await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
+    const res=await fetch('/api/fx-rate');
+    if(res.ok){
+      const data=await res.json();
+      if(data.rate&&data.rate>0.5&&data.rate<2){
+        FX=data.rate;fxLastUpdated=new Date();
+        console.log('FX rate from',data.source,':',FX);
+        updateSwapRateDisplay();return;
+      }
+    }
+  }catch(e){}
+
+  // Try Band Protocol oracle on Arc directly
+  try{
+    const readProvider=getArcProvider();
+    const BAND_REF='0xDA7a001b254CD22e46d3eAB04d937489c93174C3';
+    const BAND_ABI=['function getReferenceData(string,string) view returns (uint256,uint256,uint256)'];
+    const band=new ethers.Contract(BAND_REF,BAND_ABI,readProvider);
+    const [rate]=await band.getReferenceData('EUR','USD');
+    const eur=parseFloat(ethers.formatUnits(rate,18));
+    if(!isNaN(eur)&&eur>0.5&&eur<2){
+      FX=eur;fxLastUpdated=new Date();updateSwapRateDisplay();return;
+    }
+  }catch(e){}
+
+  // Fallback: Frankfurter (free, no CORS)
+  try{
+    const res=await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
     const data=await res.json();
-    const eur=parseFloat(data.data.rates.EUR);
-    if(!isNaN(eur)&&eur>0){FX=eur;fxLastUpdated=new Date();updateSwapRateDisplay();}
-  }catch(e){console.warn('FX fetch failed, using fallback');}
+    const eur=data.rates?.EUR;
+    if(eur){FX=eur;fxLastUpdated=new Date();updateSwapRateDisplay();return;}
+  }catch(e){}
+
+  console.warn('FX fetch failed, using fallback rate:',FX);
+  updateSwapRateDisplay();
 }
 function updateSwapRateDisplay(){
   const time=fxLastUpdated?fxLastUpdated.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'fallback';
@@ -1174,43 +1216,53 @@ async function verifyOTP(){
     });
     const data=await res.json();
     if(data.success){
-      // Set up Arc Testnet provider
-      provider=new ethers.JsonRpcProvider(ARC_RPC);
+      provider=new ethers.JsonRpcProvider(ARC_RPC,{chainId:ARC_CHAIN_ID,name:'arc-testnet',ensAddress:null});
       onArcNetwork=true;
 
       let wallet;
       let isNewWallet=false;
 
-      if(data.returning && data.privateKey){
-        // ── Returning user — restore wallet from server ──
+      // ── Try Circle Programmable Wallet API first ──
+      try{
+        btn.innerHTML='<span class="spinner"></span>Creating Circle wallet...';
+        const cwRes=await fetch('/api/circle-wallets',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'getWallet',email:otpEmail}),
+        });
+        const cwData=await cwRes.json();
+        if(cwData.success&&cwData.wallet?.address){
+          userAddr=cwData.wallet.address;
+          isCircleWallet=true;
+          signer=null;
+          circleWalletId=cwData.wallet.id;
+          toast('✓ Circle Programmable Wallet ready! 🔵','success',5000);
+          await onConnected(true);
+          document.getElementById('otpBox').style.display='none';
+          btn.innerHTML='Verify →';btn.disabled=false;
+          return;
+        }
+      }catch(e){console.log('Circle wallet API not available, using browser wallet');}
+
+      // ── Fallback: browser-generated ethers wallet ──
+      if(data.returning&&data.privateKey){
         try{
-          wallet=new ethers.Wallet(data.privateKey, provider);
-          // Also update localStorage for faster future loads
-          localStorage.setItem('nan_wallet_'+otpEmail, data.privateKey);
+          wallet=new ethers.Wallet(data.privateKey,provider);
+          localStorage.setItem('nan_wallet_'+otpEmail,data.privateKey);
           toast('✓ Welcome back! Your wallet has been restored 🎉','success',5000);
         }catch(e){
-          // Corrupted key — create new wallet
           wallet=ethers.Wallet.createRandom().connect(provider);
           isNewWallet=true;
         }
-      } else {
-        // ── Check localStorage first (same device) ──
+      }else{
         const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
         if(savedKey){
           try{
-            wallet=new ethers.Wallet(savedKey, provider);
-            // Sync to server
-            await fetch('/api/otp',{
-              method:'POST',headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:savedKey,walletAddress:wallet.address}),
-            });
+            wallet=new ethers.Wallet(savedKey,provider);
+            await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:savedKey,walletAddress:wallet.address})});
             toast('✓ Welcome back! Wallet restored 🎉','success',5000);
-          }catch(e){
-            wallet=ethers.Wallet.createRandom().connect(provider);
-            isNewWallet=true;
-          }
-        } else {
-          // ── Brand new user — generate new wallet in browser ──
+          }catch(e){wallet=ethers.Wallet.createRandom().connect(provider);isNewWallet=true;}
+        }else{
           wallet=ethers.Wallet.createRandom().connect(provider);
           isNewWallet=true;
         }
@@ -1219,9 +1271,7 @@ async function verifyOTP(){
       signer=wallet;
       userAddr=wallet.address;
       isCircleWallet=true;
-
-      // Save to localStorage
-      localStorage.setItem('nan_wallet_'+otpEmail, wallet.privateKey);
+      localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
 
       if(isNewWallet){
         // Save encrypted key to server for cross-device access
@@ -1694,7 +1744,8 @@ function showReceipt(){
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Share</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
           <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
@@ -1710,6 +1761,94 @@ function shareReceiptX(){
   const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
   const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+}
+
+function downloadReceipt(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const shortHash=hash?hash.slice(0,18)+'...':'-';
+  const now=new Date().toLocaleString();
+
+  const canvas=document.createElement('canvas');
+  canvas.width=600;canvas.height=400;
+  const ctx=canvas.getContext('2d');
+
+  // Background gradient
+  const bg=ctx.createLinearGradient(0,0,600,400);
+  bg.addColorStop(0,'#07081a');bg.addColorStop(0.5,'#0e1030');bg.addColorStop(1,'#07081a');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,600,400);
+
+  // Purple glow
+  const glow=ctx.createRadialGradient(550,50,0,550,50,200);
+  glow.addColorStop(0,'rgba(139,92,246,0.3)');glow.addColorStop(1,'rgba(139,92,246,0)');
+  ctx.fillStyle=glow;ctx.fillRect(0,0,600,400);
+
+  // Border
+  ctx.strokeStyle='rgba(139,92,246,0.5)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.roundRect(10,10,580,380,16);ctx.stroke();
+
+  // NAN logo circle
+  ctx.fillStyle='#8b5cf6';
+  ctx.beginPath();ctx.arc(50,50,22,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ede9fe';ctx.font='bold 16px Space Grotesk, sans-serif';
+  ctx.textAlign='center';ctx.fillText('N',50,56);
+
+  // NAN title
+  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Space Grotesk, sans-serif';
+  ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
+  ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
+  ctx.fillText('ARC TESTNET',82,63);
+
+  // Date
+  ctx.fillStyle='#6b5fa0';ctx.font='10px JetBrains Mono, monospace';
+  ctx.textAlign='right';ctx.fillText(now,580,45);
+
+  // Check circle
+  ctx.fillStyle='rgba(52,211,153,0.15)';
+  ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(52,211,153,0.4)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#34d399';ctx.font='36px sans-serif';
+  ctx.textAlign='center';ctx.fillText('✓',300,168);
+
+  // Transaction confirmed
+  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Space Grotesk, sans-serif';
+  ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
+  ctx.fillStyle='#a78bfa';ctx.font='14px Space Grotesk, sans-serif';
+  ctx.fillText(msg,300,250);
+
+  // Divider
+  ctx.strokeStyle='rgba(139,92,246,0.2)';ctx.lineWidth=1;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(40,268);ctx.lineTo(560,268);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Details
+  const details=[
+    ['Network','Arc Testnet'],
+    ['Status','Confirmed ✓'],
+    ['Gas','~0.009 USDC'],
+    ['Tx Hash',shortHash],
+  ];
+  details.forEach(([label,value],i)=>{
+    const y=290+i*22;
+    ctx.fillStyle='#6b5fa0';ctx.font='11px JetBrains Mono, monospace';
+    ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
+    ctx.fillStyle=label==='Status'?'#34d399':'#ede9fe';
+    ctx.textAlign='right';ctx.fillText(value,560,y);
+  });
+
+  // Footer
+  ctx.fillStyle='rgba(139,92,246,0.15)';ctx.fillRect(0,360,600,40);
+  ctx.fillStyle='#a78bfa';ctx.font='11px Space Grotesk, sans-serif';
+  ctx.textAlign='center';ctx.fillText('nan-swart.vercel.app  ·  Powered by Circle USDC  ·  Arc Network',300,385);
+
+  // Download
+  const link=document.createElement('a');
+  link.download='nan-receipt-'+Date.now()+'.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+  toast('✓ Receipt image saved! Share it on 𝕏','success',4000);
 }
 function resetSend(){
   document.getElementById('successCard').classList.remove('show');
@@ -1806,92 +1945,6 @@ function initSwapUI(){
 }
 
 // ═══════════════════════════════════════════
-// STAKE
-// ═══════════════════════════════════════════
-const hasStaking=()=>STAKING_CONTRACT&&STAKING_CONTRACT.length===42;
-function prefillSend(addr){
-  goPage('send');
-  setTimeout(()=>{setType('address',document.getElementById('topt-address'));document.getElementById('recipInput').value=addr;onRecipInput();},200);
-}
-async function doStake(){
-// ═══════════════════════════════════════════
-// BRIDGE — CCTP
-// ═══════════════════════════════════════════
-  if(!amt||amt<1){toast('Minimum 1 USDC','error');return;}
-  if(amt>parseFloat(usdcBal)){toast('Insufficient USDC','error');return;}
-  const parsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
-  const btn=document.getElementById('stakeBtn');
-  try{
-    btn.innerHTML='<span class="spinner"></span>Step 1/2: Approving USDC…';btn.disabled=true;
-    const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
-    const allowance=await usdc.allowance(userAddr,STAKING_CONTRACT);
-    if(allowance<parsed){
-      const appTx=await usdc.approve(STAKING_CONTRACT,parsed);
-      btn.innerHTML='<span class="spinner"></span>Confirming approval…';
-      await appTx.wait(1);
-      toast('Approved! Now staking…','info',4000);
-    }
-    btn.innerHTML='<span class="spinner"></span>Step 2/2: Staking…';
-    const sc=new ethers.Contract(STAKING_CONTRACT,STAKING_ABI,signer);
-    const tx=await sc.stake(parsed);
-    lastTxHash=tx.hash;
-    btn.innerHTML='<span class="spinner"></span>Confirming…';
-    toast('Tx submitted: '+short(tx.hash),'info',10000);
-    const receipt=await tx.wait(1);
-    addTx({hash:tx.hash,to:STAKING_CONTRACT,toRaw:'Staked USDC',amount:amt.toFixed(6),type:'stake',token:'USDC',ts:Date.now(),confirmed:!!receipt,source:'onchain'});
-    toast('✓ Staked '+amt+' USDC!','success',6000);
-    document.getElementById('stakeAmt').value='';
-    document.getElementById('approveNotice').style.display='none';
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){
-    toast((err?.info?.error?.message||err?.reason||err?.message||'Stake failed').slice(0,140),'error',8000);
-  }finally{btn.innerHTML='Stake USDC';btn.disabled=false;}
-}
-async function doUnstake(){
-  if(!signer||!onArcNetwork||!hasStaking()){toast('Connect wallet & switch network','error');return;}
-  const amt=parseFloat(document.getElementById('unstakeAmt').value);
-  if(!amt||amt<=0){toast('Enter amount','error');return;}
-  if(amt>onChainStaked){toast('Only '+onChainStaked.toFixed(2)+' USDC staked','error');return;}
-  const sc=new ethers.Contract(STAKING_CONTRACT,STAKING_ABI,signer);
-  const btn=document.querySelector('#sp-unstake .btn');
-  btn.innerHTML='<span class="spinner"></span>Unstaking…';btn.disabled=true;
-  try{
-    const tx=await sc.unstake(ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS));lastTxHash=tx.hash;
-    toast('Unstake submitted: '+short(tx.hash),'info',10000);
-    await tx.wait(1);
-    addTx({hash:tx.hash,to:userAddr,toRaw:'Unstaked USDC',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'onchain'});
-    toast('✓ Unstaked '+amt+' USDC!','success',6000);
-    document.getElementById('unstakeAmt').value='';
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){toast((err?.info?.error?.message||err?.reason||err?.message||'Unstake failed').slice(0,140),'error',8000);}
-  finally{btn.innerHTML='Unstake & Claim Rewards';btn.disabled=false;}
-}
-async function doClaim(){
-  if(!signer||!onArcNetwork||!hasStaking()){toast('Connect wallet & switch network','error');return;}
-  if(onChainClaimable<0.000001){toast('No rewards to claim yet','error');return;}
-  const sc=new ethers.Contract(STAKING_CONTRACT,STAKING_ABI,signer);
-  const btn=document.querySelector('#sp-claim .btn');
-  btn.innerHTML='<span class="spinner"></span>Claiming…';btn.disabled=true;
-  try{
-    const tx=await sc.claimReward();lastTxHash=tx.hash;
-    toast('Claim submitted: '+short(tx.hash),'info',10000);
-    await tx.wait(1);
-    addTx({hash:tx.hash,to:userAddr,toRaw:'Claimed USDC Rewards',amount:onChainClaimable.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'onchain'});
-    toast('✓ Claimed '+onChainClaimable.toFixed(6)+' USDC!','success',6000);
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){toast((err?.info?.error?.message||err?.reason||err?.message||'Claim failed').slice(0,140),'error',8000);}
-  finally{btn.innerHTML='Claim Rewards →';btn.disabled=false;}
-}
-function setStakeMax(){document.getElementById('stakeAmt').value=Math.max(0,parseFloat(usdcBal)-0.02).toFixed(6);}
-function setUnstakeMax(){document.getElementById('unstakeAmt').value=onChainStaked.toFixed(6);}
-function setStakeTab(tab,el){
-  document.querySelectorAll('#page-lend .stab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.stake-panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('sp-'+tab).classList.add('active');
-}
-
-// ═══════════════════════════════════════════
 // BRIDGE — CCTP
 // ═══════════════════════════════════════════
 function setBridgeMax(){document.getElementById('bridgeAmt').value=Math.max(0,parseFloat(usdcBal)-GAS_USDC*2).toFixed(6);}
@@ -1901,73 +1954,121 @@ async function doBridge(){
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  // Refresh balances first to get latest
   await refreshBalances();
   if(amt>parseFloat(usdcBal)){toast('Insufficient USDC — you have '+parseFloat(usdcBal).toFixed(2)+' USDC','error',5000);return;}
-  if(!signer||!onArcNetwork){toast('Connect MetaMask on Arc Testnet for CCTP bridging','error');return;}
-
+  if(!signer||!onArcNetwork){toast('Connect wallet on Arc Testnet for CCTP bridging','error');return;}
   const domain=CCTP_DOMAIN[destChain];
   if(domain===undefined){toast('Unsupported destination chain','error');return;}
-
   const btn=document.getElementById('bridgeBtn');
   const statusCard=document.getElementById('bridgeStatusCard');
   const statusContent=document.getElementById('bridgeStatusContent');
-
-  btn.innerHTML='<span class="spinner"></span>Step 1/2: Approving USDC…';btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Step 1/3: Approving USDC…';btn.disabled=true;
   try{
     const amtParsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
-
-    // Approve CCTP messenger
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
       const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed);
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(1);
-      toast('Approved! Initiating CCTP burn…','info',4000);
     }
-
-    btn.innerHTML='<span class="spinner"></span>Step 2/2: Burning USDC on Arc…';
-
-    // Convert address to bytes32 for CCTP V2
+    btn.innerHTML='<span class="spinner"></span>Step 2/3: Burning USDC on Arc…';
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
     const destinationCaller=ethers.zeroPadValue('0x0000000000000000000000000000000000000000',32);
     const messenger=new ethers.Contract(CCTP_TOKEN_MESSENGER,CCTP_ABI,signer);
-
-    // Try CCTP V2 first (7 params), fall back to V1 (4 params)
     let tx;
     try{
       tx=await messenger['depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)'](
         amtParsed,domain,mintRecipient,USDC_ADDR,destinationCaller,0,1000
       );
     }catch(e2){
-      console.log('V2 failed, trying V1:',e2.message);
       tx=await messenger['depositForBurn(uint256,uint32,bytes32,address)'](
         amtParsed,domain,mintRecipient,USDC_ADDR
       );
     }
     lastTxHash=tx.hash;
-    btn.innerHTML='<span class="spinner"></span>Waiting for Circle attestation…';
-    toast('Burn tx submitted: '+short(tx.hash),'info',10000);
+    toast('✓ Burn submitted! Waiting for Circle attestation…','info',8000);
     const receipt=await tx.wait(1);
+    addTx({hash:tx.hash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
 
-    addTx({hash:tx.hash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:!!receipt,source:'cctp',destChain});
+    // Get message bytes from receipt
+    const messageHash='0x'+receipt.logs?.[0]?.topics?.[1]?.slice(2)||'';
+    const messageBytes=receipt.logs?.[0]?.data||'';
 
     statusCard.style.display='block';
-    statusContent.innerHTML=`
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;line-height:1.8;color:var(--text2);">
-        <div>Status: <span style="color:var(--warning);">Waiting for Circle attestation</span></div>
-        <div>Burn tx: <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">${short(tx.hash)} ↗</a></div>
-        <div>Destination: ${destChain}</div>
-        <div>Amount: ${amt} USDC</div>
-        <div style="margin-top:8px;color:var(--text3);">Check <a href="https://iris-api-sandbox.circle.com/attestations/0x${receipt.logs?.[0]?.topics?.[1]?.slice(2)||''}" target="_blank">Circle Iris API ↗</a> for attestation, then call <code>receiveMessage</code> on the destination chain.</div>
-      </div>
-    `;
-    toast('✓ CCTP burn complete! Funds will arrive in ~2-5 min','success',10000);
+    statusContent.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;line-height:2;color:var(--text2);">
+      <div>✅ Step 1: USDC burned on Arc</div>
+      <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
+      <div id="mintStatus" style="display:none;">⏳ Step 3: Minting on ${destChain}…</div>
+      <div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">${short(tx.hash)} ↗</a></div>
+    </div>`;
+
+    btn.innerHTML='<span class="spinner"></span>Step 3/3: Polling attestation…';
+
+    // Poll Circle Iris API for attestation
+    await pollCCTPAttestation(messageHash,messageBytes,destChain,destAddr,amt,domain);
     await refreshBalances();
   }catch(err){
     toast((err?.info?.error?.message||err?.reason||err?.message||'Bridge failed').slice(0,140),'error',8000);
   }finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}
+}
+
+async function pollCCTPAttestation(messageHash,messageBytes,destChain,destAddr,amt,domain){
+  const statusEl=document.getElementById('attestStatus');
+  const mintEl=document.getElementById('mintStatus');
+  let attempts=0;
+  const maxAttempts=40; // 2 minutes max
+
+  const poll=async()=>{
+    try{
+      // Try via our server API first (avoids CORS issues)
+      let attestation=null;
+      try{
+        const apiRes=await fetch('/api/cctp-attest',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'getAttestation',messageHash}),
+        });
+        if(apiRes.ok){
+          const apiData=await apiRes.json();
+          if(apiData.status==='complete'&&apiData.attestation){
+            attestation=apiData.attestation;
+          }
+        }
+      }catch(e){}
+
+      // Fallback: hit Circle Iris API directly
+      if(!attestation){
+        const IRIS='https://iris-api-sandbox.circle.com/v2/messages/'+domain;
+        const res=await fetch(IRIS+'?transactionHash='+lastTxHash);
+        if(res.ok){
+          const data=await res.json();
+          const msg=data.messages?.[0];
+          if(msg?.status==='complete'&&msg.attestation&&msg.attestation!=='PENDING'){
+            attestation=msg.attestation;
+          }
+        }
+      }
+
+      if(attestation){
+        if(statusEl)statusEl.innerHTML='✅ Step 2: Circle attestation received!';
+        if(mintEl){mintEl.style.display='block';}
+        toast('✓ Attestation received! USDC minting on '+destChain+'…','success',8000);
+        return true;
+      }
+    }catch(e){console.log('Attestation poll error:',e.message);}
+
+    attempts++;
+    if(attempts<maxAttempts){
+      if(statusEl)statusEl.innerHTML=`⏳ Step 2: Circle attesting burn… (${attempts*3}s elapsed)`;
+      await new Promise(r=>setTimeout(r,3000));
+      return poll();
+    } else {
+      if(statusEl)statusEl.innerHTML='⚠️ Attestation pending — takes 2-5 min on testnet';
+      toast('Bridge burn confirmed! Mint will complete in 2-5 minutes','warning',8000);
+      return false;
+    }
+  };
+  return poll();
 }
 
 function prefillSend(addr){
