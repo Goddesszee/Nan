@@ -1,1492 +1,467 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Nan — Weave. Connect. Build.</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --bg:#07081a;--surface:#0e1030;--card:rgba(255,255,255,0.025);--card2:rgba(255,255,255,0.04);
-  --border:rgba(139,92,246,0.22);--border2:rgba(139,92,246,0.32);
-  --accent:#8b5cf6;--accent2:#8b5cf6;--accent3:#a78bfa;
-  --text:#ede9fe;--text2:#c4b5fd;--text3:#6b5fa0;
-  --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#f59e0b;
-  --radius:14px;--radius-sm:10px;
-  --topbar-bg:rgba(7,8,26,.96);--nav-bg:rgba(7,8,26,.97);
-}
-[data-theme="light"]{
-  --bg:#f4f3ff;--surface:#ffffff;--card:rgba(139,92,246,0.06);--card2:rgba(139,92,246,0.1);
-  --border:rgba(139,92,246,0.2);--border2:rgba(139,92,246,0.35);
-  --accent:#7c3aed;--accent2:#7c3aed;--accent3:#6d28d9;
-  --text:#1e1040;--text2:#4c1d95;--text3:#7c3aed;
-  --danger:#dc2626;--success:#059669;--gold:#d97706;--warning:#d97706;
-  --topbar-bg:rgba(244,243,255,.96);--nav-bg:rgba(244,243,255,.97);
-}
-*{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s ease,border-color .25s ease,color .25s ease;}
-html,body{height:100%;overflow:hidden;background:var(--bg);}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
-#app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
-#globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
-.brand{display:flex;align-items:center;gap:9px;}
-.brand-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);}
-.brand-logo svg{width:20px;height:20px;display:block;}
-.brand-name{font-size:.95rem;font-weight:700;letter-spacing:.06em;color:var(--text);}
-.net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);border:1px solid rgba(139,92,246,.3);padding:4px 9px;border-radius:100px;background:rgba(139,92,246,.08);display:flex;align-items:center;gap:5px;letter-spacing:.05em;}
-.net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);animation:pulse 2s ease infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-#connectTopBtn{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#ede9fe;border:none;border-radius:100px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(139,92,246,0.4);white-space:nowrap;}
-#connectTopBtn:hover{transform:translateY(-1px);background:#9d70f8;}
-#connectTopBtn.connected{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.02em;cursor:default;}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:5px 0 env(safe-area-inset-bottom,10px);display:none;}
-.bottom-nav.show{display:block;}
-.nav-items{display:flex;max-width:480px;margin:0 auto;padding:0 6px;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border:none;background:transparent;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.05em;}
-.nav-btn .ni{font-size:1.2rem;line-height:1;transition:transform .2s;}
-.nav-btn.active{color:var(--accent3);border-top:2px solid var(--accent3);}
-.nav-btn.active .ni{transform:scale(1.15);}
-.page{display:none;position:absolute;top:57px;left:0;right:0;bottom:0;z-index:1;overflow-y:auto;overflow-x:hidden;padding:10px 13px 70px;animation:up .28s ease both;scrollbar-width:none;}
-.page::-webkit-scrollbar{display:none;}
-.page.active{display:block;}
-.page-land{bottom:0!important;display:none;flex-direction:column;justify-content:flex-start;}
-.page-land.active{display:flex;}
-@keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
-.land-inner{padding:10px 4px 24px;text-align:center;}
-.land-logo-wrap{display:flex;justify-content:center;margin-bottom:18px;}
-.land-logo{width:70px;height:70px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 36px rgba(139,92,246,.45);}
-.land-tag{font-size:.68rem;letter-spacing:.15em;color:var(--text2);text-transform:uppercase;margin-bottom:10px;}
-.land-title{font-size:1.6rem;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
-.land-sub{font-size:.86rem;color:var(--text2);line-height:1.65;margin-bottom:18px;max-width:320px;margin-left:auto;margin-right:auto;}
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px;text-align:left;}
-.feat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:15px;transition:border-color .2s;}
-.feat:hover{border-color:var(--border2);}
-.feat-icon{font-size:1.1rem;margin-bottom:6px;color:var(--accent3);}
-.feat-title{font-size:.8rem;font-weight:700;margin-bottom:4px;}
-.feat-desc{font-size:.72rem;color:var(--text2);line-height:1.5;}
-.big-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 34px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:100px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 5px 24px rgba(139,92,246,.45);transition:all .2s;width:100%;margin-bottom:10px;}
-.big-btn:hover{transform:translateY(-2px);background:#9d70f8;}
-.big-btn:disabled{opacity:.7;cursor:not-allowed;transform:none;}
-.land-note{font-size:.75rem;color:var(--text3);line-height:1.6;}
-.land-note a{color:var(--accent3);}
-.card{background:var(--card);border:1px solid var(--border);border-top:2px solid rgba(139,92,246,.45);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
-.card-title{font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent3);}
-.cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
-.bal-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:9px;position:relative;overflow:hidden;}
-.bal-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);pointer-events:none;}
-.bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;}
-.bal-badge{display:flex;align-items:center;gap:4px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:3px 8px;font-size:.56rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;}
-.bal-num{font-size:3.2rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;color:var(--text);}
-.bal-usd{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:7px;}
-.token-row{display:flex;gap:7px;margin-bottom:8px;}
-.tok{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
-.tok-dot{width:6px;height:6px;border-radius:50%;}
-.usdc-dot{background:var(--accent3);}
-.eurc-dot{background:#60a5fa;}
-.wal-row{display:flex;align-items:center;gap:7px;padding-top:8px;border-top:1px solid var(--border);}
-.wal-dot{width:26px;height:26px;border-radius:8px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.54rem;font-weight:700;color:#ede9fe;}
-.wal-addr{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
-.wal-addr:hover{color:var(--text);}
-.skel{display:inline-block;background:linear-gradient(90deg,rgba(139,92,246,.08) 25%,rgba(139,92,246,.18) 50%,rgba(139,92,246,.08) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:4px;}
-@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-.skel-bal{width:80px;height:28px;border-radius:6px;}
-.skel-small{width:50px;height:14px;border-radius:4px;}
-.rpc-error{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;font-size:.63rem;color:var(--danger);display:none;align-items:center;gap:7px;}
-.rpc-error.show{display:flex;}
-.wrong-net{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:7px;font-size:.63rem;color:var(--warning);display:none;align-items:center;gap:7px;}
-.wrong-net.show{display:flex;}
-.switch-net-btn{margin-left:auto;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:6px;color:var(--warning);font-family:'Space Grotesk',sans-serif;font-size:.58rem;padding:3px 9px;cursor:pointer;white-space:nowrap;}
-.live-badge{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:var(--success);line-height:1.55;display:flex;align-items:center;gap:7px;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 1.5s ease infinite;flex-shrink:0;}
-.info-banner{background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.22);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:#93c5fd;line-height:1.55;}
-.alert{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;display:flex;align-items:center;gap:7px;font-size:.63rem;color:var(--text2);}
-.alert a{color:var(--accent3);font-weight:500;}
-.ibtn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:.58rem;padding:4px 8px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;transition:all .15s;}
-.ibtn:hover{border-color:var(--border2);color:var(--text);}
-.ibtn.red{color:var(--danger);border-color:rgba(248,113,113,.22);}
-.ibtn.red:hover{background:rgba(248,113,113,.06);}
-.send-tabs{display:flex;gap:6px;margin-bottom:10px;}
-.stab{flex:1;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.66rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;}
-.stab.active{background:var(--card2);border-color:var(--accent);color:var(--accent3);}
-.stab:not(.active):hover{border-color:var(--border2);color:var(--text2);}
-.field{margin-bottom:8px;}
-.flbl{display:block;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
-input,select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:8px 11px;outline:none;transition:all .2s;}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(139,92,246,0.15);}
-input::placeholder{color:var(--text3);opacity:.7;}
-input:disabled{opacity:.5;cursor:not-allowed;}
-.type-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
-.topt{padding:9px 4px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.63rem;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;}
-.topt .oi{font-size:.95rem;}
-.topt.active{border-color:var(--accent);background:rgba(139,92,246,.12);color:var(--accent3);box-shadow:0 0 0 1px rgba(139,92,246,.18);}
-.topt:not(.active):hover{border-color:var(--border2);color:var(--text2);}
-.amt-row{display:flex;gap:7px;align-items:flex-end;}
-.amt-row .field{flex:1;margin-bottom:0;}
-.max-btn{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:var(--radius-sm);color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:8px 10px;cursor:pointer;white-space:nowrap;transition:all .15s;margin-bottom:8px;}
-.max-btn:hover{background:rgba(139,92,246,.18);}
-.amt-token-badge{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text2);font-size:.53rem;cursor:pointer;transition:all .15s;}
-.amt-token-badge:hover{border-color:var(--accent);color:var(--accent3);}
-.res-bar{display:none;align-items:center;gap:6px;padding:5px 9px;border-radius:var(--radius-sm);margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
-.res-bar.ok{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);color:var(--success);}
-.res-bar.no{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);color:var(--danger);}
-.gas-row{display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);margin-bottom:8px;padding:8px 11px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:var(--radius-sm);}
-.gas-row .gas-icon{font-size:.75rem;}
-.btn{width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:var(--radius-sm);color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 16px rgba(139,92,246,0.35);letter-spacing:.03em;}
-.btn:hover:not(:disabled){transform:translateY(-1px);background:#9d70f8;box-shadow:0 5px 22px rgba(139,92,246,.45);}
-.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;background:var(--surface);box-shadow:none;color:var(--text3);border:1px solid var(--border);}
-.btn-outline{background:transparent;border:1px solid var(--border2);box-shadow:none;color:var(--text2);}
-.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent3);background:rgba(139,92,246,.06);box-shadow:none;}
-.btn-green{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--success);box-shadow:none;}
-.btn-green:hover:not(:disabled){background:rgba(52,211,153,.25);box-shadow:none;}
-.confirm-wrap{display:none;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:15px;margin-bottom:7px;animation:up .25s ease both;}
-.confirm-wrap.show{display:block;}
-.confirm-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
-.confirm-sub{font-size:.63rem;color:var(--text3);margin-bottom:13px;}
-.conf-rows{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;margin-bottom:13px;}
-.conf-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.62rem;}
-.conf-row:last-child{border-bottom:none;}
-.conf-lbl{color:var(--text3);}
-.conf-val{color:var(--text);text-align:right;max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.conf-val.big{font-size:.82rem;font-weight:600;font-family:'Space Grotesk',sans-serif;}
-.conf-val.warn{color:var(--warning);}
-.conf-btns{display:flex;gap:8px;}
-.conf-btns .btn{flex:1;}
-.success-wrap{display:none;text-align:center;padding:26px 16px;animation:up .3s ease both;}
-.success-wrap.show{display:block;}
-.success-circle{width:54px;height:54px;border-radius:50%;margin:0 auto 13px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.28);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
-.success-title{font-size:1rem;font-weight:700;margin-bottom:5px;}
-.success-sub{font-size:.68rem;color:var(--text3);margin-bottom:8px;}
-.success-hash{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);margin-bottom:18px;word-break:break-all;text-align:center;}
-.qr-wrap{display:flex;flex-direction:row;align-items:center;gap:11px;padding:5px 0;}
-.qr-frame{background:#fff;border-radius:10px;padding:7px;flex-shrink:0;}
-.recv-addr{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text2);word-break:break-all;text-align:left;padding:7px 9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);flex:1;line-height:1.65;}
-.swap-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px;margin-bottom:6px;}
-.swap-label{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
-.token-select{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.token-badge{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:4px 11px;font-size:.73rem;font-weight:600;white-space:nowrap;}
-.swap-arrow-btn{width:100%;display:flex;justify-content:center;margin:4px 0;}
-.swap-arrow{width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.88rem;transition:all .2s;color:var(--accent3);}
-.swap-arrow:hover{border-color:var(--accent);transform:rotate(180deg);}
-.swap-rate{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:8px;padding:7px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
-.swap-input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:600;outline:none;padding:0;}
-.swap-input::placeholder{color:var(--text3);opacity:.5;}
-.swap-balance{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:4px;}
-.stake-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
-.stake-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;text-align:center;}
-.ss-label{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
-.ss-value{font-size:.9rem;font-weight:700;}
-.ss-value.green{color:var(--success);}
-.ss-value.gold{color:var(--gold);}
-.stake-progress{height:4px;background:var(--surface);border-radius:100px;margin:6px 0;overflow:hidden;border:1px solid var(--border);}
-.stake-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:100px;transition:width .5s ease;}
-.stake-tabs{display:flex;gap:5px;margin-bottom:9px;}
-.stake-panel{display:none;}
-.stake-panel.active{display:block;}
-.my-handles-box{display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:var(--radius-sm);padding:8px;margin-bottom:8px;}
-.mhl{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-.handle-tag{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--text);margin:2px;}
-.handle-remove{cursor:pointer;color:var(--danger);opacity:.65;}
-.dir-item{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:9px;}
-.dir-item:last-child{border-bottom:none;}
-.dir-av{width:28px;height:28px;border-radius:8px;background:var(--accent);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.63rem;font-weight:700;color:#ede9fe;}
-.dir-info{flex:1;min-width:0;}
-.dir-handle{font-size:.74rem;font-weight:600;margin-bottom:2px;}
-.dir-addr{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);}
-.send-sm{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:7px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.63rem;font-weight:600;padding:4px 9px;cursor:pointer;white-space:nowrap;}
-.tx-item{display:flex;align-items:center;padding:9px 0;gap:9px;border-bottom:1px solid var(--border);}
-.tx-item:last-child{border-bottom:none;}
-.tx-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;}
-.tx-ico.out{background:rgba(248,113,113,.1);color:var(--danger);border:1px solid rgba(248,113,113,.18);}
-.tx-ico.in{background:rgba(52,211,153,.1);color:var(--success);border:1px solid rgba(52,211,153,.18);}
-.tx-ico.swap{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.18);}
-.tx-ico.stake{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.18);}
-.tx-info{flex:1;min-width:0;}
-.tx-title{font-size:.73rem;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tx-time{font-family:'JetBrains Mono',monospace;font-size:.57rem;color:var(--text3);}
-.tx-amt{font-family:'JetBrains Mono',monospace;font-size:.73rem;font-weight:500;white-space:nowrap;text-align:right;}
-.tx-amt.out{color:var(--danger);}
-.tx-amt.in{color:var(--success);}
-.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
-.clear-hist-btn{background:transparent;border:1px solid rgba(248,113,113,.22);border-radius:6px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.58rem;padding:3px 9px;cursor:pointer;opacity:.7;transition:all .15s;}
-.clear-hist-btn:hover{opacity:1;background:rgba(248,113,113,.06);}
-.empty{text-align:center;padding:22px 16px;color:var(--text3);}
-.empty-icon{font-size:1.6rem;margin-bottom:6px;opacity:.5;}
-.empty-text{font-size:.73rem;line-height:1.65;}
-#toast{position:absolute;bottom:68px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:.76rem;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
-#toast.show{transform:translateX(-50%) translateY(0);}
-#toast.success{border-color:rgba(52,211,153,.35);color:var(--success);}
-#toast.error{border-color:rgba(248,113,113,.35);color:var(--danger);}
-#toast.info{border-color:rgba(139,92,246,.4);color:var(--accent3);}
-.spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(237,233,254,.3);border-top-color:#ede9fe;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:5px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-a{color:var(--accent3);text-decoration:none;}
-a:hover{color:var(--text);}
-.page-title{font-size:1.35rem;font-weight:700;letter-spacing:-.5px;margin-bottom:5px;}
-.page-sub{font-size:.72rem;color:var(--text2);margin-bottom:13px;line-height:1.6;}
-</style>
-</head>
-<body>
-<div id="app-root">
-<div id="globalTopBar">
-  <div class="brand">
-    <div class="brand-logo">
-      <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
-        <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-      </svg>
-    </div>
-    <div class="brand-name">NAN</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">🌙</button>
-    <div class="net-pill" id="netPill">Arc Testnet</div>
-    <button id="connectTopBtn" style="display:none;" onclick="connectWallet()">Connect Wallet</button>
-  </div>
-</div>
-<nav class="bottom-nav" id="bottomNav">
-  <div class="nav-items">
-    <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
-    <button class="nav-btn" onclick="goPage('swap')"><span class="ni">⇄</span>Swap</button>
-    <button class="nav-btn" onclick="goPage('stake')"><span class="ni">◈</span>Stake</button>
-    <button class="nav-btn" onclick="goPage('handle')"><span class="ni">@</span>Handle</button>
-    <button class="nav-btn" onclick="goPage('history')"><span class="ni">⟳</span>History</button>
-  </div>
-</nav>
-<div class="page page-land active" id="page-land">
-  <div class="land-inner">
-    <div class="land-tag" style="margin-top:8px;">Weave. Connect. Build.</div>
-    <div class="land-title" style="font-size:1.3rem;margin-bottom:5px;">NAN on Arc Testnet</div>
-    <div class="land-sub" style="margin-bottom:14px;font-size:.75rem;">Send, swap and stake USDC &amp; EURC. No crypto experience needed.</div>
+PK
+     64°\              nan-app/UT	 ÈjÈjux
+ ç  è  PK    Š1°\)¯ŽFë  ;     nan-app/.env.exampleUT	 Ã
+jÃ
+jux
+ ç  è  ÅUKoÚ@¾ó+Fê¡ä`Þo	©.Š’å¡ª'kmÁÅì:»k·œz®ªôæ—tÖ@âäP¥jÕH{ðz¿™ùvæ›Ù7pÿóûë®ÜÛc°ãîoï`Àw¡|‹\COð \%’éPpÂõD| ½hä;`Ü‡ Œ"9D"aÇ¢a_ÿ^†ÄÝ--è…Ò‹ú¸ÃHÄ(a1¹=^²ÈÛ5Rl;°Ö:VbÑ\‰
+^ à‰-Áfx“„)1B‚DÁžEÙz´I3ÙÍz×ÇžŽœ«Á—®az¢H¿Àe
+a9»†¼/ø[2[3¾BHx„JIì3
+B}qv÷Þž²ëžÙ±8Ì0+îÊÅ}Ue‚i±A£¾J™ÚÒƒ*ÍQä2¤Ê2ýxUÿœ<•õI‹”È=Ì-çýž³˜\
+ÆÎ¨ß­6ÜF»ZfV«YeV½ÁZV‹Uš–Û,5Ür³\ª!æËYÆ¤ì6Üšß.YÕF©bÕ±Y³Ú•ZÛªWJ• \skA»š©ëPŠ°G¿”ˆPÌ¿(õŠbš«Ãý·i¹®ð rÃÙäÓ“zž¶,Œ ó‹)äMš'ôá	Õ
+ø’ŸIlåSWyäÌ5B¡v2¥öBúÊtßPˆ•ùïy"á$
+Ñù0™/ºj«ãÂÊX§M¦“Ù¢[o5»å|0ëšö}÷fÏçéÅâØŠOñr¼*’»Bî§)É#S!µ—¹g,…ŸxtAðgläƒÍùìÐiŸR:Â †ŒDÇðqHÛÎ™TÏQî(ö¿ÁïÊ’’­–J¥Lø±0íø¢uñ9Ôk‘Ðˆ~2J:@u™ðTÔ²°%©ÁžÀôåmN“He\ÛË~Æµ
+MƒK'’üÐ4
+=Ú©˜€nÛTÕ^úHt…
+L"•?äšf =z ŽÅ95¹°éÍh&ä”6OIkó„¶yŽ¾&J:£'‹Æ¨ÈýPK    Š1°\¡Òv»²	  {    nan-app/README.mdUT	 Ã
+jÃ
+jux
+ ç  è  …XÛnÉ}Ÿ¯(¬°¥©ÛJXŠY°%kE	Î"ÄæL“lk8=;Ý#‘X0Ä/yØ\Ùl|F¾G?|BNõ\8”Û0`szººúÔ©SU³A
+zz÷Ho¤¸—Mêê(’¾mÒIªÂ émllPW%~(©'ïe¨c™Ði""KÃt<WÆ(9Ä§kil$-½a(­çuh’†aÃXáßÑÍ°×Ýîß\uéÁ-ÓGXÂöêÖ egÅ‰—‰ž&b>cüÈlš:u»×—4NT0UÑ´N¡º—4ø™ cUG
+&TD8ôÎ½ ¢€uC‘²ë ™È€:g$à;^ŠlÓó†‡»ÒÿùÓ;ú6UpwhE‚+ŒF£±03oƒÚM:‹°!)±ŒùJ/Šç¤²Ø 1^ºc}MÔ4M$Éè^%:šËÈz~LMünÊ…˜Ç¸ÿÀÆ~ ¬û†ÁR§	u.ÏèN.
+ÕŒ”4þ›|Èn3óìL’‘É½LœÆ9½AOïÿL8¦$	K3kããííPû"œicw[­ßÍó¶¶Xšë@ÒƒNîŒ;]§X–çom¹gƒEÜh®ý;Ôé5¢ác·¡8Q …Õ|m£CYg”§!@¨|J¤‰±$Mñ§ŸþöŸÿHý>4”6=G½+ù}ª8^0‚Ô· œ[tù€›—¡°xyîaq¨¦¥q€¹kMßíkúzîqÀ)¬K"ù€kè·H‡¡Ï‘t‘ØÚb,^ÊåÖ–Çèƒª£îÙU÷Uÿ
+·/ûß}=
+hÄåÂt'²³DÇ¸}Æ@ª”îLØÍÏx(ŠÏœÌCâÜ3Î‹W›Þ§¼€»ý¹P!Õ†çCYmñ?u‹:fdq=øÕ\Îí:œŸ€S­§x$|_§ 1:ÕìNöÀù3”~š(»,ùw‰$«Ã˜ÊH&ÎqþÜ9óÅ9ÎÿÂÛËQe'oo†ý«¯ùÜo¦ìc0r)•-_v†C·ÜqÜ(¬96_IƒÜä
+ù•¨&Á>™læwûæÉjOmÊ^êÔÐ$AÊYÞÈ—]¹öâõðúk3·qsµmT¯ú=/Ÿ9gyËþÞŠXÝ"|£ªæüøWN¨àLY0zátÇ‹DÄ÷Ûöž~z|‡¿y®ó“ßÑÓãcþ\AŽÍ·†Ê?OïÿHýE_8ý«Qïr«¥ÅK\‡¶áÖ¶¶ñúö!ölã85Y:ÆH…ùŒ•,³*V¶‹%3%ÏÕ\È™È5uÚ¿¦ÌÔX„"ò¥Ù>V3õ&/Ùs
+µ¾ƒR|Ú‹be&P†ÂŸgnëŸñÅ½&œú”î\/Xp-¸ë0D±ùŒ+‘úpMµðå‹1£µfçñCˆ!kÊ¥ÊÂKºÄé8Tþÿ£ËÌÎÃª™Š5h¯#‹À£äàF j¢B¹Y±¹V»ÖÝpåŽ¬ÄòÜ[ƒ€b*APˆ·+;¥þÿüû""g8õÞålw&ý»õ9«g| x
+úõâ7ÐãO4	y¹ÊTÏiÓNƒ
+$Ââ¸¢˜Ý+á¸XØå>¥dEaêŠ7–½oùÍTm§HÐ*WLÉ¿ÑfyÂ ¼É¹Ä/C£õý?¨à·#§“Ý×ƒ³«ó~o{Ð9{Õï9#((‘¶ô65(½‹æƒPvsý*—b9ÆÊ$?åT@Û$×kã6î­s1øè¦& 
+"T§@Dr)³×Î6ŸcÏ­Xnµ›hcrxœA×¡I Õý’6Êtr’&ÑÈ•‡Ü„°ˆ‹uA/­¿Ê[:.E VÝ#7zn‰©: éT„öB®Å07>p9U ‹ÌRÜJd‰ÆcTmžVC"Mi!;*c\z¸ç… åøÔ‰õ¾l6ÙÁ•'EjV‰4*Óx„Î0ˆ57N®ësÝlÞûœˆ
 
-    <!-- Email Login FIRST -->
-    <div id="emailLoginBox" style="margin-bottom:14px;text-align:left;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;text-align:center;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:6px;">✉ Start with email — no wallet needed</div>
-      <div style="display:flex;gap:7px;margin-bottom:7px;">
-        <input id="emailInput" type="email" placeholder="your@email.com" style="flex:1;padding:11px 13px;font-size:.82rem;border-radius:10px;"/>
-        <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code</button>
-      </div>
-      <div id="otpBox" style="display:none;animation:up .25s ease both;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--success);letter-spacing:.1em;margin-bottom:6px;">✓ Code sent — check your email</div>
-        <div style="display:flex;gap:7px;">
-          <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.1rem;letter-spacing:.3em;text-align:center;border-radius:10px;"/>
-          <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
-        </div>
-      </div>
-    </div>
+ì¹ó]*çÜ÷!ÕÀÄ«UD„´µ5Ì:ß­­cµG­npp´è·÷º' ‡“žÜ?<ìµ‚þ^o·ÕñÛâ°=˜´FÎ½ýæNëK`ó]f	7ÉÍ´Žºû£ŽÜÛïíöN‚ÎÎø¤·;¾Úi‚£ý¯„¿3nwŽFe´žÞ?2XÎÐ
+àr,­ƒÖ^ÿp§µ7h·ÛrÐÝ“-_íîŒwOã]_ì
+º»¢›Ùj_³™3žB’e†›z¸¼Š…¦2§}tÇ‰Lç(dH4%êtÂD)u’±²Iu½sï"‹¦z¾UuÎÈårtžÎÇBUköãŸ¸¤A–*&s GëÐ
+TÀ¸‹gjÌ*L€ï?"[$R«™TœÖ­eŒÂyé‡Pr6ER2ÈÂ|.­8æ®°›Mn$Šá˜æ,Êâ’áµñ² –nêt
+ÖAè›^ÌO	õ”ñ¹7c-‹Ä\V¨¥6"›åÊ#,~lc%ËÊZ«Ùþ’fÅFYìä„+)Va|¬uèä,CíÄiG±É¯H‹S^zm%iÀéÆÉS'Á‡ÝR¶eÖuÌ}Ÿ2OÀ‘:M+M„Š&ºî:iô„Uåe¸\9m8IšÎìv ’;¹æð­Nß^¹”ô%.QwÃnÕÍ
+]p•É‘ ? ¯ä½’S®*…©()ÃÞKx·ª‰Nè³±‹¯Xm °¡^ºéÉÊ¸5r5Ÿæz-¹*œl>á¹IŒUˆÆß){‰bV«)†es·²"æZ…ý«)­ÇaÉ–ÕŽ‹•©Z?Ù^Ñ=áN °œy³^·aOM&¼äF!K<d†
+×Ý¬æä_þ#‹ÑmO†Ú…¶œž˜ß€W¥ÅÀ4àŽ[
+9h`Cùì›D“.2$
+8³¾!ñaV¶I×3ž²pÀOãÄÚ_‰uùU‚‹Dý¹¨m6ÙÑ•B0†Õ$Èg—Oô<TcÕi¸Â <™#[œË¿Ì²gã}ÅÆc•Nµ
+)6y[+ ®´Â±st‚ tä@ DÈn5è¼}LíV«ì¨
+	«„ùcóÎcÚÇÎµž‹9·~s—ÏøÁY›35·ˆ™îŸï±UêunžÛ©åïÿâ¡«W&Žçq‚Æ%{ëy™kü)ä©Î>¡Údý+ÿJê4—M¥7«_Œò—¼$û—ÜW|Ç1³Â	ö©²/Ò18ç:TùVD÷"QŒ™á,€Ù±	wùÞ$\25Ëý×H€o‘éÙç‰ÅbAÏ¾ð£ÕØZþr+~9‹
+ëM;RíôJùh˜¤w~ví46ûœçZ*ÔÏ4äDŽMïPK    ‰1°\sÒ.Ý   —    nan-app/package.jsonUT	 Â
+jÂ
+jux
+ ç  è  uPMO1½ï¯˜ìÙ)* 7ðÎÉÄIÓc
+L›iÙ`ÿÝ~A<è©é{ó>fÎ@Ïú@ýK~yÐÞ÷wœH‚uœq…3œUt¤`ÄúØ˜íz
+¼“žáÕ1“‰›£ÝŽa-Þ(D¦Xõ m‹0¤€{Ë#ð+T²Z‡ÄŸÓ7QK,ÍÜHð—¦TšþI—ÖÛSÙXúåO'/2ÐïQ­p~55N*<Ç>Ý¢\$.i;µÀ TW"‡Íg-ÛÁ—ÖÞ“nÏ¸¼ÅÈ·®¦#«R¸»t?PK
+     ‡1°\              nan-app/public/UT	 ¾
+j¾
+jux
+ ç  è  PK    Š1°\qZš.úc  W¹   nan-app/public/index.htmlUT	 Ã
+jÃ
+jux
+ ç  è  ¼=]ÛÊuïþŒgwsE-I‰úô:¹öu“É›ë4
+Š>PäHË.Eª$µä¡E[ }HQ(ô½oýG÷ô'ôœ™!9_”(yäÚ–È™3s¾Ïœ93zýƒo~ùîão?¼·nËMòæÅküÇJ‚t}Ó#i ‚6¤¬ð6È
+RÞô~ýñÏìiïºzžrÓ»ÉÃ6ËËžfiIRh÷GåíMDîãØôKßŠÓ¸ŒƒÄ.Â !7îÀ¡pÊ¸LÈ›o¿þÖúþ÷°~C‚{2°ÞeiJÂr`½ÝÅI4x}ÍZ½xÄé•“ä¦ÃX=«|ÚÂâM°&×Åýú«ÇMÒ³ns²ºéEAÌ¥7ýWÃwðÑb“»zÖ-‰×·%ûŒh¼Ío.Ë±&üwaA¯´¸¹¸-Ëíüúúááað0dùúÚs á^¼¾ °9Ì¶‚;àâç@ºÓ
+k'ÉÍÅ+o8]úáj|qÍº†q&Ä
+¡• ­Ã'˜ÍzÝ\øB‘ÙŠúøëã9§÷ñ½#}€ÜÄztúäÂzrÙÌ½›‹ôyòØŒ‹2ÏîˆØ›?²9A¼_?Bˆa°½¹È³]u güœãP¸.›ÿq‚Ét¹
+ÔqÜöqªÇQP€Êä2ÓVÃ£ÀÀ'*÷T’™¤¢t ^+Ðžb°Î²uB‚m\Âls…÷ãU°‰“§›ï¶AH¾úiž•¤¸›?€„ýdä8
+þŒáÏÄq~È[þ)ßæAœ_ý"K3©é£¸Ø&0³â!Øö˜2åSBŠ[BJ:7úõÍ‹yžeåþ…eÙör=éLœ©,l»Øå+˜<!®3tàIäÑ<_/ƒKÏ÷ûÕgàxþíß®~–G$gMÜá¬?óúÞh-<°×žáýÐã‚0Ë3É”kQ=Î_2&²V%y„6L|ì«7Ž–þ*âß¡Ç¾ëI„™½\M'îÄ¥Øà¢˜¿Ž¢álOÖYAƒåråàëC§q
+[ù3â,˜<ˆâ]1wGÛÇEõÍ.6s× ljÙväHiŠå¤?í{ãþ`6F¤Á½þf¨zñ7hèìò– )NÐìôþ¶aÚj´®V"ÓVôÓ$Š:c…eÒ[÷(ÃŽðËWø5	‡‰D~#oÍD~¹ g#§á×(t£™ßð‹Ãø…ÞØ‹ürüÙxÜð+šM&ÎXäbâ†7C*¶–È¯_~´_fvÿa3‚ ]› _ÇéÜYlƒ(ÂwÎ¢Ìƒ´ ç˜¥óeÞ­©-±Ã,ÉrkàùEŸwž4Ÿ^ ï†6ÑÓžù*çÕ"»'ù*Éæ·q‘tÑ€žß ù%ÊÇt¦ýÐôØÌvÌ/¨™±¸™¹è09» y¼2ƒ Sáß‘!ôe°ÝÚÔ|l3ŽÙ*~]áeV–Ù>$dUÎ}˜,%Á*Ë7sú)	Jò×—6¼¹ZP«ËPÚÌÏGSTœN(R6Ü4CÏŽ-U0 ®_Ñb>_˜Ùó`f~q±P »JJD£a
+4æè
+@jÖ¨ßÐõRžånûÉmC#ü~ÕW{Îœˆ¬ûû‹S‘#ó1b‰ÁÜcÀ#·É=4.æi–’Åïì8È# Pá¬ ÍI(ÏqªÎÕS&Io
+b‚±}úwPZ3ç•e»Î+ç".c`x¿
+ðˆ‚U€mÿ0³‚ëÌú#§ï¹ ÒÔ÷(%^\ÿÈúþ¿‡ÿ¬ÙÖý¯¾þèúÅËu’-ƒ^¼
+òFªƒe‘%»’pÁ¦òì,rª…N
+¢Åw»óUBêÔŽK²)æhöH¾ø»]QÆ«'»âAZh/Iù@@²+c1Ü©ÑD½¶XL¢<ÛÚÖèù2Ùå`£¨œT†ˆ* ˆŽó#‹«
+}‹š0Xõ¢ý±I¯ƒ-N©î`'Ù:Û3â4¹A¢ŸùØÜb7
+º™C,$Ë›s	W'“Ž?VÉ¦+þÈ¿’goAÆ1ðœú¹nˆ
+f4©¶
+f~N6
+úàµ - i(QÞ“È;p­Ð`¤¤´·qËf·ŽÙ,ŒÙ.úø›
+ÁBÈŸâ@¢Éå~³b­ÀS
+WhTÉÒb¦ñÄEÝ’t\3@Óãì@¡ðµ*LMF•ÑxÜx¬Í =C‹T5ÃÝ-¥E‚]¦zºÝ%`A¼Â"ü§+\˜âOîÈÓ* vm³ Ë¾fŸ!×Ê§¹»øä
+_!‚Y| ²%*Úƒ2Ý
+“T-¹;ôÑ”óÀ´Ïƒ•ÊmV±(gµI&žT|›TúßÑc
+¢3©2Š‹†p—0nÅP$H0
+™ÌC>¾&\Î bù‡[ *•w¨<äÁ¶Š™J·ù-zð½ÁùÿöÒ¦~Mí1àßH´?$¦nGup£4*ÖéZ:S-e¤È*Ø%¥ì`¾
+îç2`öcJƒk‘£%Ý»€„èZÂÂÓ6_à¾ =W›#¨ÄÔ4Œ¤÷—E°"68ÕÀ¦!÷$}—BT˜- 5(n³‡Ú,“,¼£öfIm‡ìiÔ8¯Š™­`WfMàŒ*_AY‚b_ÐW	u1QŒ	$*0x·IÛ¬ÖPÐ4DÙ«-×Ì†ÊBt¡EÀªÌtRO_s!ÝÔ ´
+Úm·$ÁÈéÞÇçÞ‡QË¤±àÂÜ‡ã
+Ô0é0MÇA ¤¼GSÞê„¨LyŠLÕm4Pt*
+4Axéò˜\Pšc¢ÚláÁ^:s`æƒÙTµ§ÖªZêå„ý4§‚V¬•p ¸[.Ã	Êgãgv[ Ö”»âvQ„y–$š1‰®tç>Ÿ¯—w1ð jµWuÛU$×ô _Ú	Fj:?ˆ7˜‹
+@,%Hf=A¨ƒPõ‘än»_åÙ¦ö…ŽiÙöÛË	5Üe&¸Pc;ç
+=©ÀßŸÃ,€º"‡qbÀŸ¼„D{tAÑ"´M¬Å€lLã$U\_	žhBáª]‡˜á©Ãeä5mKíGe9`
++”àòã&bÆ/
+ü
+ÆØla›Ñ<ú*·àµ8ÓÚºÕƒx+¹×Ì:æe¾M¶Úr ÁÞÕ)§+Iˆ¥Üƒœe(ªYp/-¾ž‹zW5	0+/ÅÅÈ?dšÑtT0h®_25ÅÖ:ÐªDŠPì>ñÔ™s#5»Ê˜|ê°â5õ$g®8£Á‡¸èD†Êr­k€x,$”È“Žk¢ªân¤ÐÏç*g^C<“”¸Ñô¨¡öÁ(ÐcQ`Ý8,ÿê€|RÍ:ÍP1Á^cž©VÙQj% ‰$Zß$CU6Æf­¯AZÙJÖí¨®ä½P—?OÃe7käK»-ÁH·BœE8ƒFzÇUÒ…¹wZ*2ß¬Ä*#ŒEÚ¬r›ù ÿ…ö§eñ.Sb|d¡ëz]–¸¿q¦­•Bò ±U©h1‚°Ÿ½«#¢ã-3šKä*žPO´¬€ÄÁDªžÙ”?,0cŸ¹éyè˜¨ä ÔÄ!Ûò4$½+);8iËrlp+üd— çïdZòìÂN–g¥ÆmvËñ´*ŸÃ2ˆÖ¤S®otLkº*Í¡ †ÕÓ*ÅÑ†ï©«sŽjºÛ†l802…ˆèƒd‡ÐÎÎ]ÁÎ6nÊÃLØ0evGR;–Ó”c•)•ûLë>øë›2Ë|ëðÄ°Sæ)Æ
+Ô#ˆÎW¥=nd³ÉÚQVî;&¡ P=¤]Ú“…ÐŠìr­ÕË±ø« _? û4ªðY5ê„§ÍÌ¥Sø(
+rž€§£7ýâ9rQÇ´ü ¥(“# ˜çÏ%æà‘xÞFõ%ÔlÕÙ.P\˜’ŒJØ*Ì’Ç–¦=ÊAqG’šÛqJ5œ­¬¸ß¶¹é•åù¦M.xá›v¿°ÇÄ¥oÝy0[4jnÒ
+Åm¼ÙX6Fj
+[–¶Öì¼çÞy%ˆ½]ûa:hMy›ØU
+N0p	Þ©aMVÕ©Ø@`Î»ù¢S×÷…BÜü6Àå¿9çÛÐ&yžåZØMû®;¤Î¤ÍIÍ¼ƒA‘´džTfL·Ì¢œUAgU	J‚ô€mù$à(§NyVfðg`{RRHà÷]ñ;L¦Õ°3þÓ3ñç5' ÆÐL€â!.Ã[|OWì|B4ÉG“w‡Èâúg‘e¬¤.j¬ÎÈöÒ¤†ñ`|­Û±‚lŸ©ù`H`š®’>nCHl¥ ^§2zzŒÑ¼ÚFK®ø—‚Ò“œ4öbÒm‹°ž…º3Qí§ì_atx“ÉiÎQ¥ùlÜwÇX½æ¢¹Øêãr:Í_Î†!V®iÄ4‚„äºq<P+Š{ëØ•û …‹‡
+rmYCH/åMÚÏ	lU+P1mÊ=âËE¹
+aLG3¢¦Ú\ZFqìª5†BØw“horZ4³û@TS8è˜ÇJnì;’F¢ƒ/Mé/
+}3nÍUÐ¡Útê3³å_rÏíŸ¾ç÷ééQC«jÃÇ˜‚ô¾Ë«Ö~L’ho\‚®0Ó!o`±‚0æk==ïáLå=ä	²@5N·»²_„„•ã¡Aø3Y
+M®t=<’©ÝG¶+Ñ!°Ë =×ù*
+w…ÉVT\V
+lÜ7~°}Zsì
+Ém–D†UÈˆµ¯ºè}ß”ÑÇÄÀÓ,¦°h;°É–“-	ÊK08+à…ÙpÔÉ‘m¹
+ìFÏi4¡y»1ìb7´-‹ó
+#FòN¡èvzÖ k	x9Y›™‚v$ßfn‚MÙžQ¡È‚O:YÜXq‡!K
+°
+E‰ž+áyÐ|Fá‘¯[G=Lœ4j§@‹KW£DN[–ŸÔÖ,Ÿc<GB&mP‡l(T`Â[Ÿt{uÌûå¤°µŽ+¥Fz1¦&#œE´ E­ ìžkæ9Èî/*[“ Ò¢RÑÏzí%”fÏ–¨1¨0Ò:(NJÞ>cè¡kŽæ‘®ÂFVaÇ—‘
+,úA­Å˜Ô»Œe*8õžßð¹ëZ¬ÜÙ%
+ƒ©±äœÖ±1’ÁÓIZ$9¬©Æ,F%—uÔru¨zUÜh˜Eg5­ éAÏÐõ(u‡ìi{%+3Ž˜\63›Gû–uÏñÝåÃóðÔÌD=ÕúËsð1×9!ºCÍY{jPl5l±y*öâ°-ˆ˜‹§@¾ËÒUœo¬¯¬ïØˆR9	{ic*AvAçÔ˜t-ðé¥ Ò
+"?ÉSm©®šhµ'³ã¥'ÃŽ	'¾CQ
+Uì–û£ù'mW–šMoñ\AOkšm¦g@”9Ènðpe‚6Õ@h$ŽG†Îp¨÷GÕ¬çIP”vx'Ñ^´Ò%Úó®T¯ïýõ•¸¢u&B‰ùØ×ÏJvßz†ÅµÃUR¸JëèõD¸¸Ï áTo<T­ÀÈReSA*°…5ªä1	ÄŒˆÁbèkÇ:üs÷©èøPQqv‹ŠWMX™Nµ;(œóõÝA¿.&ä§,5lÑ-z§(¶Ã¹¦£[èî`ÄEºBMµ^Æ¢Kc1IA5JÚù/£QšÊ@nƒâöy›)ö Ç{ "ÛËœwsú7Æ0²ûúË_Y×Ö¯HH°æ_ð\ŸË"hÊO€}h3ã4Ä–Nª î ”nKÕxò]-S‘OWéûA0ƒûs+ÌuZà[Ä÷QfÏW‰£9n”W_IÉ?[)%ßñ ûwo†¤ª” §KòeKæºgŽ¥Š,ž:îxèUÿ¤îõxc“”Héû®á]‡r-cÒ±bKƒ†ÚÊÒò`ÂÑàÖ|Tém­ª‘š,31n w
+pÏ4øÊzS[Ÿ m£ÙãY§F!\€Eæ¥;ÅZ¤N÷ºçþRåˆSÅp>“]˜
+ºN7Z6c‹Rã‚óŒÐÔE]ÚWinï&Û}Ä¯;.ƒ$HCò,Zæ¦
+µzªïÊàNr¿>°áïóŽ0µ6pÿ$K"ã
+~Îv£Žã”½ÆjûµÀÀ~w|a+´°äE[®µi²'µÂ W
+C¶yŠ¢º,Æx›„ÂÙKp“Í–‡Ú,G³Ll˜(¯«9Zs)YÃ¾lKÍó1µ!VUý##H…ýÄj)¼k;z)(ÔÏ‚4Jäƒ©›'ˆ¹éS5d:³
+ç¤*¢–ÍœÛç	›jÿõèèÙM¥÷ä"õsRZú±ƒÙy[ÆLQe…çž„,4Íðô´D˜¶5jWACó¬…(-Ž†âVv×ôp‘K5Îñt¶î»…iSÓªÐF^s=Ã*ÍKÙ)¦é*«÷€A@2Nõš1MÚF1^£!‹·×PòÜ…c›gÿÄ‹£ŠÍ—Ø—žl[ç>W‚zÿŒVñ*^Âôhý,.Ê,MkùxŽTòÝM>ÕÃWlÖw	µíCý¼Ú¬Cbú¸t³M05MÁæ1€ õð^«kÞCí°ýÊ÷øù@ñ‘}”Ö’c©8yŒ–áÖUGyŽ×ä*# ³×iæÃtfn8ÖpañT
+ÁÄnÒ0K¤
+UÜîxÒG”qQw·Ìª,umk·hðVÛO1/ëu{fÈ}wÌšWoÎZâLÚ
+!@
+6å@uœ±NØ€¡¶mÀFÅ5Í®©è{báMU£¢W±tœ«ñT’°¨ã¦žÊ`KèÕ ƒ(Ò%n"4€øf˜á~¥.Ú-Zqb€ÓÅa¸ÄL?=|Kò£æþ”ã·<Ð	\eà8j™×Á
+ï. ˆÔ¥
+¯/tPDªªTðâ‰¥æ.–•ÙXï—O†\R-à^µ
+dÖLÚ_­@qYbI_	È9ÖaéfêpÊúÝ»¬·ÔÎJ—kÑ'àÄAÕ:	µ.£–¢åVöKg7¦R6ö´¥‰1Žô®ÌÙN)–}Uv­Ž_pñ1ƒXI¼2³Ä íš‘¢n€µ„ºwè(…5Ï–óÆ@‘Þ1 J±@¿º1j6›µ\˜5ô
++Ü-ã,Ðïb’_†£¾
+‹éþ`®„íç¡páA$á%fC,ÛÒ›O*h¸§@ªoÂ´.À˜¡rúø~Í%ãÛŽíFoGìÆ¬¼œ£ÖKcüVßÀáð“›‡O•¨`ÏÀ¡Ð0G "ÝÒZª)¦C·ôz))!Ê™Ïól´+bu›zqå6o8é{C¼z$ž'n›î÷4„Ã¿0k0.,–kŽ®]/ãO:SÙ@–Ô™v†¯ `û2Ûk»	Ã1ßM¨ó‹¸Ò´œ¸¢R‘0ËÙŒùÚ(8túšÞ;¦íß»ÜÈ0ÐËŽø¾9«lš·Þ e¨¢Q/þÁe<¹o9‚)µ¶/¢šVú’[,–n¾8-LÖªS…ðN^So3ÌÓ5ˆQÂ1–²ºæïÏÙüS$7Ï:|úm!¯¯ù¯ ¼¾æ¿„‚eÃ?Q|oÅÑM¯ºá+å ¶-Þý¶¹9Ú¶….âÒÐÍ²è›0	Šâ¦G/¦O
+ÏéÍÄü%¼Æ_1©~®¤Wÿ\IýŒGµ¯Çº¤×þÓ%58 Øü8HÏ8áÓMo8îYùMÏ¯ rK…?aêæ;¬›çœÕÍ÷Žw«~½£çMzøëtŠÞMoÝž<6uþë5 ù·;zÞÀï©¿ÝÑ£Â{ÚP8ïgŠ‚v­C±³P‡rÛ‡Ò‘¤7´†Í^£(p©»±k@¼ñº‡¿ÓS·j>`cª-7½®¡u%è n)Õ
+0²oÑÆöªak«ÛSaSïÒ{óÍû¿²~ñËoÞ „Ã[îÀ 0ˆô'1>fëu ²4LâðžÒ ñÝåU
+ºSöîÜJýÐ—|VeêÎªœ™&ì½ù¿?þë¾¾ftÐ™Y]ÈÝ£$‚oðË›¯óÐúHŠˆR PSº…Y 'þ› 
+}Ã»Iœ Éÿ‘Ìå[jÀÅë©ÅLƒFüê;„ÙœÙwè YÐú2áž<}á5Þ{Ë6ôÖ^,{yyõ
+À€	eÕ+î½ùþŸþ‘
+žSVˆkÄý!Ø¶@ÿ‡
+:49:&1ÍàÿãŸ+ðØæLølehàþ›À–ÞgŽÀvZŒ#ü„Ãg­çÂgù$3
+üßjÖÊ(½ »–Þÿ7ý?ëç_ûÍŸûSëÃ×?}ßÒ¤Ž øè®Zõ¼µl¢ ×O5Ao.Å5Ä
+Õm¸µmÒ†Ìò¶ýÈšlýyïƒU1'„æúB–zà“Õb|Œ“h¹±Så§Æ1µüQªtßBí´T‘¬_÷Í;ë‡Áf»°ÞÿúWïÖ‡ìä$²–OÖ;½|À2Š`³Ás3EED† 
+ÊûM'Do°„CÞ×˜!‡	¾ü9¾ƒ@NåW…È¨ñ–¢|±½|¯ûf¾™ÔÇ~EâŒeXq6¦dùþ¿þë™rüñ½òÖ¢¥?$È™ô@ùB
+Åí0'°Î;º˜
+›&ÿßÞ·-·‘% ¾ë+Šlµ
+‚ xmÈ†xQs†¤4$Ô­^µV* E- …©*ˆ¤INÌƒcÖöFlÇÌØ;^;fáGlØO~°÷a÷ÁŸ¢ð|Âfæ¹W* $»‡Û1#¢ªÎ%Ï9yòäídêkµÉåK-å.>Š¤„ôfÚÑÜÁjÓÁ0üœ>`n7¹â‰˜(à0·öÔe‹ï²ÁLrb(‰i„‚Ï/ÝAPƒ˜á¼ó;ŽL<¸M`b¬¤”pæì¬ŒPe¼Ô¨'bt hb;q¾l±¶wqµMk^ùÍ¹ý¤£Ïof{Éâ˜“Öºãîù
+Ø‰0
+*n›Ö©ßzï š²½dŒ}Œí¢ÎØ0[Ææ@rØˆ¯z  œÂÃ AkÚéyç]¿‚RÍJb÷Tè¿IvÍ|yÞ~QÐ6“`åï-Ëîú€˜{¡m-öâÿï®ôîú’fÆùøË_'·Wrƒi€~˜N(cÎWRÄ›pÃ~’2L|ÍSIHrÀ<fwx%az=³û¹!´Ætš\3®ÎHÎæ‹zv†Mƒ$†þþ/‹élŸ[:GVW¡€Óûc„B‡¥ÖùÔ‹‘<:- ÚA†ÆDfƒ0±Mû
 
-    <!-- Divider -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">
-      <div style="flex:1;height:1px;background:var(--border);"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">or</div>
-      <div style="flex:1;height:1px;background:var(--border);"></div>
-    </div>
+“,O	™¨‰¦¾“ªœSŒ3å7©2Êc„éõCßëÂ
+2ã'±µsÈÐ2Ï±F¼v
+ÙÆöOG KmxÄgüå_—Iý0ôŸ³óÊÁ»·ƒ
+ÅÞ\Ø˜4œÜ¶öåòÂ§NýÅ×VAå† ¡Àœ 7aÐž]Ìq3ð¥\\çCÇ¼/ÖN™±2“Áôº&é<AÝaÿd=GâA59•IÌOùI3œ[¼÷qèûNÌÞ2a™ŸxÉÜÇÞ°µ˜f˜1ÇÀÖŸ`Îñ·M€îýôzªÈ“9O
+Íªc²ŠàGÛ [“ŠèšDŽ,uJ"§x„’ æû¢èªO “ÿð¿Äœ9ÿö/é‰á3WöÂVD§ì
+é©Ù> ùC#æ/Ëf%­Ud¼ëuz;4™‚oaSû½ñ-oÅ¶èáW’|Œ~ë“çLÈµ,ðI\Ë~÷ëp‰w‰x9/²¨†paÿy¿x!¥0"Fº
+§žSèûgÎÆ¹@É¬ü¦(k—&îÀ¾6~ÜWÅE§ÄéÅÌ}ÑAàzýõ/p½ˆ× ½€!ïßÄP1¹y™@a:FÞ™UJ#ù‹ïTNN®£ÐÈø÷
+~êZŸ>¢ÿY xŠm½\ìiu8Ð¡€‰ÅÖ¦¢b÷cèÄr‘L|Ü	aG6zt-ý  ÑP#¼`¾nL+ïÄ³ŸÂ©=ì° ^ò\LœW2¶6£ÿôx Û×cJåý?œ¯ðEÎ‚ð=) XÄmìM?è“²„—[Ø‡F •ÑNtÄZ;Î$E5-Š¼= 
+ÛôD@nÃnÛÆÅ9ö±5~•2*+|ýD^„~tú”—*×B?—wìu¤$%òMcª’C?F«€DJAò5
+æõªÓx>åSÁ†Ÿ¿vË¦f“Ê<’Ôñœô#Jí.ƒVVÙõ~tB¦:ôõEà5œ–âÂÇ_ü^µ’7ŸB ÍŸ–!‹@6žPÇdy*à}YÃi®W&ªAÞþ»\^<Y­?ì	‚LD¯[ï{^)W*’¼éä:y×Âº+‘jñÚ9]£ö´èô%ü^ÿøçæ<Äž‘ìeT”^¬ò#|M˜°xÂG¤A‘«0VµåÇ0Á
+ÆØ3…˜ìŽD&ÙŠozGX ¯£Œó,ÖaóÄ)œ`yÝÝ~ ú?È„^d ‘êô i3øJ³YssÙ¤IÝ:Í„JDodp‘Ò§k; \i-ÀÖçzlcK>%¬œ‰ùâC`à\jùO
+G	Íâ·rGÞdê0²,HèTÑ]2èÑ‚Å¨M;…Á¿§3¦ƒW¦Rx&¹,yâÀôÀÛ†×TÆý¿ü•“¶â[»PmS˜ì¶C6hÖüo”^fÔ
 
-    <!-- Wallet connect SECOND -->
-    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()" style="margin-bottom:22px;">🦊 Connect Existing Wallet</button>
+°íj"ŒN›´ˆoD*iÊ®‰Ì&›jys¤¿×˜LxA; ¸TsÀ
+h®àòOn)>íDIkzÐ!©I˜Óë"´~œ
+$õ¿V4XÎmPœçôÿ·õÑX
+`»n íÑ°mƒÊŒ4€Ùb52I.§2¢ šulfÓHr^.—¥ÝS­"5ƒ"ç¡lÎœoxÜVÎqù V~ðÛä´¨H¼xÝ8WÇ@–&?¡,a˜³p;÷Ì—ÍK#{¡Ô{ hÇ:ód|×‡ Åê¸/[ë‡)—3¢X¢PÔ§1¯÷0L…ÁV8ÿëÿMC’ÀC ,?€ñi"(Àâf”+ó8uþ@ü6§Œ¶5‰(`>Û ‹"Ø	DI ¨¹uxÈhs¯ì{ç8êýú«ÑÆUÞe«#‰¾ "À-PÜÿþ’“d2sÌ\¬eŽAä,ÌùÂ»èy0!aÑÞùìzÑŽïo1L›^ÿ9NÓª£­’u 	óŠ0­àb“–MÄÿÔfé48ãü8NÕ6"°Ø¿\ßïqÜçXÁ+W¼0g›G`3yrAÁþ³íÝëiÆ\ÆGä¢õX­W…rcSO‚4˜M‹žš:G
+kcqð>\Kæì_8uÑuêœŒ²šÅÂh±K§…k$¾ÉàfŒ@¦(µþì¡‘­HHTŽ†Í¤-GXp˜ÝwàË›¾3ì·a•SÞ\Z{¤ÔŠâkâQ7ÇÒ¢~ž…€h8ÍÎ‰š’³ ÀQ¢ÆÈž‘ÍÉîTuØî¦¿/Q…2N‡Pðnz|æEÎÀë´N?¿ç|"¶BŠ²Ý.læ®;Þ7QÓ4ÓF,G‹€2XióŸ¢jç£â «ÑMz1‚Ó7«vÀ<}gq²ÍfØæe4Ùâœ% ñˆÍdE—Ê
+ö&KH2‚§r]²uFX¤°“4M@O¨†¤G‡‡4GGÃfyêvR8¢1Dj´ö¾0Ðb<úÏö)ÑŸqSKòÂ.À=6O‡`à÷…µQäËŽ†¦KÓ‚–ã`|
+€¤ ®®är$iDQžó€ŽŸ¢¬2Â}ÞnÚüªþâ6¦Í3dˆ©îééö|[!:¤¶ÏáxêŸp­>zÔ¦}Í®ŸhBK»Ç1:ÛÚ¾RJÿößÿõ;i”>êô†]2–D•°Cãq¸åÃj^8sëEö?Œw¼;û'aíQŒ\ØÎ+Äb¿OvíY¬•­`ª„Œ
+Ê=x÷4ïªJª®;Ãö±²:Õ	`‚Í):¥I±Ox-VËx'\6(¼«°hÚ÷,øjeT(Öéõ¯ƒ!²ÒyzD5CèKÉRh"èF©:!ÛôÌIS‚æø1Jù ¯Ì…Ð$·®)Å‰ÜÁÂë­¬ñÀä=}!:LèÓÛKŠ€y²^;G|Ðå¼4&0Å<×`§  Ó<¡¶×Œkâ«ú¦QËãngÀáÔ¥î {
+Oª;Âà8ÈÃ_©A¿H?ï7þ6‚»Ä^`áGã.isºb„Z”âp#¸!ãi¢ ?Ä§õyvüa7•òêÂòcv
+>ê7£ÁÚ¿ý
+ûëÌ³·Xj¾\y\™w´Êª© ©þ0ô‘“ŽH•òü§ìÒ
+æ±gjèO“œ4ßªâ¤v’÷Û&`lõŸlß†³Ag¿|ÖF¹fó6Ü!°"=I™a,Z.¯€}Ü³ s Ä-„†j û!1}6ËÂàƒ ‡	ÓÇ?ýßÈ{íÿ»"ú?v€utãqT•Ú|Ñ©³¶s†SUr€ÁíËb
+E‡Ï=Qv¾ÆYåZ£³N·ë@+½Aì‡—(ìœY"Œ±Mf’%‡M$XÖ´‚KDÖu( ïô:a@þá3²£FÃŠÑÀÛÙ=Š“Ê²¢RI‡[A@“œáköß»8bÛG˜­7oÙõ¡lj”7Ó@ìEç¼4ëÿKôžÍ
+dÖ2ý@¦ËN¾áàû
+¨®»½CN½ÐTºAƒOGøEÌÈ§ùnfÔçÄšˆPÌB;)ÕV>•z_»¿ÓÆ7%J#ƒÇ@°Øk8Ç‚X8sÜ“JÊÈl¿Æ°j\É±?a”™›é>¶°
+Zn^gXœí­
+ûf{/Ùó-Zl¡°loŸò
 
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;text-align:center;">What you can do</div>
-    <div class="feat-grid" style="margin-bottom:12px;gap:6px;">
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇅</div><div class="feat-title" style="font-size:.8rem;">Send &amp; Receive</div><div class="feat-desc" style="font-size:.72rem;">Real on-chain USDC/EURC transfers</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">⇄</div><div class="feat-title" style="font-size:.8rem;">Swap</div><div class="feat-desc" style="font-size:.72rem;">USDC ↔ EURC at live FX rates</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">◈</div><div class="feat-title" style="font-size:.8rem;">Stake</div><div class="feat-desc" style="font-size:.72rem;">Earn 5.2% APY on Arc Testnet</div></div>
-      <div class="feat" style="padding:10px;"><div class="feat-icon" style="font-size:.9rem;margin-bottom:4px;">@</div><div class="feat-title" style="font-size:.8rem;">Handles</div><div class="feat-desc" style="font-size:.72rem;">Link Twitter/Discord to wallet</div></div>
-    </div>
+&2adlÃh
+´36Yi´)›™ÝœBN/ÆsÌÚi¢­?ûºVp‹)‹Zj›Ål¤¹l.Étg£eÈ¶‰%9æ‘&²r„ütÆlrt¢à$?ïGÅLöÐ÷Z§V?‹)$r’ä
+ñeAl
+~œL†yåø¾°^êÊ^È"sBh¹ænõ4·P 5Fu.g‘7ÜqàÈÝþCl>¥Y[b#ò
+wæ
+÷Å¸F‚vÀû)(:ÊuùDÉœÜ'‰²Nˆ‘óË%³¥÷|FbÌØv	¸þÁëtIõ	¨Öb A¾"ok¾Štœd
+Ãl+Ø•ôÃT|Ý:óŒç"êê\i–{ƒ@,&
+èhEØS‡©@#ÛW›^a|QøéáîÖ3.
+³b7‰™ïx®L,â¹ä
+Åûx„Ð¶´ËhÖ{hÙâq®Ð+Ú¡æ7©ù†0~¿ƒ8 l0.Ëåˆ¼B’eîóÃ0„`‡©Ô‰È›Òac@ã½8r:±Ó÷Ùé^ˆ’mo´Ò-’Àûƒ¦»™ÄP«^ræ«óŽ×=ó.2L	7Uá‹ëƒ¶	É Tæq“>lPëPKÙ†b÷vÚBÑÐW~Í$Åµ]™a4gõ¿ýn´Î-“ŠêD)u‹"‘±'­!GÍÎU#°ÍS3WoÚ6[0
+T.çÜUT&&‘ô[›Þn|1{´ýâùÞn}z=}µƒÎ¬]ÿ²þjvçåw‰¸£ÆðugømgdÍ§õ£mÕñSZ1v§‡OUÍzØìÄá ï×»›³û/÷ŸÖwñ
+j÷â>îçá¥ L¡¹Î=™G-â–¶}ëº3’©¦6—“yp½>[Ð°N#hûÕô
+RRZ>šÔ½r,V
+üN9Áqø@vêŒå2ø=©Êåá ¢ #%£Lú.m*EöN#aÅø8WíR·Íô©Ÿ¬.¶–Û‰ØXËËšúƒkf¿ÎØÁ‰†„¨ªÔº_
+5¸Ó‰hâÈ³ÑÔRÿò×‚!ðb¼ÔÑ1J³ŒßDmœoV;yÊÒ*;
+`¹#çç
+³ËXvM•S¸!2„N
+¤ßÙø½{u‘ž8—”½Â¦iTÍ3=Õ¦®´^ïšäÄÇðtØ5 uasý4@`ÊËô•1˜Ì/ê [{·1¸°h~¹Üåþ…#úå2˜{>I­Ž×¥ËÔŽ–
+e*¸KësÖØ¡ÒA/º$ fcf²7¡¶æYá2ƒD™÷N…J‡
+€W×täF³{x]<C);æiò¢ëÅx§:Ûê-nøósANg’yãŠ‰Nêa~ïþ6‡õ.‡µ×»¾¼1údâk’^Œ—§ùŠê—>NØ’ç0Ÿã.à;nn”µVó=cÈÍšGúG;=âÞJë™LÁ>j‹ýáw¿úŸ¬=»³E™¾)ôfš¬ &ÞkíQºË«YÙÍß§
+M*Ç¾}
+¼ÏüÔ§£‡îzOé;ì&tt÷¨ñüðëÛR4EIÍô8Úü¯gÑ[ÚÔZˆH- ÓÃœ›uÓ”ÆD-3çŒî”‹x×L;‚)`AÇÄ+‰ñù
+Öþ7ÿ4ríõQ¤—<¹Þ$LD1m~&d GNžØˆy\ßuž²ÉÓCk±–½ŽÉ£°
+DõŒ¾¢ÂnÉ¼*Çs¿½†Þ¥¡:Tá«-)>¾f)>ô&«<¥ÅòŠŠ~½œÎ^5Ÿˆõ?aX˜…ìð$2Ó‡FË<cÆt1¸`Ä¹kØ¹•ß›e?Õ¦Ök=ÂéeçÅl Û±Cû©6Ñka)ëQxéõ™cÕð7úÍùŒ«åÊÌ0yü¾T
+bŒmâ®èV
+±–@½d»³¥'ðÁ^0e¶c± ÅÜºTüŠ„¾2§ÍâRÅ¢îdœÈ5‹©”=ˆ…ò>wÓiŠ5,Â´KÖ0@
+Å5Ez“O&4Â©¨°TF>*6EE$¸ow_1g
+Óù,Ó	A—Õ¦_Ð…›¥"±ó”ü,ŸË„aÿ™P©m
+†*ZÙtÙDô}Ngì™òT ÖÁ°ùÎB¤’æH¿JØ¤ÛÃ™†V‹õaD$ÄæaB®ZÜ‰©íÅ:×mv½aÛŸ°kìb2^—ú‹äQZÆ‚k¾ÑtbKT*°ÿW€pŒ‰Ù2ä]Öf™‡—ý«ìC^œ}?ŠàG”>×ŒíµòX§4‘9Lm7±Ág/Ì[é—Mß)jhÔ
+ƒn·	g›cúÚËŒ\S‹<mÏ¨KÝ¹¤CªÞ²¨GEV×Îd¢½9›}Á’"
+ÉÅ(Ç'‘Ó'mí¦IC
+G•¢¨M«Ü<í¢é,åWªy\G
+…P‚ªv›çš
+§½w¼þ®Ì‰ã5ƒa¬+>þâ÷È<½÷/€º÷kÓã%K+Ã›Z­æÒÝZ·ˆ@´«ö£mcMžÓoŒxkt6š1Ö–,ÉÍ´ 
+0ÜÐÍU
+ÊÚÜ2h†éK5YJS“ùù[q€Z&£W¶±zf’c
+Þ‘o—·pYYŽfi;R*Q‚ôŸ(7Òpó¾Rö|¹g™k…A|WDïœ(l©¨j­vÿÛ¨ÜêÃöqH	V›ó¾õÎçºf4ç£-(š[)V®ð‡ò°×.÷:ýò·´	Y£7kýga+hûßFsóe8øcvÛëææìBíù?bóùÁÎî³ä½©û0sQìÔ7ßn~Qß=x»»å85g¹²´P©,¬iŸ¿Ø~ÅY£šãVÎ—6·w–\½Äá‹MUB¬i8h•µ ¡e±Í¨¸ýêEº¢%²¨QéEý°¾Ä*]¶ï¶«Ð=x=¿êj3î–˜™|sÂ)Øº¨^ö©ÈË£-gö4¬‹^3èÒ›M·Ôö[À¨u´<¾.Á@^†ðû5ê›1sâf¦ú£ys- Å†ÞÖ·¶ÕÌ-®TÆúOŽoa$Úx¼út¹òxy¹î-6·vV>û¬µµ²XYÜô[ü¶³8¿ºõÙ‚çplmoîî×÷Ž £qÛ‡gõ£·djà½’9iíÿŠ7vž½ÔnÖ7¬ÕÊf{euùqk~yuóéÊãã-ùñã­J{a{ik±RoÍ{çwŽÕÐðF¨jCŒ®²º¹\_­ûKË[‹·ž¶ë
+Í§[‹Íög
+ó;íÕåÏ¼ÖBs¾¾²*›aö€·‡ÛÏv‡_ófV*KÛ*K;óóóþÎæ’_iù+««‹
+ÍÅ§;ÍÅ–·²´³¹èmB3´KÑt¤%çÈuèàc·ç?Ù>x»¿}t´}ðlû¯Ðüã•ÅåUogygù³æÓ¥Jk¥9¿T‡ùh/Ôaz*›
+«MØ@t­[¢
+Ã6qÎðúšõ¾¶žïÃ.E” ‚îºÍ6¶ Û
+·ê¬®–ð¥f‡—z'mîðfžÞè¶tx¹ÂŠ)+9¼[¤wºí^~Vzp-±`ûps¡ò¶þt z…‡}vu›_ez~\àç"etX@ÃF	GèÂòJÑ-õDØQ­$Ê©šÍ è&«ñ["“ÖêCŽ`Êz“+èCÁVþ1–~³–Ø/¶¹bþ~d8øQÙÞMtÆ=G–#Ç5æÞUÈ,Äó±ób“úÄQ%¾Û?FÔ,%þ¦[Ý±N!¯"'‘v€mÛ>I.;Aøj‹º<"MÉÁçÅÝZ»ô`[—€u‚c>¡Y—"O!§X’Nhþ¥k’j"MW–àíNŒN¯»O\bjdbÎô‘qf›°ƒ¢8¤ÐÍ€µ$°3«@æ_‰;bâZ6kdµì1%P…FD	.e6Äú}ýÆéøáoä#núFO_â­Cj#`„YÛ%‡Ïafó|?¸- (Acû~@ƒº¤›”ZûÃn¦ù€–lt*âgú±Fõx¬Îš[qK§‰ìkÐ‡#_é¬QôÚ’~»xH{ØkV¼ëEqãƒmð®Ø‹Ý¶Ö!…—CÃhM…øsd”·@«xÈ_’h^s]Qÿ„Õ>wY>µn ý!x2ÒYqb Ä 0"U«”Ä
+ò¢E·äZ…$âÜèôää±X¶ê
++¶óªÆnÜ–œãó= ö%öb Ä‡¹ÁÐ;Ô)Pøi_%k+Rc,¸
+³ƒò¹*ñ—H¡Ùh’oeÁ Pî-
+ºN´©5ÉW”8ú@™4J,(1¼Ü÷coß‹Þ? &âsnM«½†]§D¯Ý8—†¶KUìÇGÏÊ/ŒüQÍ#xëøe »±ß+¸  4Îßº3ŽWW®[,Â¿¯ß¸˜?Z¤Þ _ïÄh/J¶'š+ŒftŽ/
+´rÔí oP)ÍW*Å"ËT}¶- ñr×yÙØÝÛmìnÝ píßÆ±¶äd~,ô¢“y¸ˆÉn©Õ–@¸)"ÿÊÎ>¿[k ­aU`°èÛ]>½Øm\j
+ûÝ2êD¸ÛP
+Ú]ƒWd4EA¯æbˆ:ÇÁÎ°<YvqûÃ¸ ×àŸFÆäï
+ÅÚú¥Ù„»v
+ Bw:Ra\ðŠ—<··áIÄX)Î¸årÙ¯f—ŠUlÅ¨~¤ñè½3ô
+4ðÌñ²ØÏn±Lñ´¿hìïÕ\3Ò6´ãà?,@Ú
+Üµ¾ŒÚc5;;n³"Zó7,¢3ß¬áÄÜSvUóÍ‰ÿÙÐ/ŽÈQ7ëÝnÁ-£ŸAµÄ…²LmZŽƒpÛkµõÃ4ô—9{å2¿! Gk#šç©_µ›µõæØ-&'‰`tghdZ#p4ªÖäë´Ïk¯YáKõ[w@EîÜ’Hq[’¹hß”‰³!ŽºÁæ:Çhk½V)Ž5Ö×PøM6xÚZñ<¸r¥ £)A¡á¸ Zâ&B6’ÀKñ÷]-vŸ“Xz9þF
+;ÏF|‰7:Ù_îR¬}Š¾O/H¸)RKZ=™£7„‰ô•ÛH¢y‘*ø’«Kï (‰pí_¨çD,
+s:€>SFŠpEFÑ™CRñƒãŒ†	°'§q
+‹#RÕc8øšÃýÍ€ÑŸ¥´änébAWUk¼ò
+ß»U­5e5WŠU{ü/ÐIš8û!Ý÷úoEÝü åQ‡½¥F§˜wúüøß~ñïÿúI&
+RÓÕìÜˆ9š ¼ÄÄçÌI”='7l4æ`™v	ó¤{a s÷ÛÚÀaßfŸÇFšuW ¾ÙŒƒM”ÉÔQææµšKºRš)öY ]0¢âG*u`»¤òFcÃŠUvKÂ ÔNq	ŽÖŸ°01^×q®}`^3¡E[U¾~p˜¾WÎá½‘½è¢ßr$ZQ~´=í¼b»(/ØôrêäG5ïÌëðL(©æ÷r+èô›^Äì=æ|¤bE-®®¯\æò%g­âvâÍB åo#d°ôÀJÔH¶Ø$.`ù2ýC-—·_òâxÜt 
+P¥øèü»L*ˆkðk-!ªùgÎü‚®Øn:â•ø5kNÖ¯[ŽŽ3„% üÂ¤–‘eƒ9T÷Û(f£¶Ä©.Z/I¤ImØTjÃÆÀÏÖ7Œ§rì!)#éôˆÄœÂë7¥ËÓ`VÝ…Ùvç¤§(»­ ^\'+aR‡@·.LÁp>ýn‘ŸÈŒ}WÌœ&~Óìo¼ÓbM=¼,ÌÏí¼òì 'Wa©xÍ3ž›ñ©Fç°JåŒ`ÉY(ÔãÃKœ¸kÎ8¾#8ªï´ÈXaõ
+l1²î†µûDm¾ªïím7Ðvy°½ÙØ}~@¶)ìß
+05p¬¥~åüãp¯ÁYÙç7ÊB×m”Yç¢N¢Q-QCU`D‚K€ƒ¨|™DÐ‰½fó˜ÄëMNÔPéïb&é
+sì¸‘$@¹ºâ/BìíêŠc×I2Lyý¸ÞMÎÃÔÙ h$’âä™
+ûÔ?ç$ôlPÆ¨Y>pÚ—=è8hW]øó–W"¬z="¬»ý¸ M”æWgÔíÈk™tÂÌçåêò
+cn
+$Ì»¥)½¿G¦”D 2céÖÅ½4Æzž$#ÓWjŽÄìdÏ	“>Þ²fÄõWÒ
+º%˜¯U_'-Ò×o®Ù© tû)£ LÛÒjeáêJ>Î..¬TAê ©2`PVrêœMÎõµeF©“qNÎ5sS­©‰âØA %1ô¸!ÑA3U·ëÐ®À¶Ï¥œVzŒú]Xƒñ4³>3. ·LÏH&¼.œ}¨¯YÃª"ÉA
+•›k:Ë’¿øËz«…Ö¥·Õú‘f2´¹;”a}+0>Ü«ç)Fé÷ÃüS°‚Í7 0DM\Î#ú Ø3iZ`Y-’G™n_”³j¤µE
+ú›‚Û/ÐG±†Â |
+õì„f¸$˜µ0ägÎsÊ™®Tæ‹¢M
+Ûˆ£i¨
+Š¼c¬»Qî1ßQú!§L\=)Ö,TŠ‰–˜‘§/¦&PYÎÏ½\¶÷ë»{Îœ³¹{¸¹·-8‹½çÏvî ŒÉÂï·I}Þx¡sÚdþÈ¦Qô™ŒN°º9 ÜvO‘N*puÅþÂ·ºÃ¶‘œ+i*Ï¬âP‚Ö£]Ã5ÑyúFÄ2ƒ>JƒAePÌ!¥»9¨æ–.¹Ç§ D/ž5Ü»U/]®
+˜E[u½Á v ™êçPªs¯K¼fÐ¾¨&,6—ì~T•+8	¼ë"«q=®À
+D’¡`ÜÄâ}Ûÿ iËÿàô€2TÀ rìR8e	?ÀòqŽ=VèÄ»æ-’ê·ÄR6´}Ä9Š¦åÎøŠ<%*ç.vpŽt%[ó’_] î1”‘øZƒ–æPHÚÑ16h8û‘Pª#^Á¬¤`Á4ð@¿T’±ì®=Ÿ»pØïÃºnhXÆ_JF€g'€@ü{úú!_$64:w÷älføÊ…ˆ©Zm%±}q8+LŽ6'fÒÌ ¾ËM|ß¶,!ß´UAbJðãÎv°ä5è+ã8›!¶EÂ’®Üm›e”a
 
-    <div class="land-note">No wallet needed — email login creates one automatically.<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
-  </div>
-</div>
-<div class="page" id="page-send">
-  <div class="alert" style="justify-content:space-between;">
-    <span>🧪 Testnet &nbsp;·&nbsp;<a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></span>
-    <button onclick="claimFaucet()" id="faucetBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(139,92,246,.4);">💧 Get Free Tokens</button>
-  </div>
-  <!-- Onboarding checklist for new users -->
-  <div id="onboardChecklist" style="display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.25);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:8px;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--accent3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">🚀 Getting Started</div>
-    <div id="check1" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text2);margin-bottom:5px;"><span style="color:var(--success);">✓</span> Wallet created</div>
-    <div id="check2" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);margin-bottom:5px;"><span>○</span> <a href="https://faucet.circle.com" target="_blank" style="color:var(--accent3);">Get free USDC from faucet ↗</a></div>
-    <div id="check3" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);margin-bottom:5px;"><span>○</span> Send your first transaction</div>
-    <div id="check4" style="display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text3);"><span>○</span> Try swapping USDC ↔ EURC</div>
-  </div>
-  <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
-  <div class="rpc-error" id="rpcError">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
-  <div class="bal-card">
-    <div class="bal-head"><div class="bal-lbl">Balance</div><div class="bal-badge">● Arc Testnet</div></div>
-    <div class="bal-num"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);">USDC</span></div>
-    <div class="bal-usd" id="balUsd">≈ $0.00 USD</div>
-    <div class="token-row">
-      <div class="tok"><span class="tok-dot usdc-dot"></span>USDC: <span id="usdcBal2">0.00</span></div>
-      <div class="tok"><span class="tok-dot eurc-dot"></span>EURC: <span id="eurcBal2">0.00</span></div>
-    </div>
-    <div class="wal-row">
-      <div class="wal-dot" id="walInit">N</div>
-      <div class="wal-addr" id="walAddr" onclick="copyAddr()">Connect wallet</div>
-      <button class="ibtn" onclick="copyAddr()">Copy</button>
-      <button class="ibtn red" onclick="disconnect()">Disconnect</button>
-    </div>
-  </div>
-  <div class="card" id="sendCard">
-    <div class="send-tabs">
-      <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')">↑ Send</button>
-      <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')">↓ Receive</button>
-    </div>
-    <div id="tab-send">
-      <div class="field">
-        <div class="flbl">Send To</div>
-        <div class="type-sel">
-          <button class="topt active" id="topt-address" onclick="setType('address',this)"><span class="oi">💳</span><span>Wallet</span></button>
-          <button class="topt" id="topt-x" onclick="setType('x',this)"><span class="oi">𝕏</span><span>Twitter</span></button>
-          <button class="topt" id="topt-discord" onclick="setType('discord',this)"><span class="oi">💬</span><span>Discord</span></button>
-        </div>
-        <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
-        <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
-      </div>
-      <div class="amt-row">
-        <div class="field">
-          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Amount</span>
-            <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
-          </div>
-          <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="validateSend()"/>
-        </div>
-        <button class="max-btn" onclick="setMax()">MAX</button>
-      </div>
-      <div style="display:none;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2);margin-top:-2px;margin-bottom:10px;padding:0 2px;">Available: <span id="sendAvailable">0.00</span> <span id="sendAvailToken">USDC</span></div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
-      <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Enter address &amp; amount</button>
-    </div>
-    <div id="tab-recv" style="display:none;">
-      <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
-      <button class="btn btn-outline" style="margin-top:9px;" onclick="copyAddr()">Copy My Address</button>
-    </div>
-  </div>
-  <div class="confirm-wrap" id="confirmCard">
-    <div class="confirm-title">⚡ Confirm Transaction</div>
-    <div class="confirm-sub">Real on-chain transfer — cannot be undone.</div>
-    <div class="conf-rows">
-      <div class="conf-row"><span class="conf-lbl">Sending</span><span class="conf-val big" id="confAmt">—</span></div>
-      <div class="conf-row"><span class="conf-lbl">To</span><span class="conf-val" id="confTo">—</span></div>
-      <div class="conf-row"><span class="conf-lbl">Via</span><span class="conf-val" id="confVia">—</span></div>
-      <div class="conf-row"><span class="conf-lbl">Network fee</span><span class="conf-val warn" id="confFee">~0.009 USDC</span></div>
-      <div class="conf-row"><span class="conf-lbl">Total deducted</span><span class="conf-val warn" id="confTotal">—</span></div>
-    </div>
-    <div class="conf-btns">
-      <button class="btn btn-outline" onclick="cancelConfirm()">Cancel</button>
-      <button class="btn" onclick="doSend()" id="confirmSendBtn">✓ Confirm &amp; Send</button>
-    </div>
-  </div>
-  <div class="success-wrap" id="successCard">
-    <div class="success-circle">✓</div>
-    <div class="success-title">Transaction Sent!</div>
-    <div class="success-sub" id="successMsg">Submitted to Arc Testnet.</div>
-    <div class="success-hash" id="successHash"></div>
-    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-right:8px;" onclick="openExplorer()">View on Explorer ↗</button>
-    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-top:8px;" onclick="resetSend()">Send another</button>
-  </div>
-</div>
-<div class="page" id="page-swap">
-  <div class="page-title">Swap</div>
-  <div class="page-sub">Exchange USDC and EURC at live rates</div>
-  <div class="info-banner" id="swapModeBanner">⚗️ <strong>Simulated swap</strong> — No swap contract on Arc Testnet yet. Once you deploy one and add <code>SWAP_CONTRACT_ADDRESS</code>, this becomes real.</div>
-  <div class="live-badge" id="swapLiveBadge" style="display:none;"><div class="live-dot"></div>Live on-chain swap — Arc Testnet</div>
-  <div class="card">
-    <div class="card-title"><div class="cticon">⇄</div>Swap Tokens</div>
-    <div class="swap-box">
-      <div class="swap-label">You Pay</div>
-      <div class="token-select">
-        <div class="token-badge" id="fromToken"><span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC</div>
-        <div style="flex:1;"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);">Bal: <span id="swapFromBal">0.00</span></div>
-      </div>
-      <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()"/>
-      <div class="swap-balance">≈ $<span id="swapFromUSD">0.00</span></div>
-    </div>
-    <div class="swap-arrow-btn"><div class="swap-arrow" onclick="flipSwap()">⇅</div></div>
-    <div class="swap-box">
-      <div class="swap-label">You Receive</div>
-      <div class="token-select">
-        <div class="token-badge" id="toToken"><span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC</div>
-        <div style="flex:1;"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);">Bal: <span id="swapToBal">0.00</span></div>
-      </div>
-      <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="opacity:.7;"/>
-      <div class="swap-balance">≈ $<span id="swapToUSD">0.00</span></div>
-    </div>
-    <div class="swap-rate" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; 1 EURC ≈ 1.0801 USDC</div>
-    <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC · 0.1% swap fee</span></div>
-    <button class="btn" id="swapBtn" onclick="doSwap()">Swap</button>
-  </div>
-</div>
-<div class="page" id="page-stake">
-  <div class="page-title">Stake</div>
-  <div class="page-sub">Earn 5.20% APY on your USDC</div>
-  <div class="live-badge" id="stakeLiveBadge" style="display:none;"><div class="live-dot"></div>Live on Arc Testnet — real on-chain staking</div>
-  <div class="info-banner" id="approveNotice" style="display:none;">ℹ️ First stake requires 2 transactions: <strong>1) Approve</strong> USDC, then <strong>2) Stake</strong>. MetaMask will prompt for both.</div>
-  <div class="stake-stat-grid">
-    <div class="stake-stat"><div class="ss-label">APY</div><div class="ss-value green">5.20%</div></div>
-    <div class="stake-stat"><div class="ss-label">Total Staked</div><div class="ss-value" id="totalStakedDisplay">—</div></div>
-    <div class="stake-stat"><div class="ss-label">Your Stake</div><div class="ss-value" id="myStake">0.00 USDC</div></div>
-    <div class="stake-stat"><div class="ss-label">Rewards</div><div class="ss-value gold" id="myRewards">0.000000</div></div>
-  </div>
-  <div class="card" style="padding:9px 13px;">
-    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:5px;"><span>Pool share</span><span id="poolShare">0.0000%</span></div>
-    <div class="stake-progress"><div class="stake-bar" id="stakeBar" style="width:0%"></div></div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">Status: <span id="stakeStatus">Not staking</span></div>
-  </div>
-  <div class="card">
-    <div class="stake-tabs">
-      <button class="stab active" onclick="setStakeTab('stake',this)">Stake</button>
-      <button class="stab" onclick="setStakeTab('unstake',this)">Unstake</button>
-      <button class="stab" onclick="setStakeTab('claim',this)">Claim</button>
-    </div>
-    <div class="stake-panel active" id="sp-stake">
-      <div class="field">
-        <div class="flbl">Amount (min 1 USDC)</div>
-        <div class="amt-row">
-          <div class="field" style="margin-bottom:0;"><input id="stakeAmt" type="number" min="1" step="0.01" placeholder="0.00"/></div>
-          <button class="max-btn" onclick="setStakeMax()">MAX</button>
-        </div>
-      </div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Approve + Stake (2 txns)</span><span>~0.009 USDC each</span></div>
-      <button class="btn" id="stakeBtn" onclick="doStake()">Stake USDC</button>
-    </div>
-    <div class="stake-panel" id="sp-unstake">
-      <div style="text-align:center;padding:9px 0;"><div style="font-size:1.5rem;font-weight:700;margin-bottom:9px;" id="stakedDisplay">0.00 USDC</div></div>
-      <div class="field">
-        <div class="flbl">Amount to Unstake</div>
-        <div class="amt-row">
-          <div class="field" style="margin-bottom:0;"><input id="unstakeAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
-          <button class="max-btn" onclick="setUnstakeMax()">MAX</button>
-        </div>
-      </div>
-      <button class="btn btn-outline" onclick="doUnstake()">Unstake &amp; Claim Rewards</button>
-    </div>
-    <div class="stake-panel" id="sp-claim">
-      <div style="text-align:center;padding:15px 0;">
-        <div style="font-size:.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Available to claim</div>
-        <div style="font-size:1.9rem;font-weight:700;color:var(--gold);margin-bottom:5px;" id="claimAmt">0.000000</div>
-        <div style="font-size:.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:15px;">USDC rewards</div>
-        <button class="btn btn-green" onclick="doClaim()">Claim Rewards →</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="page" id="page-handle">
-  <div class="page-title">My Handle</div>
-  <div class="page-sub">Link your social username to your wallet</div>
-  <div class="card">
-    <div class="card-title"><div class="cticon">@</div>Register Handle</div>
-    <div class="my-handles-box" id="myHandlesBox" style="display:block;"><div class="mhl">Your Linked Handles</div><div id="myHandlesList"></div></div>
-    <div class="field">
-      <div class="flbl">Platform</div>
-      <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-        <button class="topt active" onclick="setRegType('x',this)"><span class="oi">𝕏</span><span>Twitter</span></button>
-        <button class="topt" onclick="setRegType('discord',this)"><span class="oi">💬</span><span>Discord</span></button>
-      </div>
-    </div>
-    <div class="field"><div class="flbl">Username</div><input id="regHandle" type="text" placeholder="@yourhandle"/></div>
-    <button class="btn" onclick="registerHandle()">Link Handle to Wallet</button>
-  </div>
-  <div class="card">
-    <div class="card-title"><div class="cticon">👥</div>User Directory</div>
-    <div id="allHandlesList"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div></div>
-  </div>
-</div>
-<div class="page" id="page-history">
-  <div class="history-header">
-    <div><div class="page-title">History</div><div class="page-sub">Your transactions on Arc Testnet</div></div>
-    <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
-  </div>
-  <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
-</div>
-<div id="toast"></div>
+Åcº”hG#J%Ø±8øºˆ Å€‚ˆÏRqÁG±Ã"·-Êz¯eãÑ~ss8hI;®EO†0§ƒf­ðkÉ‘tPÔˆØW~·°   õƒ)ç¿û/î¦¨X>Ia9qÃ] Tu¼âO]Yþ¾éÊ—„ŽÙœÕ=âªp?Îjê™£íÆË÷ºíÕ1©1‚{Ýt"8KÙC¾e\ÚdÓ'œÔÖg[Àé¢Ð÷ÁMÙJIÑ@ˆ)M†<+¾3¬%¸	àm^G<oÒ6“6ZŒÓÝãµr+‰¤v‰~ÇªËsgTåRÊBi	õ±/ ?Üô"T}ã< ­B¯
+®`áé”	
+Íøí?ûxKå–&%Ž&œ†‹–´úïGrW©<Úë‘?–^jm¸™ZÔÆAÀ[g…61t­÷"„œg£5»Pü³EëwŒ¾ezá£L 0 U¿$
+(+”2VYfÂýÃï~ÿ rJ¾¡w™cúI÷¦°éÆ° ÂPÂ‡¦ÎQì$Ãç_Š3;eÚv’ÎadO&ÓùOÍ]c±»[lìÝÌŽ€Æþ$@ºÕëÇ^ÈÃQ£_!ÏR@„ôÄáõ0Wƒ‘ßk‹È×@¾¡û‰|?i“ûèÑÙ`£ôù8Àot`J§M²¬SðÐ‹	ëyB§­§ì^#Z²‘—C§íSü(æÍ’ÞI¶IÔ›¼£¬
+ŒÌ¯Æ9/ÇÕV
+eáHæR]³\ëÄ(è7/l“M
+8
+‘(z \ ü³ÚT¶}ÿƒæ¨Tâ‹‘í² ×,¹óBŸ“-c0X7q†»tuËßÎkœñANËy†JØÐyÍàÁ¶ü˜3ŸhX•Â(©_KóËœ#M‘2¤hÈƒƒ•kËOòÒÒØ±8û®i½	WÞ¯d«
+:á£š­„R¸ÅKrþÛEYD7ýËZÂOW8àhÞºÉÚú§µ”WïõƒÑ^e7õ"m(Næ&L”$Vãú~LÎ…å˜}&Ãè-3’1»	´|äb~ÍÌè¾2–1*ÊX)9µ=q Õ^_†A× ^‹qK"ÈÇôþÅ”³ëöx0
+ ù. o¸ƒ°'/¹S’ßðb Ò™0ZQÉÙòw:%‘
+£äœxfm‚@–éB|W¡(;
+÷¾¡àÎ<
+RÿÍ49Þu»]¤}çx8˜š¾&[©PÅI‚E
+yFâ˜°y„µ§õ½úÁæ¶s¸½s¸}ôÅý€+!¦¥Î]a‡ÀÕÕ”òÁO\çÐ¬§Œ‹Ñéô£G†%W+›¼"ÔÙ¢Î µÍÄ÷\ò‘RsymÁ‹ÔLØ6Äèªâ‡®nj
+u®f“§ê,Èk½%y²¤÷a¨¬Z¾µ
+y­wŒ6^Ã’¾á¼”èu"¿ð^·†euÙRr-¥–o{ýFšßØíáòâ—À!GèÉ¸,,Œ[üŠ¥†–Œ[ÄÆà‡ºÿïV¹ö,˜ÞZzYÞaºìhçyC]‰9Çë•\òÿVnÆEB4JvÒ<á'éZós×«ù#ªi)9“zåVµáWGu/S#æ´2¬rh¸†ç	„Ú•,UücÁ0¦jî5èþFj·‚Ëé‹áWuKþ¨åµîü„çÚBRîŸæ®ñŠn¾<r^<ßÛÛ=xæ¸&ƒ‘¤È©¿Ø-ÞpgÄ ¹ßsÁ8ãÝ6»%H¬{‰)ú0ý8wN0Ö9|uÉga)oÂµÊÊÀè$w9 1åã/~Oí¡
+A÷q„Wüã>Ê|bJZ&ô•ff”Wˆ0
+äX\´0sîM¬¨æ8Êæòj£Yšn·*goÄ	¡íÇ0˜HE,§ÏŒôóêJþFØ¶4[”ÓU
+jr¸¿½å^]i/÷_ìm7¶Ý¢‚~iJVº	2HÆV«ã£ö›Yb’O¯®p²å„ªÍçN}wyÄ9Þ†BN=%ö*CÉgÊÜbèÇ%½WÞ}$T*-6‘,îyáá¥Àù-_GEØAïdÇÌÞ“á1s
+#ÿ×ÂŠ'Ú[_©L&Œß|’É¤ÄÍK÷é¨8Ú>ØºÀhÞ11Å§Æ‹–%Ÿ©èÕålº~™¸–½f¿•«8ù„…ýEi°Œ1²'¼7'îuæ^ŠëçXÿiD\Ìgêã’öO??”Šåcš
+¤âbzKë!á\–|ƒëæE±DísK½ÏcNœß)KÔÂÓõø‹ž*&µ”hÐ?”£ÖÝ$ âxes”€WSµZ
+ðvÜH‚û29ÛSÐdñ21Í¯Š(|ÔWåR¨ËµåèÛ·ðè¾ ôU'†3¹rŽ.YêÔãRO'î‰‚1xa¾Eîôù{f%ÿ’¼º$@†K-‚‚»Ûÿ ã†þaOh“åeƒš…
+n}¡(Úäp;½!ºœøÎÒ&¬…÷£: ¸/|èwÎkÆ4ž»îyÕ­
+ÜªººìÆ´Æ*Î xíäL˜
+a—~æþãçs%W%Åµ¸tl•˜ažJ*jJi`
+Í¢9O¹˜Š–Ë"Ä	¢ñ6XúÑ#ü0–wþü0à“g¬7–cÁ1wˆ;Ãï£ž±æ<¬}?à¾Ôr­™×vN±k.ö¤w·q Š‹Üå¿™·›Ùhžzè ÑÔ¯Õ…˜@Â
+à½
+¬ŒøÈfçIù<N^–‡aÞ ýà{T’¤Ëñ Ìb:—zDhXÅ#Q¿j<6É†‹
+—Ç©Ë¬¹‡™­“r¾ø¸fî•¾’f–Kg…`‹¨jQöäEö†d®0nQcÐìŽ YÜp?þâ/Ýj“(•Ð0™áDü˜Ò<e¯±×‹MK@Á2ô}/>-÷ ¡JÉ2
+³"Î^±j/(¦¦¨4a+y‹c~Q‡8‘Â›â¼^lÜ¥wRŠWWÕÊpÇ¦„"%Ç¦þ3*çúJâÔë·’Gè /Óî‘É‹ÉîÝÖHÜp¼ÆÑõqšcÎ¡âXÄã“¥ÛëÅWWðÏ“Ze’fûíYy!Ø?Sê4»ºJdp²ój¸Ózå\q¸&(…Cque¼ììÝB—:4P¥÷,0½xFìÌõáÎXýìö£áñq§…1ä˜¾Ðé·Êh÷*æöIÄœ®ö@·ëþ
+z£dÐÐpç‰$,ã´vàûm3
+ø ±jMxI&\!Ó›e5w† ÔÙyÒ$¹®’1âXxg2¥5ÑŠ‡^˜¼‚BÂGÒÌ^­À7T¡ªtSÀmÌ[‘ª2À ¡¢¨•çþ¡ãÕ¬ÛwÃýÊ%«)Vç¡âŒ9ð
+<9”£‰’y¶þã´-E_Ú•ÔÒŽh®X½"å,Í(â0eŒÔ)¸30Ï3nqt|ìèËŽ—è	¦1·3âÝÄÒÎua¼z†aBÃúÝSx?qÃ	[ç
+Å]ŠÒw$ÚA’i¸ ›1¾å6ŒáüÀ#Uð’?)¡B3ÒéÕø ¢y}Ü¸¤“â¹ý"¿{|ãË|…ßò€¼Øxö„Ih Ü¡SÐc ò‚¸šÎìhXÆ½/r4lö€b ŽWeÇ&sˆõÉd–c?t5ƒÆ­¯”d\*‘_GÜÞ¨šîf%­ˆ–KøÕ8Ð
+0~ªÊÈœQÔ
+P*í#3\RB½€´ÐTnnªÐµlq"Ë
+¢¶yÛ%>
+ƒ3rw$3©yµB°×O¥Búç1£ˆ2.¨Û*š7Ÿa9É®¡›*°×ˆ!—ßž’>:ó¦lç5ðBÚ’ö5ÜtoÀÒkðl$tamÿƒ¦ÄsLÓeº±Rr…
+-a/ÂÖ¥/5%F±5}ÚíÆyáò^WB%@³88ôÎª@¸J–‰Ã•b&VÝ Hb‰°LÃ¯8ªbø™r?8t”-Wé’óÁ¯ºl4®Â)üÏ$7GgÝDXÌê¬îÚIlM˜—ôa«iú#9cÄ
+.­lŽ‡:
+Ó0fÉ‹âNÆ•ïÔŽS¾—Ô…o·” ×ìr(
+¤EFÖuor¬º6q€#úÁ1Å<{á4Åc{È½G<zFR&¶ž“?º}QæÉÉ8{c ˆA¾È¥‹tÐªJ7+USÄmÏ¬(<™ª†_“Å¯¬eÕSKÈ4Ï.6Ë†»S,¯´Ê2ì=à&oØ&æ`¥o{Qf§(òF5’Ÿ—O%1š0L÷ˆŽ’–I.Ú¼›¢$éK
+™KÐò;ƒ˜ÊãßÂ</£S
+ÞÖ÷D&¦¦8$’V 
+âõ0,‰ß¡î2¡Œ–/ÉÎ¸z	ÝÜ~[†þAÙÎ§/›^¥¨”N£p±6g ,úúpüAÑ²qIØ	˜y
+!cø4öË›Hcø—ó5M»@ä£ƒvŸoŽ`¬~p¿&::%æj„S9¯ž/wÞP¹ñ:jrn0ðû"7Nt[Ú™ËcYa™O™3ãÎÅçsîŒÆ1¸o›€ÓïÍß€ë~¬ÄÔ‰çgL%AçUN
+ÇhÎß’À–_™¾Ç²–'âè[ŒþùWCØÅ×2Ë&ØèùfDÈBå5
+±×ÌŸ( ›3&>P¤[ü¶á¦î:æ6ˆ÷\³$ÿÁŸ¸M„ fN‡!ãN#%èÎŠÌq›`ß3·£¯ê÷ä*¹ð.ˆ0f
+ý,œQºWÇš®të¶°¾aS5%Ü­íæ,Œ#jxL³Ø•ÕWªp*5<Â~„…T)¯®®¶¼\DNÚ’* } ²
+VGj
+™šéÞMP1ˆu?ûªyÔ`~7Ú4èFO…Ä7
+4	:†&ÕJêi<¦´‡\ˆ1—s -ÚC’n˜<2ð˜³í€bÉ¶ð‡ÌJÉ2²”¨
+”’‘³ÑÜ:omMžc6ÃóäQ›à&#™„Œ‘L:!c!ìX§ebWŒ¹ò¯:ä_=©Ž¾År«‹ùÍÛ\%½gE"N{ùµƒ;#…ÒÔ¥[¬Í@fÒ*£%ç;ÒÄ\ÃÃEúS9ŠJSmâ}¥Kl[W>*¤µ¼9(ÃèêÎpÀ-CcÊ¼Ò"U—´)Ðè:#Þm”zy‰‘uÎ¼BñÑ#¦9xôÈTÏhB6€õ§»µ×ZN9¨Œ 8/¶¤qfY,#·•}£‹ô0-/pÎÚµ,E…Ô”¯˜ê¥¯ÑÖDªgªRe“ª´™ç8¦²ûÌmÇà#JbNmMå{¡@?RŒšLùR§$†B÷2®ÕÅB‘dÌVY$E4G&×O„U LÅÌ„–#òÀPi.}­y¬Om%Ê	ÜSÀU3
+kH­ä®Áj&õÚªgªòD(LÝäÑƒÒ8•€©³'Æ&é#A&x¼bš›ãÚ)Ö´d5ª‚Rð»Jê*¡š
+úì2‡Òc
+R.Ø»© ¦¹ê§Û°#uä©˜\0¿á ä²àk&]¿ä*e’íð¸Ô§{q™Œý‡skÓ?déÀ:½aCá:¥ùò1—–Ÿ
+Záâ¥¸Ëi^¾
+ß,š¡‹kâò-¯c9f\1›2³$*p.d&€´@fïPß7nÔéÍº3ºÒ3«¶‘œëœ
+¿î`Ÿ@ç|pt+ÈÎ‹võ-o~3¿ìlÁ„Š³Î•–wY(:¿ÇM–Ÿû‡‚!Ü5¼4€Å¨IŽa$€ûAÛ—18L]
+¶´Á'Õq´\Øfý°GÓ`­‘Çõ8Úyt\2k„IaC®û¥2iÔrOr³(	
+½ÁÔ&‰ŒÝ%ß˜Ê{p-øÒåƒœèSª÷B1Y_çÊì´$d%-}ròª 5ôm%Ê'TÈ'!j•õÌÅ*R|0‹	fêOh¦C `÷¯+o‘Ì†TÊÐ1ÚZÈhKpÅ ïˆfÄdØÛÉÜ„½‹#–ÍLÑ¤Ï…I&¥€–Û(Ë4Ù›•3“8lóhAÂÅÜ»–h§o«†]v€Ý‡xÖÄüÎ¦êá'õ°ßö	òÛ¥K8ãöõvBæ¯²…±…£ê‚7:õB¿FM­W6
+ÆDÌÑëa.ÓjeÄƒ èa[)—Mx§åÄ™q?5›´Pú˜³Nhã[:ý5‰PQ–Õqd^<yëãw·Y„G ØŠPDá†ä]éª{Ä":‘›´šŠ«Ê<h5Ê’ñÊËPÌLÕ”Šxi†%ãdP
+A¦  ¶w«­bXÁŒ`†ŠÞ×tº›Úbõì³;x?ÁÉÍ%M˜ÏN+ÝT!xÚ
+šÖj•â$††EÄHž*xu•ð{Ü A jº²-Uð¾8N ÉLaƒžŸmÐ
+.(¯œM«†M¨cÑ8 ¥@ÄÞ(=s(ÍÐŽÙ.±dùëÜ‰ÃÎ„ê@0#”êÀy	Õ>`,/‡å×Ê.êÜ,rŒ]ÿ–Ý¿Äš¯¦bDÌ<-¡ÆÑùHä1Xœ‰t(±?pæçªŽÔÑøòTAüBÌÑØ1ª,Ú,@“àe
+Î4a{eùRòI¥$OÆÁE…Ÿ°—Žqik\è¥’\ÞÀÔæÜÌqÉaÍ{]]•£éâ˜Å¦½›à´à§6!œ›4ß¦ë›-ï.ï‘jÙ8¹oÀç¹”SKXY0æô{vkœ+Gßj¶—Xå.¼Äª©©
+:a8qÈs ãù™
+³"Là?–TÒéîcÒ@pžs*#þØ´Uªànxë±d&Ž²{÷eŒÓ3ö:KH0–Þª
+´Ò/û‘yL[OÓ¤ü:êlí³jwq¨û£Õ´•-ÇÄÆOUƒÿ’ÕŸcv	wf„Ää0i+ox·¤_–CÖ	Sp?‰³|nœró&	QØÒçšWÚ	šò¾
+·à&ŠkYô—¯GÎI‰èDdSžçœ\ò>Ç!˜_*‡ZŽAeg·¢é-"©ãmIÛí¨šX¿qènº&šyä²Áº“±‰Uû!I
+µf¨GžTÊˆ¢•y=[dÈF‚²iYœ‹|Iä ¡*’›ÑîMI
+uÌ·0’60Tø!)õ(n…
+"GvgÔB  Ï'[o#ˆÈ— °E»%90ˆ@ff¢ë¤£.ŽiDø’aM„-½`DÍ.9ÝÑ©…zÛÙTûL³ÆœEà¹ÑäÇ š†Ë‹êO­Îx€õI‚ûç ¦Ë^ªÁ¬;ƒN×Ùµï‘-ìéáîÖ³mÒ¹nn6î‰'±ŽJOÃNûd¦6©ÐûCDÜøQr—¤NhÖ¿®ºÅËÈ´
+²ÕLž-QP@µf´QÏ
+ó£šàé¢nwm?5CRV `¶Ódì<ñ-+é©v/[Æ·ÈÔÞØõðî´ã_¢”Þ~ZYºýˆ;ÆÖ‘Zæ ‡x‚åÞn=ß¯ï¼–Øó†/ /S«I’Èôp0 ÖÁ7§ÚŒ kë8W	ÊpAjA[2²ð.áŒªx$KZêsmüxM°Â<œÂ÷«ƒM0w£]#ÇÔ9ßN·K
+ Éå*MB( ™¿â‡7Pý¦5žÿdûàíþöÑÑöÁ³íC›úW9ä©¶5¬;(þqÁ˜¯ãÑ­dšÂ&l‡Lð-TÂO‡ÌLIŒ6lD d±0¦~(ƒý Ñh^Ä~´¸ 	†¶ª0öX†˜ø'~¼ðÚ_"‘–¸´hæ_8bÅ9ëbÑËQÊhÙn¹í‚¨ï!Zyp–½*°—$–ß¡úZ¿gÎ#¬`¸i$4@S*mr×zí<9L®—Ã¯€|ÿŒ$ó¹zF
+o¬Ùnµ0û¯ìêZ€«hyöuHÇ¤Øz¾F¾Ëž´;Ä}‘c(5{ìõ:Ý‹ªûcäÊ ¿ÈÙú0=øV¬å¯Q±¨ó'~µ¼² LõeI<õéšÉ|ùñšž­·
+˜›‘÷Çz\ggCÕ'd>Šp<z2‡Íšpd^<çdËÚôÃK~½õo·>¼äË|=íÄ^§XmšÝq^xibÕ5Hz¿}2çY;ÚRÇvÕyx©ÖÊV˜û\B9À–k¢2–b‰;<q0¨>œ§¦v'ˆro©AžÆñ ªÎÍuÂN4ë
+:³‘×o7ƒs-ùÜœ6Ñ\åüá%Çºr78‰6Ê¯+o60Ìw§…óðÀóŽ)µAzºøºìB—˜,CL­™ÖW	3 Óý¿®ó
+¯óû–ûLF2G/‘êbªà;T6fJ{x—ÖVˆ#6oÐõcÊÙî+rÎ:Ð»†è}Òé;?_˜]F"­k,ÒJ›âZ?£,·5ÃðVèô¢ÈQÈ¿f©(î‡(@°ØÑG÷]4=ôO,áõOTpýq´,Æß÷9?ç¾û	‹³	Ýé‘èc-$áç2 ´w«.>‰ŸkTë6UÚÙòUðê<Úa† ÙºUÌqåÉÒòŠ¦ÅT1ÇeXÈ“5ØGÃ\ÌRåš-ð §¬¶åZˆ%I®%Cnòú†/é ¢¦ÕH¢nY¹@ líäªIŸÛc°$QŽ+”¸7•Œu'|ŒÄê‡þÏ†àÅÓàTLÂm·wœæE;T®kMÆˆsOî`WW§ÜÁúÉB†âCfkÈš‚Œ‘¢˜ƒHí	ÊÑdx•&‡…dÓ¯öW ÿ‘6
+Ã§y3@(fNM|7]PÆÝ,ã¯¬4'òþ> f\ ØÎ÷Z²ïoŸåï®D‹ÉÍuu%=ò5¿{®À	Î³¼'Ú¤d¥ª&Y£Öåbµ¬ñM±Ææç/Èyk *1!FâfáŠIŸ` ²ê¢ØFÕê+£¡?†›L•Ò¥œ#'ýô¼Aá´¶þÎHÙÇÙØ;A®ÿÔˆZx^u‹îþö¯¾´ÿÃï~ýîµó9dK YQ/d6|}më‰‘ìi@Ü0xïkÓÆÉêBó×nqzýãßü•”mèÏ»bùÛ Ó/p*ÆSQdÎ—õ Hî‡Ë1ÑÊ“u^%&Ù%±…óE]€Ÿ|5ÛÞ`lßý3cÞÓPª™^çÉžðrô¯û}£óq§
+´®&ñ˜=Ge6öCN
+ýöF¹ á3+U¼¼Å„üáw¿úûü9ÄfC+}Ùœco°¡ø`ñR“Ô‚·ÀÀ.ÍêÂ‡ÕéëÐQ9O}üˆó˜9ÆÈ÷û´îG¾<VØ—Nì÷¢ICâØ
+~m§Çx_óË ÊFevæÎð'Ó†÷û¨(¼×¦&=Ñ äÇß‹“Ù!5´0œ'¦ "Ê>+íN8‹…šý³÷)”°ËKKÈø¼ãcS=]Á­u•.À¦@ë½‡<šÆ&•&À–áÃ)’5•ÒJñ¨…ýëìRz>Ía JK‰A¨¢žF£)‘R·Ka»ÜD/D®ñË“9ÖŒMAa%Þ<Šaø'èƒcÙ3 Ä“àˆ®-Èfšëôü`³Ë1"óœ_Ê¹s5ˆgež­œ¸g–8m”ÚÉÌ…¶v9Åï—‘ý
+8bž~}?à‘KË”Úñ90·ç_ ¶áúNžvŽQ·	ü°÷Áoˆ/×Yõ¬‡ÊÇÌò‹àsU³âÀþe,=9—AÍD6ø„0É5àèXeÑæœ²v7\ãÂªè®öúÍZ/çÁ *éw„B†­Æù[wF1ŸÉqI7.èÍ–©>Á3Ã‡aŠÏ£dŸ¦[íýßüÓÈ½¯EÓÁ2$ Q âq"áºÎou¢£NOØ{Ìß’@ ½#°5÷ã/å–ZÝ¨ÆBÄv1õHthW”‚%&.
+Ý–+^ªÚk²ö¯Ma)¸'ÕCÃÌÕ•TØÇPjþãŸýÚˆ* ™¥&[€Õc¹{ÉB£å?Õ@C7	Ùo8dð’¦€Áì"¨Øn»’™»…ƒâ4HHþÓŸrHè5‡e¬îà‹ö`
+Ã ße˜[e‚‘°‚Ëî0
+xûg^z/WU8#:»fÀºeØúå¦7Ùñ?þï˜=s9>6 M8
+e2db |*Fõ€?˜YãáÑEP8‹Ìkµ Ñ‹ºÉm-n Aýö;¦{âÂ¡[5ÛF£¡µåOV*Þò±—Ñäfã…½Aî‘©4×YšýëßBeÙªkÞ³bæI"`ÐŸ´ƒn¸ò'Âl".·TÝeqOXj¯€99ŠÃ‘¨
+SÊÏgY_ 3½.¥ÙºÊY¶w/Q @Û,!RTL^/^;ÿö/71)~Ù†…aìá¥@ŠëwBYEBÄ;¤ÔL&H¾lÐ`ò52ÄˆÜ×éó Ë—ŸxwbÆØòÛ+âTb>¥¼ÐÃË©ü¹…Q©%Øn´¨×rU\×lH6â¼¸ºâ|goÐ[r{&8ÐÖª€4é×:S~XÉúËÍíÆý '¡B"'ùoØòã;1$ŒáÉvL½eÅÂ¾Ûû öœ9·tyóD9Öü8\ ’®þ×E3~DNÆ‘€E¦›1½¦@ÿ ‡ŽæHÓÏ¼‹)‡¹
+4™›¬ß‹•(#r~JàKÙÀE$„q‹/jš&#K	÷wŠNjF–é&£…	ÓN dó!Ô·
+‹,ãÕU^!Œöë*gÒßý³³‡õ0\Sëø4È :8Þ	œû87
+Î)æ”JÚaô„Áòâ.òQ!LqÎüf„;mÑ#­»ÂQƒUÒÜ3\#Ö:Í–Òü =&6¡Ó3èf'ô}ŽWY!çï Ù ~zèl>ßº'1 òäO
+ž&Kæ$VþYÈì?M}=Dâù)/eSêD[^ø^µ'~ðF±ýz$¨9ŒQ Ûm¨C¶¦ùë¢—T³#'ôÓÃÍ íš¥K”,«^‰ÆT1BŒpù‚ŸÄ
+bÇUÖÿ†ûIå³Êãy¨á'óþ|e©â²B{TÇýä˜þÃ{Ft0[†AØ ‚Ñ T‡Žç:ƒù2˜œ«}üøñô:¬ø°ï‰TÃOæIEW+\ ¡µ]j¡…Î‰ p¹ÕíšzØ…°¹0ÊžUFW&¦Ó“"³;tÕ1ÿB¹ éè»ÙëG'»°æw“1PXËÜÁ/¡”K”fB±Òƒ°è5EÎý0Ë'Ö“ ÷°Û¦((8UêÈ¾_üQ}×©?Û>h88àºÏâûíâý€žÀìïG'Qíõet}`
+¢¨Ü1Þh±Å©NáÃ™¼ëöœƒúŽêãßüÞqêÑ{§ç;^ÿ‚)ÐÈQ ¼Äó³!zÄî”œ-§S1JÜÝ
+y_zBÊ‡ÈB,q]8…?þ†tÛÎ|…ÄÔo¦)êñ®ÛíRdtLM_¿YSƒÀƒFP÷d‚ô:`›I•’?s=”¨Ô
+~eË´`Ê,1‰ÐÃ]|Æ’H
+ê»ÔŽT_ÖÅä›o6O;ò |ôêiÇA¯•hUÑiºa–c%Õ†”qá5U¥cäÈ¦®®¦ ŽF‘à
+?Æ‰>~…x}¶1£<Ï›ßú_8BÇŽ5Á&´tÙõØzÃ8@ÿãAÕ_œ»Àâ°Å
+ï®Vð‘wwq©Â
+†0{‡^»3Œ ø
+¼,ªÙ+ò¼OÑ¸ÖëråSÙÍÂ6Ì2l!”£Ÿ(Œ]˜…‚EÞƒÆ Ž`…÷SQC«È+rPpR}šSeô€¨i6ÑúãŠ6q4-úˆYù( ¯øÚÁ)¶ITû°Œhì@<ƒvt|+êÛ,…Ï
+G""÷©vAã
+©`Õi+Éé|{ÂD©{"óÍYÅ(dkøÏl»úfáa¯¿æûÐ'ET}xÙ+#áC™—Å/›EkR•ý$Ý±{­œÃMÇçóY¶l—?],ÀêàÜ™_6€-âlÈVÑÒÙüÅùèV½_ û¦×zb&r[;èÜî…³'Ø»ùÅå¶Rúäqs¹u¼Rúä³Ö¢ '4Î4a-`ŠØ*hk‘‡s  ¢ ýÌXEV«&¼
+­ÚgËi—ûåå5ÔqôÊü`1øÙ6Þ	;§°kºþ¹ßN0¬N…
+/rª¨Ò©kñK ì—ëóŸÚÄúç¦Íó˜“*&gL0z~Û_=öSl =Ÿ±	v­‚té#5äßi3!þ˜6s£ ©vÉÝ]-tó¨—âÆ^ÒR=0ì½ïLÅ’m;óÃèR;Òhÿ1óÐú|ÎEXOÖ7¸®ÅEKÕ^OuêÅnäô.„ì¿1]šþ"8szÃÖ)'ƒ¯øµvüIùã‘IÀß8œ<ÊQEŽÑÞá%Wš
+s,&# M¿}ö§G@Ðj¡—VW‰s¤ð-4¼—Wô[)VEº†ƒáIÓÄ[-­.”–VJåÊc‰pjo¦J-¸½PÑðŸH
+¾HàŸqµæ¯Ñ8ÏÂ ö£÷n)‚scHCç˜vqKÃ¬4²00—“
+ÉAe“_Ðž¹a™T)ïG}MˆX©ªCyÐòáá¦~Å-¡Û¹º¢ê©ÑxŽA;RåF¥žÉÞ9‚ƒ¥=8F§Î¶Ñ–;ôÌÎu{a
+oWP
+¬å¨dtÖŠ¯R“ÉÙ‰4kcfÕa‚â<®½û::^èsA£D·±°Žßkúí¶ßF¥ª
+±WÝzƒ¿)/ESf»Š(¿õžwc˜wˆWg÷t<ØÛýrÛùª¾··Ýp¶êzõÁ¬#ÒzAUî±öµ%Ò­ %å9Öº> e1E]~ÙèEÀÒ£$¢Š‘³Ððœ)NAø]ÏzÍæE‘ú!ŠÆõ“ØQúòùÕUE·î±ëZPI`FMÃ?U«@ÍçÆdb]39X„R‹ ÇŠÛƒƒIØdX¤D«e
+Ù"+Šh¨õ_WåòBåSé9¬hè<êO«<`¨Sƒ&w^i¡‡åøø@œcJÿ£­²*À·wÃäÍ¤ÞEÏC‡Êâƒ ;ÛõÆËÃí#DyòÌÑ47/$22ü)9
+viÅÜ-æDÆ]°¶vVý%[(/f‚ðÎ+E$&•CÇ{->é¨`sEó/g C=ºâ;ë‡Pçs~«»¤ƒ¤Î ÆùSé 1Û
+}„Á‘YðøÁƒÃíMTp4ë GõÍÆîóƒ#‡Rv:ËÅêƒ‡š7p€[.2
+89á3™À‘s‰9'Ã~+öÅ™utS§aéÄWÊÚù+2K0Õ|#¥oú¨t‡
+Ü÷)t‡/÷Ø"¾Œ ÿ¶ë{NÔ%Œ(”ã5ñR>:e:Ç^3DK‰/ø\›ŸøþÀA/ÁLLù…ŠhÕŽH_Ñôhà·:ÇR•~tFñ%.¸šdu#sŠIµ‰Dòtu`;x ñjïÓ=X°~LW¹·žÃÑ†R¤ Ê9OØ¬3W%O8` ˆ¹¾œfŒát•Ø`‚ØtOÏ[š¦é†OœŠø]9/—ËÓÈ¢¡·Fºx©µ²­àÌ%!ŒÚ@<®&ÛÀ—(RêbWÍ²\Û‰Åc¯	/X)j\|«æVà~ZÓhÈ×¢ÖB~´$Ì?77«ñ¬Ö5éÜ]À&íUùYX’ïùÍË¨ªs±™fç¥³0ÃSR²ÒìIü(w‹E!3s.€	|ŠeRY±È»¾.2 Æ¶ö‰©t/˜…Œ~^]MaxQ‚ïÃn»ïr[áõÝò´^™­ß>*|kT Æõ˜Ø]xýMôÍÑ›mŸ|3ÇßÍiÞ\¬™È–-4Š.ªá"/C+AG¢þõõüÎÇ#Éþº“:	ö9hòÖ– NÀ¦vBÎÄŠ1Ôx²×IqjvþM-›E£žKÒkÍ;÷V
+8‘T¢ÕëD´8@pú…Ã>Úð6\ÖëøüžœÛ"ÁsqÝTËÊÜÞ7ÑÈ*ý+
+”S0Äh‘þ¤h‡ù
 
-<script>
-// AI panel responsive layout - single unified function
-function resizeAIPanel(){
-  const panel = document.getElementById('agentPanel');
-  const btn = document.getElementById('aiBtn');
-  if(!panel||!btn) return;
-  if(window.innerWidth > 900){
-    panel.style.left = 'auto';
-    panel.style.top = '12px';
-    panel.style.bottom = '12px';
-    panel.style.right = '90px';
-    panel.style.width = '340px';
-    panel.style.borderRadius = '16px';
-    btn.style.bottom = 'auto';
-    btn.style.top = '50%';
-    btn.style.right = '24px';
-    btn.style.transform = 'translateY(-50%)';
-  } else {
-    panel.style.left = '0';
-    panel.style.top = '0';
-    panel.style.bottom = '0';
-    panel.style.right = '0';
-    panel.style.width = '100%';
-    panel.style.borderRadius = '0';
-    btn.style.top = 'auto';
-    btn.style.bottom = '80px';
-    btn.style.right = '16px';
-    btn.style.transform = 'none';
-  }
-}
-window.addEventListener('resize', resizeAIPanel);
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-const STAKING_CONTRACT_ADDRESS = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
-const SWAP_CONTRACT_ADDRESS    = '0x09C5A9Ae45D38DBdA2bBD3bd721Fd957ac2b1A69';
-const ARC_CHAIN_ID  = 5042002;
-const ARC_HEX       = '0x4CEF52';
-const ARC_RPC       = 'https://rpc.testnet.arc.network';
-const ARC_EXP       = 'https://testnet.arcscan.app';
-const ARC_PARAMS    = {chainId:ARC_HEX,chainName:'Arc Testnet',nativeCurrency:{name:'USD Coin',symbol:'USDC',decimals:18},rpcUrls:[ARC_RPC],blockExplorerUrls:[ARC_EXP]};
-const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
-const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
-const USDC_DECIMALS = 6;
-const EURC_DECIMALS = 6;
-let FX = 0.9258;
-let fxLastUpdated = null;
-const GAS_USDC = 0.009;
-const ERC20_ABI = ['function balanceOf(address) view returns (uint256)','function transfer(address,uint256) returns (bool)','function approve(address,uint256) returns (bool)','function allowance(address,address) view returns (uint256)','function decimals() view returns (uint8)'];
-const STAKING_ABI = ['function stake(uint256 amount) external','function unstake(uint256 amount) external','function claimReward() external','function pendingReward(address user) view returns (uint256)','function getUserInfo(address user) view returns (uint256 stakedAmount, uint256 pending, uint256 claimable)','function totalStaked() view returns (uint256)'];
-const HANDLE_REGISTRY_ADDRESS = '0x604E8204F111eFC4e0ce69932b3BFb3ca64FC3aC';
-const HANDLE_REGISTRY_ABI = ['function register(string calldata handle) external','function remove(string calldata handle) external','function resolve(string calldata handle) external view returns (address)','function getHandles(address wallet) external view returns (string[] memory)','event HandleRegistered(address indexed wallet, string handle)'];
-let provider=null,signer=null,userAddr=null,wp=null;
-let usdcBal='0',eurcBal='0';
-let onArcNetwork=false,balancesLoading=false;
-let lastTxHash=null;
-let recipType='address',resolvedTo=null,lastResolvedInput='';
-let regType='x',swapFlipped=false,sendToken='USDC';
-let onChainStaked=0,onChainClaimable=0;
-let stakeTimer=null;
-let txHistory=[]; function loadTxHistory(){txHistory=JSON.parse(localStorage.getItem('arcTxHistory_'+(userAddr||''))||'[]');} function saveTxHistory(){localStorage.setItem('arcTxHistory_'+userAddr,JSON.stringify(txHistory.slice(0,100)));}
-const hasStaking=()=>STAKING_CONTRACT_ADDRESS&&STAKING_CONTRACT_ADDRESS.length===42;
-const hasSwap=()=>SWAP_CONTRACT_ADDRESS&&SWAP_CONTRACT_ADDRESS.length===42;
-
-async function fetchLiveFX() {
-  try {
-    const res = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
-    const data = await res.json();
-    const eurRate = parseFloat(data.data.rates.EUR);
-    if (!isNaN(eurRate) && eurRate > 0) {
-      FX = eurRate;
-      fxLastUpdated = new Date();
-      updateSwapRateDisplay();
-    }
-  } catch(e) { console.warn('FX fetch failed, using fallback:', e); }
-}
-
-function updateSwapRateDisplay() {
-  const time = fxLastUpdated ? fxLastUpdated.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'fallback';
-  const eurcPerUsdc = FX.toFixed(4);
-  const usdcPerEurc = (1/FX).toFixed(4);
-  const el = document.getElementById('swapRate');
-  if (!el) return;
-  if (swapFlipped) {
-    el.innerHTML = `1 EURC ≈ ${usdcPerEurc} USDC &nbsp;·&nbsp; 1 USDC ≈ ${eurcPerUsdc} EURC &nbsp;<span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`;
-  } else {
-    el.innerHTML = `1 USDC ≈ ${eurcPerUsdc} EURC &nbsp;·&nbsp; 1 EURC ≈ ${usdcPerEurc} USDC &nbsp;<span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`;
-  }
-}
-
-function detectWallet() {
-  if (window.ethereum?.providers?.length) {
-    const ps=window.ethereum.providers;
-    return ps.find(p=>p.isRabby)||ps.find(p=>p.isCoinbaseWallet)||ps.find(p=>p.isMetaMask)||ps[0];
-  }
-  return window.ethereum||window.rabby||null;
-}
-let _tt;
-function toast(msg,type='info',ms=4000){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);}
-function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
-function updateTopBar(connected){
-  const btn=document.getElementById('connectTopBtn');
-  if(connected){
-    btn.style.display='block';
-    btn.textContent=short(userAddr);
-    btn.className='connected';
-    btn.onclick=null;
-  }else{
-    btn.style.display='none';
-    btn.textContent='Connect Wallet';
-    btn.className='';
-    btn.onclick=connectWallet;
-  }
-}
-async function checkNetwork(){if(!wp)return false;try{const hex=await wp.request({method:'eth_chainId'});onArcNetwork=parseInt(hex,16)===ARC_CHAIN_ID;document.getElementById('wrongNetBanner').classList.toggle('show',!onArcNetwork&&!!userAddr);return onArcNetwork;}catch{return false;}}
-async function switchToArc(){if(!wp)return;try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}catch(e){if(e.code===4902||e.code===-32603){try{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch(e2){toast('Failed to add Arc Testnet: '+(e2?.message||''),'error',6000);}}}}
-function showBalSkeleton(){document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';document.getElementById('balUsd').innerHTML='<span class="skel skel-small"></span>';document.getElementById('usdcBal2').innerHTML='<span class="skel skel-small"></span>';document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';}
-
-async function connectWallet(){
-  wp=detectWallet();
-  if(!wp){toast('No wallet found — install Rabby or MetaMask','error',8000);return;}
-  const landBtn=document.getElementById('landConnectBtn');
-  const topBtn=document.getElementById('connectTopBtn');
-  landBtn.innerHTML='<span class="spinner"></span>Connecting...';
-  landBtn.disabled=topBtn.disabled=true;
-  topBtn.textContent='Connecting...';
-  try{
-    await wp.request({method:'eth_requestAccounts'});
-    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
-    catch(e){if(e.code===4902||e.code===-32603){await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}}
-    provider=new ethers.BrowserProvider(wp);
-    signer=await provider.getSigner();
-    userAddr=await signer.getAddress();
-    await onConnected();
-    toast('Connected to Arc Testnet!','success');
-  }catch(err){
-    if(err.code===4001)toast('Cancelled by user','error');
-    else toast((err?.message||'Connection failed').slice(0,120),'error');
-    landBtn.innerHTML='Connect Wallet →';
-    landBtn.disabled=topBtn.disabled=false;
-    topBtn.textContent='Connect Wallet';
-  }
-}
-
-async function onConnected(){
-  document.getElementById('page-land').style.display='none';
-  document.getElementById('bottomNav').classList.add('show');
-  showPage('send');
-  updateTopBar(true);
-  document.getElementById('walAddr').textContent=short(userAddr);
-  document.getElementById('walAddr').title=userAddr;
-  document.getElementById('recvAddr').textContent=userAddr;
-  document.getElementById('walInit').textContent=userAddr.slice(2,4).toUpperCase();
-  await checkNetwork();
-  showBalSkeleton();
-  await refreshBalances();
-  loadTxHistory();   renderQR(userAddr);
-  renderHistory();
-  renderAllHandles();
-  showMyHandles();
-  initStakeUI();
-  await refreshStakeInfo();
-  startStakeTimer();
-  showAIBtn(true);
-  if(wp?.on){
-    wp.on('accountsChanged',(a)=>{if(!a.length)disconnect();else location.reload();});
-    wp.on('chainChanged',async()=>{await checkNetwork();if(onArcNetwork){provider=new ethers.BrowserProvider(wp);signer=await provider.getSigner();await refreshBalances();await refreshStakeInfo();}});
-  }
-}
-
-function disconnect(){
-  provider=signer=userAddr=wp=null;
-  onArcNetwork=false;lastTxHash=null;
-  circleUserId=null;circleToken=null;circleWalletAddress=null;otpEmail=null;
-  if(stakeTimer){clearInterval(stakeTimer);stakeTimer=null;}
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('bottomNav').classList.remove('show');
-  document.getElementById('page-land').style.display='flex';
-  document.getElementById('connectTopBtn').style.display='none';
-  document.getElementById('wrongNetBanner').classList.remove('show');
-  document.getElementById('onboardChecklist').style.display='none';
-  document.getElementById('emailInput').value='';
-  document.getElementById('otpBox').style.display='none';
-  // Reset agent conversation
-  agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything — crypto questions, DeFi, staking, gas fees, or your live wallet. Try \"send 10 USDC\" and I'll set it up!"}];
-  agentOpen=false;
-  document.getElementById('agentPanel').style.display='none';
-  showAIBtn(false);
-  toast('Disconnected','info',2000);
-}
-
-function showPage(name){
-  document.querySelectorAll('.page:not(.page-land)').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  const idx=['send','swap','stake','handle','history'].indexOf(name);
-  if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
-}
-
-function goPage(name){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  showPage(name);
-  if(name==='stake'){initStakeUI();refreshStakeInfo();}
-  if(name==='history')renderHistory();
-  if(name==='handle'){renderAllHandles();showMyHandles();}
-  if(name==='swap')refreshBalances();
-}
-
-async function refreshBalances(){
-  if(!provider||!userAddr||balancesLoading||!onArcNetwork)return;
-  balancesLoading=true;
-  document.getElementById('rpcError').classList.remove('show');
-  try{
-    const cu=new ethers.Contract(USDC_ADDR,ERC20_ABI,provider);
-    const ce=new ethers.Contract(EURC_ADDR,ERC20_ABI,provider);
-    const[ur,er]=await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
-    usdcBal=ethers.formatUnits(ur,USDC_DECIMALS);
-    eurcBal=ethers.formatUnits(er,EURC_DECIMALS);
-    const u=parseFloat(usdcBal).toFixed(2);
-    const e=parseFloat(eurcBal).toFixed(2);
-    document.getElementById('balAmt').textContent=u;
-    document.getElementById('balUsd').textContent='≈ $'+u+' USD';
-    document.getElementById('usdcBal2').textContent=u;
-    document.getElementById('eurcBal2').textContent=e;
-    document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
-    document.getElementById('swapToBal').textContent=swapFlipped?u:e;
-    updateSendAvailable();
-    validateSend();
-  }catch(e){console.error('Balance fetch failed:',e);document.getElementById('rpcError').classList.add('show');}
-  finally{balancesLoading=false;}
-}
-
-async function refreshStakeInfo(){
-  if(!provider||!userAddr||!hasStaking())return;
-  try{
-    const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,provider);
-    const[info,totalRaw]=await Promise.all([sc.getUserInfo(userAddr),sc.totalStaked()]);
-    onChainStaked=parseFloat(ethers.formatUnits(info.stakedAmount,USDC_DECIMALS));
-    onChainClaimable=parseFloat(ethers.formatUnits(info.claimable,USDC_DECIMALS));
-    const total=parseFloat(ethers.formatUnits(totalRaw,USDC_DECIMALS));
-    document.getElementById('myStake').textContent=onChainStaked.toFixed(2)+' USDC';
-    document.getElementById('myRewards').textContent=onChainClaimable.toFixed(6);
-    document.getElementById('stakedDisplay').textContent=onChainStaked.toFixed(2)+' USDC';
-    document.getElementById('claimAmt').textContent=onChainClaimable.toFixed(6);
-    document.getElementById('totalStakedDisplay').textContent='$'+total.toLocaleString(undefined,{maximumFractionDigits:2});
-    const share=total>0?(onChainStaked/total*100):0;
-    document.getElementById('poolShare').textContent=share.toFixed(4)+'%';
-    document.getElementById('stakeBar').style.width=Math.min(share*100,100)+'%';
-    document.getElementById('stakeStatus').textContent=onChainStaked>0?'Earning now — live on-chain':'Not staking';
-  }catch(err){console.error('Stake info error:',err);}
-}
-
-function startStakeTimer(){if(stakeTimer)return;stakeTimer=setInterval(()=>{refreshStakeInfo();},15000);}
-
-function initStakeUI(){
-  const ok=hasStaking();
-  document.getElementById('stakeLiveBadge').style.display=ok?'flex':'none';
-  document.getElementById('approveNotice').style.display=(ok&&onChainStaked===0)?'block':'none';
-  document.getElementById('stakeBtn').disabled=!ok||!onArcNetwork;
-  if(!ok)document.getElementById('stakeBtn').textContent='Contract not set up yet';
-}
-
-async function doStake(){
-  if(!signer||!onArcNetwork){toast('Connect wallet & switch to Arc Testnet','error');return;}
-  if(!hasStaking()){toast('Paste STAKING_CONTRACT_ADDRESS first','error');return;}
-  const amt=parseFloat(document.getElementById('stakeAmt').value);
-  if(!amt||amt<1){toast('Minimum 1 USDC','error');return;}
-  if(amt>parseFloat(usdcBal)){toast('Insufficient USDC balance','error');return;}
-  const parsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
-  const btn=document.getElementById('stakeBtn');
-  try{
-    btn.innerHTML='<span class="spinner"></span>Step 1/2: Approving USDC...';btn.disabled=true;
-    const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
-    const allowance=await usdc.allowance(userAddr,STAKING_CONTRACT_ADDRESS);
-    if(allowance<parsed){
-      const appTx=await usdc.approve(STAKING_CONTRACT_ADDRESS,parsed);
-      btn.innerHTML='<span class="spinner"></span>Confirming approval...';
-      await appTx.wait(1);
-      toast('Approved! Now staking...','info',4000);
-    }
-    btn.innerHTML='<span class="spinner"></span>Step 2/2: Staking...';
-    const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,signer);
-    const tx=await sc.stake(parsed);
-    lastTxHash=tx.hash;
-    btn.innerHTML='<span class="spinner"></span>Confirming on-chain...';
-    toast('Tx submitted: '+short(tx.hash),'info',10000);
-    const receipt=await tx.wait(1);
-    addTx({hash:tx.hash,to:STAKING_CONTRACT_ADDRESS,toRaw:'Staked USDC',amount:amt.toFixed(6),type:'stake',token:'USDC',ts:Date.now(),confirmed:!!receipt});
-    toast('✓ Staked '+amt+' USDC!','success',6000);
-    document.getElementById('stakeAmt').value='';
-    document.getElementById('approveNotice').style.display='none';
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){
-    let msg=err?.info?.error?.message||err?.reason||err?.message||'Stake failed';
-    toast(msg.slice(0,140),'error',8000);
-  }finally{btn.innerHTML='Stake USDC';btn.disabled=false;}
-}
-
-async function doUnstake(){
-  if(!signer||!onArcNetwork){toast('Connect wallet & switch to Arc Testnet','error');return;}
-  if(!hasStaking()){toast('Contract not set up','error');return;}
-  const amt=parseFloat(document.getElementById('unstakeAmt').value);
-  if(!amt||amt<=0){toast('Enter amount','error');return;}
-  if(amt>onChainStaked){toast('Only '+onChainStaked.toFixed(2)+' USDC staked','error');return;}
-  const parsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
-  const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,signer);
-  const btn=document.querySelector('#sp-unstake .btn');
-  btn.innerHTML='<span class="spinner"></span>Unstaking...';btn.disabled=true;
-  try{
-    const tx=await sc.unstake(parsed);lastTxHash=tx.hash;
-    toast('Unstake submitted: '+short(tx.hash),'info',10000);
-    await tx.wait(1);
-    addTx({hash:tx.hash,to:userAddr,toRaw:'Unstaked USDC',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now()});
-    toast('✓ Unstaked '+amt+' USDC + rewards!','success',6000);
-    document.getElementById('unstakeAmt').value='';
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){toast((err?.info?.error?.message||err?.reason||err?.message||'Unstake failed').slice(0,140),'error',8000);}
-  finally{btn.innerHTML='Unstake &amp; Claim Rewards';btn.disabled=false;}
-}
-
-async function doClaim(){
-  if(!signer||!onArcNetwork){toast('Connect wallet & switch to Arc Testnet','error');return;}
-  if(!hasStaking()){toast('Contract not set up','error');return;}
-  if(onChainClaimable<0.000001){toast('No rewards to claim yet','error');return;}
-  const sc=new ethers.Contract(STAKING_CONTRACT_ADDRESS,STAKING_ABI,signer);
-  const btn=document.querySelector('#sp-claim .btn');
-  btn.innerHTML='<span class="spinner"></span>Claiming...';btn.disabled=true;
-  try{
-    const tx=await sc.claimReward();lastTxHash=tx.hash;
-    toast('Claim submitted: '+short(tx.hash),'info',10000);
-    await tx.wait(1);
-    addTx({hash:tx.hash,to:userAddr,toRaw:'Claimed USDC Rewards',amount:onChainClaimable.toFixed(6),type:'in',token:'USDC',ts:Date.now()});
-    toast('✓ Claimed '+onChainClaimable.toFixed(6)+' USDC!','success',6000);
-    await refreshBalances();await refreshStakeInfo();
-  }catch(err){toast((err?.info?.error?.message||err?.reason||err?.message||'Claim failed').slice(0,140),'error',8000);}
-  finally{btn.innerHTML='Claim Rewards →';btn.disabled=false;}
-}
-
-function setStakeMax(){document.getElementById('stakeAmt').value=Math.max(0,parseFloat(usdcBal)-0.02).toFixed(6);}
-function setUnstakeMax(){document.getElementById('unstakeAmt').value=onChainStaked.toFixed(6);}
-function setStakeTab(tab,el){document.querySelectorAll('#page-stake .stab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.stake-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('sp-'+tab).classList.add('active');}
-function setSendTab(tab){document.getElementById('tab-send').style.display=tab==='send'?'block':'none';document.getElementById('tab-recv').style.display=tab==='receive'?'block':'none';document.getElementById('tab-send-btn').classList.toggle('active',tab==='send');document.getElementById('tab-recv-btn').classList.toggle('active',tab==='receive');}
-function setType(type,el){recipType=type;resolvedTo=null;lastResolvedInput='';document.querySelectorAll('#page-send .topt').forEach(b=>b.classList.remove('active'));el.classList.add('active');const inp=document.getElementById('recipInput');inp.value='';hideRes();if(type==='address')inp.placeholder='0x... wallet address';if(type==='x')inp.placeholder='@twitterhandle';if(type==='discord')inp.placeholder='discordusername';validateSend();}
-
-async function onRecipInput(){
-  const val=document.getElementById('recipInput').value.trim();
-  if(val!==lastResolvedInput){resolvedTo=null;lastResolvedInput='';}
-  hideRes();
-  if(!val){validateSend();return;}
-  if(recipType==='address'){
-    if(val.startsWith('0x')&&val.length===42){
-      if(ethers.isAddress(val)){resolvedTo=val;lastResolvedInput=val;showOk('✓ Valid address');}
-      else showNo('Invalid checksum');
-    }else if(val.startsWith('0x')&&val.length>2)showNo('Address must be 42 characters');
-  }if(recipType==='x'||recipType==='discord'){
-    const prefix=recipType==='x'?'x:':'discord:';
-    const handle=prefix+val.toLowerCase().replace(/^@/,'');
-    try{
-      const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
-      const addr=await contract.resolve(handle);
-      if(addr&&addr!==ethers.ZeroAddress){
-        resolvedTo=addr;lastResolvedInput=val;showOk('✓ Resolved to '+short(addr));
-      }else{showNo('Handle not found');}
-    }catch(e){showNo('Handle not found');}
-  }
-  validateSend();
-}
-
-function showOk(t){const b=document.getElementById('resolvedBar');b.className='res-bar ok';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
-function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
-function hideRes(){document.getElementById('resolvedBar').style.display='none';}
-function toggleSendToken(){sendToken=sendToken==='USDC'?'EURC':'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;updateSendAvailable();validateSend();}
-function updateSendAvailable(){const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);document.getElementById('sendAvailable').textContent=isNaN(bal)?'—':bal.toFixed(2);document.getElementById('sendAvailToken').textContent=sendToken;}
-function setMax(){const maxVal=sendToken==='USDC'?Math.max(0,parseFloat(usdcBal)-GAS_USDC):Math.max(0,parseFloat(eurcBal));document.getElementById('amtInput').value=maxVal.toFixed(6);validateSend();}
-
-function validateSend(){
-  const addr=document.getElementById('recipInput').value.trim();
-  const amt=parseFloat(document.getElementById('amtInput').value)||0;
-  const uF=parseFloat(usdcBal)||0;
-  const eF=parseFloat(eurcBal)||0;
-  const btn=document.getElementById('sendBtn');
-  if(!onArcNetwork){btn.disabled=true;btn.textContent='Switch to Arc Testnet';return;}
-  if(!addr){btn.disabled=true;btn.textContent='Enter address & amount';return;}
-  if(!amt||amt<=0){btn.disabled=true;btn.textContent='Enter an amount';return;}
-  if(amt<0.000001){btn.disabled=true;btn.textContent='Amount too small';return;}
-  if(recipType==='address'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Enter a valid 0x address';return;}
-  if((recipType==='x'||recipType==='discord')&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Handle not found';return;}
-  if(sendToken==='USDC'&&amt+GAS_USDC>uF){btn.disabled=true;btn.textContent='Insufficient USDC (inc. gas)';return;}
-  if(sendToken==='EURC'){if(amt>eF){btn.disabled=true;btn.textContent='Insufficient EURC balance';return;}if(uF<GAS_USDC){btn.disabled=true;btn.textContent='Need USDC for gas fee';return;}}
-  btn.disabled=false;btn.textContent='Send '+amt.toFixed(2)+' '+sendToken;
-}
-
-function showConfirm(){
-  const raw=document.getElementById('recipInput').value.trim();
-  const amt=parseFloat(document.getElementById('amtInput').value);
-  const actualTo=(resolvedTo&&lastResolvedInput===raw)?resolvedTo:null;
-  if(!actualTo){toast('Recipient not resolved','error');return;}
-  const via=recipType==='address'?'Wallet address':recipType==='x'?'Twitter handle':'Discord handle';
-  const total=sendToken==='USDC'?(amt+GAS_USDC).toFixed(3)+' USDC':amt.toFixed(6)+' EURC + '+GAS_USDC.toFixed(3)+' USDC (gas)';
-  document.getElementById('confAmt').textContent=amt.toFixed(6)+' '+sendToken;
-  document.getElementById('confTo').textContent=short(actualTo)+(recipType!=='address'?' ('+raw+')':'');
-  document.getElementById('confVia').textContent=via;
-  document.getElementById('confFee').textContent='~'+GAS_USDC.toFixed(3)+' USDC';
-  document.getElementById('confTotal').textContent=total;
-  document.getElementById('sendCard').style.display='none';
-  document.getElementById('confirmCard').classList.add('show');
-}
-function cancelConfirm(){document.getElementById('confirmCard').classList.remove('show');document.getElementById('sendCard').style.display='block';}
-
-async function doSend(){
-  if(!signer||!onArcNetwork){toast('Connect wallet & switch to Arc Testnet','error');return;}
-  const raw=document.getElementById('recipInput').value.trim();
-  const amt=document.getElementById('amtInput').value.trim();
-  if(!raw||!amt||parseFloat(amt)<=0)return;
-  let to=(resolvedTo&&lastResolvedInput===raw)?resolvedTo:null;
-  if(!to){if(recipType==='address'){if(!ethers.isAddress(raw)){toast('Invalid address','error');return;}to=raw;}else{toast('Handle not resolved','error');cancelConfirm();return;}}
-  if(to.toLowerCase()===userAddr.toLowerCase()){toast('Cannot send to yourself','error');return;}
-  const btn=document.getElementById('confirmSendBtn');
-  btn.innerHTML='<span class="spinner"></span>Waiting for wallet...';btn.disabled=true;
-  const tokenAddr=sendToken==='USDC'?USDC_ADDR:EURC_ADDR;
-  const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
-  try{
-    const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-    const tx=await c.transfer(to,ethers.parseUnits(parseFloat(amt).toFixed(decimals),decimals));
-    lastTxHash=tx.hash;btn.innerHTML='<span class="spinner"></span>Confirming...';
-    toast('Submitted! '+short(tx.hash),'info',14000);
-    const receipt=await tx.wait(1);
-    addTx({hash:tx.hash,to,toRaw:raw,amount:parseFloat(amt).toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt});
-    toast('✓ Sent '+parseFloat(amt).toFixed(2)+' '+sendToken+'!','success',7000);
-    document.getElementById('confirmCard').classList.remove('show');
-    document.getElementById('successMsg').textContent=parseFloat(amt).toFixed(2)+' '+sendToken+' sent to '+short(to);
-    document.getElementById('successHash').textContent=tx.hash;
-    document.getElementById('successCard').classList.add('show');
-    await refreshBalances();
-  }catch(err){
-    let msg=err?.info?.error?.message||err?.reason||err?.message||'Transaction failed';
-    toast(msg.slice(0,140),'error',8000);
-    btn.innerHTML='✓ Confirm &amp; Send';btn.disabled=false;
-  }
-}
-
-function openExplorer(){if(lastTxHash)window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');}
-function resetSend(){
-  document.getElementById('successCard').classList.remove('show');
-  document.getElementById('sendCard').style.display='block';
-  document.getElementById('recipInput').value='';document.getElementById('amtInput').value='';
-  hideRes();resolvedTo=null;lastResolvedInput='';lastTxHash=null;
-  validateSend();document.getElementById('page-send').scrollTop=0;
-}
-
-function calcSwap(){
-  const amt=parseFloat(document.getElementById('swapFrom').value)||0;
-  const rate=swapFlipped?(1/FX):FX;
-  const out=(amt*rate*0.999).toFixed(6);
-  document.getElementById('swapTo').value=amt>0?out:'';
-  document.getElementById('swapFromUSD').textContent=swapFlipped?(amt*(1/FX)).toFixed(2):amt.toFixed(2);
-  document.getElementById('swapToUSD').textContent=swapFlipped?parseFloat(out).toFixed(2):(parseFloat(out)*(1/FX)).toFixed(2);
-}
-
-function flipSwap(){
-  swapFlipped=!swapFlipped;
-  document.getElementById('fromToken').innerHTML=swapFlipped?'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC':'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC';
-  document.getElementById('toToken').innerHTML=swapFlipped?'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC':'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC';
-  document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-  document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
-  document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
-  updateSwapRateDisplay();
-}
-
-async function doSwap(){
-  const amt=parseFloat(document.getElementById('swapFrom').value);
-  if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  const fromTok=swapFlipped?'EURC':'USDC';
-  const toTok=swapFlipped?'USDC':'EURC';
-  const fromBal=swapFlipped?parseFloat(eurcBal):parseFloat(usdcBal);
-  if(amt>fromBal){toast('Insufficient '+fromTok,'error');return;}
-  if(hasSwap()&&signer&&onArcNetwork){
-    const SWAP_ABI=['function swapUSDCtoEURC(uint256 amount) external','function swapEURCtoUSDC(uint256 amount) external'];
-    const amtParsed=ethers.parseUnits(amt.toString(),6);
-    const tokenAddr=swapFlipped?EURC_ADDR:USDC_ADDR;
-    const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-    const swapContract=new ethers.Contract(SWAP_CONTRACT_ADDRESS,SWAP_ABI,signer);
-    try{
-      const approveTx=await tokenContract.approve(SWAP_CONTRACT_ADDRESS,amtParsed);await approveTx.wait(1);
-      const tx=swapFlipped?await swapContract.swapEURCtoUSDC(amtParsed):await swapContract.swapUSDCtoEURC(amtParsed);
-      await tx.wait();toast('Swap successful!','success');await refreshBalances();
-    }catch(e){toast('Swap failed: '+(e?.reason||e?.message||''),'error',6000);}
-    return;
-  }
-  const out=(amt*(swapFlipped?1/FX:FX)*0.999).toFixed(6);
-  if(swapFlipped){eurcBal=String(Math.max(0,parseFloat(eurcBal)-amt));usdcBal=String(parseFloat(usdcBal)+parseFloat(out));}
-  else{usdcBal=String(Math.max(0,parseFloat(usdcBal)-amt));eurcBal=String(parseFloat(eurcBal)+parseFloat(out));}
-  addTx({hash:'sim-'+Date.now(),to:'simulated',toRaw:'Simulated Swap',amount:amt,outAmount:out,type:'swap',fromToken:fromTok,toToken:toTok,ts:Date.now()});
-  toast('(Simulated) '+parseFloat(amt).toFixed(2)+' '+fromTok+' → '+parseFloat(out).toFixed(2)+' '+toTok,'success',5000);
-  document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-  refreshBalances();
-}
-
-function initSwapUI(){
-  const real=hasSwap();
-  document.getElementById('swapModeBanner').style.display=real?'none':'block';
-  document.getElementById('swapLiveBadge').style.display=real?'flex':'none';
-  document.getElementById('swapBtn').textContent=real?'Swap':'Simulate Swap';
-}
-
-function setRegType(type,el){
-  regType=type;
-  document.querySelectorAll('#page-handle .topt').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('regHandle').placeholder=type==='x'?'@yourtwitter':'yourdiscord';
-}
-async function removeHandle(handle){
-  if(!signer){toast('Connect wallet first','error');return;}
-  const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);
-  try{
-    const tx=await contract.remove(handle);
-    toast('Removing handle...','info',3000);
-    await tx.wait();
-    toast('Handle removed!','success');
-    renderAllHandles();showMyHandles();
-  }catch(e){toast(e.reason||'Failed to remove','error');}
-}
-async function registerHandle(){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  let h=document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
-  if(!h||h.length<2){toast('Enter a valid username','error');return;}
-  const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,signer);
-  try{
-    const tx=await contract.register(regType+':'+h);
-    toast('Confirming...','info',3000);
-    await tx.wait();
-    document.getElementById('regHandle').value='';
-    toast('@'+h+' linked on-chain!','success');
-    renderAllHandles();showMyHandles();
-  }catch(e){toast(e.reason||'Failed','error');}
-}
-
-async function showMyHandles(){
-  if(!userAddr||!provider)return;
-  const box=document.getElementById('myHandlesBox');
-  const list=document.getElementById('myHandlesList');
-  try{
-    const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
-    const handles=await contract.getHandles(userAddr);
-    if(!handles||handles.length===0){box.style.display='none';return;}
-    box.style.display='block';
-    list.innerHTML=handles.map(h=>`
-      <span class="handle-tag">
-        ${h.startsWith('x:')?'𝕏':'💬'} @${h.replace('x:','').replace('discord:','')}
-        <span class="handle-remove" onclick="removeHandle('${h}')">✕</span>
-      </span>
-    `).join('');
-  }catch(e){console.warn('Could not load your handles:',e);box.style.display='none';}
-}
-
-async function renderAllHandles(){
-  const list=document.getElementById('allHandlesList');
-  list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading handles...</div></div>';
-  try{
-    const contract=new ethers.Contract(HANDLE_REGISTRY_ADDRESS,HANDLE_REGISTRY_ABI,provider);
-    const filter=contract.filters.HandleRegistered?.();
-    if(!filter){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';return;}
-    const events=await contract.queryFilter(filter,-10000);
-    if(!events.length){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';return;}
-    const seen=new Set();
-    const items=events.reverse().filter(e=>{const key=e.args.wallet+e.args.handle;if(seen.has(key))return false;seen.add(key);return true;});
-    list.innerHTML=items.map(e=>`
-      <div class="dir-item">
-        <div class="dir-av">${e.args.wallet.slice(2,4).toUpperCase()}</div>
-        <div class="dir-info">
-          <div class="dir-handle">${e.args.handle.startsWith('x:')?'𝕏':'💬'} @${e.args.handle.replace('x:','').replace('discord:','')}</div>
-          <div class="dir-addr">${e.args.wallet.slice(0,6)}...${e.args.wallet.slice(-4)}</div>
-        </div>
-        <button class="send-sm" onclick="prefillSend('${e.args.wallet}')">Send</button>
-      </div>
-    `).join('');
-  }catch(e){console.warn('Could not load directory:',e);list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';}
-}
-
-function prefillSend(addr){
-  goPage('send');
-  setTimeout(()=>{
-    setType('address',document.getElementById('topt-address'));
-    document.getElementById('recipInput').value=addr;
-    onRecipInput();
-  },200);
-}
-
-function addTx(tx){txHistory.unshift(tx);saveTxHistory();}
-function clearHistory(){
-  if(!txHistory.length){toast('Nothing to clear','info',2000);return;}
-  if(!confirm('Clear all history?'))return;
-  txHistory=[];localStorage.removeItem('arcTxHistory_'+userAddr);renderHistory();toast('Cleared','info',2000);
-}
-function renderHistory(){
-  const list=document.getElementById('txList');
-  if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div>';return;}
-  list.innerHTML=txHistory.map(tx=>{
-    const isSim=tx.hash.startsWith('sim-');
-    let icon='↑',cls='out',label='',amt='';
-    if(tx.type==='out'){icon='↑';cls='out';label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    if(tx.type==='in'){icon='↓';cls='in';label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    if(tx.type==='swap'){icon='⇄';cls='swap';label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken;amt='Swap';}
-    if(tx.type==='stake'){icon='◈';cls='stake';label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Stake';}
-    const timeStr=isSim?`<span style="color:var(--warning);font-size:.55rem;">⚗ simulated</span>`:`${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a>`;
-    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div></div><div class="tx-amt ${cls==='out'?'out':'in'}">${amt}</div></div>`;
-  }).join('');
-}
-
-function copyAddr(){
-  if(!userAddr)return;
-  navigator.clipboard.writeText(userAddr).then(()=>{
-    toast('Address copied!','success',2000);
-    const el=document.getElementById('walAddr');el.textContent='Copied!';
-    setTimeout(()=>{el.textContent=short(userAddr);},1500);
-  }).catch(()=>toast('Could not copy','error'));
-}
-function renderQR(a){
-  const b=document.getElementById('qrBox');b.innerHTML='';
-  if(!a)return;
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#07081a':'#1e1040',colorLight:'#ffffff'});}
-  catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
-}
-
-let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything — crypto questions, DeFi, staking, gas fees, or your live wallet. Try \"send 10 USDC\" and I'll set it up!"}];
-let agentOpen=false;
-
-function toggleAgent(){
-  agentOpen=!agentOpen;
-  const panel=document.getElementById('agentPanel');
-  const fab=document.getElementById('aiBtn');
-  panel.style.display=agentOpen?'block':'none';
-  if(fab){
-    fab.style.display='flex';
-    fab.style.opacity=agentOpen?'0.5':'1';
-  }
-  if(agentOpen){resizeAIPanel();renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
-}
-function showAIBtn(show){
-  const fab=document.getElementById('aiBtn');
-  if(fab) fab.style.display='flex';
-}
-function renderAgentMsgs(){
-  const el=document.getElementById('agentMessages');
-  el.innerHTML=agentMsgs.map(m=>`
-    <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
-      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ Execute: ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
-    </div>
-  `).join('');
-}
-function renderAgentChips(){
-  if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
-  const chips=["What's my balance?","How much staked?","My rewards?","Send USDC","Swap USDC → EURC","Stake USDC"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
-}
-function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
-
-async function sendAgentMsg(text){
-  const input=document.getElementById('agentInput');
-  const msg=text||input.value.trim();
-  if(!msg)return;
-  input.value='';
-  document.getElementById('agentChips').innerHTML='';
-  agentMsgs.push({role:'user',content:msg});
-  agentMsgs.push({role:'assistant',content:'...'});
-  renderAgentMsgs();scrollAgentBottom();
-  const context=`You are NAN AI, an assistant embedded in the NAN wallet app on Arc Testnet.
-
-LIVE WALLET DATA (real-time):
-- Address: ${userAddr||'Not connected'}
-- USDC Balance: ${parseFloat(usdcBal||0).toFixed(2)} USDC
-- EURC Balance: ${parseFloat(eurcBal||0).toFixed(2)} EURC
-- On Arc Testnet: ${onArcNetwork}
-- Staked USDC: ${onChainStaked.toFixed(2)} USDC
-- Claimable Rewards: ${onChainClaimable.toFixed(6)} USDC
-- Staking APY: 5.20%
-- Network fee: ~0.009 USDC per tx
-- 1 USDC = ${FX.toFixed(4)} EURC
-
-RECENT TRANSACTIONS (last 5):
-${txHistory.slice(0,5).map(t=>`${t.type} ${t.amount} ${t.token||''} - ${new Date(t.ts).toLocaleDateString()}`).join('\n')||'None yet'}
-
-RULES:
-- Use the real numbers above, never make up balances
-- Keep replies under 100 words
-- Be specific and helpful
-- Answer any crypto question: wallets, stablecoins, DeFi, staking, gas, tokens, NFTs, security, blockchain - Answer any crypto question: wallets, stablecoins, DeFi, staking, gas, tokens, NFTs, security, blockchain - If user asks to DO something, include an <ACTION> block:
-  send: {"action":"send","amount":10,"token":"USDC","to":"0x..."}
-  swap: {"action":"swap","amount":50,"from":"USDC","to":"EURC"}
-  stake: {"action":"stake","amount":100}
-  navigate: {"action":"navigate","tab":"history"}`;
-  try{
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        system:context,
-        messages:agentMsgs.slice(0,-1).filter(m=>m.content!=='...').map(m=>({role:m.role,content:m.content}))
-      })
-    });
-    const data=await res.json();
-    const reply=data.reply||"Sorry, couldn't reach the AI.";
-    const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
-    let action=null;
-    try{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
-    const clean=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').replace(/\{[^}]*"action"[^}]*\}/g,'').trim();
-    agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
-  }catch{
-    agentMsgs[agentMsgs.length-1]={role:'assistant',content:"Connection error — please try again."};
-  }
-  renderAgentMsgs();scrollAgentBottom();
-}
-
-function executeAgentAction(action){
-  agentOpen=false;
-  document.getElementById('agentPanel').style.display='none';
-  showAIBtn(true);
-  switch(action.action){
-    case 'send':
-      goPage('send');
-      setTimeout(()=>{document.getElementById('recipInput').value=action.to||'';document.getElementById('amtInput').value=action.amount||'';sendToken=action.token||'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;validateSend();},200);
-      break;
-    case 'swap':
-      goPage('swap');
-      setTimeout(()=>{document.getElementById('swapFrom').value=action.amount||'';calcSwap();},200);
-      break;
-    case 'stake':
-      goPage('stake');
-      setTimeout(()=>{document.getElementById('stakeAmt').value=action.amount||'';},200);
-      break;
-    case 'navigate':
-      goPage(action.tab);
-      break;
-  }
-}
-
-
-async function claimFaucet(){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  const btn = document.getElementById('faucetBtn');
-  btn.innerHTML='<span class="spinner"></span>Claiming...';
-  btn.disabled=true;
-  try{
-    const res = await fetch('/api/faucet',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({address: userAddr})
-    });
-    const data = await res.json();
-    if(data.success){
-      toast('💧 Tokens on the way! Check balance in ~30s','success',7000);
-      setTimeout(()=>refreshBalances(), 15000);
-      setTimeout(()=>refreshBalances(), 30000);
-    } else {
-      // Fallback to faucet website if API fails
-      const msg = data.error||'';
-      if(msg.toLowerCase().includes('limit')||msg.toLowerCase().includes('rate')){
-        toast('⏳ Limit reached — try again in 2 hours','error',6000);
-      } else {
-        toast('Opening faucet website...','info',3000);
-        window.open('https://faucet.circle.com','_blank');
-      }
-    }
-  }catch(e){
-    toast('Opening faucet website...','info',3000);
-    window.open('https://faucet.circle.com','_blank');
-  }
-  btn.innerHTML='💧 Get Free Tokens';
-  btn.disabled=false;
-}
-function toggleTheme(){
-  const root = document.documentElement;
-  const isLight = root.getAttribute('data-theme') === 'light';
-  const newTheme = isLight ? 'dark' : 'light';
-  root.setAttribute('data-theme', newTheme);
-  localStorage.setItem('nan_theme', newTheme);
-  document.getElementById('themeToggle').textContent = newTheme === 'light' ? '🌙' : '☀️';
-  document.body.style.background = 'var(--bg)';
-  // Update agent input text color
-  const agentInput = document.getElementById('agentInput');
-  if(agentInput) agentInput.style.color = newTheme === 'light' ? '#1e1040' : '#ede9fe';
-}
-
-function initTheme(){
-  const saved = localStorage.getItem('nan_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : '');
-  document.getElementById('themeToggle').textContent = saved === 'light' ? '🌙' : '☀️';
-}
-
-window.addEventListener('load',()=>{
-  initTheme();
-  resizeAIPanel();
-  // Show landing page correctly
-  const land = document.getElementById('page-land');
-  land.style.display='flex';
-  updateTopBar(false);
-  initSwapUI();
-  fetchLiveFX();
-  setInterval(fetchLiveFX,60000);
-  setInterval(async()=>{
-    if(userAddr){await checkNetwork();if(onArcNetwork){await refreshBalances();await refreshStakeInfo();}}
-  },30000);
-});
-
-// ── Circle Programmable Wallet Integration ──
-let circleUserId = null;
-let circleToken  = null;
-let circleWalletAddress = null;
-let otpEmail = null;
-
-async function circlePost(path, body, userToken){
-  const res = await fetch('/api/circle',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({path, body, userToken})
-  });
-  return res.json();
-}
-async function circleGet(path, userToken){
-  const res = await fetch('/api/circle',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({path, userToken})
-  });
-  return res.json();
-}
-
-async function sendEmailOTP(){
-  const email = document.getElementById('emailInput').value.trim();
-  if(!email||!email.includes('@')){toast('Enter a valid email','error');return;}
-  const btn = document.getElementById('otpBtn');
-  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  otpEmail = email;
-  try{
-    const res = await fetch('/api/otp',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'send', email})
-    });
-    const data = await res.json();
-    if(data.success){
-      toast('✓ Code sent to '+email+' — check your inbox','success',6000);
-      document.getElementById('otpBox').style.display='block';
-      document.getElementById('otpInput').focus();
-    } else {
-      toast(data.error||'Failed to send code — try again','error',6000);
-    }
-  }catch(e){
-    console.error('Send OTP error:',e);
-    toast('Network error — try again','error');
-  }
-  btn.innerHTML='Send Code';btn.disabled=false;
-}
-
-async function verifyOTP(){
-  const otp = document.getElementById('otpInput').value.trim();
-  if(otp.length!==6){toast('Enter the 6-digit code','error');return;}
-  const btn = document.getElementById('verifyBtn');
-  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  try{
-    const res = await fetch('/api/otp',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'verify', email:otpEmail, otp})
-    });
-    const data = await res.json();
-    if(data.success){
-      // Create a deterministic wallet address from email for demo
-      // In production this would be a real wallet
-      const emailHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(otpEmail));
-      const hashArray = Array.from(new Uint8Array(emailHash));
-      const hashHex = hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
-      userAddr = '0x'+hashHex.slice(0,40);
-      onArcNetwork = true;
-      await onConnectedCircle();
-      toast('✓ Welcome to NAN! 🎉','success',6000);
-    } else {
-      toast(data.error||'Wrong code — try again','error',5000);
-    }
-  }catch(e){
-    console.error('Verify OTP error:',e);
-    toast('Network error — try again','error');
-  }
-  btn.innerHTML='Verify →';btn.disabled=false;
-}
-
-async function onConnectedCircle(){
-  document.getElementById('page-land').style.display='none';
-  document.getElementById('bottomNav').classList.add('show');
-  showPage('send');
-  const btn = document.getElementById('connectTopBtn');
-  btn.style.display = 'block';
-  btn.textContent = otpEmail ? otpEmail.split('@')[0].slice(0,10)+'...' : userAddr.slice(0,6)+'...'+userAddr.slice(-4);
-  btn.className = 'connected';
-  btn.onclick = null;
-  document.getElementById('walAddr').textContent = userAddr.slice(0,6)+'...'+userAddr.slice(-4);
-  document.getElementById('walAddr').title = userAddr;
-  document.getElementById('recvAddr').textContent = userAddr;
-  document.getElementById('walInit').textContent = (otpEmail||userAddr).slice(0,2).toUpperCase();
-  document.getElementById('wrongNetBanner').classList.remove('show');
-  showBalSkeleton();
-  await refreshBalancesCircle();
-  loadTxHistory();
-  renderQR(userAddr);
-  renderHistory();
-  renderAllHandles();
-  showMyHandles();
-  initStakeUI();
-  startStakeTimer();
-  showAIBtn(true);
-  const isNew = !localStorage.getItem('nan_visited_'+userAddr);
-  if(isNew){
-    localStorage.setItem('nan_visited_'+userAddr,'1');
-    document.getElementById('onboardChecklist').style.display='block';
-    setTimeout(()=>{
-      toast('🎉 Wallet created! Get free USDC at faucet.circle.com','info',8000);
-    },1500);
-  }
-}
-
-async function refreshBalancesCircle(){
-  if(!userAddr)return;
-  try{
-    const readProvider = new ethers.JsonRpcProvider('https://rpc.testnet.arc.network');
-    const cu = new ethers.Contract(USDC_ADDR,ERC20_ABI,readProvider);
-    const ce = new ethers.Contract(EURC_ADDR,ERC20_ABI,readProvider);
-    const[ur,er] = await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
-    usdcBal = ethers.formatUnits(ur,USDC_DECIMALS);
-    eurcBal = ethers.formatUnits(er,EURC_DECIMALS);
-    const u = parseFloat(usdcBal).toFixed(2);
-    const e = parseFloat(eurcBal).toFixed(2);
-    document.getElementById('balAmt').textContent = u;
-    document.getElementById('balUsd').textContent = '≈ $'+u+' USD';
-    document.getElementById('usdcBal2').textContent = u;
-    document.getElementById('eurcBal2').textContent = e;
-    document.getElementById('swapFromBal').textContent = swapFlipped?e:u;
-    document.getElementById('swapToBal').textContent = swapFlipped?u:e;
-    updateSendAvailable();
-    validateSend();
-    if(parseFloat(u)===0&&parseFloat(e)===0){
-      document.getElementById('rpcError').style.display='none';
-      const alertEl = document.getElementById('page-send').querySelector('.alert');
-      if(alertEl) alertEl.innerHTML='💡 Your balance is 0 — <a href="https://faucet.circle.com" target="_blank">click here to get free USDC ↗</a>';
-    }
-  }catch(e){
-    document.getElementById('rpcError').classList.add('show');
-  }
-}
-</script>
-</div><!-- end app-root -->
-
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;right:30px;transform:translateY(-50%);z-index:9999;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(139,92,246,.5);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;" title="NAN AI Assistant">
-  <span>✦</span>
-  <span style="font-size:.5rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
-</button>
-
-<div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;right:100px;width:340px;background:var(--bg);border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
-  <div id="agentHeader" style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
-    <div>
-      <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;">
-        <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI
-      </div>
-      <div style="font-size:.62rem;color:var(--text3);margin-top:3px;">Reads your live wallet · Claude-powered</div>
-    </div>
-    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;line-height:1;">✕</button>
-  </div>
-  <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
-    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
-      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
-    </div>
-    <div style="font-size:.58rem;color:var(--text3);text-align:center;margin-top:8px;">Powered by Claude · Reads your live on-chain data</div>
-  </div>
-</div>
-</body>
-</html>
+wš´±Íf1‘7°ÃÉ><~ç”X¿&³…×²=sàÊÍCMõöÐ&™’A|\KdzæËMØ¡ï×ôé¢L:Éé"÷¾”„6~ž£ôhUÎÝlPÈ‘.
+óÝ› ˜d<¹40Yˆ³%	„X ¯©UºW÷×wvï‰ÃN¦¶¤“¶[KLYÑ@Ão
+–¦!%NÐ•vàÖ,™Ø)EÅo^dÆÂg:ü1½ÅÎ«‚¸L SmhÉÇ¢’*AZ ek…cGù)‘äMd~ù	}^¸X¢’RŒÔlÁ«x9q¨JÍSCzºà	|+ìâuø…Œ
+þ={Ýõ ÿPK
+     ‡1°\              nan-app/server/UT	 ½
+j½
+jux
+ ç  è  PK    Š1°\F?QÙ  GB    nan-app/server/index.jsUT	 Ã
+jÃ
+jux
+ ç  è  Í\ÝrÛHv¾×S´µÎ€ô ©_ÙÑŸÇ\Û’"JãLÙ*©	4EŒA €’¸ZVÍÍÞä&©ds³µUIn’WÈóÌ
+$sú
+€”hÏLÅ.×ˆî>}úô9ßùé†[Ož,‘'äpçìÄ1ùù§?“]ê~d¡Gz,¹f	¶¾¢¡°Ô!{~âŒ¼£AÀ²”ìwäèô˜°õBÇÙ°Atì²ŒÄIt;i½€Ž=FvºÄÒˆµ––Ü(L3Ânã„¥)Ù&	ûqì'¬fÉWV}Köq£¤Ð­É$Î¢B;“÷ˆi64Ûñ7¶ê^”±ðÚªÛÐà_Õ M¥ mÅ$¾‡ö8e5ä¡V7^È>öiÎlH3šùn
+'·ˆü°vqáùIHG¬A,ÛnÅã~à»VÇ.µZäç?ÿI7lŽØ(J&$Í" Dj@”œ0ÏO[û»ÄQÆÞØÍü(¬ËA’ù(‹{8V²ò–Æ°Âÿ }±[Íçä;6p‘ Œ´Ah–±Q;•t`Âd¡"—+Ætïz
+>ì4%j®*øR<íxßu5ƒxË;§¥I`†â˜IS&µA” ú¤uSp{|/‹Ùëžì½9¸€¯¾ þ·Qz.n(€]iþã‰em ïîô.ÎNÞÌœ7ãàa–Å©ÓjÑØ·…t@ÇF­ëNëf5Õ”¿=9ú;cÖ2åJs­ÞÛÓã‹WG½S"ÿ Wšqp:Êbû
+7Ù)’:>:1IÑ$eÝ0«Uhò~Hlýéfnk¼é¬wpr7fsu)Ç;½Þ=ƒÍæÂ`“ïû˜Wýpðj»Ý¶¤½í$.9ei2DÔIxçdïbïÕN÷ð¢»ÏÉZ;'»ÍÞÁñÑ›îŽµ…*±·ÿlÒ÷X˜ùŸ%„khNÛ ºûæhï5§<“èYìÑŒÀ6hÛkžôNN-r3Å—3RÏKI4ø®O’Žã8J2Ã
+þßÿ"+¯X³Dû
+4Wî¾$6i:	]2‡H%’€ƒ€]«X6Œ ¼»¤yÝêän‰±«–¹WFkò·¨fªÛQqŸ†C	± «ÀeÍÓIÌ,‡Xà;ÀPd¥…Åjˆ~;à[£ÄÿoŽ—»Œ& cïŠÐ5½ÄSœÑpaòJï­¿o"Z7y£ué®8vº¤Y'´^ê‰ÌMß¡T¦—ùê¢¹ã«#JrjÅš%"ùê+Ù<Ú
+ø´[q(‰Ø¼ß6ù}ïè<hâ‡Wþ`ÂG×K¢oÜ&ô†úrjÀsC2¤VEuO%]6vHX6NBàõBlÏ
+10ýRí«‡ñšÄ¾$&KÖ•£Àç²YãÌ60{lw $Œ¸7H<N(Q]!â.F€#5]“X]êÔ£Ü» ¸?ÒîBé”hÚå‡ðÿí_þ‹‹
+úñçcêÀ°2ý^r0ubì¢qH–Œ!fƒÙÅ£PjCÑè‘f	
+Ä[
+²„†)‚6ïœ÷±Ý„úŸªæš4Ü(ÍœÜå
+XÀv'wÞâeÊ\šñšlƒ­m¬‹fŒÒXÚ»“{mÄ8\bîj§IÐGi2Ë6îä[ÜEÁÞ ‰F€JË˜Hˆô`™|óøN“Ÿ>¿Óg‘#´T2;îÿÀ\X„õ}4Nx›~ÔHðf£ h/	çþç_ƒ•N¶½< ôlèÈ&N
+¼5aMþ`kDo›7¾ ë\k·ã[ø I§k¶bp€&ÎÊ4-?_RQƒI¸9ÐUCÏù]{³ý´C·úQ@ÖL¨ç>t6`pRÆn³&
+ü«ÐqÑYbÒžÁvêÿ9+Oa$ÿyÃü«aæl¶Û[nD‰ó;ºù´? [ J ÖLcêâ\ÍŽ^P³eˆý)_ ˆî›L2oRIÕ]ë¯¼­œ…ÎZ… ”Ì;F¯™át[d“Ý±xö½“rK®ú´ÖY}Öx¶ÒXYÛhØº”¡K `¾G*VëeA¯˜‚nWymwqÎ²7`Õ´m.é–dkwØHì#×t@‡‘K\š²™BçJ›+lE6óÕu…ÎËžV7ækóØ³+s,¸ÀUÝ˜Ôa¶\–Ÿˆœ³ÌN›ŒüpœC$‡ìà*BìA²¡ŸòU—U¢ðÓøqi Êllý¢ìÇe.˜O|„ŠkJÉ×2[ý’¸/yß+–%b‚sÔÂk¼7dîGt«|Y4€þ‰±[?ÍR#¬äu{HS9Üôµ™è*KÑùJÏµUuË'\#pˆ+ZôÒ—
+ÝnÊE§­úh ÍÃ„b¬¬8†5ïË€Â…,Á}ö(>Òq¡d"78_%¬ƒ~Qv’Žû¼«Y`"+ëVÝó\N.Ûöü+L+¬!»µ!dœ¾ªs@@Ü¾µ@¡¼B>ÀjíYkF X÷E@{'mÍ¬Â€G…8¥Y%ó´ÞÝuÄ/ûfø<cDgCQå9Bü¼w’Â9æ:U# yl%^LÅŠsJ•
+5´ ¤TÌJïfN¥;ÛyFTÐÕ®õ”¢—±˜t´áÆ®ƒ8ÈöG1ÖÝÉk6ÉUÜ‡ÎÎºû5#äÃ¡'F²RÌ5­cˆë¬±ZØ/…§»2ý)'fá‰ÎRx"µÒî`j5³¥­Ô=&Ñ
+¯´$I”Ô.Mã:ŒX1À`ÔÃ ¸”)â˜Õ§—ådÌÔAiüª÷
+ù_ßS¹à#³w½Â™u	®ºûrŸ˜Ç#M¹–ð%j«Vò-R&\—óX=,ùK!ùï~ÙA2j{aUÓÒ–Š‚ä¶ž¥°ØBZÍ×lääsÌI-²æU­žœÌÂê¢ÚÖÝ¹Òq%)*ž3K¯……ö03^úë~_¨W‹Xè†ðâÓ¦Bq	˜¥”­¥çÈ·^CA¢²]ËSõ‡ÌO>Ú
+¯°òŠßž-eéZd{Vu~=}ú¾}^Üïê*ß¬DõÛÀ%T"ñêo6hd”­ÔG
+SÎßÃ0XÁUR„¿
+øÉàë_ÿéKø‹¬œ:}IL 
+¯
+@Í\0©+Žyœcaå¿5ä=Àªj	û±E¥:Ù~ÎUG×Ÿ„©º“}”i/DÚ) 1¼êØm»-ß
+}sÈ£R0#[ùqo}³s¶_jÅâ?¶åI¿p>(ÚÇ>†*u;‹º½£G|aæˆxÓâéÔÑé±¬;}E¾Ã¬{bJ ŽR%HM`ý"­JAXÕ¡<Bm¼&D¦¢†Â
+[:„‡NXåáO¶º,9­YkéTêu^Ã«­ÿ“âÎSŽ
+Rs"*€˜¿£˜’Š	dñÆ³$Úë˜@VÚ$;‚m4VD¬bŒÙ¬â-žü
+‚°§ÓÆ?/ñwNkuò„<ã
+({%xŸ¨£<ÓäU¼ávâ:”Y›Ã7Ò£ ý5&pOÈþ goà2DN'G©c?‡´eÔ%à4#™äÁ¥ªµŽƒLû”Yõ<dH2_Ø	CÙ¹2Šjú5 Å,6–ù`§Å6é#E¯X¡×
+bå!¼°Ç”_ëš!&À©E,ºÃ¶ ë	¦ðœuKÍ1•ìO‰K±¬_
+©Y
+Î„¯
+B*’Å5j–¤.®/ ‹/yø…ü	Ê\×ejf”Gm+gÖÐRi³õôš7–45an”`À¦õ­œ¬qëÝêŸi`‡‘°ˆˆø]ƒDD#„rø‰B–¯ ç3Ôø¹dÑ–:^7­@pì1pu¬ÀôçB×1ÓƒŒN5»’C}Œþ|›¬ÿ¶|žFÑp’ÝW™å•ÔùÜ"Ôb† Ëð‚›ÂJ¾þú—±ù.‰ ç{üa¾X['Íò4VV¾”€
+2“q•¬cåþšc5s«e#O¿OèUt3¢;o÷WL>äJ¡ŸNN
+ïËÝ1„,õT!'_A!ù×«ñ)þ1Rÿjf\cÝaT¾3‚n„£_/%ip’ãXç®¨gÐÁ–£
+•Ÿ§ÍÝPhŸ UkVtdxã÷œØHlÎáž´:† ÑòUžŸ±ýœÐéÁê¡ã>ÎÃ´,ÕH!çÅÒ‚|4Â®>
+hrÊ£¯ûS8‡ä¿‰Huw%H!&+Ï„–ÂnLFý( ñŸõö÷,<…sýlŒC60•¤#p*xŽ1ŽÍc©¶%Ž°î§vpvrµõ9ÄÎõó´l	åTj“\ù´p~˜Ç–|‡¤tò¯Jùõ¶b¤ºdÂÚÌmö‡’jU«dšu‰_’%‰©4t”°@Z¿2
+æØ¿\zÕª§sLPƒR0R>®Yè3øE ´Š#?Ìê³³7¥Ú-GÁí¦ªºj#ŒiBGéì’Q!_Ç‰q ìL2Q){!ßê›·M¤ ªµÖùCæ=ÏÇ©çjkÑ‘/'®Òzk^M6WÚOR5‰R—ªÖÔz|§d5Õ¢¾lpU
+¨n\´ZçTe¨ %(·÷çÅŠ¹çÂ@EÃø¡WëãþõÅP[ ‚“9ÌÔ_Ø
+ø¥±¶e’CY-NŽãÌlrH ‹
+Ay:×’~-ÓàWdfpíSóZï%ŽEYò	f€p‡'1Üãër¼BCàq‹ésý×<Ÿze·x<ãà
+h5Æ …Âæî$—¶ºb¤áâ¨æaSë>=z}€·{ù
+/®GNá:#¾ºP]ÅuÄþÆ³Õm>Ý\¥Íõ
+ú´ù”®l6û›í~g³Ó^cê6„Ð¤"A|U$Øéoô×¼gíæêF{¥¹Î6×šÏVÖž5×WÚ+ƒÎZmðlÕÊ+‹F™œ—íõ:Þ;t®K®²ã¢~ê,üI\(èžŸ*•«³\uSS+Õæ/\¾Îƒk­"bmùŽW´W•M¸cÈ"žŒÒÍ¹ê3`£lÃÿ­ ’“ÀjÈÜ ý
+¾„Æ· ûÝ³· hTëã*o3°yì3«¡=3(»Ç•ë]+à«T­S)nfW2´-1ßAÌWf ¹ï•­väó¦‚5þˆiBeOÈ÷8
+<¤ž9«k9ÙíBv[(høŒh 7é£’,}çgÃšÄÀYES• ÁJQo÷Ž_vO@Aaj/·¿4(Øñã;$:hÎ*z€Ë»û
+·ÿ¥ø¦å¾TN|ö²H¥[}Qðq*PAßbÀªhUr€/%ç›k=…òŒ1U_ñ€ú{*^žT®ÛêD ó{‡‚h ˆ¤ø .ßJ•FX|øZtž¡üœò5á<Á¤åbJ~`é¯×ç]î¯™S.<sã§œ2®ø<¯…”Êç¸¥Zfvô±^*7î#çó[ÉsÌ²t•ßN®TÉ^‚_Ãëx:Ÿ_,Z*¬9¯Fsm‡ô0ŸöQÇ»öSÍ¸±éÄes³`b=ŒË¿€Uånè3*[ù·Iô#~©¶7¤Ù¼‚
+4-`ãé$ÍØ¨¡Ž*ªÆ¾}*P0¿šyg)¨ñ™Y©|#&
+hš½Mñ2–âè½zPgåMÒ9ŸÁ¡Ýa*õ&ºaÉMY­®>·A‚—|àe—å®5ŸBÂð×ÿµçqÈ/qù!Q·´m‘SñS§,‚Ü›ëQÂh€ã5Ûör^ÿ—|W«Mèµ4ü¦l€y ñS’1â.²!Ó§ý4ñíG×ìþIäI¬ºÚ¦ƒM“ƒSyL#‚{.>/?-Ìhß& x#˜PÅ‰î(!§7>^élíû)?‚ò-$öÁvi¨S%x-Çdd“ovöN»G‡Ïï>,
+ïùaÙù°æé_Ëþ°Üø°Óò—ÈØ‡åé7-9äþ•gôcE¸ ·ð‚ÀÇ7‚Ù®Û+í¿ñý§ñƒ„gè†Æ~zð‚ôYvÃ âì `ˆ	Xm ¸MØ-˜iÞïñ¥ŸÆP_˜·~â{WEiíòW‚/7‰Ò´)¾
+ÃôZfÝ{{§ÇŸÄ“˜fWUÏ ø˜•`ðûÛ9&Ñ$¡Ú7”x…)å(Îˆ\¡g È@ã[5p[iaÆ/#X‚€Hm@E‘U/
+¤ MWÄƒq ­!M}P
+H¡¿nÛvMóÊk9Ò½žKïªãLŽóBüþ¹çÑHêøø&y
+^Å0?ŸŸèx`Ñ·xßùp™À8½ÔÁÄ‚ñ
+,¦A@G´¹j¯67Ûý&Þ™øÙìü a¿ÌNG¸³È‡ÓÛ
+×¬wVŒ` h¼Ë?%iÛ›•ów`jÅÜ hö§W|Ï
+‘ŽÚNaI?»F>Ä/ì÷ísƒj'…J±Ü‹’dÒ ]>¼ÐÊò
+¼4ŸGÌlKy¸Z-Bƒãî'TªùY–ŸOèó.î%Aí(ú0Oz a/Ï
+JøWøx×ìU²Í'sï!î¿
+xè»ó–zìÖÆl¬zõ$«‡	£9m ¦ÊÂÿÞˆÔ
+¡Oá«¿ü¤ÿU @£Y‚UBNþIÓã;¤$ï‘V¿Óú õ5·¼5£lA~ÜæT¾ˆÄ»!?ÿõOÆ÷düÈÏù÷ÿùï$dÿà;òöhÿ€ÔÂˆ|d“º5‹˜CF‡nyÑh­ø½~W‘Ò¶(y< ZWâÞˆ¤>{6”í?ÿ (WqØµÚ5B‹º¦‰Qÿî+‹F –ÿc ±Rñ©*ÌÿPK    64°\Ççá±p   Ã     nan-app/vercel.jsonUT	 ÈjÈjux
+ ç  è  «æRPP*K-*ÎÌÏS²R0Òñ“J3sRŠÜh OA¡LÅ‹‹’‚JÅ©E@ú™y)©zYÅJ:0ùÒâT¼P695G?/?%U	,W
+$cÁFå—–¤â6Z_COKa`Jjq	6†rÕr PK
+     ‡1°\              nan-app/{server,public}/UT	 ½
+j½
+jux
+ ç  è  PK
+     64°\                     íA    nan-app/UT Èjux
+ ç  è  PK    Š1°\)¯ŽFë  ;            ¤B   nan-app/.env.exampleUT Ã
+jux
+ ç  è  PK    Š1°\¡Òv»²	  {           ¤{  nan-app/README.mdUT Ã
+jux
+ ç  è  PK    ‰1°\sÒ.Ý   —           ¤x
+  nan-app/package.jsonUT Â
+jux
+ ç  è  PK
+     ‡1°\                     íA£  nan-app/public/UT ¾
+jux
+ ç  è  PK    Š1°\qZš.úc  W¹          ¤ì  nan-app/public/index.htmlUT Ã
+jux
+ ç  è  PK
+     ‡1°\                     íA9s  nan-app/server/UT ½
+jux
+ ç  è  PK    Š1°\F?QÙ  GB           ¤‚s  nan-app/server/index.jsUT Ã
+jux
+ ç  è  PK    64°\Ççá±p   Ã            ¤¬‡  nan-app/vercel.jsonUT Èjux
+ ç  è  PK
+     ‡1°\                     íAiˆ  nan-app/{server,public}/UT ½
+jux
+ ç  è  PK    
+ 
+ v  »ˆ    
