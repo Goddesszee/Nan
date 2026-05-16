@@ -102,7 +102,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .skel-small{width:50px;height:14px;border-radius:4px;}
 
 /* ── Wallet Modal ── */
-.wallet-modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.wallet-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);}
 .wallet-modal-overlay.show{display:flex;}
 .wallet-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;animation:up .3s ease both;}
 .wallet-modal-title{font-size:1rem;font-weight:700;text-align:center;margin-bottom:4px;}
@@ -1756,56 +1756,35 @@ async function doSwap(){
   const fromBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
   if(fromAmt>fromBal){toast('Insufficient balance','error');return;}
   const btn=document.getElementById('swapBtn');
-  btn.innerHTML='<span class="spinner"></span>Checking pool...';btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';btn.disabled=true;
   try{
-    // Check if pool has liquidity first
-    const readProvider=getArcProvider();
-    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
-    let hasLiquidity=false;
-    try{
-      const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
-      const usdcInPool=parseFloat(ethers.formatUnits(usdcLiq,6));
-      const eurcInPool=parseFloat(ethers.formatUnits(eurcLiq,6));
-      hasLiquidity=isUSDCtoEURC?eurcInPool>0.01:usdcInPool>0.01;
-      console.log('Pool liquidity — USDC:',usdcInPool,'EURC:',eurcInPool);
-    }catch(e){
-      console.log('Liquidity check failed:',e.message);
-      hasLiquidity=true; // assume liquidity if check fails
-    }
-
-    if(!hasLiquidity||!signer){
-      // Simulate swap
-      toast('Pool needs liquidity — using simulated swap','info',4000);
-      _doSimulatedSwap(fromAmt,isUSDCtoEURC);
+    if(signer){
+      const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
+      const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
+      const tokenContract=new ethers.Contract(tokenIn,ERC20_ABI,signer);
+      const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
+      btn.innerHTML='<span class="spinner"></span>Approving...';
+      const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn);
+      await approveTx.wait(1);
+      btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
+      const swapTx=isUSDCtoEURC
+        ? await swapContract.swapUSDCtoEURC(amtIn)
+        : await swapContract.swapEURCtoUSDC(amtIn);
+      await swapTx.wait(1);
+      toast('✓ Swap confirmed on Arc Testnet!','success',6000);
+      addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
+      await refreshBalances();
+      document.getElementById('swapFrom').value='';
+      document.getElementById('swapTo').value='';
       btn.innerHTML='Swap on Arc';btn.disabled=false;
       return;
     }
-
-    const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
-    const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
-    const tokenContract=new ethers.Contract(tokenIn,ERC20_ABI,signer);
-    const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
-
-    btn.innerHTML='<span class="spinner"></span>Approving...';
-    const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn);
-    await approveTx.wait(1);
-
-    btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
-    const swapTx=isUSDCtoEURC
-      ? await swapContract.swapUSDCtoEURC(amtIn)
-      : await swapContract.swapEURCtoUSDC(amtIn);
-    const receipt=await swapTx.wait(1);
-    toast('✓ Swap confirmed on Arc Testnet!','success',6000);
-    addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
-    await refreshBalances();
-    document.getElementById('swapFrom').value='';
-    document.getElementById('swapTo').value='';
   }catch(err){
-    const msg=err?.reason||err?.message||'Swap failed';
-    toast('Swap failed: '+msg.slice(0,100),'error',6000);
-    // Always fallback to simulation
-    _doSimulatedSwap(fromAmt,isUSDCtoEURC);
+    console.log('On-chain swap failed:',err.message);
+    toast('On-chain swap failed — using simulation','warning',3000);
   }
+  // Fallback simulation
+  _doSimulatedSwap(fromAmt,isUSDCtoEURC);
   btn.innerHTML='Swap on Arc';btn.disabled=false;
 }
 
