@@ -895,7 +895,7 @@ const NAME_ABI = [
   'function getAllNames() view returns (string[])',
   'function isAvailable(string) view returns (bool)',
   'function totalNames() view returns (uint256)',
-];
+const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function transfer(address,uint256) returns (bool)',
   'function approve(address,uint256) returns (bool)',
@@ -1021,6 +1021,7 @@ function updateSwapRateDisplay(){
 // ═══════════════════════════════════════════
 // WALLET CONNECTION — MetaMask
 // ═══════════════════════════════════════════
+let wp=null;
 function detectWallet(){
   if(window.ethereum?.providers?.length){
     const ps=window.ethereum.providers;
@@ -1038,25 +1039,8 @@ async function switchToArc(){
   catch(e){if(e.code===4902||e.code===-32603){try{await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}catch{}}}
 }
 async function connectWallet(){
-  wp=detectWallet();
-  if(!wp){toast('No wallet found — install Rabby or MetaMask','error',8000);return;}
-  const btn=document.getElementById('landConnectBtn');
-  btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;
-  try{
-    await wp.request({method:'eth_requestAccounts'});
-    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
-    catch(e){if(e.code===4902||e.code===-32603){await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}}
-    provider=new ethers.BrowserProvider(wp);
-    signer=await provider.getSigner();
-    userAddr=await signer.getAddress();
-    isCircleWallet=false;
-    await onConnected(false);
-    toast('Connected to Arc Testnet!','success');
-  }catch(err){
-    if(err.code===4001)toast('Cancelled','error');
-    else toast((err?.message||'Connection failed').slice(0,120),'error');
-    btn.innerHTML='Connect Existing Wallet →';btn.disabled=false;
-  }
+  // Always show picker instead of auto-connecting
+  showWalletPicker();
 }
 
 // ═══════════════════════════════════════════
@@ -2123,38 +2107,45 @@ async function connectSpecific(walletType){
     return;
   }
   if(walletType==='circle'){
-    toast('Scroll up to use email login for Circle wallet','info',4000);
-    document.getElementById('emailInput').focus();
+    toast('Use email login above for Circle wallet','info',4000);
+    const emailInput=document.getElementById('emailInput');
+    if(emailInput)emailInput.focus();
     return;
   }
   // For MetaMask, Rabby, Coinbase — detect the right provider
-  wp=null;
+  let wp=null;
   if(window.ethereum?.providers?.length){
     const ps=window.ethereum.providers;
     if(walletType==='metamask') wp=ps.find(p=>p.isMetaMask&&!p.isRabby)||ps.find(p=>p.isMetaMask);
-    if(walletType==='rabby') wp=ps.find(p=>p.isRabby);
-    if(walletType==='coinbase') wp=ps.find(p=>p.isCoinbaseWallet);
+    else if(walletType==='rabby') wp=ps.find(p=>p.isRabby);
+    else if(walletType==='coinbase') wp=ps.find(p=>p.isCoinbaseWallet);
     if(!wp) wp=ps[0];
   } else {
     wp=window.ethereum||window.rabby||null;
   }
-  if(!wp){toast('Wallet not found — install '+walletType+' first','error',6000);return;}
+  if(!wp){toast('Wallet not found — please install '+walletType+' and refresh','error',6000);return;}
   const btn=document.getElementById('landConnectBtn');
-  btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;
+  if(btn){btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;}
   try{
     await wp.request({method:'eth_requestAccounts'});
-    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
-    catch(e){if(e.code===4902||e.code===-32603){await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}}
+    try{
+      await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});
+    }catch(e){
+      if(e.code===4902||e.code===-32603){
+        await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});
+      }
+    }
     provider=new ethers.BrowserProvider(wp);
     signer=await provider.getSigner();
     userAddr=await signer.getAddress();
     isCircleWallet=false;
     await onConnected(false);
-    toast('Connected via '+walletType+'!','success');
+    toast('✓ Connected via '+walletType+'!','success',4000);
   }catch(err){
-    if(err.code===4001)toast('Cancelled','error');
+    if(err.code===4001)toast('Connection cancelled','error');
     else toast((err?.message||'Connection failed').slice(0,120),'error');
-    btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;
+  }finally{
+    if(btn){btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;}
   }
 }
 
