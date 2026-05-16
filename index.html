@@ -1032,7 +1032,14 @@ function detectWallet(){
 }
 async function checkNetwork(){
   if(!wp)return false;
-  try{const hex=await wp.request({method:'eth_chainId'});onArcNetwork=parseInt(hex,16)===ARC_CHAIN_ID;document.getElementById('wrongNetBanner').classList.toggle('show',!onArcNetwork&&!!userAddr);return onArcNetwork;}catch{return false;}
+  try{
+    const hex=await wp.request({method:'eth_chainId'});
+    const chainId=parseInt(hex,16);
+    onArcNetwork=chainId===ARC_CHAIN_ID;
+    const banner=document.getElementById('wrongNetBanner');
+    if(banner)banner.classList.toggle('show',!onArcNetwork&&!!userAddr);
+    return onArcNetwork;
+  }catch{return false;}
 }
 async function switchToArc(){
   if(!wp)return;
@@ -1255,7 +1262,7 @@ async function onConnected(isEmail=false, isDev=false){
 
   if(!isEmail&&wp?.on){
     wp.on('accountsChanged',(a)=>{if(!a.length)disconnect();else location.reload();});
-    wp.on('chainChanged',async()=>{await checkNetwork();if(onArcNetwork){provider=new ethers.BrowserProvider(wp);signer=await provider.getSigner();await refreshBalances();await refreshStakeInfo();}});
+    wp.on('chainChanged',async()=>{await checkNetwork();if(onArcNetwork){provider=new ethers.BrowserProvider(wp);signer=await provider.getSigner();await refreshBalances();}});
   }
 
   // Show onboarding for new users
@@ -1293,12 +1300,12 @@ function disconnect(){
 // BALANCE REFRESH
 // ═══════════════════════════════════════════
 async function refreshBalances(){
-  if(!provider||!userAddr||balancesLoading)return;
-  if(!isCircleWallet&&!onArcNetwork)return;
+  if(!userAddr||balancesLoading)return;
   balancesLoading=true;
   document.getElementById('rpcError').classList.remove('show');
   try{
-    const readProvider=isCircleWallet?provider:provider;
+    // Always use Arc RPC directly — don't depend on onArcNetwork flag
+    const readProvider=new ethers.JsonRpcProvider(ARC_RPC);
     const cu=new ethers.Contract(USDC_ADDR,ERC20_ABI,readProvider);
     const ce=new ethers.Contract(EURC_ADDR,ERC20_ABI,readProvider);
     const[ur,er]=await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
@@ -1314,8 +1321,8 @@ async function refreshBalances(){
     document.getElementById('swapToBal').textContent=swapFlipped?u:e;
     updateSendAvailable();
     validateSend();
-  }catch(e){
-    console.error('Balance fetch failed:',e);
+  }catch(err){
+    console.error('Balance fetch failed:',err);
     document.getElementById('rpcError').classList.add('show');
   }
   balancesLoading=false;
@@ -1400,7 +1407,9 @@ function validateSend(){
   const amt=parseFloat(document.getElementById('amtInput').value)||0;
   const uF=parseFloat(usdcBal)||0,eF=parseFloat(eurcBal)||0;
   const btn=document.getElementById('sendBtn');
-  if(!isCircleWallet&&!onArcNetwork){btn.disabled=true;btn.textContent='Switch to Arc Testnet';return;}
+  if(!isCircleWallet&&!onArcNetwork){
+    btn.disabled=true;btn.textContent='Switch to Arc Testnet';return;
+  }
   if(!addr){btn.disabled=true;btn.textContent='Enter address & amount';return;}
   if(!amt||amt<=0){btn.disabled=true;btn.textContent='Enter an amount';return;}
   if(recipType==='address'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Enter a valid 0x address';return;}
@@ -1702,8 +1711,10 @@ async function doBridge(){
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  if(amt>parseFloat(usdcBal)){toast('Insufficient USDC','error');return;}
-  if(!signer||!onArcNetwork){toast('Connect MetaMask & switch to Arc Testnet for CCTP','error');return;}
+  // Refresh balances first to get latest
+  await refreshBalances();
+  if(amt>parseFloat(usdcBal)){toast('Insufficient USDC — you have '+parseFloat(usdcBal).toFixed(2)+' USDC','error',5000);return;}
+  if(!signer||!onArcNetwork){toast('Connect MetaMask on Arc Testnet for CCTP bridging','error');return;}
 
   const domain=CCTP_DOMAIN[destChain];
   if(domain===undefined){toast('Unsupported destination chain','error');return;}
@@ -1910,14 +1921,17 @@ ${txHistory.slice(0,5).map(t=>`${t.type} ${t.amount} ${t.token||''} - ${new Date
 
 RULES:
 - Use REAL numbers from above — never fabricate balances
-- Keep replies under 120 words and be specific
+- Keep replies under 100 words, friendly and specific
+- NEVER show raw JSON or code to the user in your text response
 - Answer any crypto/DeFi/blockchain question enthusiastically
-- If user wants to DO something, add <ACTION> block:
-  send:     {"action":"send","amount":10,"token":"USDC","to":"0x..."}
-  swap:     {"action":"swap","amount":50,"from":"USDC","to":"EURC"}
-  stake:    {"action":"stake","amount":100}
-  bridge:   {"action":"navigate","tab":"bridge"}
-  navigate: {"action":"navigate","tab":"history"}`;
+- If user wants to DO something (send, swap, lend, bridge, name), add <ACTION> block AFTER your text:
+  send:     <ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>
+  swap:     <ACTION>{"action":"swap","amount":50,"from":"USDC","to":"EURC"}</ACTION>
+  lend:     <ACTION>{"action":"navigate","tab":"lend"}</ACTION>
+  bridge:   <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
+  name:     <ACTION>{"action":"navigate","tab":"arcname"}</ACTION>
+  history:  <ACTION>{"action":"navigate","tab":"history"}</ACTION>
+- The <ACTION> block must be hidden — never mention it or show JSON in your reply text`;
 
   try{
     const res=await fetch('/api/chat',{
@@ -1970,32 +1984,39 @@ function hideWalletPicker(e){
 async function connectSpecific(walletType){
   hideWalletPicker();
   if(walletType==='walletconnect'){
-    toast('WalletConnect — scan QR with your mobile wallet','info',4000);
-    await connectWallet();
+    toast('WalletConnect — use MetaMask mobile or any WalletConnect-compatible wallet','info',5000);
     return;
   }
   if(walletType==='circle'){
-    toast('Use email login above for Circle wallet','info',4000);
+    toast('Use the email login above for Circle wallet','info',4000);
     const emailInput=document.getElementById('emailInput');
     if(emailInput)emailInput.focus();
     return;
   }
-  // For MetaMask, Rabby, Coinbase — detect the right provider
-  let wp=null;
-  if(window.ethereum?.providers?.length){
-    const ps=window.ethereum.providers;
-    if(walletType==='metamask') wp=ps.find(p=>p.isMetaMask&&!p.isRabby)||ps.find(p=>p.isMetaMask);
-    else if(walletType==='rabby') wp=ps.find(p=>p.isRabby);
-    else if(walletType==='coinbase') wp=ps.find(p=>p.isCoinbaseWallet);
-    if(!wp) wp=ps[0];
+
+  // Detect wallet provider
+  let detectedWp=null;
+  const providers=window.ethereum?.providers;
+  if(providers?.length){
+    if(walletType==='metamask') detectedWp=providers.find(p=>p.isMetaMask&&!p.isRabby)||providers.find(p=>p.isMetaMask);
+    else if(walletType==='rabby') detectedWp=providers.find(p=>p.isRabby);
+    else if(walletType==='coinbase') detectedWp=providers.find(p=>p.isCoinbaseWallet);
+    if(!detectedWp) detectedWp=providers[0];
   } else {
-    wp=window.ethereum||window.rabby||null;
+    detectedWp=window.ethereum||null;
   }
-  if(!wp){toast('Wallet not found — please install '+walletType+' and refresh','error',6000);return;}
+
+  if(!detectedWp){
+    toast(walletType+' not found — is it installed?','error',6000);
+    return;
+  }
+
+  wp=detectedWp;
   const btn=document.getElementById('landConnectBtn');
   if(btn){btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;}
   try{
     await wp.request({method:'eth_requestAccounts'});
+    // Switch to Arc Testnet
     try{
       await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});
     }catch(e){
@@ -2007,6 +2028,9 @@ async function connectSpecific(walletType){
     signer=await provider.getSigner();
     userAddr=await signer.getAddress();
     isCircleWallet=false;
+    // Force onArcNetwork true after switching
+    const chainHex=await wp.request({method:'eth_chainId'});
+    onArcNetwork=parseInt(chainHex,16)===ARC_CHAIN_ID;
     await onConnected(false);
     toast('✓ Connected via '+walletType+'!','success',4000);
   }catch(err){
