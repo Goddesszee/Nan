@@ -396,7 +396,7 @@ a:hover{color:var(--text);}
   </div>
 
   <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
-  <div class="rpc-error" id="rpcError">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
+  <div class="rpc-error" id="rpcError" style="display:none;">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
 
   <!-- Tx polling status -->
   <div class="tx-polling" id="txPolling" style="display:none;">
@@ -484,8 +484,11 @@ a:hover{color:var(--text);}
     <div class="success-title">Transaction Sent!</div>
     <div class="success-sub" id="successMsg">Submitted to Arc Testnet.</div>
     <div class="success-hash" id="successHash"></div>
-    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-right:8px;" onclick="openExplorer()">View on Explorer ↗</button>
-    <button class="btn btn-outline" style="width:auto;padding:9px 26px;margin-top:8px;" onclick="resetSend()">Send another</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+      <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="openExplorer()">View on Explorer ↗</button>
+      <button class="btn" style="width:auto;padding:9px 22px;background:#000;border-color:#000;" onclick="shareOnX()">𝕏 Share Receipt</button>
+      <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="resetSend()">Send another</button>
+    </div>
   </div>
 </div>
 
@@ -856,16 +859,25 @@ const LENDING_CONTRACT  = '0x042E348E63aBE126CffA671a3Ec4385CDF7Db524'; // NANLe
 const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
 
 // CCTP — Circle Cross-Chain Transfer Protocol
-const CCTP_TOKEN_MESSENGER = '0x8186359aF5F57FbB40c6b14A588d2A59C0C29b2'; // Arc Testnet (update when live)
+const CCTP_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA'; // Arc Testnet TokenMessengerV2 (official)
+const CCTP_MESSAGE_TRANSMITTER = '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275'; // Arc Testnet MessageTransmitterV2
+// Arc Testnet CCTP Domain = 26 (official from docs.arc.io)
 const CCTP_DOMAIN = {
-  'ARC-TESTNET': 99,
-  'ETH-SEPOLIA': 0,
-  'AVAX-FUJI': 1,
+  'ETH-SEPOLIA':  0,
+  'AVAX-FUJI':    1,
+  'ARB-SEPOLIA':  3,
   'BASE-SEPOLIA': 6,
-  'ARB-SEPOLIA': 3,
   'MATIC-MUMBAI': 7,
 };
 
+// Arc Testnet provider — ENS disabled since Arc doesn't support it
+function getArcProvider(){
+  return new ethers.JsonRpcProvider(ARC_RPC, {
+    chainId: ARC_CHAIN_ID,
+    name: 'arc-testnet',
+    ensAddress: null,
+  });
+}
 const SWAP_ABI = [
   'function swapUSDCtoEURC(uint256) external returns (uint256)',
   'function swapEURCtoUSDC(uint256) external returns (uint256)',
@@ -1305,7 +1317,7 @@ async function refreshBalances(){
   document.getElementById('rpcError').classList.remove('show');
   try{
     // Always use Arc RPC directly — don't depend on onArcNetwork flag
-    const readProvider=new ethers.JsonRpcProvider(ARC_RPC);
+    const readProvider=getArcProvider();
     const cu=new ethers.Contract(USDC_ADDR,ERC20_ABI,readProvider);
     const ce=new ethers.Contract(EURC_ADDR,ERC20_ABI,readProvider);
     const[ur,er]=await Promise.all([cu.balanceOf(userAddr),ce.balanceOf(userAddr)]);
@@ -1518,6 +1530,13 @@ function showSendSuccess(amt,to,hash){
   btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
 }
 function openExplorer(){if(lastTxHash)window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');}
+function shareOnX(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
+  const text=`Just sent ${msg} on Arc Testnet using NAN Wallet! ⚡\n\n🔗 Tx: ${explorerUrl}\n\nBuilt with @circle USDC on Arc — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN`;
+  window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+}
 function resetSend(){
   document.getElementById('successCard').classList.remove('show');
   document.getElementById('sendCard').style.display='block';
