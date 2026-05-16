@@ -406,8 +406,14 @@ a:hover{color:var(--text);}
 
   <!-- Balance card -->
   <div class="bal-card">
-    <div class="bal-head"><div class="bal-lbl">Balance</div><div class="bal-badge">● Arc Testnet</div></div>
-    <div class="bal-num"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);">USDC</span></div>
+    <div class="bal-head">
+      <div class="bal-lbl">Balance</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
+        <div class="bal-badge">● Arc Testnet</div>
+      </div>
+    </div>
+    <div class="bal-num"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);" id="balCurrencyLabel">USDC</span></div>
     <div class="bal-usd" id="balUsd">≈ $0.00 USD</div>
     <div class="token-row">
       <div class="tok"><span class="tok-dot usdc-dot"></span>USDC: <span id="usdcBal2">0.00</span></div>
@@ -692,7 +698,18 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ ARC NAME PAGE ═══════ -->
 <div class="page" id="page-arcname">
-  <div class="page-title">Arc Name</div>
+  <div class="page-title" style="display:flex;align-items:center;gap:8px;">
+    <svg width="22" height="22" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <rect width="72" height="72" rx="14" fill="#8b5cf6"/>
+      <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
+      <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
+      <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
+      <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
+    </svg>
+    Arc Name
+  </div>
   <div class="page-sub">Register your .arc name — your identity on Arc Testnet</div>
   <div class="live-badge"><div class="live-dot"></div>On-chain name registry — Arc Testnet</div>
 
@@ -967,7 +984,35 @@ function toast(msg,type='info',ms=4000){
   el.textContent=msg;el.className='show '+type;
   clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
 }
-function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
+let balCurrency='USD'; // USD, EURC, USDC
+function toggleBalCurrency(){
+  const currencies=['USD','EURC','USDC'];
+  const idx=currencies.indexOf(balCurrency);
+  balCurrency=currencies[(idx+1)%currencies.length];
+  document.getElementById('balCurrencyBtn').textContent=balCurrency;
+  updateBalDisplay();
+}
+function updateBalDisplay(){
+  const usdc=parseFloat(usdcBal)||0;
+  const eurc=parseFloat(eurcBal)||0;
+  const lbl=document.getElementById('balCurrencyLabel');
+  const amt=document.getElementById('balAmt');
+  const usd=document.getElementById('balUsd');
+  if(balCurrency==='USD'){
+    amt.textContent=usdc.toFixed(2);
+    lbl.textContent='USDC';
+    usd.textContent='≈ $'+usdc.toFixed(2)+' USD · '+eurc.toFixed(2)+' EURC';
+  } else if(balCurrency==='EURC'){
+    amt.textContent=eurc.toFixed(2);
+    lbl.textContent='EURC';
+    usd.textContent='≈ $'+(eurc*(1/FX)).toFixed(2)+' USD';
+  } else {
+    const total=usdc+(eurc*(1/FX));
+    amt.textContent=total.toFixed(2);
+    lbl.textContent='USDC';
+    usd.textContent='Total portfolio value';
+  }
+}
 function showBalSkeleton(){
   document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';
   document.getElementById('balUsd').innerHTML='<span class="skel skel-small"></span>';
@@ -1279,14 +1324,19 @@ async function onConnected(isEmail=false, isDev=false){
   document.getElementById('recvAddr').textContent=userAddr;
   document.getElementById('walInit').textContent=userAddr.slice(2,4).toUpperCase();
 
-  // Show wallet source
+  // Show wallet source — detect which wallet is connected
   const srcBadge=document.getElementById('walletSourceBadge');
   if(isEmail){
     const hasRealSigner = signer && signer instanceof ethers.Wallet;
-    srcBadge.innerHTML=`✦ NAN Wallet on Arc Testnet ${hasRealSigner?'<span style="color:var(--success);">● Live — can send transactions</span>':'<span style="color:var(--warning);">● Read only</span>'}`;
+    srcBadge.innerHTML=`✦ NAN Wallet ${hasRealSigner?'<span style="color:var(--success);">● Live on Arc</span>':'<span style="color:var(--warning);">● Read only</span>'}`;
     document.getElementById('devBadge').style.display=isDev?'inline-block':'none';
   }else{
-    srcBadge.innerHTML='🦊 External wallet (MetaMask/Rabby)';
+    // Detect wallet name
+    let walletName='Web3 Wallet';
+    if(wp?.isRabby) walletName='Rabby';
+    else if(wp?.isCoinbaseWallet) walletName='Coinbase Wallet';
+    else if(wp?.isMetaMask) walletName='MetaMask';
+    srcBadge.innerHTML=`<span style="color:var(--success);">●</span> ${walletName} · Arc Testnet`;
     document.getElementById('devBadge').style.display='none';
   }
 
@@ -1354,8 +1404,7 @@ async function refreshBalances(){
     eurcBal=ethers.formatUnits(er,EURC_DECIMALS);
     const u=parseFloat(usdcBal).toFixed(2);
     const e=parseFloat(eurcBal).toFixed(2);
-    document.getElementById('balAmt').textContent=u;
-    document.getElementById('balUsd').textContent='≈ $'+u+' USD';
+    updateBalDisplay();
     document.getElementById('usdcBal2').textContent=u;
     document.getElementById('eurcBal2').textContent=e;
     document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
@@ -1753,7 +1802,7 @@ async function doSwap(){
 }
 
 function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
-  const rate=fxRate||0.9258;
+  const rate=FX||0.9258;
   const toAmt=isUSDCtoEURC?fromAmt*rate:fromAmt/rate;
   const fee=toAmt*0.001;
   const net=(toAmt-fee).toFixed(6);
