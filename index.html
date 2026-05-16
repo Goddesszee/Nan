@@ -889,19 +889,140 @@ async function verifyOTP(){
     });
     const data=await res.json();
     if(data.success){
-      userAddr=data.walletAddress;
-      circleWalletId=data.walletId;
-      circleUserToken=data.userToken;
-      circleUserId=data.circleUserId;
-      isCircleWallet=true;
-      // Set up read-only provider for balance checks
+      // Set up Arc Testnet provider
       provider=new ethers.JsonRpcProvider(ARC_RPC);
       onArcNetwork=true;
-      await onConnected(true, data.dev);
-      toast('✓ Welcome to NAN! 🎉','success',6000);
+
+      let wallet;
+      let isNewWallet=false;
+
+      if(data.returning && data.privateKey){
+        // ── Returning user — restore wallet from server ──
+        try{
+          wallet=new ethers.Wallet(data.privateKey, provider);
+          // Also update localStorage for faster future loads
+          localStorage.setItem('nan_wallet_'+otpEmail, data.privateKey);
+          toast('✓ Welcome back! Your wallet has been restored 🎉','success',5000);
+        }catch(e){
+          // Corrupted key — create new wallet
+          wallet=ethers.Wallet.createRandom().connect(provider);
+          isNewWallet=true;
+        }
+      } else {
+        // ── Check localStorage first (same device) ──
+        const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
+        if(savedKey){
+          try{
+            wallet=new ethers.Wallet(savedKey, provider);
+            // Sync to server
+            await fetch('/api/otp',{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:savedKey,walletAddress:wallet.address}),
+            });
+            toast('✓ Welcome back! Wallet restored 🎉','success',5000);
+          }catch(e){
+            wallet=ethers.Wallet.createRandom().connect(provider);
+            isNewWallet=true;
+          }
+        } else {
+          // ── Brand new user — generate new wallet in browser ──
+          wallet=ethers.Wallet.createRandom().connect(provider);
+          isNewWallet=true;
+        }
+      }
+
+      signer=wallet;
+      userAddr=wallet.address;
+      isCircleWallet=true;
+
+      // Save to localStorage
+      localStorage.setItem('nan_wallet_'+otpEmail, wallet.privateKey);
+
+      if(isNewWallet){
+        // Save encrypted key to server for cross-device access
+        await fetch('/api/otp',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address}),
+        });
+        await onConnected(true, false);
+        // Show seed phrase ONLY for new users
+        showSeedPhrase(wallet.mnemonic?.phrase, wallet.privateKey, wallet.address);
+      } else {
+        await onConnected(true, false);
+      }
+
     }else{toast(data.error||'Wrong code — try again','error',5000);}
-  }catch(e){toast('Network error — is the server running?','error');}
+  }catch(e){
+    console.error('verifyOTP error:',e);
+    toast('Network error — is the server running?','error');
+  }
   btn.innerHTML='Verify →';btn.disabled=false;
+}
+
+// ── Show seed phrase modal to new users ──
+function showSeedPhrase(mnemonic, privateKey, address){
+  // Create modal
+  const modal = document.createElement('div');
+  modal.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;`;
+  modal.innerHTML=`
+    <div style="background:var(--bg);border:2px solid rgba(251,191,36,.4);border-radius:16px;padding:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">Save Your Wallet Keys</div>
+        <div style="font-size:.75rem;color:var(--danger);font-weight:600;">⚠️ Save these NOW — you won't see them again</div>
+      </div>
+
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
+        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
+      </div>
+
+      ${mnemonic ? `
+      <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          ${mnemonic.split(' ').map((word,i)=>`
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);">
+              <span style="color:var(--text3);font-size:.5rem;">${i+1}.</span> ${word}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
+      </div>
+
+      <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:.7rem;color:var(--success);line-height:1.6;">
+        ✓ Your keys are stored ONLY in this browser<br/>
+        ✓ NAN's server never sees your private key<br/>
+        ✓ You are the only person who controls this wallet
+      </div>
+
+      <button onclick="copySeedBackup('${privateKey}','${address}')" style="width:100%;padding:11px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:8px;">📋 Copy Private Key to Clipboard</button>
+
+      <button onclick="closeSeedModal(this)" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ I've saved my keys — Continue</button>
+
+      <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function copySeedBackup(privateKey, address){
+  const text = `NAN Wallet Backup\n\nAddress: ${address}\nPrivate Key: ${privateKey}\n\nIMPORTANT: Never share your private key with anyone.`;
+  navigator.clipboard.writeText(text).then(()=>{
+    toast('✓ Wallet backup copied to clipboard — save it somewhere safe!','success',6000);
+  });
+}
+
+function closeSeedModal(btn){
+  const modal = btn.closest('div[style*="position:fixed"]');
+  if(modal) modal.remove();
+  toast('✓ Welcome to NAN! Get free USDC at faucet.circle.com 🎉','success',8000);
 }
 
 // ═══════════════════════════════════════════
@@ -921,7 +1042,8 @@ async function onConnected(isEmail=false, isDev=false){
   // Show wallet source
   const srcBadge=document.getElementById('walletSourceBadge');
   if(isEmail){
-    srcBadge.innerHTML=`✦ Circle Programmable Wallet ${isDev?'<span style="color:var(--warning);">(dev mock)</span>':'<span style="color:var(--success);">(live)</span>'}`;
+    const hasRealSigner = signer && signer instanceof ethers.Wallet;
+    srcBadge.innerHTML=`✦ NAN Wallet on Arc Testnet ${hasRealSigner?'<span style="color:var(--success);">● Live — can send transactions</span>':'<span style="color:var(--warning);">● Read only</span>'}`;
     document.getElementById('devBadge').style.display=isDev?'inline-block':'none';
   }else{
     srcBadge.innerHTML='🦊 External wallet (MetaMask/Rabby)';
@@ -1120,39 +1242,45 @@ async function doSend(){
   if(to.toLowerCase()===userAddr.toLowerCase()){toast('Cannot send to yourself','error');return;}
   const btn=document.getElementById('confirmSendBtn');
 
-  // ── Circle Wallets path (email login) ──
-  if(isCircleWallet){
+  // ── Email wallet path (has real private key signer) ──
+  if(isCircleWallet && signer){
+    if(!onArcNetwork){toast('Not connected to Arc Testnet','error');return;}
+    btn.innerHTML='<span class="spinner"></span>Signing transaction…';btn.disabled=true;
+    const tokenAddr=sendToken==='USDC'?USDC_ADDR:EURC_ADDR;
+    const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
+    try{
+      const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
+      const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals));
+      lastTxHash=tx.hash;
+      btn.innerHTML='<span class="spinner"></span>Confirming on Arc…';
+      toast('Submitted! '+short(tx.hash),'info',14000);
+      const receipt=await tx.wait(1);
+      addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'nan-wallet'});
+      toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+' on Arc!','success',7000);
+      document.getElementById('confirmCard').classList.remove('show');
+      showSendSuccess(amt,to,tx.hash);
+      await refreshBalances();
+    }catch(err){
+      toast((err?.info?.error?.message||err?.reason||err?.message||'Failed').slice(0,140),'error',8000);
+      btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
+    }
+    return;
+  }
+
+  // ── Circle API path (no private key, use Circle transfer API) ──
+  if(isCircleWallet && !signer){
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
       const res=await fetch('/api/transfer',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          walletId:circleWalletId,
-          destinationAddress:to,
-          amount:amt.toString(),
-          tokenSymbol:sendToken,
-          userToken:circleUserToken,
-        }),
+        body:JSON.stringify({walletId:circleWalletId,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken,userToken:circleUserToken}),
       });
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
-      lastTxId=data.transactionId;
       lastTxHash=data.txHash||data.transactionId;
-      toast('Transfer submitted!','info',10000);
-
-      // Poll for confirmation
-      if(data.transactionId&&!data.txHash?.startsWith('0xdev')){
-        pollTxStatus(data.transactionId,circleUserToken,(confirmedHash)=>{
-          lastTxHash=confirmedHash;
-          addTx({hash:confirmedHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
-          showSendSuccess(amt,to,confirmedHash);
-          refreshBalances();
-        });
-      }else{
-        addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
-        showSendSuccess(amt,to,lastTxHash);
-        await refreshBalances();
-      }
+      addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
+      showSendSuccess(amt,to,lastTxHash);
+      await refreshBalances();
     }catch(err){
       toast((err?.message||'Transfer failed').slice(0,140),'error',8000);
       btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
