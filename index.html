@@ -101,8 +101,41 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .skel-bal{width:80px;height:28px;border-radius:6px;}
 .skel-small{width:50px;height:14px;border-radius:4px;}
 
-/* ── Banners ── */
-.rpc-error{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);border-radius:var(--radius-sm);padding:7px 11px;margin-bottom:7px;font-size:.63rem;color:var(--danger);display:none;align-items:center;gap:7px;}
+/* ── Wallet Modal ── */
+.wallet-modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.wallet-modal-overlay.show{display:flex;}
+.wallet-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;animation:up .3s ease both;}
+.wallet-modal-title{font-size:1rem;font-weight:700;text-align:center;margin-bottom:4px;}
+.wallet-modal-sub{font-size:.68rem;color:var(--text3);text-align:center;margin-bottom:16px;}
+.wallet-logos-row{display:flex;justify-content:center;gap:10px;margin-bottom:16px;}
+.wallet-logo-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.wallet-logo-icon:hover{transform:translateY(-2px);border-color:var(--accent);}
+.wallet-opt{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;margin-bottom:7px;transition:all .15s;background:var(--surface);}
+.wallet-opt:hover{border-color:var(--border2);background:var(--card2);}
+.wallet-opt-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.wallet-opt-name{font-size:.82rem;font-weight:600;margin-bottom:2px;}
+.wallet-opt-desc{font-size:.62rem;color:var(--text3);}
+.wallet-opt-badge{margin-left:auto;font-size:.55rem;padding:3px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.wallet-divider{display:flex;align-items:center;gap:10px;margin:12px 0;}
+.wallet-divider::before,.wallet-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.wallet-divider span{font-size:.62rem;color:var(--text3);}
+/* ── Lend styles ── */
+.lend-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:8px;}
+.lend-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;text-align:center;}
+.lend-stat .ls-label{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.lend-stat .ls-value{font-size:.95rem;font-weight:700;}
+.position-card{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--success);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px;}
+.position-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.7rem;}
+.position-row:last-child{border-bottom:none;}
+/* ── Arc Name styles ── */
+.arcname-card{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px;}
+.arcname-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.arcname-row:last-child{border-bottom:none;}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.price-opt{padding:8px 4px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;background:var(--surface);transition:all .15s;}
+.price-opt.active{border-color:var(--accent);background:rgba(139,92,246,.1);}
+.price-opt .po-dur{font-size:.58rem;color:var(--text3);margin-bottom:3px;}
+.price-opt .po-price{font-size:.82rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;}
 .rpc-error.show{display:flex;}
 .wrong-net{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:7px;font-size:.63rem;color:var(--warning);display:none;align-items:center;gap:7px;}
 .wrong-net.show{display:flex;}
@@ -295,9 +328,9 @@ a:hover{color:var(--text);}
   <div class="nav-items">
     <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
     <button class="nav-btn" onclick="goPage('swap')"><span class="ni">⇄</span>Swap</button>
-    <button class="nav-btn" onclick="goPage('stake')"><span class="ni">◈</span>Stake</button>
+    <button class="nav-btn" onclick="goPage('lend')"><span class="ni">⟐</span>Lend</button>
     <button class="nav-btn" onclick="goPage('bridge')"><span class="ni">⬡</span>Bridge</button>
-    <button class="nav-btn" onclick="goPage('handle')"><span class="ni">@</span>Handle</button>
+    <button class="nav-btn" onclick="goPage('arcname')"><span class="ni">◎</span>Name</button>
     <button class="nav-btn" onclick="goPage('history')"><span class="ni">⟳</span>History</button>
   </div>
 </nav>
@@ -331,7 +364,7 @@ a:hover{color:var(--text);}
       <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
 
-    <button class="big-btn" id="landConnectBtn" onclick="connectWallet()" style="margin-bottom:22px;">🦊 Connect Existing Wallet</button>
+    <button class="big-btn" id="landConnectBtn" onclick="showWalletPicker()" style="margin-bottom:22px;">🔗 Connect Wallet</button>
 
     <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;text-align:center;">What you can do</div>
     <div class="feat-grid">
@@ -490,58 +523,119 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ═══════ STAKE PAGE ═══════ -->
-<div class="page" id="page-stake">
-  <div class="page-title">Stake</div>
-  <div class="page-sub">Earn 5.20% APY on your USDC</div>
-  <div class="live-badge" id="stakeLiveBadge" style="display:none;"><div class="live-dot"></div>Live on Arc Testnet — real on-chain staking</div>
-  <div class="info-banner" id="approveNotice" style="display:none;">ℹ️ First stake requires 2 transactions: <strong>1) Approve</strong> USDC, then <strong>2) Stake</strong>. Your wallet will prompt for both.</div>
-  <div class="stake-stat-grid">
-    <div class="stake-stat"><div class="ss-label">APY</div><div class="ss-value green">5.20%</div></div>
-    <div class="stake-stat"><div class="ss-label">Total Staked</div><div class="ss-value" id="totalStakedDisplay">—</div></div>
-    <div class="stake-stat"><div class="ss-label">Your Stake</div><div class="ss-value" id="myStake">0.00 USDC</div></div>
-    <div class="stake-stat"><div class="ss-label">Rewards</div><div class="ss-value gold" id="myRewards">0.000000</div></div>
+<!-- ═══════ LEND PAGE ═══════ -->
+<div class="page" id="page-lend">
+  <div class="page-title">Lend &amp; Borrow</div>
+  <div class="page-sub">Supply USDC/EURC to earn interest or borrow against collateral</div>
+  <div class="info-banner">⚗️ <strong>Simulated</strong> — Lending contracts deploying on Arc Testnet. Aave, Maple &amp; Morpho confirmed. Deploy your own below.</div>
+  <div class="live-badge"><div class="live-dot"></div>Band Protocol oracle live on Arc · Price feed: <a href="https://testnet.arcscan.app/address/0x8c064bCf7C0DA3B3b090BAbFE8f3323534D84d68" target="_blank" style="color:var(--success);">0x8c06...d68 ↗</a></div>
+
+  <!-- Stats -->
+  <div class="lend-stat-grid">
+    <div class="lend-stat"><div class="ls-label">Supply APY</div><div class="ls-value green">4.80%</div></div>
+    <div class="lend-stat"><div class="ls-label">Borrow APR</div><div class="ls-value" style="color:var(--warning);">7.20%</div></div>
+    <div class="lend-stat"><div class="ls-label">Total Supplied</div><div class="ls-value" id="totalSupplied">—</div></div>
+    <div class="lend-stat"><div class="ls-label">Utilization</div><div class="ls-value" id="utilizationRate">—</div></div>
   </div>
-  <div class="card" style="padding:9px 13px;">
-    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:5px;"><span>Pool share</span><span id="poolShare">0.0000%</span></div>
-    <div class="stake-progress"><div class="stake-bar" id="stakeBar" style="width:0%"></div></div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">Status: <span id="stakeStatus">Not staking</span></div>
+
+  <!-- Your Positions -->
+  <div class="position-card" id="positionsCard">
+    <div class="card-title" style="margin-bottom:8px;"><div class="cticon">📊</div>Your Positions</div>
+    <div class="position-row">
+      <span style="color:var(--text3);font-size:.65rem;">Supplied USDC</span>
+      <span style="color:var(--success);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="suppliedAmt">0.00 USDC</span>
+    </div>
+    <div class="position-row">
+      <span style="color:var(--text3);font-size:.65rem;">Borrowed USDC</span>
+      <span style="color:var(--danger);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="borrowedAmt">0.00 USDC</span>
+    </div>
+    <div class="position-row">
+      <span style="color:var(--text3);font-size:.65rem;">Accrued Interest</span>
+      <span style="color:var(--gold);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="accruedInterest">0.000000 USDC</span>
+    </div>
+    <div class="position-row" style="border-bottom:none;">
+      <span style="color:var(--text3);font-size:.65rem;">Health Factor</span>
+      <span style="color:var(--success);font-weight:700;font-size:.75rem;" id="healthFactor">—</span>
+    </div>
   </div>
+
+  <!-- Tabs -->
   <div class="card">
     <div class="send-tabs" style="margin-bottom:9px;">
-      <button class="stab active" onclick="setStakeTab('stake',this)">Stake</button>
-      <button class="stab" onclick="setStakeTab('unstake',this)">Unstake</button>
-      <button class="stab" onclick="setStakeTab('claim',this)">Claim</button>
+      <button class="stab active" onclick="setLendTab('supply',this)">Supply</button>
+      <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
+      <button class="stab" onclick="setLendTab('repay',this)">Repay</button>
+      <button class="stab" onclick="setLendTab('withdraw',this)">Withdraw</button>
     </div>
-    <div class="stake-panel active" id="sp-stake">
+
+    <!-- Supply -->
+    <div class="stake-panel active" id="lp-supply">
       <div class="field">
-        <div class="flbl">Amount (min 1 USDC)</div>
-        <div class="amt-row">
-          <div class="field" style="margin-bottom:0;"><input id="stakeAmt" type="number" min="1" step="0.01" placeholder="0.00"/></div>
-          <button class="max-btn" onclick="setStakeMax()">MAX</button>
+        <div class="flbl">Asset</div>
+        <div class="type-sel" style="grid-template-columns:1fr 1fr;">
+          <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
+          <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
         </div>
       </div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Approve + Stake (2 txns)</span><span>~0.009 USDC each</span></div>
-      <button class="btn" id="stakeBtn" onclick="doStake()">Stake USDC</button>
-    </div>
-    <div class="stake-panel" id="sp-unstake">
-      <div style="text-align:center;padding:9px 0;"><div style="font-size:1.5rem;font-weight:700;margin-bottom:9px;" id="stakedDisplay">0.00 USDC</div></div>
       <div class="field">
-        <div class="flbl">Amount to Unstake</div>
+        <div class="flbl">Amount</div>
         <div class="amt-row">
-          <div class="field" style="margin-bottom:0;"><input id="unstakeAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
-          <button class="max-btn" onclick="setUnstakeMax()">MAX</button>
+          <div class="field" style="margin-bottom:0;"><input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
+          <button class="max-btn" onclick="setSupplyMax()">MAX</button>
         </div>
       </div>
-      <button class="btn btn-outline" onclick="doUnstake()">Unstake &amp; Claim Rewards</button>
+      <div class="gas-row"><span class="gas-icon">📈</span><span style="flex:1;">Estimated APY</span><span style="color:var(--success);">4.80%</span></div>
+      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC</span></div>
+      <button class="btn" onclick="doSupply()">Supply USDC</button>
     </div>
-    <div class="stake-panel" id="sp-claim">
-      <div style="text-align:center;padding:15px 0;">
-        <div style="font-size:.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Available to claim</div>
-        <div style="font-size:1.9rem;font-weight:700;color:var(--gold);margin-bottom:5px;" id="claimAmt">0.000000</div>
-        <div style="font-size:.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:15px;">USDC rewards</div>
-        <button class="btn btn-green" onclick="doClaim()">Claim Rewards →</button>
+
+    <!-- Borrow -->
+    <div class="stake-panel" id="lp-borrow">
+      <div class="field">
+        <div class="flbl">Borrow Asset</div>
+        <div class="type-sel" style="grid-template-columns:1fr 1fr;">
+          <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
+          <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
+        </div>
       </div>
+      <div class="field">
+        <div class="flbl">Amount</div>
+        <div class="amt-row">
+          <div class="field" style="margin-bottom:0;"><input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
+          <button class="max-btn" onclick="setBorrowMax()">MAX</button>
+        </div>
+      </div>
+      <div class="gas-row"><span class="gas-icon">📉</span><span style="flex:1;">Borrow APR</span><span style="color:var(--warning);">7.20%</span></div>
+      <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.15);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:8px;font-size:.63rem;color:#fca5a5;line-height:1.55;">
+        ⚠️ You must have supplied collateral first. Borrowing reduces your health factor.
+      </div>
+      <button class="btn btn-outline" onclick="doBorrow()">Borrow USDC</button>
+    </div>
+
+    <!-- Repay -->
+    <div class="stake-panel" id="lp-repay">
+      <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--danger);" id="repayDisplay">0.00 USDC</div><div style="font-size:.62rem;color:var(--text3);">Outstanding debt</div></div>
+      <div class="field">
+        <div class="flbl">Amount to Repay</div>
+        <div class="amt-row">
+          <div class="field" style="margin-bottom:0;"><input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
+          <button class="max-btn" onclick="setRepayMax()">MAX</button>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="doRepay()">Repay Debt</button>
+    </div>
+
+    <!-- Withdraw -->
+    <div class="stake-panel" id="lp-withdraw">
+      <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--success);" id="withdrawDisplay">0.00 USDC</div><div style="font-size:.62rem;color:var(--text3);">Available to withdraw</div></div>
+      <div class="field">
+        <div class="flbl">Amount to Withdraw</div>
+        <div class="amt-row">
+          <div class="field" style="margin-bottom:0;"><input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div>
+          <button class="max-btn" onclick="setWithdrawMax()">MAX</button>
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="doWithdraw()">Withdraw + Interest</button>
     </div>
   </div>
 </div>
@@ -592,26 +686,64 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ═══════ HANDLE PAGE ═══════ -->
-<div class="page" id="page-handle">
-  <div class="page-title">My Handle</div>
-  <div class="page-sub">Link your social username to your wallet</div>
+<!-- ═══════ ARC NAME PAGE ═══════ -->
+<div class="page" id="page-arcname">
+  <div class="page-title">Arc Name</div>
+  <div class="page-sub">Register your .arc name — your identity on Arc Testnet</div>
+  <div class="live-badge"><div class="live-dot"></div>On-chain name registry — Arc Testnet</div>
+
+  <!-- Search -->
+  <div class="card" style="padding:11px 13px;">
+    <div class="flbl">Search a name</div>
+    <div style="display:flex;gap:7px;">
+      <input id="arcNameSearch" type="text" placeholder="yourname.arc" style="flex:1;" oninput="checkArcName()"/>
+      <button class="max-btn" style="margin-bottom:0;" onclick="checkArcName()">Check</button>
+    </div>
+    <div id="arcNameResult" style="display:none;margin-top:7px;padding:7px 9px;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:.65rem;"></div>
+  </div>
+
+  <!-- Your Names -->
+  <div class="arcname-card" id="myNamesCard">
+    <div class="card-title" style="margin-bottom:8px;"><div class="cticon">◎</div>Your .arc Names</div>
+    <div id="myArcNamesList"><div class="empty"><div class="empty-icon" style="font-size:1.2rem;">◎</div><div class="empty-text">No names registered yet.</div></div></div>
+  </div>
+
+  <!-- Register -->
   <div class="card">
-    <div class="card-title"><div class="cticon">@</div>Register Handle</div>
-    <div class="my-handles-box" id="myHandlesBox" style="display:none;"><div class="mhl">Your Linked Handles</div><div id="myHandlesList"></div></div>
+    <div class="card-title"><div class="cticon">+</div>Register Name</div>
     <div class="field">
-      <div class="flbl">Platform</div>
-      <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-        <button class="topt active" onclick="setRegType('x',this)"><span class="oi">𝕏</span><span>Twitter</span></button>
-        <button class="topt" onclick="setRegType('discord',this)"><span class="oi">💬</span><span>Discord</span></button>
+      <div class="flbl">Name</div>
+      <div style="display:flex;align-items:center;gap:0;">
+        <input id="arcNameInput" type="text" placeholder="yourname" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);border-right:none;"/>
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent3);white-space:nowrap;">.arc</div>
       </div>
     </div>
-    <div class="field"><div class="flbl">Username</div><input id="regHandle" type="text" placeholder="@yourhandle"/></div>
-    <button class="btn" onclick="registerHandle()">Link Handle to Wallet</button>
+    <div class="field">
+      <div class="flbl">Duration</div>
+      <div class="price-grid">
+        <div class="price-opt active" onclick="setArcNameDuration(1,2,this)">
+          <div class="po-dur">1 year</div>
+          <div class="po-price">2 USDC</div>
+        </div>
+        <div class="price-opt" onclick="setArcNameDuration(2,3,this)">
+          <div class="po-dur">2 years</div>
+          <div class="po-price">3 USDC</div>
+        </div>
+        <div class="price-opt" onclick="setArcNameDuration(5,8,this)">
+          <div class="po-dur">5 years</div>
+          <div class="po-price">8 USDC</div>
+        </div>
+      </div>
+    </div>
+    <div class="gas-row"><span class="gas-icon">💵</span><span style="flex:1;">Registration fee</span><span id="arcNameFeeDisplay" style="color:var(--success);">2 USDC</span></div>
+    <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC</span></div>
+    <button class="btn" onclick="registerArcName()">Register .arc Name</button>
   </div>
+
+  <!-- Directory -->
   <div class="card">
-    <div class="card-title"><div class="cticon">👥</div>User Directory</div>
-    <div id="allHandlesList"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div></div>
+    <div class="card-title"><div class="cticon">👥</div>Directory</div>
+    <div id="arcNameDirectory"><div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No names registered yet. Be the first!</div></div></div>
   </div>
 </div>
 
@@ -622,6 +754,50 @@ a:hover{color:var(--text);}
     <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
   </div>
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
+</div>
+
+<!-- ═══════ WALLET PICKER MODAL ═══════ -->
+<div class="wallet-modal-overlay" id="walletModalOverlay" onclick="hideWalletPicker(event)">
+  <div class="wallet-modal">
+    <div class="wallet-modal-title">Connect Wallet</div>
+    <div class="wallet-modal-sub">Choose your preferred wallet to connect to Arc Testnet</div>
+    <!-- Wallet logo row -->
+    <div class="wallet-logos-row">
+      <div class="wallet-logo-icon" style="background:#f6851b;" onclick="connectSpecific('metamask')" title="MetaMask">🦊</div>
+      <div class="wallet-logo-icon" style="background:#3b99fc;" onclick="connectSpecific('walletconnect')" title="WalletConnect">🔗</div>
+      <div class="wallet-logo-icon" style="background:#1652f0;" onclick="connectSpecific('coinbase')" title="Coinbase Wallet">🔵</div>
+      <div class="wallet-logo-icon" style="background:#e94f37;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
+      <div class="wallet-logo-icon" style="background:#8b5cf6;" onclick="connectSpecific('circle')" title="Circle Wallet">⭕</div>
+    </div>
+    <!-- Wallet list -->
+    <div class="wallet-opt" onclick="connectSpecific('metamask')">
+      <div class="wallet-opt-icon" style="background:#f6851b20;">🦊</div>
+      <div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div>
+      <span class="wallet-opt-badge" style="background:rgba(139,92,246,.1);color:var(--accent3);border:1px solid rgba(139,92,246,.2);">Popular</span>
+    </div>
+    <div class="wallet-opt" onclick="connectSpecific('walletconnect')">
+      <div class="wallet-opt-icon" style="background:#3b99fc20;">🔗</div>
+      <div><div class="wallet-opt-name">WalletConnect</div><div class="wallet-opt-desc">Scan QR with mobile wallet</div></div>
+    </div>
+    <div class="wallet-opt" onclick="connectSpecific('coinbase')">
+      <div class="wallet-opt-icon" style="background:#1652f020;">🔵</div>
+      <div><div class="wallet-opt-name">Coinbase Wallet</div><div class="wallet-opt-desc">Mobile & browser extension</div></div>
+    </div>
+    <div class="wallet-opt" onclick="connectSpecific('rabby')">
+      <div class="wallet-opt-icon" style="background:#e94f3720;">🐰</div>
+      <div><div class="wallet-opt-name">Rabby</div><div class="wallet-opt-desc">Security-first EVM wallet</div></div>
+    </div>
+    <div class="wallet-opt" onclick="connectSpecific('circle')">
+      <div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">⭕</div>
+      <div><div class="wallet-opt-name">Circle Programmable Wallet</div><div class="wallet-opt-desc">Embedded wallet via Circle</div></div>
+      <span class="wallet-opt-badge" style="background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">New</span>
+    </div>
+    <div class="wallet-divider"><span>or sign in with email</span></div>
+    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()">
+      <div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">✉</div>
+      <div><div class="wallet-opt-name">Email Login</div><div class="wallet-opt-desc">Creates a secure wallet in your browser</div></div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -756,15 +932,15 @@ function showPage(name){
   document.querySelectorAll('.page:not(.page-land)').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  const idx=['send','swap','stake','bridge','handle','history'].indexOf(name);
+  const idx=['send','swap','lend','bridge','arcname','history'].indexOf(name);
   if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
 }
 function goPage(name){
   if(!userAddr){toast('Connect wallet first','error');return;}
   showPage(name);
-  if(name==='stake'){initStakeUI();refreshStakeInfo();}
+  if(name==='lend'){initLendUI();}
   if(name==='history')renderHistory();
-  if(name==='handle'){renderAllHandles();showMyHandles();}
+  if(name==='arcname'){renderArcDirectory();}
   if(name==='swap')refreshBalances();
 }
 function toggleTheme(){
@@ -1056,11 +1232,8 @@ async function onConnected(isEmail=false, isDev=false){
   loadTxHistory();
   renderQR(userAddr);
   renderHistory();
-  renderAllHandles();
-  showMyHandles();
-  initStakeUI();
-  await refreshStakeInfo();
-  startStakeTimer();
+  renderArcDirectory();
+  initLendUI();
   document.getElementById('aiBtn').style.display='flex';
   renderAgentMsgs();renderAgentChips();
 
@@ -1839,11 +2012,242 @@ function executeAgentAction(action){
       setTimeout(()=>{document.getElementById('recipInput').value=action.to||'';document.getElementById('amtInput').value=action.amount||'';sendToken=action.token||'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;validateSend();},200);break;
     case 'swap':
       goPage('swap');setTimeout(()=>{document.getElementById('swapFrom').value=action.amount||'';calcSwap();},200);break;
-    case 'stake':
-      goPage('stake');setTimeout(()=>{document.getElementById('stakeAmt').value=action.amount||'';},200);break;
+    case 'lend':
+      goPage('lend');break;
     case 'navigate':
       goPage(action.tab);break;
   }
+}
+
+// ═══════════════════════════════════════════
+// WALLET PICKER
+// ═══════════════════════════════════════════
+function showWalletPicker(){
+  document.getElementById('walletModalOverlay').classList.add('show');
+}
+function hideWalletPicker(e){
+  if(!e||e.target===document.getElementById('walletModalOverlay')){
+    document.getElementById('walletModalOverlay').classList.remove('show');
+  }
+}
+async function connectSpecific(walletType){
+  hideWalletPicker();
+  if(walletType==='walletconnect'){
+    toast('WalletConnect — scan QR with your mobile wallet','info',4000);
+    await connectWallet();
+    return;
+  }
+  if(walletType==='circle'){
+    toast('Scroll up to use email login for Circle wallet','info',4000);
+    document.getElementById('emailInput').focus();
+    return;
+  }
+  // For MetaMask, Rabby, Coinbase — detect the right provider
+  wp=null;
+  if(window.ethereum?.providers?.length){
+    const ps=window.ethereum.providers;
+    if(walletType==='metamask') wp=ps.find(p=>p.isMetaMask&&!p.isRabby)||ps.find(p=>p.isMetaMask);
+    if(walletType==='rabby') wp=ps.find(p=>p.isRabby);
+    if(walletType==='coinbase') wp=ps.find(p=>p.isCoinbaseWallet);
+    if(!wp) wp=ps[0];
+  } else {
+    wp=window.ethereum||window.rabby||null;
+  }
+  if(!wp){toast('Wallet not found — install '+walletType+' first','error',6000);return;}
+  const btn=document.getElementById('landConnectBtn');
+  btn.innerHTML='<span class="spinner"></span>Connecting...';btn.disabled=true;
+  try{
+    await wp.request({method:'eth_requestAccounts'});
+    try{await wp.request({method:'wallet_switchEthereumChain',params:[{chainId:ARC_HEX}]});}
+    catch(e){if(e.code===4902||e.code===-32603){await wp.request({method:'wallet_addEthereumChain',params:[ARC_PARAMS]});}}
+    provider=new ethers.BrowserProvider(wp);
+    signer=await provider.getSigner();
+    userAddr=await signer.getAddress();
+    isCircleWallet=false;
+    await onConnected(false);
+    toast('Connected via '+walletType+'!','success');
+  }catch(err){
+    if(err.code===4001)toast('Cancelled','error');
+    else toast((err?.message||'Connection failed').slice(0,120),'error');
+    btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;
+  }
+}
+
+// ═══════════════════════════════════════════
+// LEND & BORROW (simulated)
+// ═══════════════════════════════════════════
+let lendPositions={supplied:0,borrowed:0,interest:0};
+let lendAsset='USDC';
+let lendDuration=1, lendFee=2;
+
+function initLendUI(){
+  updateLendPositions();
+}
+function setLendTab(tab,el){
+  document.querySelectorAll('#page-lend .stab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.stake-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('lp-'+tab).classList.add('active');
+}
+function setLendAsset(asset,el){
+  lendAsset=asset;
+  el.closest('.type-sel').querySelectorAll('.topt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function setSupplyMax(){document.getElementById('supplyAmt').value=Math.max(0,parseFloat(lendAsset==='USDC'?usdcBal:eurcBal)-0.02).toFixed(6);}
+function setBorrowMax(){document.getElementById('borrowAmt').value=(lendPositions.supplied*0.75).toFixed(6);}
+function setRepayMax(){document.getElementById('repayAmt').value=lendPositions.borrowed.toFixed(6);}
+function setWithdrawMax(){document.getElementById('withdrawAmt').value=lendPositions.supplied.toFixed(6);}
+
+function updateLendPositions(){
+  document.getElementById('suppliedAmt').textContent=lendPositions.supplied.toFixed(2)+' USDC';
+  document.getElementById('borrowedAmt').textContent=lendPositions.borrowed.toFixed(2)+' USDC';
+  document.getElementById('accruedInterest').textContent=lendPositions.interest.toFixed(6)+' USDC';
+  const hf=lendPositions.borrowed>0?(lendPositions.supplied*0.8/lendPositions.borrowed).toFixed(2):'—';
+  const hfEl=document.getElementById('healthFactor');
+  hfEl.textContent=hf;
+  hfEl.style.color=hf==='—'?'var(--text3)':parseFloat(hf)>1.5?'var(--success)':parseFloat(hf)>1.1?'var(--warning)':'var(--danger)';
+  document.getElementById('repayDisplay').textContent=lendPositions.borrowed.toFixed(2)+' USDC';
+  document.getElementById('withdrawDisplay').textContent=lendPositions.supplied.toFixed(2)+' USDC';
+  const total=lendPositions.supplied>0?'$'+lendPositions.supplied.toFixed(2):'—';
+  document.getElementById('totalSupplied').textContent=total;
+  const util=lendPositions.supplied>0?((lendPositions.borrowed/lendPositions.supplied)*100).toFixed(1)+'%':'—';
+  document.getElementById('utilizationRate').textContent=util;
+}
+
+function doSupply(){
+  const amt=parseFloat(document.getElementById('supplyAmt').value);
+  if(!amt||amt<=0){toast('Enter an amount','error');return;}
+  const bal=lendAsset==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
+  if(amt>bal){toast('Insufficient '+lendAsset,'error');return;}
+  lendPositions.supplied+=amt;
+  if(lendAsset==='USDC')usdcBal=String(parseFloat(usdcBal)-amt);
+  else eurcBal=String(parseFloat(eurcBal)-amt);
+  addTx({hash:'lend-'+Date.now(),to:'lending-pool',toRaw:'Supplied '+lendAsset,amount:amt.toFixed(6),type:'stake',token:lendAsset,ts:Date.now(),source:'sim'});
+  toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' — earning 4.80% APY','success',5000);
+  document.getElementById('supplyAmt').value='';
+  updateLendPositions();
+  refreshBalances();
+  // Simulate interest accruing
+  setInterval(()=>{lendPositions.interest+=lendPositions.supplied*0.048/365/24/3600*30;updateLendPositions();},30000);
+}
+function doBorrow(){
+  const amt=parseFloat(document.getElementById('borrowAmt').value);
+  if(!amt||amt<=0){toast('Enter an amount','error');return;}
+  if(lendPositions.supplied===0){toast('Supply collateral first','error');return;}
+  if(amt>lendPositions.supplied*0.75){toast('Exceeds 75% LTV limit','error');return;}
+  lendPositions.borrowed+=amt;
+  usdcBal=String(parseFloat(usdcBal)+amt);
+  addTx({hash:'borrow-'+Date.now(),to:'lending-pool',toRaw:'Borrowed USDC',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
+  toast('✓ Borrowed '+amt.toFixed(2)+' USDC — 7.20% APR','success',5000);
+  document.getElementById('borrowAmt').value='';
+  updateLendPositions();
+  refreshBalances();
+}
+function doRepay(){
+  const amt=parseFloat(document.getElementById('repayAmt').value);
+  if(!amt||amt<=0){toast('Enter an amount','error');return;}
+  if(amt>lendPositions.borrowed){toast('More than you owe','error');return;}
+  lendPositions.borrowed=Math.max(0,lendPositions.borrowed-amt);
+  usdcBal=String(Math.max(0,parseFloat(usdcBal)-amt));
+  addTx({hash:'repay-'+Date.now(),to:'lending-pool',toRaw:'Repaid USDC',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),source:'sim'});
+  toast('✓ Repaid '+amt.toFixed(2)+' USDC','success',5000);
+  document.getElementById('repayAmt').value='';
+  updateLendPositions();
+  refreshBalances();
+}
+function doWithdraw(){
+  const amt=parseFloat(document.getElementById('withdrawAmt').value);
+  if(!amt||amt<=0){toast('Enter an amount','error');return;}
+  if(amt>lendPositions.supplied){toast('More than supplied','error');return;}
+  if(lendPositions.borrowed>0&&(lendPositions.supplied-amt)*0.8<lendPositions.borrowed){toast('Would make health factor unsafe','error');return;}
+  const withInterest=amt+lendPositions.interest;
+  lendPositions.supplied=Math.max(0,lendPositions.supplied-amt);
+  lendPositions.interest=0;
+  usdcBal=String(parseFloat(usdcBal)+withInterest);
+  addTx({hash:'withdraw-'+Date.now(),to:userAddr,toRaw:'Withdrew USDC + Interest',amount:withInterest.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
+  toast('✓ Withdrew '+withInterest.toFixed(4)+' USDC (inc. interest)','success',5000);
+  document.getElementById('withdrawAmt').value='';
+  updateLendPositions();
+  refreshBalances();
+}
+
+// ═══════════════════════════════════════════
+// ARC NAME SERVICE
+// ═══════════════════════════════════════════
+let arcNames=JSON.parse(localStorage.getItem('nan_arcnames')||'[]');
+let arcNameDurationYears=1;
+let arcNameFeeUsdc=2;
+
+function saveArcNames(){localStorage.setItem('nan_arcnames',JSON.stringify(arcNames));}
+function setArcNameDuration(years,fee,el){
+  arcNameDurationYears=years;arcNameFeeUsdc=fee;
+  document.querySelectorAll('.price-opt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('arcNameFeeDisplay').textContent=fee+' USDC';
+}
+function checkArcName(){
+  const val=document.getElementById('arcNameSearch').value.trim().toLowerCase().replace('.arc','');
+  const res=document.getElementById('arcNameResult');
+  if(!val){res.style.display='none';return;}
+  const taken=arcNames.find(n=>n.name===val);
+  res.style.display='block';
+  if(taken){
+    res.style.background='rgba(248,113,113,.07)';res.style.border='1px solid rgba(248,113,113,.22)';res.style.color='var(--danger)';
+    res.textContent='✗ '+val+'.arc is taken — owned by '+short(taken.owner);
+  }else{
+    res.style.background='rgba(52,211,153,.07)';res.style.border='1px solid rgba(52,211,153,.22)';res.style.color='var(--success)';
+    res.textContent='✓ '+val+'.arc is available!';
+  }
+}
+function registerArcName(){
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  const name=document.getElementById('arcNameInput').value.trim().toLowerCase().replace('.arc','');
+  if(!name||name.length<2){toast('Enter a valid name (min 2 chars)','error');return;}
+  if(!/^[a-z0-9-]+$/.test(name)){toast('Only letters, numbers and hyphens allowed','error');return;}
+  const taken=arcNames.find(n=>n.name===name);
+  if(taken){toast(name+'.arc is already taken','error');return;}
+  const bal=parseFloat(usdcBal);
+  if(bal<arcNameFeeUsdc+0.009){toast('Insufficient USDC (need '+arcNameFeeUsdc+' USDC + gas)','error');return;}
+  usdcBal=String(bal-arcNameFeeUsdc);
+  const expiry=new Date();expiry.setFullYear(expiry.getFullYear()+arcNameDurationYears);
+  const nameObj={name,owner:userAddr,expires:expiry.toLocaleDateString(),years:arcNameDurationYears,fee:arcNameFeeUsdc,ts:Date.now()};
+  arcNames.unshift(nameObj);
+  saveArcNames();
+  addTx({hash:'arcname-'+Date.now(),to:userAddr,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),source:'sim'});
+  toast('✓ '+name+'.arc registered for '+arcNameDurationYears+' year(s)!','success',6000);
+  document.getElementById('arcNameInput').value='';
+  renderMyArcNames();
+  renderArcDirectory();
+  refreshBalances();
+}
+function renderMyArcNames(){
+  const myNames=arcNames.filter(n=>n.owner===userAddr);
+  const el=document.getElementById('myArcNamesList');
+  if(!myNames.length){el.innerHTML='<div class="empty"><div class="empty-icon" style="font-size:1.2rem;">◎</div><div class="empty-text">No names registered yet.</div></div>';return;}
+  el.innerHTML=myNames.map(n=>`
+    <div class="arcname-row">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
+        <div style="font-size:.6rem;color:var(--text3);">Expires ${n.expires}</div>
+      </div>
+      <span style="font-size:.6rem;padding:3px 8px;border-radius:4px;background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">Active</span>
+    </div>
+  `).join('');
+}
+function renderArcDirectory(){
+  renderMyArcNames();
+  const el=document.getElementById('arcNameDirectory');
+  if(!arcNames.length){el.innerHTML='<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No names registered yet. Be the first!</div></div>';return;}
+  el.innerHTML=arcNames.map(n=>`
+    <div class="arcname-row" style="cursor:pointer;" onclick="prefillSend('${n.owner}')">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;color:var(--accent3);">${n.name}.arc</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">${short(n.owner)}</div>
+      </div>
+      <button class="send-sm">Send</button>
+    </div>
+  `).join('');
 }
 
 // ═══════════════════════════════════════════
@@ -1859,7 +2263,7 @@ window.addEventListener('load',()=>{
   setInterval(async()=>{
     if(userAddr){
       if(!isCircleWallet)await checkNetwork();
-      if(onArcNetwork||isCircleWallet){await refreshBalances();await refreshStakeInfo();}
+      if(onArcNetwork||isCircleWallet){await refreshBalances();}
     }
   },30000);
 });
