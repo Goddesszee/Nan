@@ -985,6 +985,7 @@ function toast(msg,type='info',ms=4000){
   clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
+function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
 function toggleBalCurrency(){
   const currencies=['USD','EURC','USDC'];
   const idx=currencies.indexOf(balCurrency);
