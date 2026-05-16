@@ -1610,37 +1610,14 @@ function initSwapUI(){
 // STAKE
 // ═══════════════════════════════════════════
 const hasStaking=()=>STAKING_CONTRACT&&STAKING_CONTRACT.length===42;
-async function refreshStakeInfo(){
-  if(!provider||!userAddr||!hasStaking())return;
-  try{
-    const sc=new ethers.Contract(STAKING_CONTRACT,STAKING_ABI,provider);
-    const[info,totalRaw]=await Promise.all([sc.getUserInfo(userAddr),sc.totalStaked()]);
-    onChainStaked=parseFloat(ethers.formatUnits(info[0],USDC_DECIMALS));
-    onChainClaimable=parseFloat(ethers.formatUnits(info[2],USDC_DECIMALS));
-    const total=parseFloat(ethers.formatUnits(totalRaw,USDC_DECIMALS));
-    document.getElementById('myStake').textContent=onChainStaked.toFixed(2)+' USDC';
-    document.getElementById('myRewards').textContent=onChainClaimable.toFixed(6);
-    document.getElementById('stakedDisplay').textContent=onChainStaked.toFixed(2)+' USDC';
-    document.getElementById('claimAmt').textContent=onChainClaimable.toFixed(6);
-    document.getElementById('totalStakedDisplay').textContent='$'+total.toLocaleString(undefined,{maximumFractionDigits:2});
-    const share=total>0?(onChainStaked/total*100):0;
-    document.getElementById('poolShare').textContent=share.toFixed(4)+'%';
-    document.getElementById('stakeBar').style.width=Math.min(share*100,100)+'%';
-    document.getElementById('stakeStatus').textContent=onChainStaked>0?'Earning now — live on-chain':'Not staking';
-  }catch(err){console.error('Stake info error:',err);}
-}
-function startStakeTimer(){if(stakeTimer)return;stakeTimer=setInterval(()=>{refreshStakeInfo();},15000);}
-function initStakeUI(){
-  const ok=hasStaking();
-  document.getElementById('stakeLiveBadge').style.display=ok?'flex':'none';
-  document.getElementById('approveNotice').style.display=(ok&&onChainStaked===0)?'block':'none';
-  document.getElementById('stakeBtn').disabled=!ok||(isCircleWallet?false:!onArcNetwork);
-  if(!ok)document.getElementById('stakeBtn').textContent='Contract not deployed';
+function prefillSend(addr){
+  goPage('send');
+  setTimeout(()=>{setType('address',document.getElementById('topt-address'));document.getElementById('recipInput').value=addr;onRecipInput();},200);
 }
 async function doStake(){
-  if(!hasStaking()){toast('Staking contract not set','error');return;}
-  if(!isCircleWallet&&(!signer||!onArcNetwork)){toast('Connect wallet & switch to Arc Testnet','error');return;}
-  const amt=parseFloat(document.getElementById('stakeAmt').value);
+// ═══════════════════════════════════════════
+// BRIDGE — CCTP
+// ═══════════════════════════════════════════
   if(!amt||amt<1){toast('Minimum 1 USDC','error');return;}
   if(amt>parseFloat(usdcBal)){toast('Insufficient USDC','error');return;}
   const parsed=ethers.parseUnits(amt.toFixed(USDC_DECIMALS),USDC_DECIMALS);
@@ -1709,7 +1686,7 @@ async function doClaim(){
 function setStakeMax(){document.getElementById('stakeAmt').value=Math.max(0,parseFloat(usdcBal)-0.02).toFixed(6);}
 function setUnstakeMax(){document.getElementById('unstakeAmt').value=onChainStaked.toFixed(6);}
 function setStakeTab(tab,el){
-  document.querySelectorAll('#page-stake .stab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#page-lend .stab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.stake-panel').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('sp-'+tab).classList.add('active');
@@ -1779,77 +1756,6 @@ async function doBridge(){
   }finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}
 }
 
-// ═══════════════════════════════════════════
-// HANDLES
-// ═══════════════════════════════════════════
-function setRegType(type,el){
-  regType=type;
-  document.querySelectorAll('#page-handle .topt').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('regHandle').placeholder=type==='x'?'@yourtwitter':'yourdiscord';
-}
-async function removeHandle(handle){
-  if(!signer){toast('Connect MetaMask to remove handles','error');return;}
-  const contract=new ethers.Contract(HANDLE_REGISTRY,HANDLE_ABI,signer);
-  try{
-    const tx=await contract.remove(handle);
-    toast('Removing handle…','info',3000);
-    await tx.wait();
-    toast('Handle removed!','success');
-    renderAllHandles();showMyHandles();
-  }catch(e){toast(e.reason||'Failed to remove','error');}
-}
-async function registerHandle(){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  if(!signer&&!isCircleWallet){toast('MetaMask required for handle registration','error');return;}
-  let h=document.getElementById('regHandle').value.trim().toLowerCase().replace(/^@/,'');
-  if(!h||h.length<2){toast('Enter a valid username','error');return;}
-  if(isCircleWallet){toast('Handle registration requires MetaMask — coming soon for email wallets','error',6000);return;}
-  const contract=new ethers.Contract(HANDLE_REGISTRY,HANDLE_ABI,signer);
-  try{
-    const tx=await contract.register(regType+':'+h);
-    toast('Confirming…','info',3000);
-    await tx.wait();
-    document.getElementById('regHandle').value='';
-    toast('@'+h+' linked on-chain!','success');
-    renderAllHandles();showMyHandles();
-  }catch(e){toast(e.reason||'Failed','error');}
-}
-async function showMyHandles(){
-  if(!userAddr||!provider)return;
-  const box=document.getElementById('myHandlesBox');
-  const list=document.getElementById('myHandlesList');
-  try{
-    const contract=new ethers.Contract(HANDLE_REGISTRY,HANDLE_ABI,provider);
-    const handles=await contract.getHandles(userAddr);
-    if(!handles||handles.length===0){box.style.display='none';return;}
-    box.style.display='block';
-    list.innerHTML=handles.map(h=>`<span class="handle-tag">${h.startsWith('x:')?'𝕏':'💬'} @${h.replace('x:','').replace('discord:','')}<span class="handle-remove" onclick="removeHandle('${h}')">✕</span></span>`).join('');
-  }catch{box.style.display='none';}
-}
-async function renderAllHandles(){
-  const list=document.getElementById('allHandlesList');
-  list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading…</div></div>';
-  try{
-    const contract=new ethers.Contract(HANDLE_REGISTRY,HANDLE_ABI,provider);
-    const filter=contract.filters.HandleRegistered?.();
-    if(!filter){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet.</div></div>';return;}
-    const events=await contract.queryFilter(filter,-10000);
-    if(!events.length){list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet. Be the first!</div></div>';return;}
-    const seen=new Set();
-    const items=events.reverse().filter(e=>{const k=e.args.wallet+e.args.handle;if(seen.has(k))return false;seen.add(k);return true;});
-    list.innerHTML=items.map(e=>`
-      <div class="dir-item">
-        <div class="dir-av">${e.args.wallet.slice(2,4).toUpperCase()}</div>
-        <div class="dir-info">
-          <div class="dir-handle">${e.args.handle.startsWith('x:')?'𝕏':'💬'} @${e.args.handle.replace('x:','').replace('discord:','')}</div>
-          <div class="dir-addr">${e.args.wallet.slice(0,6)}…${e.args.wallet.slice(-4)}</div>
-        </div>
-        <button class="send-sm" onclick="prefillSend('${e.args.wallet}')">Send</button>
-      </div>
-    `).join('');
-  }catch{list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No handles yet.</div></div>';}
-}
 function prefillSend(addr){
   goPage('send');
   setTimeout(()=>{setType('address',document.getElementById('topt-address'));document.getElementById('recipInput').value=addr;onRecipInput();},200);
