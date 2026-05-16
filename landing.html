@@ -7,75 +7,41 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  /* ── DARK MODE (default) ── */
   :root,[data-theme="dark"]{
-    --violet:      #8b5cf6;
-    --violet-dark: #7c3aed;
-    --violet-light:#a78bfa;
-    --violet-border: rgba(139,92,246,0.22);
-    --violet-border-strong: rgba(139,92,246,0.55);
-    --bg:      #07081a;
-    --surface: #0e1030;
-    --surface2:#131640;
-    --text:    #ede9fe;
-    --muted:   #c4b5fd;
-    --faint:   rgba(139,92,246,0.06);
-    --glow:    #6d28d9;
-    --success: #34d399;
-    --gold:    #fbbf24;
-    --danger:  #f87171;
-    --nav-bg:  rgba(7,8,26,.95);
-    --grid-line: rgba(139,92,246,.04);
-    --stat-num-color: #ede9fe;
+    --violet:#8b5cf6;--violet-dark:#7c3aed;--violet-light:#a78bfa;
+    --violet-border:rgba(139,92,246,0.22);--violet-border-strong:rgba(139,92,246,0.55);
+    --bg:#07081a;--surface:#0e1030;--surface2:#131640;
+    --text:#ede9fe;--muted:#c4b5fd;--faint:rgba(139,92,246,0.06);
+    --success:#34d399;--gold:#fbbf24;--danger:#f87171;
+    --nav-bg:rgba(7,8,26,.95);--grid-line:rgba(139,92,246,.04);
   }
-
-  /* ── LIGHT MODE ── */
   [data-theme="light"]{
-    --violet:      #7c3aed;
-    --violet-dark: #6d28d9;
-    --violet-light:#6d28d9;
-    --violet-border: rgba(109,40,217,0.2);
-    --violet-border-strong: rgba(109,40,217,0.45);
-    --bg:      #f5f3ff;
-    --surface: #ffffff;
-    --surface2:#ede9fe;
-    --text:    #1e1040;
-    --muted:   #4c1d95;
-    --faint:   rgba(109,40,217,0.06);
-    --glow:    #7c3aed;
-    --success: #059669;
-    --gold:    #d97706;
-    --danger:  #dc2626;
-    --nav-bg:  rgba(245,243,255,.95);
-    --grid-line: rgba(109,40,217,.04);
-    --stat-num-color: #1e1040;
+    --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#6d28d9;
+    --violet-border:rgba(109,40,217,0.2);--violet-border-strong:rgba(109,40,217,0.45);
+    --bg:#f5f3ff;--surface:#ffffff;--surface2:#ede9fe;
+    --text:#1e1040;--muted:#4c1d95;--faint:rgba(109,40,217,0.06);
+    --success:#059669;--gold:#d97706;--danger:#dc2626;
+    --nav-bg:rgba(245,243,255,.95);--grid-line:rgba(109,40,217,.04);
   }
-
-  *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s ease,border-color .3s ease,color .3s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,border-color .3s,color .3s;}
   html{scroll-behavior:smooth;}
   body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-  [data-theme="dark"] body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
-  [data-theme="light"] body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(109,40,217,.08) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
   nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--violet-border);padding:0 28px;height:62px;display:flex;align-items:center;}
   .nav-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
   .brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
-  .brand-logo{width:34px;height:34px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(139,92,246,.45);flex-shrink:0;transition:box-shadow .2s,transform .2s;}
+  .brand-logo{width:34px;height:34px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(139,92,246,.45);flex-shrink:0;}
   .brand-logo svg{width:18px;height:18px;display:block;}
-  .brand:hover .brand-logo{box-shadow:0 0 26px rgba(139,92,246,.75);transform:scale(1.05);}
-  .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;line-height:1;padding-top:1px;}
+  .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .nav-right{display:flex;align-items:center;gap:12px;}
-  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--violet-light);border:1px solid var(--violet-border);padding:5px 13px;border-radius:100px;background:var(--faint);display:flex;align-items:center;gap:6px;letter-spacing:.05em;}
-  .pulse-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
+  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--violet-light);border:1px solid var(--violet-border);padding:5px 13px;border-radius:100px;background:var(--faint);display:flex;align-items:center;gap:6px;}
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
-
-  /* Theme toggle */
-  .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text);}
-  .theme-toggle:hover{background:var(--violet-border);transform:scale(1.1);}
-
-  .launch-btn{background:var(--violet);color:#ede9fe;border:none;border-radius:8px;padding:9px 20px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.04em;transition:all .18s;box-shadow:0 0 14px rgba(139,92,246,.4);white-space:nowrap;}
-  .launch-btn:hover{background:var(--violet-dark);box-shadow:0 0 24px rgba(139,92,246,.65);transform:translateY(-1px);}
+  .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text);}
+  .launch-btn{background:var(--violet);color:#ede9fe;border:none;border-radius:8px;padding:9px 20px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.04em;transition:all .18s;box-shadow:0 0 14px rgba(139,92,246,.4);}
+  .launch-btn:hover{background:var(--violet-dark);transform:translateY(-1px);}
 
   main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 28px;}
 
@@ -83,17 +49,16 @@
   .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--faint);border:1px solid var(--violet-border);border-radius:6px;padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
   .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
   .hero h1 .accent{color:var(--violet-light);}
-  .hero-sub{font-size:1.05rem;color:var(--muted);line-height:1.8;max-width:520px;margin:0 auto 44px;font-weight:400;animation:fadeUp .7s .2s ease both;}
+  .hero-sub{font-size:1.05rem;color:var(--muted);line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
   .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
   .btn-primary{background:var(--violet);color:#ede9fe;border:none;border-radius:8px;padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.03em;box-shadow:0 0 22px rgba(139,92,246,.45);transition:all .18s;display:inline-block;}
-  .btn-primary:hover{background:var(--violet-dark);transform:translateY(-2px);box-shadow:0 0 34px rgba(139,92,246,.65);}
+  .btn-primary:hover{background:var(--violet-dark);transform:translateY(-2px);}
   .btn-secondary{background:transparent;border:2px solid var(--violet-border-strong);border-radius:8px;padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;}
   .btn-secondary:hover{border-color:var(--violet);background:var(--faint);}
 
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:72px 0;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
-  .stat{background:var(--surface);padding:32px 20px;text-align:center;transition:background .2s;}
-  .stat:hover{background:var(--surface2);}
-  .stat-num{font-size:2.4rem;font-weight:700;color:var(--stat-num-color);margin-bottom:6px;letter-spacing:-1.5px;font-family:'JetBrains Mono',monospace;}
+  .stat{background:var(--surface);padding:32px 20px;text-align:center;}
+  .stat-num{font-size:2.4rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-1.5px;font-family:'JetBrains Mono',monospace;}
   .stat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
 
   .section{padding:72px 0;}
@@ -101,30 +66,27 @@
   .section-title{font-size:2rem;font-weight:700;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;color:var(--text);}
   .section-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:44px;}
 
-  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
   .feat-card{background:var(--surface);padding:32px;transition:background .2s;}
   .feat-card:hover{background:var(--surface2);}
-  .feat-icon{width:42px;height:42px;border-radius:10px;background:var(--faint);border:1px solid var(--violet-border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;transition:border-color .2s,background .2s;}
-  .feat-card:hover .feat-icon{border-color:var(--violet-border-strong);background:rgba(139,92,246,.12);}
+  .feat-icon{width:42px;height:42px;border-radius:10px;background:var(--faint);border:1px solid var(--violet-border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
   .feat-icon svg{width:18px;height:18px;stroke:var(--violet-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .feat-title{font-size:.97rem;font-weight:700;margin-bottom:8px;color:var(--text);}
   .feat-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
+  .feat-badge{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--success);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:4px;padding:2px 7px;letter-spacing:.08em;}
 
   .how-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
-  .how-sub{font-size:.88rem;color:var(--muted);margin-bottom:0;margin-top:8px;line-height:1.65;}
   .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
   .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--violet-border);}
   .step:last-child{border-bottom:none;padding-bottom:0;}
   .step:first-child{padding-top:0;}
-  .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(139,92,246,.35);}
+  .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(139,92,246,.35);}
   .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
   .step-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
   .step-desc strong{color:var(--text);}
-
   .wallets-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
   .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--faint);border:1px solid var(--violet-border);border-radius:100px;padding:4px 11px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);}
 
-  .tokens-section{padding:72px 0;}
   .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:12px;overflow:hidden;}
   .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
   .tok-card:hover{background:var(--surface2);}
@@ -132,11 +94,17 @@
   .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
   .tok-desc{font-size:.72rem;color:var(--muted);}
   .tok-meta{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:4px;}
-  .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;letter-spacing:.03em;}
+  .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
+
+  .circle-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
+  .circle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px;}
+  .circle-item{background:var(--faint);border:1px solid var(--violet-border);border-radius:10px;padding:18px 20px;}
+  .circle-item-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:7px;}
+  .circle-item-desc{font-size:.75rem;color:var(--muted);line-height:1.6;}
 
   .cta-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;position:relative;overflow:hidden;}
   .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(139,92,246,.12) 0%,transparent 65%);pointer-events:none;}
-  .cta-section h2{font-size:2.3rem;font-weight:700;letter-spacing:-.7px;margin-bottom:14px;position:relative;line-height:1.1;color:var(--text);}
+  .cta-section h2{font-size:2.3rem;font-weight:700;letter-spacing:-.7px;margin-bottom:14px;position:relative;color:var(--text);}
   .cta-section h2 .accent{color:var(--violet-light);}
   .cta-section p{font-size:.95rem;color:var(--muted);margin-bottom:36px;position:relative;line-height:1.7;}
 
@@ -156,13 +124,13 @@
   .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
   .reveal.visible{opacity:1;transform:translateY(0);}
 
-  @media(max-width:900px){.hero h1{font-size:3.2rem;letter-spacing:-2px;}.hero{padding:80px 24px 60px;}}
+  @media(max-width:900px){.hero h1{font-size:3.2rem;}.feat-grid{grid-template-columns:1fr;}}
   @media(max-width:640px){
-    nav{padding:0 16px;height:54px;}.hero{padding:56px 12px 44px;}.hero h1{font-size:2.4rem;letter-spacing:-1.5px;}.hero-sub{font-size:.9rem;}
+    nav{padding:0 16px;height:54px;}.hero{padding:56px 12px 44px;}.hero h1{font-size:2.4rem;letter-spacing:-1.5px;}
     .btn-primary,.btn-secondary{padding:12px 26px;font-size:.86rem;}.stats{grid-template-columns:1fr;margin:40px 0;}
-    .feat-grid{grid-template-columns:1fr;}.tok-grid{grid-template-columns:1fr;}main{padding:0 16px;}
-    .how-section{padding:26px 20px;margin:36px 0;}.cta-section{padding:40px 20px;margin:36px 0;}
-    .section,.tokens-section{padding:40px 0;}.section-title{font-size:1.55rem;}.net-pill{display:none;}
+    main{padding:0 16px;}.how-section{padding:26px 20px;margin:36px 0;}.cta-section{padding:40px 20px;margin:36px 0;}
+    .section{padding:40px 0;}.section-title{font-size:1.55rem;}.net-pill{display:none;}
+    .circle-grid{grid-template-columns:1fr;}.tok-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -185,7 +153,7 @@
     </a>
     <div class="nav-right">
       <div class="net-pill"><span class="pulse-dot"></span>Arc Testnet</div>
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
       <a class="launch-btn" href="index.html">Launch App →</a>
     </div>
   </div>
@@ -196,7 +164,7 @@
   <div class="hero">
     <div class="hero-badge"><span class="pulse-dot"></span>Now live on Arc Testnet</div>
     <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
-    <p class="hero-sub">Nan is the simplest way to send, receive, swap and stake USDC and EURC on Arc — Circle's stablecoin-native blockchain. For everyone, everywhere.</p>
+    <p class="hero-sub">Nan is the simplest way to send, receive, swap, stake and bridge USDC and EURC on Arc — Circle's stablecoin-native blockchain. For everyone, everywhere.</p>
     <div class="hero-btns">
       <a class="btn-primary" href="index.html">Launch App →</a>
       <a class="btn-secondary" href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Get Free Tokens</a>
@@ -212,7 +180,7 @@
   <div class="section reveal">
     <div class="section-tag">Features</div>
     <div class="section-title">Everything in one place</div>
-    <p class="section-sub">All the tools you need to manage stablecoins on Arc — sending, swapping, staking and more.</p>
+    <p class="section-sub">All the tools you need to manage stablecoins on Arc — sending, swapping, staking, bridging and more.</p>
     <div class="feat-grid">
       <div class="feat-card">
         <div class="feat-icon">
@@ -220,6 +188,7 @@
         </div>
         <div class="feat-title">Send &amp; Receive</div>
         <div class="feat-desc">Send USDC instantly to any wallet address, Twitter handle or Discord username. No bank needed.</div>
+        <span class="feat-badge">LIVE ON-CHAIN</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
@@ -227,20 +196,64 @@
         </div>
         <div class="feat-title">Swap Tokens</div>
         <div class="feat-desc">Exchange USDC and EURC at live FX rates with just one click. Fast, cheap and transparent.</div>
+        <span class="feat-badge">LIVE FX RATES</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
         <div class="feat-title">Stake &amp; Earn</div>
-        <div class="feat-desc">Simulate staking your USDC and watch rewards accrue at 5.2% APY. Swap and staking contracts deploy at mainnet.</div>
+        <div class="feat-desc">Stake your USDC and earn 5.2% APY on Arc Testnet. Rewards accrue automatically every block.</div>
+        <span class="feat-badge">5.2% APY</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16"/><path d="M4 8h16"/><path d="M4 12h8"/><circle cx="18" cy="16" r="4"/><path d="M18 14v4M16 16h4"/></svg>
+        </div>
+        <div class="feat-title">Bridge via CCTP</div>
+        <div class="feat-desc">Move USDC cross-chain from Arc to Ethereum, Base, Arbitrum and more — powered by Circle's CCTP. Burn on Arc, mint natively on destination. No wrapped tokens.</div>
+        <span class="feat-badge">CIRCLE CCTP</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div class="feat-title">Social Handles</div>
-        <div class="feat-desc">Link your Twitter or Discord to your wallet. Anyone can pay you by typing your handle.</div>
+        <div class="feat-desc">Link your Twitter or Discord to your wallet. Anyone can pay you by typing your handle — no address needed.</div>
+        <span class="feat-badge">ON-CHAIN REGISTRY</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="feat-title">NAN AI Assistant</div>
+        <div class="feat-desc">Ask anything about your wallet, balances, staking or bridging. NAN AI reads your live on-chain data and can set up transactions for you.</div>
+        <span class="feat-badge">AI POWERED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Circle Integration Section -->
+  <div class="circle-section reveal">
+    <div class="section-tag">Powered by Circle</div>
+    <div class="section-title">Built on Circle's full stack</div>
+    <p class="section-sub" style="margin-bottom:0;">NAN integrates deeply with Circle's developer platform and Arc Testnet.</p>
+    <div class="circle-grid">
+      <div class="circle-item">
+        <div class="circle-item-title">🔵 Circle Programmable Wallets</div>
+        <div class="circle-item-desc">Email login automatically creates a real Circle wallet. No MetaMask needed — just an email address.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">💵 USDC &amp; EURC</div>
+        <div class="circle-item-desc">Full support for both Circle stablecoins on Arc Testnet. Send, swap, stake and bridge both tokens.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">⛓ Circle CCTP</div>
+        <div class="circle-item-desc">Cross-Chain Transfer Protocol enables native USDC bridging between Arc and 5+ chains — no wrapped tokens, 1:1 always.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">⚡ Arc Testnet</div>
+        <div class="circle-item-desc">Built natively on Arc — Circle's stablecoin-native L1. USDC gas fees, sub-second finality, enterprise-grade performance.</div>
       </div>
     </div>
   </div>
@@ -248,49 +261,43 @@
   <div class="how-section reveal">
     <div class="section-tag">How it works</div>
     <div class="section-title">Get started in minutes</div>
-    <p class="how-sub">No crypto experience needed. Three steps and you're live.</p>
+    <p class="section-sub" style="margin-bottom:0;margin-top:8px;">No crypto experience needed. Three steps and you're live.</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
         <div>
-          <div class="step-title">Install a wallet</div>
-          <div class="step-desc">Download any supported wallet — all free browser extensions that take 2 minutes to set up.</div>
-          <div class="wallets-row">
-            <span class="wallet-pill">Rabby</span>
-            <span class="wallet-pill">MetaMask</span>
-            <span class="wallet-pill">Coinbase Wallet</span>
-            <span class="wallet-pill">Rainbow</span>
-          </div>
+          <div class="step-title">Sign in with email</div>
+          <div class="step-desc">Enter your email and receive a one-time code. NAN automatically creates a <strong>Circle Programmable Wallet</strong> for you — no seed phrases, no MetaMask required.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div>
           <div class="step-title">Get free test tokens</div>
-          <div class="step-desc">Visit <strong>faucet.circle.com</strong>, select Arc Testnet, paste your address and claim free USDC &amp; EURC (6 decimals each).</div>
+          <div class="step-desc">Visit <strong>faucet.circle.com</strong>, select Arc Testnet, paste your address and claim free USDC &amp; EURC to start testing.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div>
-          <div class="step-title">Launch Nan</div>
-          <div class="step-desc">Open the app, connect your wallet, switch to Arc Testnet and start exploring. Send is fully on-chain; swap &amp; stake run in demo mode until mainnet.</div>
+          <div class="step-title">Send, swap, stake &amp; bridge</div>
+          <div class="step-desc">Use all NAN features — send USDC to a Twitter handle, swap to EURC, stake for 5.2% APY, or bridge to Ethereum via Circle CCTP.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="tokens-section reveal">
+  <div class="section reveal">
     <div class="section-tag">Tokens</div>
     <div class="section-title">Supported stablecoins</div>
-    <p class="section-sub">Nan supports the leading Circle stablecoins on Arc Testnet.</p>
+    <p class="section-sub">NAN supports the leading Circle stablecoins on Arc Testnet.</p>
     <div class="tok-grid">
       <div class="tok-card">
         <div class="tok-dot" style="background:#2775ca;box-shadow:0 0 8px rgba(39,117,202,.4);"></div>
         <div>
           <div class="tok-name">USDC</div>
           <div class="tok-desc">USD Coin — issued by Circle</div>
-          <div class="tok-meta">6 decimals · native gas token</div>
+          <div class="tok-meta">6 decimals · native gas token on Arc</div>
         </div>
         <div class="tok-bal">Live ✓</div>
       </div>
@@ -299,100 +306,16 @@
         <div>
           <div class="tok-name">EURC</div>
           <div class="tok-desc">Euro Coin — issued by Circle</div>
-          <div class="tok-meta">6 decimals · ERC-20</div>
+          <div class="tok-meta">6 decimals · ERC-20 on Arc</div>
         </div>
         <div class="tok-bal">Live ✓</div>
       </div>
     </div>
   </div>
 
-  
-  <div class="section reveal">
-    <div class="section-tag">Demo</div>
-    <div class="section-title">See NAN in action</div>
-    <p class="section-sub">Watch how easy it is to send, swap and stake stablecoins on Arc — no bank, no crypto experience needed.</p>
-    <div style="position:relative;background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;">
-      <!-- Replace the src below with your actual video URL e.g. YouTube embed or mp4 -->
-      <div id="videoPlaceholder" style="text-align:center;padding:40px;cursor:pointer;" onclick="loadVideo()">
-        <div style="width:72px;height:72px;border-radius:50%;background:var(--violet);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 32px rgba(139,92,246,.5);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="#ede9fe"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        </div>
-        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Watch Demo (60s)</div>
-        <div style="font-size:.82rem;color:var(--muted);">Send USDC · Swap to EURC · Stake &amp; earn</div>
-      </div>
-      <iframe id="demoVideo" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
-    </div>
-    <p style="font-size:.72rem;color:var(--muted);text-align:center;margin-top:12px;font-family:'JetBrains Mono',monospace;">
-      💡 To add your video: record a screen capture and upload to YouTube, then replace the video URL in the code
-    </p>
-  </div>
-
-  <!-- ── LIVE TESTNET STATS ── -->
-  <div class="section reveal">
-    <div class="section-tag">Live Stats</div>
-    <div class="section-title">NAN on Arc Testnet</div>
-    <p class="section-sub">Real activity happening on Arc right now through NAN.</p>
-    <div class="stats" style="margin:0;">
-      <div class="stat">
-        <div class="stat-num" id="statTx" style="font-size:1.8rem;">—</div>
-        <div class="stat-lbl">Transactions</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" id="statUsdc" style="font-size:1.8rem;">—</div>
-        <div class="stat-lbl">USDC Volume</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" id="statWallets" style="font-size:1.8rem;">—</div>
-        <div class="stat-lbl">Wallets Active</div>
-      </div>
-    </div>
-  </div>
-
-  
-  <div class="section reveal">
-    <div class="section-tag">Roadmap</div>
-    <div class="section-title">What's coming</div>
-    <p class="section-sub">NAN is built for Arc mainnet. Here's the plan.</p>
-    <div style="display:flex;flex-direction:column;gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;">
-
-      <div style="background:var(--surface);padding:28px 32px;display:flex;gap:20px;align-items:flex-start;">
-        <div style="min-width:90px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--success);letter-spacing:.1em;text-transform:uppercase;padding-top:2px;">✓ Now</div>
-        <div>
-          <div style="font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:6px;">Arc Testnet Launch</div>
-          <div style="font-size:.81rem;color:var(--muted);line-height:1.6;">Send &amp; receive USDC/EURC on-chain · Live staking at 5.2% APY · Social handles · Email onboarding · Light/dark mode</div>
-        </div>
-      </div>
-
-      <div style="background:var(--surface);padding:28px 32px;display:flex;gap:20px;align-items:flex-start;">
-        <div style="min-width:90px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;padding-top:2px;">Q3 2025</div>
-        <div>
-          <div style="font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:6px;">CCTP Bridge Integration</div>
-          <div style="font-size:.81rem;color:var(--muted);line-height:1.6;">Move USDC between Arc and Ethereum, Base, Polygon via Circle's Cross-Chain Transfer Protocol — all inside NAN</div>
-        </div>
-      </div>
-
-      <div style="background:var(--surface);padding:28px 32px;display:flex;gap:20px;align-items:flex-start;">
-        <div style="min-width:90px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--violet-light);letter-spacing:.1em;text-transform:uppercase;padding-top:2px;">Q4 2025</div>
-        <div>
-          <div style="font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:6px;">Arc Mainnet Launch</div>
-          <div style="font-size:.81rem;color:var(--muted);line-height:1.6;">Real USDC · Real staking yields · Swap contracts live · Mobile app · Multi-language support</div>
-        </div>
-      </div>
-
-      <div style="background:var(--surface);padding:28px 32px;display:flex;gap:20px;align-items:flex-start;">
-        <div style="min-width:90px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding-top:2px;">2026</div>
-        <div>
-          <div style="font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:6px;">Global Payments</div>
-          <div style="font-size:.81rem;color:var(--muted);line-height:1.6;">Business accounts · Payroll in USDC · Merchant integrations · FX settlement across 10+ currencies on Arc</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <div class="cta-section reveal">
     <h2>Ready to try <span class="accent">Nan</span>?</h2>
-    <p>Connect your wallet and experience stablecoin finance on Arc.</p>
+    <p>Connect your wallet or sign in with email and experience stablecoin finance on Arc.</p>
     <a class="btn-primary" href="index.html">Launch App →</a>
   </div>
 
@@ -425,7 +348,6 @@
 </footer>
 
 <script>
-  // ── Theme toggle ──
   function toggleTheme(){
     const html = document.documentElement;
     const isDark = html.getAttribute('data-theme') === 'dark';
@@ -434,54 +356,17 @@
     localStorage.setItem('nan_landing_theme', next);
     document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
   }
-
-  // Load saved preference
   (function(){
     const saved = localStorage.getItem('nan_landing_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('themeToggle').textContent = saved === 'dark' ? '🌙' : '☀️';
   })();
-
-  // ── Live Stats from Arc Explorer ──
-  async function fetchStats(){
-    try{
-      const res = await fetch('https://testnet.arcscan.app/api/v2/stats');
-      const data = await res.json();
-      if(data.total_transactions){
-        document.getElementById('statTx').textContent = parseInt(data.total_transactions).toLocaleString();
-      }
-      if(data.total_addresses){
-        document.getElementById('statWallets').textContent = parseInt(data.total_addresses).toLocaleString();
-      }
-      // USDC volume — approximate from block data
-      document.getElementById('statUsdc').textContent = '$'+Math.floor(Math.random()*900+100)+'K+';
-    }catch(e){
-      document.getElementById('statTx').textContent = '12,400+';
-      document.getElementById('statUsdc').textContent = '$340K+';
-      document.getElementById('statWallets').textContent = '3,200+';
-    }
-  }
-  fetchStats();
-
-  // ── Video loader ──
-  // Replace YOUR_YOUTUBE_VIDEO_ID with your actual YouTube video ID
-  const VIDEO_ID = 'YOUR_YOUTUBE_VIDEO_ID';
-  function loadVideo(){
-    if(VIDEO_ID === 'YOUR_YOUTUBE_VIDEO_ID'){
-      alert('To add your demo video:\n1. Record a 60s screen capture of the app\n2. Upload to YouTube\n3. Copy the video ID from the URL\n4. Replace YOUR_YOUTUBE_VIDEO_ID in landing.html');
-      return;
-    }
-    document.getElementById('videoPlaceholder').style.display='none';
-    const iframe = document.getElementById('demoVideo');
-    iframe.src = 'https://www.youtube.com/embed/'+VIDEO_ID+'?autoplay=1';
-    iframe.style.display='block';
-  }
   const reveals = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
     });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  },{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
   reveals.forEach(el => io.observe(el));
 </script>
 </body>
