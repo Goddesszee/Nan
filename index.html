@@ -850,9 +850,10 @@ const USDC_DECIMALS = 6;
 const EURC_DECIMALS = 6;
 const GAS_USDC      = 0.009;
 
-const STAKING_CONTRACT = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
-const SWAP_CONTRACT    = '0x09C5A9Ae45D38DBdA2bBD3bd721Fd957ac2b1A69';
-const HANDLE_REGISTRY  = '0x604E8204F111eFC4e0ce69932b3BFb3ca64FC3aC';
+const STAKING_CONTRACT  = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
+const SWAP_CONTRACT     = '0xCBb5C41CD5ba1614b4343E3b1aA730071D52816C'; // NANSwap deployed
+const LENDING_CONTRACT  = '0x042E348E63aBE126CffA671a3Ec4385CDF7Db524'; // NANLendingPool deployed
+const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
 
 // CCTP — Circle Cross-Chain Transfer Protocol
 const CCTP_TOKEN_MESSENGER = '0x8186359aF5F57FbB40c6b14A588d2A59C0C29b2'; // Arc Testnet (update when live)
@@ -865,7 +866,36 @@ const CCTP_DOMAIN = {
   'MATIC-MUMBAI': 7,
 };
 
-const ERC20_ABI = [
+const SWAP_ABI = [
+  'function swapUSDCtoEURC(uint256) external returns (uint256)',
+  'function swapEURCtoUSDC(uint256) external returns (uint256)',
+  'function addLiquidity(uint256,uint256) external',
+  'function quoteUSDCtoEURC(uint256) view returns (uint256,uint256)',
+  'function quoteEURCtoUSDC(uint256) view returns (uint256,uint256)',
+  'function getRate() view returns (uint256,uint256)',
+  'function getLiquidity() view returns (uint256,uint256)',
+];
+const LENDING_ABI = [
+  'function supply(uint256) external',
+  'function withdraw(uint256) external',
+  'function addCollateral(uint256) external',
+  'function borrow(uint256) external',
+  'function repay(uint256) external',
+  'function getPosition(address) view returns (uint256,uint256,uint256,uint256,uint256,uint256)',
+  'function totalSupplied() view returns (uint256)',
+  'function totalBorrowed() view returns (uint256)',
+  'function utilizationRate() view returns (uint256)',
+];
+const NAME_ABI = [
+  'function register(string,uint8) external',
+  'function renew(string,uint8) external',
+  'function resolve(string) view returns (address)',
+  'function primaryName(address) view returns (string)',
+  'function getNamesForAddress(address) view returns (string[])',
+  'function getAllNames() view returns (string[])',
+  'function isAvailable(string) view returns (bool)',
+  'function totalNames() view returns (uint256)',
+];
   'function balanceOf(address) view returns (uint256)',
   'function transfer(address,uint256) returns (bool)',
   'function approve(address,uint256) returns (bool)',
@@ -1530,6 +1560,60 @@ function flipSwap(){
   updateSwapRateDisplay();
 }
 async function doSwap(){
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
+  const fromAmt=parseFloat(document.getElementById('swapFrom').value);
+  if(!fromAmt||fromAmt<=0){toast('Enter an amount','error');return;}
+  const isUSDCtoEURC=document.getElementById('fromToken').textContent.includes('USDC');
+  const fromBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
+  if(fromAmt>fromBal){toast('Insufficient balance','error');return;}
+  const btn=document.getElementById('swapBtn');
+  btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
+  try{
+    if(!signer){toast('No signer available','error');btn.innerHTML='Simulate Swap';btn.disabled=false;return;}
+    const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
+    const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
+    const tokenContract=new ethers.Contract(tokenIn,ERC20_ABI,signer);
+    const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
+    // Approve swap contract
+    btn.innerHTML='<span class="spinner"></span>Approving...';
+    const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn);
+    await approveTx.wait(1);
+    // Execute swap
+    btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
+    const swapTx=isUSDCtoEURC
+      ? await swapContract.swapUSDCtoEURC(amtIn)
+      : await swapContract.swapEURCtoUSDC(amtIn);
+    const receipt=await swapTx.wait(1);
+    toast('✓ Swap confirmed on Arc Testnet!','success',6000);
+    addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap Contract',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
+    await refreshBalances();
+    document.getElementById('swapFrom').value='';
+    document.getElementById('swapTo').value='';
+  }catch(err){
+    // Fallback to simulation if liquidity error
+    const msg=err?.reason||err?.message||'Swap failed';
+    if(msg.includes('liquidity')||msg.includes('insufficient')){
+      toast('Pool needs liquidity — simulating swap','warning',5000);
+      _doSimulatedSwap(fromAmt,isUSDCtoEURC);
+    } else {
+      toast(msg.slice(0,120),'error',6000);
+    }
+  }
+  btn.innerHTML='Swap on Arc';btn.disabled=false;
+}
+
+function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
+  const rate=fxRate||0.9258;
+  const toAmt=isUSDCtoEURC?fromAmt*rate:fromAmt/rate;
+  const fee=toAmt*0.001;
+  const net=(toAmt-fee).toFixed(6);
+  if(isUSDCtoEURC){usdcBal=String(parseFloat(usdcBal)-fromAmt);eurcBal=String(parseFloat(eurcBal)+parseFloat(net));}
+  else{eurcBal=String(parseFloat(eurcBal)-fromAmt);usdcBal=String(parseFloat(usdcBal)+parseFloat(net));}
+  addTx({hash:'sim-swap-'+Date.now(),to:SWAP_CONTRACT,toRaw:'Simulated Swap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'sim'});
+  toast('✓ Simulated swap complete (add liquidity to pool for real swaps)','success',5000);
+  refreshBalances();
+}
   const amt=parseFloat(document.getElementById('swapFrom').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   const fromTok=swapFlipped?'EURC':'USDC';
@@ -2083,6 +2167,8 @@ let lendDuration=1, lendFee=2;
 
 function initLendUI(){
   updateLendPositions();
+  refreshLendPosition();
+  refreshArcNames();
 }
 function setLendTab(tab,el){
   document.querySelectorAll('#page-lend .stab').forEach(b=>b.classList.remove('active'));
@@ -2116,21 +2202,53 @@ function updateLendPositions(){
   document.getElementById('utilizationRate').textContent=util;
 }
 
-function doSupply(){
+async function doSupply(){
+  if(!userAddr){toast('Connect wallet first','error');return;}
   const amt=parseFloat(document.getElementById('supplyAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   const bal=lendAsset==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
   if(amt>bal){toast('Insufficient '+lendAsset,'error');return;}
-  lendPositions.supplied+=amt;
-  if(lendAsset==='USDC')usdcBal=String(parseFloat(usdcBal)-amt);
-  else eurcBal=String(parseFloat(eurcBal)-amt);
-  addTx({hash:'lend-'+Date.now(),to:'lending-pool',toRaw:'Supplied '+lendAsset,amount:amt.toFixed(6),type:'stake',token:lendAsset,ts:Date.now(),source:'sim'});
-  toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' — earning 4.80% APY','success',5000);
+  const btn=document.querySelector('#lp-supply .btn');
+  btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
+  try{
+    if(signer){
+      const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
+      const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
+      const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+      const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
+      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed);
+      btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
+      await approveTx.wait(1);
+      const tx=await lendContract.supply(amtParsed);
+      await tx.wait(1);
+      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc Testnet!','success',5000);
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
+      await refreshBalances();
+      await refreshLendPosition();
+    } else { throw new Error('No signer'); }
+  }catch(err){
+    const msg=err?.reason||err?.message||'Supply failed';
+    toast(msg.slice(0,120),'error',5000);
+    // Fallback simulation
+    lendPositions.supplied+=amt;
+    if(lendAsset==='USDC')usdcBal=String(parseFloat(usdcBal)-amt);
+    else eurcBal=String(parseFloat(eurcBal)-amt);
+    updateLendPositions();refreshBalances();
+  }
   document.getElementById('supplyAmt').value='';
-  updateLendPositions();
-  refreshBalances();
-  // Simulate interest accruing
-  setInterval(()=>{lendPositions.interest+=lendPositions.supplied*0.048/365/24/3600*30;updateLendPositions();},30000);
+  btn.innerHTML='Supply '+lendAsset;btn.disabled=false;
+}
+
+async function refreshLendPosition(){
+  if(!userAddr||!provider)return;
+  try{
+    const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,provider);
+    const pos=await lendContract.getPosition(userAddr);
+    lendPositions.supplied=parseFloat(ethers.formatUnits(pos[0],6));
+    lendPositions.interest=parseFloat(ethers.formatUnits(pos[1],6));
+    lendPositions.borrowed=parseFloat(ethers.formatUnits(pos[2],6));
+    updateLendPositions();
+  }catch(e){console.log('Lend position fetch error:',e.message);}
 }
 function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
@@ -2187,52 +2305,97 @@ function setArcNameDuration(years,fee,el){
   el.classList.add('active');
   document.getElementById('arcNameFeeDisplay').textContent=fee+' USDC';
 }
-function checkArcName(){
+async function checkArcName(){
   const val=document.getElementById('arcNameSearch').value.trim().toLowerCase().replace('.arc','');
   const res=document.getElementById('arcNameResult');
   if(!val){res.style.display='none';return;}
-  const taken=arcNames.find(n=>n.name===val);
   res.style.display='block';
-  if(taken){
-    res.style.background='rgba(248,113,113,.07)';res.style.border='1px solid rgba(248,113,113,.22)';res.style.color='var(--danger)';
-    res.textContent='✗ '+val+'.arc is taken — owned by '+short(taken.owner);
-  }else{
-    res.style.background='rgba(52,211,153,.07)';res.style.border='1px solid rgba(52,211,153,.22)';res.style.color='var(--success)';
-    res.textContent='✓ '+val+'.arc is available!';
+  res.style.background='rgba(139,92,246,.06)';res.style.border='1px solid rgba(139,92,246,.2)';res.style.color='var(--text2)';
+  res.textContent='Checking...';
+  try{
+    if(provider){
+      const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,provider);
+      const available=await nameContract.isAvailable(val);
+      if(available){
+        res.style.background='rgba(52,211,153,.07)';res.style.border='1px solid rgba(52,211,153,.22)';res.style.color='var(--success)';
+        res.textContent='✓ '+val+'.arc is available!';
+      }else{
+        const owner=await nameContract.resolve(val);
+        res.style.background='rgba(248,113,113,.07)';res.style.border='1px solid rgba(248,113,113,.22)';res.style.color='var(--danger)';
+        res.textContent='✗ '+val+'.arc is taken — owned by '+short(owner);
+      }
+    } else {
+      // Fallback local check
+      const taken=arcNames.find(n=>n.name===val);
+      res.style.background=taken?'rgba(248,113,113,.07)':'rgba(52,211,153,.07)';
+      res.style.border=taken?'1px solid rgba(248,113,113,.22)':'1px solid rgba(52,211,153,.22)';
+      res.style.color=taken?'var(--danger)':'var(--success)';
+      res.textContent=taken?'✗ '+val+'.arc is taken':'✓ '+val+'.arc is available!';
+    }
+  }catch(e){
+    res.textContent='Could not check — try again';
   }
 }
-function registerArcName(){
+async function registerArcName(){
   if(!userAddr){toast('Connect wallet first','error');return;}
   const name=document.getElementById('arcNameInput').value.trim().toLowerCase().replace('.arc','');
   if(!name||name.length<2){toast('Enter a valid name (min 2 chars)','error');return;}
   if(!/^[a-z0-9-]+$/.test(name)){toast('Only letters, numbers and hyphens allowed','error');return;}
-  const taken=arcNames.find(n=>n.name===name);
-  if(taken){toast(name+'.arc is already taken','error');return;}
   const bal=parseFloat(usdcBal);
   if(bal<arcNameFeeUsdc+0.009){
-    toast('Insufficient USDC — need '+(arcNameFeeUsdc+0.009).toFixed(3)+' USDC (fee + gas)','error',5000);
-    return;
+    toast('Insufficient USDC — need '+(arcNameFeeUsdc+0.009).toFixed(3)+' USDC','error',5000);return;
   }
-
-  // Show confirmation prompt
-  if(!confirm(`Register "${name}.arc" for ${arcNameFeeUsdc} USDC?\n\nDuration: ${arcNameDurationYears} year(s)\nFee: ${arcNameFeeUsdc} USDC\nGas: ~0.009 USDC\n\nThis will deduct ${(arcNameFeeUsdc+0.009).toFixed(3)} USDC from your balance.`)){
-    return;
+  if(!confirm(`Register "${name}.arc" for ${arcNameFeeUsdc} USDC?\n\nDuration: ${arcNameDurationYears} year(s)\nFee: ${arcNameFeeUsdc} USDC\nGas: ~0.009 USDC`)){return;}
+  const btn=document.querySelector('#page-arcname .card:nth-child(3) .btn');
+  if(btn){btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;}
+  try{
+    if(signer){
+      const usdcContract=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+      const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,signer);
+      const fee=ethers.parseUnits(arcNameFeeUsdc.toString(),6);
+      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee);
+      if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
+      await approveTx.wait(1);
+      const tx=await nameContract.register(name,arcNameDurationYears);
+      await tx.wait(1);
+      toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
+      addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
+      await refreshBalances();
+      await refreshArcNames();
+    } else { throw new Error('No signer'); }
+  }catch(err){
+    const msg=err?.reason||err?.message||'Registration failed';
+    if(msg.includes('No signer')||msg.includes('taken')){
+      // Fallback simulation
+      usdcBal=String(bal-arcNameFeeUsdc-0.009);
+      const expiry=new Date();expiry.setFullYear(expiry.getFullYear()+arcNameDurationYears);
+      arcNames.unshift({name,owner:userAddr,expires:expiry.toLocaleDateString(),years:arcNameDurationYears,fee:arcNameFeeUsdc,ts:Date.now()});
+      saveArcNames();
+      toast('✓ '+name+'.arc registered! (simulated)','success',6000);
+      refreshBalances();
+    } else {
+      toast(msg.slice(0,120),'error',5000);
+    }
   }
-
-  // Deduct USDC
-  usdcBal=String(bal-arcNameFeeUsdc-0.009);
-  const expiry=new Date();
-  expiry.setFullYear(expiry.getFullYear()+arcNameDurationYears);
-  const nameObj={name,owner:userAddr,expires:expiry.toLocaleDateString(),years:arcNameDurationYears,fee:arcNameFeeUsdc,ts:Date.now()};
-  arcNames.unshift(nameObj);
-  saveArcNames();
-
-  addTx({hash:'arcname-'+Date.now(),to:userAddr,toRaw:'Registered '+name+'.arc',amount:(arcNameFeeUsdc+0.009).toFixed(6),type:'out',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ '+name+'.arc registered for '+arcNameDurationYears+' year(s)! '+(arcNameFeeUsdc+0.009).toFixed(3)+' USDC deducted.','success',7000);
   document.getElementById('arcNameInput').value='';
-  refreshBalances();
-  renderMyArcNames();
-  renderArcDirectory();
+  if(btn){btn.innerHTML='Register .arc Name';btn.disabled=false;}
+  renderMyArcNames();renderArcDirectory();
+}
+
+async function refreshArcNames(){
+  if(!userAddr||!provider)return;
+  try{
+    const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,provider);
+    const names=await nameContract.getNamesForAddress(userAddr);
+    // Merge on-chain names with local
+    for(const n of names){
+      if(!arcNames.find(a=>a.name===n)){
+        arcNames.unshift({name:n,owner:userAddr,expires:'On-chain',years:1,fee:2,ts:Date.now()});
+      }
+    }
+    saveArcNames();
+    renderMyArcNames();renderArcDirectory();
+  }catch(e){console.log('Arc name fetch error:',e.message);}
 }
 function renderMyArcNames(){
   const myNames=arcNames.filter(n=>n.owner===userAddr);
