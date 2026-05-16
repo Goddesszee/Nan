@@ -27,7 +27,7 @@
 *{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
-#app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);}
+#app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow-y:auto;overflow-x:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
@@ -777,12 +777,14 @@ a:hover{color:var(--text);}
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 
-<!-- ═══════ WALLET PICKER MODAL ═══════ -->
+<div id="toast"></div>
+</div><!-- end app-root -->
+
+<!-- ═══════ WALLET PICKER MODAL — outside app-root ═══════ -->
 <div class="wallet-modal-overlay" id="walletModalOverlay" onclick="hideWalletPicker(event)">
   <div class="wallet-modal">
     <div class="wallet-modal-title">Connect Wallet</div>
     <div class="wallet-modal-sub">Choose your preferred wallet to connect to Arc Testnet</div>
-    <!-- Wallet logo row -->
     <div class="wallet-logos-row">
       <div class="wallet-logo-icon" style="background:#f6851b;" onclick="connectSpecific('metamask')" title="MetaMask">🦊</div>
       <div class="wallet-logo-icon" style="background:#3b99fc;" onclick="connectSpecific('walletconnect')" title="WalletConnect">🔗</div>
@@ -790,7 +792,6 @@ a:hover{color:var(--text);}
       <div class="wallet-logo-icon" style="background:#e94f37;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
       <div class="wallet-logo-icon" style="background:#8b5cf6;" onclick="connectSpecific('circle')" title="Circle Wallet">⭕</div>
     </div>
-    <!-- Wallet list -->
     <div class="wallet-opt" onclick="connectSpecific('metamask')">
       <div class="wallet-opt-icon" style="background:#f6851b20;">🦊</div>
       <div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div>
@@ -820,9 +821,6 @@ a:hover{color:var(--text);}
     </div>
   </div>
 </div>
-
-<div id="toast"></div>
-</div><!-- end app-root -->
 
 <!-- ── AI Button ── -->
 <button id="aiBtn" onclick="toggleAgent()" style="position:fixed;top:50%;right:30px;transform:translateY(-50%);z-index:9999;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(139,92,246,.5);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;" title="NAN AI Assistant">
