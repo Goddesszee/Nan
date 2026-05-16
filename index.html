@@ -895,6 +895,7 @@ const NAME_ABI = [
   'function getAllNames() view returns (string[])',
   'function isAvailable(string) view returns (bool)',
   'function totalNames() view returns (uint256)',
+];
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function transfer(address,uint256) returns (bool)',
@@ -1021,7 +1022,7 @@ function updateSwapRateDisplay(){
 // ═══════════════════════════════════════════
 // WALLET CONNECTION — MetaMask
 // ═══════════════════════════════════════════
-let wp=null;
+wp=null;
 function detectWallet(){
   if(window.ethereum?.providers?.length){
     const ps=window.ethereum.providers;
@@ -1596,45 +1597,6 @@ function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
   else{eurcBal=String(parseFloat(eurcBal)-fromAmt);usdcBal=String(parseFloat(usdcBal)+parseFloat(net));}
   addTx({hash:'sim-swap-'+Date.now(),to:SWAP_CONTRACT,toRaw:'Simulated Swap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'sim'});
   toast('✓ Simulated swap complete (add liquidity to pool for real swaps)','success',5000);
-  refreshBalances();
-}
-  const amt=parseFloat(document.getElementById('swapFrom').value);
-  if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  const fromTok=swapFlipped?'EURC':'USDC';
-  const toTok=swapFlipped?'USDC':'EURC';
-  const fromBal=swapFlipped?parseFloat(eurcBal):parseFloat(usdcBal);
-  if(amt>fromBal){toast('Insufficient '+fromTok,'error');return;}
-
-  // Try real swap if contract set and MetaMask connected
-  if(hasSwap()&&signer&&onArcNetwork){
-    const SWAP_ABI=['function swapUSDCtoEURC(uint256) external','function swapEURCtoUSDC(uint256) external'];
-    const amtParsed=ethers.parseUnits(amt.toString(),6);
-    const tokenAddr=swapFlipped?EURC_ADDR:USDC_ADDR;
-    const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-    const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
-    const btn=document.getElementById('swapBtn');
-    btn.innerHTML='<span class="spinner"></span>Approving…';btn.disabled=true;
-    try{
-      const appTx=await tokenContract.approve(SWAP_CONTRACT,amtParsed);await appTx.wait(1);
-      btn.innerHTML='<span class="spinner"></span>Swapping…';
-      const tx=swapFlipped?await swapContract.swapEURCtoUSDC(amtParsed):await swapContract.swapUSDCtoEURC(amtParsed);
-      await tx.wait();
-      addTx({hash:tx.hash,to:'swap',toRaw:'Swap',amount:amt,outAmount:(amt*(swapFlipped?1/FX:FX)*0.999).toFixed(6),type:'swap',fromToken:fromTok,toToken:toTok,ts:Date.now(),source:'onchain'});
-      toast('Swap successful!','success');
-      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-      await refreshBalances();
-    }catch(e){toast('Swap failed: '+(e?.reason||e?.message||''),'error',6000);}
-    finally{btn.innerHTML='Swap';btn.disabled=false;}
-    return;
-  }
-
-  // Simulated swap
-  const out=(amt*(swapFlipped?1/FX:FX)*0.999).toFixed(6);
-  if(swapFlipped){eurcBal=String(Math.max(0,parseFloat(eurcBal)-amt));usdcBal=String(parseFloat(usdcBal)+parseFloat(out));}
-  else{usdcBal=String(Math.max(0,parseFloat(usdcBal)-amt));eurcBal=String(parseFloat(eurcBal)+parseFloat(out));}
-  addTx({hash:'sim-'+Date.now(),to:'simulated',toRaw:'Simulated Swap',amount:amt,outAmount:out,type:'swap',fromToken:fromTok,toToken:toTok,ts:Date.now(),source:'sim'});
-  toast('(Simulated) '+amt.toFixed(2)+' '+fromTok+' → '+parseFloat(out).toFixed(2)+' '+toTok,'success',5000);
-  document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   refreshBalances();
 }
 function initSwapUI(){
