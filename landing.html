@@ -97,7 +97,7 @@
   .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
 
   .circle-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
-  .circle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px;}
+  .circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;}
   .circle-item{background:var(--faint);border:1px solid var(--violet-border);border-radius:10px;padding:18px 20px;}
   .circle-item-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:7px;}
   .circle-item-desc{font-size:.75rem;color:var(--muted);line-height:1.6;}
@@ -172,9 +172,9 @@
   </div>
 
   <div class="stats reveal">
-    <div class="stat"><div class="stat-num">5.2%</div><div class="stat-lbl">Staking APY</div></div>
+    <div class="stat"><div class="stat-num">4.80%</div><div class="stat-lbl">Lending APY</div></div>
     <div class="stat"><div class="stat-num">~0.009</div><div class="stat-lbl">Gas per tx (USDC)</div></div>
-    <div class="stat"><div class="stat-num">$0</div><div class="stat-lbl">Platform fees</div></div>
+    <div class="stat"><div class="stat-num">&lt;1s</div><div class="stat-lbl">Transaction finality</div></div>
   </div>
 
   <div class="section reveal">
@@ -187,47 +187,47 @@
           <svg viewBox="0 0 24 24"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="3"/><polyline points="7 8 12 3 17 8"/></svg>
         </div>
         <div class="feat-title">Send &amp; Receive</div>
-        <div class="feat-desc">Send USDC instantly to any wallet address, Twitter handle or Discord username. No bank needed.</div>
+        <div class="feat-desc">Send USDC/EURC to any wallet address on Arc Testnet. Transactions confirm in under 1 second with USDC gas fees.</div>
         <span class="feat-badge">LIVE ON-CHAIN</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
-        <div class="feat-title">Swap Tokens</div>
-        <div class="feat-desc">Exchange USDC and EURC at live FX rates with just one click. Fast, cheap and transparent.</div>
+        <div class="feat-title">Swap via StableFX</div>
+        <div class="feat-desc">Exchange USDC and EURC using Arc's built-in StableFX engine — live FX rates, instant on-chain settlement.</div>
         <span class="feat-badge">LIVE FX RATES</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
-          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-        <div class="feat-title">Stake &amp; Earn</div>
-        <div class="feat-desc">Stake your USDC and earn 5.2% APY on Arc Testnet. Rewards accrue automatically every block.</div>
-        <span class="feat-badge">5.2% APY</span>
+        <div class="feat-title">Lend &amp; Borrow</div>
+        <div class="feat-desc">Supply USDC to earn 4.80% APY or borrow against collateral. Powered by Band Protocol price oracle on Arc.</div>
+        <span class="feat-badge">BAND ORACLE</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M4 4h16"/><path d="M4 8h16"/><path d="M4 12h8"/><circle cx="18" cy="16" r="4"/><path d="M18 14v4M16 16h4"/></svg>
         </div>
         <div class="feat-title">Bridge via CCTP</div>
-        <div class="feat-desc">Move USDC cross-chain from Arc to Ethereum, Base, Arbitrum and more — powered by Circle's CCTP. Burn on Arc, mint natively on destination. No wrapped tokens.</div>
+        <div class="feat-desc">Move USDC from Arc to Ethereum, Base, Arbitrum and more via Circle CCTP. Burn on Arc, mint natively — no wrapped tokens.</div>
         <span class="feat-badge">CIRCLE CCTP</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
-          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 2-8 3v1h16v-1c0-1-3-3-8-3z"/></svg>
         </div>
-        <div class="feat-title">Social Handles</div>
-        <div class="feat-desc">Link your Twitter or Discord to your wallet. Anyone can pay you by typing your handle — no address needed.</div>
-        <span class="feat-badge">ON-CHAIN REGISTRY</span>
+        <div class="feat-title">Arc Name Service</div>
+        <div class="feat-desc">Register your .arc name from 2 USDC/year. Send and receive by name instead of address — your identity on Arc.</div>
+        <span class="feat-badge">FROM 2 USDC</span>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         </div>
         <div class="feat-title">NAN AI Assistant</div>
-        <div class="feat-desc">Ask anything about your wallet, balances, staking or bridging. NAN AI reads your live on-chain data and can set up transactions for you.</div>
+        <div class="feat-desc">Ask anything about your wallet, balances, lending or bridging. NAN AI reads your live on-chain data and can set up transactions for you.</div>
         <span class="feat-badge">AI POWERED</span>
       </div>
     </div>
@@ -244,16 +244,24 @@
         <div class="circle-item-desc">Email login creates a real wallet in your browser. Only you hold the private keys and seed phrase — NAN never sees them.</div>
       </div>
       <div class="circle-item">
-        <div class="circle-item-title">💵 USDC &amp; EURC</div>
-        <div class="circle-item-desc">Full support for both Circle stablecoins on Arc Testnet. Send, swap, stake and bridge both tokens.</div>
+        <div class="circle-item-title">💵 USDC &amp; EURC on Arc</div>
+        <div class="circle-item-desc">Full support for both Circle stablecoins. USDC is Arc's native gas token — pay fees in stable dollars, not volatile crypto.</div>
       </div>
       <div class="circle-item">
-        <div class="circle-item-title">⛓ Circle CCTP</div>
-        <div class="circle-item-desc">Cross-Chain Transfer Protocol enables native USDC bridging between Arc and 5+ chains — no wrapped tokens, 1:1 always.</div>
+        <div class="circle-item-title">⛓ Circle CCTP v2</div>
+        <div class="circle-item-desc">Cross-Chain Transfer Protocol burns USDC on Arc and mints it natively on 5+ chains — no wrapped tokens, 1:1 always.</div>
       </div>
       <div class="circle-item">
-        <div class="circle-item-title">⚡ Arc Testnet</div>
-        <div class="circle-item-desc">Built natively on Arc — Circle's stablecoin-native L1. USDC gas fees, sub-second finality, enterprise-grade performance.</div>
+        <div class="circle-item-title">📊 Band Protocol Oracle</div>
+        <div class="circle-item-desc">Live USDC/USD price feeds on Arc via Band Protocol oracle at <code style="font-size:.7rem;">0x8c06...d68</code> — powering lending rates.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">⚡ StableFX Engine</div>
+        <div class="circle-item-desc">Arc's built-in stablecoin FX engine with RFQ execution and on-chain settlement — used for USDC↔EURC swaps.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">🏗 Arc Testnet</div>
+        <div class="circle-item-desc">Sub-second finality, USDC gas fees, EVM compatibility, opt-in privacy — backed by BlackRock, Visa, Goldman Sachs.</div>
       </div>
     </div>
   </div>
@@ -266,22 +274,22 @@
       <div class="step">
         <div class="step-num">1</div>
         <div>
-          <div class="step-title">Sign in with email</div>
-          <div class="step-desc">Enter your email and receive a one-time code. NAN creates a <strong>secure non-custodial wallet</strong> in your browser — your private keys never leave your device. Works on any browser, no MetaMask needed.</div>
+          <div class="step-title">Sign in with email or connect wallet</div>
+          <div class="step-desc">Enter your email for a secure browser wallet, or connect MetaMask, WalletConnect, Coinbase, Rabby or Circle wallet. NAN supports all EVM-compatible wallets on Arc Testnet.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div>
-          <div class="step-title">Get free test tokens</div>
-          <div class="step-desc">Visit <strong>faucet.circle.com</strong>, select Arc Testnet, paste your address and claim free USDC &amp; EURC to start testing.</div>
+          <div class="step-title">Get free testnet tokens</div>
+          <div class="step-desc">Visit <strong>faucet.circle.com</strong>, select Arc Testnet, paste your address and claim free USDC &amp; EURC. USDC is also Arc's native gas token.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div>
-          <div class="step-title">Send, swap, stake &amp; bridge</div>
-          <div class="step-desc">Use all NAN features — send USDC to a Twitter handle, swap to EURC, stake for 5.2% APY, or bridge to Ethereum via Circle CCTP.</div>
+          <div class="step-title">Explore the full DeFi stack</div>
+          <div class="step-desc">Send USDC to any address, swap to EURC via StableFX, lend for 4.80% APY (Band oracle powered), bridge cross-chain via CCTP, or register your .arc name from 2 USDC.</div>
         </div>
       </div>
     </div>
