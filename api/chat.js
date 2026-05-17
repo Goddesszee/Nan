@@ -1,49 +1,159 @@
+// api/chat.js
+// NAN AI Chat — Groq powered with live crypto prices from CoinGecko
+
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+
+// Fetch live crypto prices from CoinGecko (free, no key needed)
+async function getCryptoPrices(coins = []) {
+  try {
+    const ids = coins.join(',') || 'bitcoin,ethereum,usd-coin,euro-coin,solana,binancecoin,matic-network,avalanche-2,chainlink,uniswap';
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!res.ok) throw new Error('CoinGecko failed');
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// Get trending coins from CoinGecko
+async function getTrending() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/search/trending', {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Trending failed');
+    const data = await res.json();
+    return data.coins?.slice(0, 7).map(c => ({
+      name: c.item.name,
+      symbol: c.item.symbol,
+      rank: c.item.market_cap_rank,
+      price_btc: c.item.price_btc,
+    })) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Detect if message is asking about prices or trending
+function detectPriceQuery(msg) {
+  const lower = msg.toLowerCase();
+  const priceKeywords = ['price', 'worth', 'cost', 'value', 'how much', '$', 'usd'];
+  const trendingKeywords = ['trending', 'hot', 'popular', 'top coins', 'gainers', 'what\'s pumping'];
+  const coins = {
+    'bitcoin': 'bitcoin', 'btc': 'bitcoin',
+    'ethereum': 'ethereum', 'eth': 'ethereum',
+    'solana': 'solana', 'sol': 'solana',
+    'bnb': 'binancecoin', 'binance': 'binancecoin',
+    'matic': 'matic-network', 'polygon': 'matic-network',
+    'avax': 'avalanche-2', 'avalanche': 'avalanche-2',
+    'link': 'chainlink', 'chainlink': 'chainlink',
+    'uni': 'uniswap', 'uniswap': 'uniswap',
+    'usdc': 'usd-coin', 'eurc': 'euro-coin',
+    'xrp': 'ripple', 'ripple': 'ripple',
+    'ada': 'cardano', 'cardano': 'cardano',
+    'doge': 'dogecoin', 'dogecoin': 'dogecoin',
+    'shib': 'shiba-inu',
+  };
+
+  const foundCoins = [];
+  for (const [key, id] of Object.entries(coins)) {
+    if (lower.includes(key)) foundCoins.push(id);
+  }
+
+  const isTrending = trendingKeywords.some(k => lower.includes(k));
+  const isPrice = priceKeywords.some(k => lower.includes(k)) || foundCoins.length > 0;
+
+  return { isPrice, isTrending, foundCoins: [...new Set(foundCoins)] };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { system, messages } = req.body;
-  const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+  if (!messages?.length) return res.status(400).json({ error: 'No messages' });
 
-  // Dev mode responses
-  if (!GROQ_API_KEY) {
-    const lastMsg = messages?.[messages.length - 1]?.content?.toLowerCase() || '';
-    let reply = "I'm NAN AI ✦ — add GROQ_API_KEY to Vercel to enable real AI responses.";
-    if (lastMsg.includes('balance')) reply = "Your USDC and EURC balances are shown in the wallet card. Connect MetaMask for full access or use email login to view balances.";
-    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send USDC or EURC, use the Send tab. Connect MetaMask for on-chain transactions. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
-    if (lastMsg.includes('stake')) reply = "Stake USDC to earn 5.20% APY on Arc Testnet. <ACTION>{\"action\":\"navigate\",\"tab\":\"stake\"}</ACTION>";
-    if (lastMsg.includes('swap')) reply = "Swap between USDC and EURC at live EUR/USD rates. <ACTION>{\"action\":\"navigate\",\"tab\":\"swap\"}</ACTION>";
-    if (lastMsg.includes('bridge')) reply = "Bridge USDC cross-chain via Circle CCTP — burn on Arc, mint on Ethereum, Base, Arbitrum and more. <ACTION>{\"action\":\"navigate\",\"tab\":\"bridge\"}</ACTION>";
-    if (lastMsg.includes('arc')) reply = "Arc is Circle's stablecoin-native Layer-1 blockchain. It uses USDC as native gas, has sub-second finality, and is designed for the internet financial system.";
-    return res.json({ reply });
+  const lastMsg = messages[messages.length - 1]?.content || '';
+  const { isPrice, isTrending, foundCoins } = detectPriceQuery(lastMsg);
+
+  // Fetch live data if needed
+  let liveDataContext = '';
+
+  if (isTrending) {
+    const trending = await getTrending();
+    if (trending.length) {
+      liveDataContext += '\n\nTRENDING COINS RIGHT NOW:\n' +
+        trending.map((c, i) => `${i+1}. ${c.name} (${c.symbol}) — Rank #${c.rank || '?'}`).join('\n');
+    }
   }
 
-  try {
-    const fetch = (await import('node-fetch')).default;
-    const groqMessages = [
-      { role: 'system', content: system || 'You are NAN AI, a helpful wallet assistant on Arc Testnet.' },
-      ...(messages || []),
-    ];
+  if (isPrice || foundCoins.length > 0) {
+    const coinsToFetch = foundCoins.length > 0 ? foundCoins :
+      ['bitcoin', 'ethereum', 'solana', 'usd-coin', 'euro-coin'];
+    const prices = await getCryptoPrices(coinsToFetch);
 
+    if (prices) {
+      liveDataContext += '\n\nLIVE CRYPTO PRICES (from CoinGecko, just fetched):\n';
+      const nameMap = {
+        'bitcoin': 'Bitcoin (BTC)',
+        'ethereum': 'Ethereum (ETH)',
+        'solana': 'Solana (SOL)',
+        'usd-coin': 'USDC',
+        'euro-coin': 'EURC',
+        'binancecoin': 'BNB',
+        'matic-network': 'MATIC/Polygon',
+        'avalanche-2': 'AVAX',
+        'chainlink': 'Chainlink (LINK)',
+        'uniswap': 'Uniswap (UNI)',
+        'ripple': 'XRP',
+        'cardano': 'Cardano (ADA)',
+        'dogecoin': 'Dogecoin (DOGE)',
+        'shiba-inu': 'Shiba Inu (SHIB)',
+      };
+      for (const [id, data] of Object.entries(prices)) {
+        const name = nameMap[id] || id;
+        const change = data.usd_24h_change?.toFixed(2);
+        const changeStr = change ? ` (${change > 0 ? '+' : ''}${change}% 24h)` : '';
+        liveDataContext += `${name}: $${data.usd?.toLocaleString()}${changeStr}\n`;
+      }
+    }
+  }
+
+  // Add live data to system prompt
+  const enhancedSystem = (system || '') + liveDataContext;
+
+  try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 512,
+        max_tokens: 300,
         temperature: 0.7,
-        messages: groqMessages,
+        messages: [
+          { role: 'system', content: enhancedSystem },
+          ...messages.slice(-8), // last 8 messages for context
+        ],
       }),
     });
 
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err?.error?.message || 'Groq API error');
+    }
+
     const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
-    const reply = data.choices?.[0]?.message?.content || "Sorry, couldn't generate a response.";
-    res.json({ reply });
+    const text = data.choices?.[0]?.message?.content || 'Sorry, I had trouble responding.';
+
+    return res.json({ reply: text });
+
   } catch (err) {
-    console.error('Groq error:', err.message);
-    res.status(500).json({ reply: "Connection error — please try again." });
+    console.error('Chat error:', err.message);
+    return res.status(500).json({ error: err.message, reply: 'Sorry, AI is temporarily unavailable.' });
   }
 }
