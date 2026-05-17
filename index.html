@@ -1420,14 +1420,34 @@ function showSeedPhrase(mnemonic, privateKey, address){
         ✓ You are the only person who controls this wallet
       </div>
 
-      <button id="seedCopyBtn" onclick="copySeedBackup('${privateKey}','${address}')" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all .2s;">📋 Copy Private Key to Clipboard</button>
+      <button id="seedCopyBtn" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;">📋 Copy Private Key to Clipboard</button>
 
-      <button id="seedContinueBtn" onclick="closeSeedModal()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;">✓ I've Saved My Keys — Continue</button>
+      <button id="seedContinueBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✓ I've Saved My Keys — Continue</button>
 
       <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
     </div>
   `;
   document.body.appendChild(modal);
+
+  // Attach events AFTER appending to avoid quote escaping issues
+  document.getElementById('seedCopyBtn').addEventListener('click', function(){
+    const text='NAN Wallet Backup\n\nAddress: '+address+'\nPrivate Key: '+privateKey+'\n\nNEVER share your private key!';
+    navigator.clipboard.writeText(text).then(()=>{
+      this.innerHTML='✅ Copied! Now click Continue below';
+      this.style.background='rgba(52,211,153,.15)';
+      this.style.border='1px solid rgba(52,211,153,.4)';
+      this.style.color='#34d399';
+      toast('✓ Keys copied to clipboard — save somewhere safe!','success',5000);
+    }).catch(()=>{
+      this.innerHTML='✅ Screenshot this screen to save';
+      toast('Tip: Screenshot this page to save your keys','warning',5000);
+    });
+  });
+
+  document.getElementById('seedContinueBtn').addEventListener('click', function(){
+    modal.remove();
+    toast('✓ Welcome to NAN! Get free USDC at faucet.circle.com 🎉','success',8000);
+  });
 }
 
 function copySeedBackup(privateKey, address){
