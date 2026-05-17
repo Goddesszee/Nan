@@ -2206,7 +2206,7 @@ async function doBridge(){
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
     const destinationCaller=ethers.zeroPadValue('0x0000000000000000000000000000000000000000',32);
     const messenger=new ethers.Contract(CCTP_TOKEN_MESSENGER,CCTP_ABI,signer);
-    let tx;
+    try{
     try{
       tx=await messenger['depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)'](
         ,destinationCaller,0,1000
