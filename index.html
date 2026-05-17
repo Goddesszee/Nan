@@ -1646,7 +1646,7 @@ async function onConnected(isEmail=false, isDev=false){
 function disconnect(){
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=lastTxId=null;
-  circleWalletId=circleUserToken=circleUserId=otpEmail=null;
+  circleWalletId=circleWalletAddress=circleWalletBlockchain=null;   circleUserToken=circleUserId=otpEmail=null;
   isCircleWallet=false;
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
