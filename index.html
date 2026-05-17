@@ -2187,7 +2187,7 @@ async function doBridge(){
   await refreshBalances();
   if(amt>parseFloat(usdcBal)){toast('Insufficient USDC — you have '+parseFloat(usdcBal).toFixed(2)+' USDC','error',5000);return;}
   if(!signer||!onArcNetwork){toast('Connect wallet on Arc Testnet for CCTP bridging','error');return;}
-  const domain=CCTP_DOMAIN[destChain];
+  const domain=CCTP_DEST_DOMAIN[destChain];
   if(domain===undefined){toast('Unsupported destination chain','error');return;}
   const btn=document.getElementById('bridgeBtn');
   const statusCard=document.getElementById('bridgeStatusCard');
