@@ -939,10 +939,12 @@ a:hover{color:var(--text);}
   <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <input id="agentInput" placeholder="Ask anything about your wallet…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
+      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
+      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
     </div>
-    <div style="font-size:.58rem;color:var(--text3);text-align:center;margin-top:8px;">Powered by Groq · Live on-chain data</div>
+    <div id="voiceStatus" style="display:none;text-align:center;font-size:.65rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
+    <div style="font-size:.58rem;color:var(--text3);text-align:center;margin-top:6px;">Powered by Groq · Live on-chain data · 🎤 Voice enabled</div>
   </div>
 </div>
 
@@ -1026,28 +1028,12 @@ const ERC20_ABI = [
   'function allowance(address,address) view returns (uint256)',
   'function decimals() view returns (uint8)',
 ];
-const STAKING_ABI = [
-  'function stake(uint256) external',
-  'function unstake(uint256) external',
-  'function claimReward() external',
-  'function pendingReward(address) view returns (uint256)',
-  'function getUserInfo(address) view returns (uint256,uint256,uint256)',
-  'function totalStaked() view returns (uint256)',
-];
 const CCTP_ABI = [
   // TokenMessengerV2 depositForBurn
   'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken, bytes32 destinationCaller, uint256 maxFee, uint32 minFinalityThreshold) external returns (uint64 nonce)',
   // Also support V1 for compatibility
   'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken) external returns (uint64 nonce)',
 ];
-const HANDLE_ABI = [
-  'function register(string calldata handle) external',
-  'function remove(string calldata handle) external',
-  'function resolve(string calldata handle) external view returns (address)',
-  'function getHandles(address wallet) external view returns (string[] memory)',
-  'event HandleRegistered(address indexed wallet, string handle)',
-];
-
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
@@ -1057,8 +1043,8 @@ let onArcNetwork=false, balancesLoading=false;
 let lastTxHash=null, lastTxId=null;
 let recipType='address', resolvedTo=null, lastResolvedInput='';
 let regType='x', swapFlipped=false, sendToken='USDC';
-let onChainStaked=0, onChainClaimable=0;
-let stakeTimer=null, txPollTimer=null;
+let onChainStaked=0;
+let txPollTimer=null;
 let FX=0.9258, fxLastUpdated=null;
 
 // Circle wallet info (from email login)
@@ -1484,8 +1470,99 @@ function closeSeedModal(){
 }
 
 // ═══════════════════════════════════════════
-// POST-CONNECTION SETUP
+// VOICE — Speech Recognition + Synthesis
 // ═══════════════════════════════════════════
+let recognition=null, isListening=false, voiceEnabled=true;
+let synth=window.speechSynthesis;
+let currentUtterance=null;
+
+function initVoice(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    document.getElementById('voiceBtn').style.display='none';
+    return;
+  }
+  recognition=new SpeechRecognition();
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  recognition.lang='en-US';
+
+  recognition.onstart=()=>{
+    isListening=true;
+    const btn=document.getElementById('voiceBtn');
+    btn.innerHTML='⏹';
+    btn.style.background='rgba(248,113,113,.2)';
+    btn.style.borderColor='rgba(248,113,113,.5)';
+    btn.style.color='#f87171';
+    document.getElementById('voiceStatus').style.display='block';
+  };
+
+  recognition.onresult=(e)=>{
+    const transcript=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('agentInput').value=transcript;
+    if(e.results[e.results.length-1].isFinal){
+      stopListening();
+      setTimeout(()=>sendAgentMsg(),300);
+    }
+  };
+
+  recognition.onerror=(e)=>{
+    console.log('Voice error:',e.error);
+    stopListening();
+    if(e.error==='not-allowed') toast('Microphone access denied — enable in browser settings','error',4000);
+  };
+
+  recognition.onend=()=>stopListening();
+}
+
+function stopListening(){
+  isListening=false;
+  if(recognition) recognition.abort();
+  const btn=document.getElementById('voiceBtn');
+  if(btn){
+    btn.innerHTML='🎤';
+    btn.style.background='rgba(139,92,246,.1)';
+    btn.style.borderColor='rgba(139,92,246,.3)';
+    btn.style.color='var(--accent3)';
+  }
+  const status=document.getElementById('voiceStatus');
+  if(status) status.style.display='none';
+}
+
+function toggleVoice(){
+  if(!recognition){initVoice();}
+  if(!recognition){toast('Voice not supported in this browser — try Chrome','error',4000);return;}
+  if(isListening){stopListening();return;}
+  // Stop any ongoing speech first
+  if(synth.speaking) synth.cancel();
+  try{recognition.start();}catch(e){console.log('Recognition error:',e);}
+}
+
+function speakResponse(text){
+  if(!synth||!voiceEnabled) return;
+  // Clean text for speech — remove emojis and special chars
+  const clean=text.replace(/[🎤✦✅❌⚠️🔐💬🌐⚡🎉🔗→←↑↓]/g,'')
+    .replace(/<[^>]*>/g,'')
+    .replace(/\*\*/g,'')
+    .trim();
+  if(!clean) return;
+  if(synth.speaking) synth.cancel();
+  const utterance=new SpeechSynthesisUtterance(clean);
+  utterance.rate=1.05;
+  utterance.pitch=1.0;
+  utterance.volume=0.9;
+  // Try to use a good voice
+  const voices=synth.getVoices();
+  const preferred=voices.find(v=>v.name.includes('Google')&&v.lang.startsWith('en'))
+    ||voices.find(v=>v.lang.startsWith('en-US'))
+    ||voices.find(v=>v.lang.startsWith('en'));
+  if(preferred) utterance.voice=preferred;
+  currentUtterance=utterance;
+  synth.speak(utterance);
+}
+
+// Init voice when page loads
+window.addEventListener('load',()=>{ initVoice(); });
 async function onConnected(isEmail=false, isDev=false){
   document.getElementById('page-land').style.display='none';
   document.getElementById('bottomNav').classList.add('show');
@@ -1537,7 +1614,7 @@ function disconnect(){
   onArcNetwork=false;lastTxHash=lastTxId=null;
   circleWalletId=circleUserToken=circleUserId=otpEmail=null;
   isCircleWallet=false;
-  if(stakeTimer){clearInterval(stakeTimer);stakeTimer=null;}
+  if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
@@ -2315,44 +2392,58 @@ async function sendAgentMsg(text){
   agentMsgs.push({role:'assistant',content:'<span class="spinner" style="border-top-color:var(--accent3);"></span>'});
   renderAgentMsgs();scrollAgentBottom();
 
-  const context=`You are NAN AI, an assistant embedded in the NAN wallet app on Arc Testnet — Circle's new Layer-1 blockchain.
+  const context=`You are NAN AI ✦, a friendly DeFi assistant embedded in NAN Wallet — a stablecoin wallet built on Arc Testnet, Circle's new Layer-1 blockchain.
 
-LIVE WALLET DATA:
+LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddr||'Not connected'}
-- Wallet type: ${isCircleWallet?'Circle Programmable Wallet (email login)':'External (MetaMask/Rabby)'}
+- Wallet: ${isCircleWallet?'Circle Programmable Wallet (email login)':'External wallet (MetaMask/Rabby)'}
 - USDC Balance: ${parseFloat(usdcBal||0).toFixed(2)} USDC
 - EURC Balance: ${parseFloat(eurcBal||0).toFixed(2)} EURC
-- On Arc Testnet: ${onArcNetwork||isCircleWallet}
-- Staked USDC: ${onChainStaked.toFixed(2)} USDC
-- Claimable Rewards: ${onChainClaimable.toFixed(6)} USDC
-- Staking APY: 5.20%
-- Exchange rate: 1 USDC = ${FX.toFixed(4)} EURC
-- Network fee: ~0.009 USDC (paid in USDC via Paymaster)
+- Network: ${onArcNetwork||isCircleWallet?'Arc Testnet (Chain 5042002)':'Not connected to Arc'}
+- FX Rate: 1 USDC = ${FX.toFixed(4)} EURC · 1 EURC = ${(1/FX).toFixed(4)} USDC
+- Gas: ~0.009 USDC (paid in USDC via Circle Paymaster — no ETH needed!)
 
-FEATURES:
-- Send USDC/EURC by wallet address, Twitter or Discord handle
-- Swap USDC ↔ EURC at live FX rates
-- Stake USDC for 5.20% APY
-- Bridge USDC cross-chain via Circle CCTP
-- Register @handle linked to wallet
-- Email login auto-creates a Circle Programmable Wallet
+ABOUT ARC (Circle's L1 blockchain):
+- Arc is the "Economic OS for the internet" — a stablecoin-native L1 by Circle
+- Launched public testnet October 2025 with 100+ companies including Aave, Curve, Maple
+- Sub-second transaction finality (<1 second!)
+- Gas fees paid in USDC — never need volatile tokens
+- Native USDC + EURC — fully backed 1:1 by Circle
+- Mainnet launching 2026
 
-RECENT TRANSACTIONS (last 5):
-${txHistory.slice(0,5).map(t=>`${t.type} ${t.amount} ${t.token||''} - ${new Date(t.ts).toLocaleDateString()} [${t.source||''}]`).join('\n')||'None yet'}
+ABOUT CIRCLE PRODUCTS IN NAN:
+- USDC: World's largest regulated digital dollar — 100% backed, 30+ chains
+- EURC: World's largest regulated digital euro — MiCAR compliant
+- CCTP (Cross-Chain Transfer Protocol): Burns USDC on Arc, mints natively on destination — $126B+ cumulative volume, 19 chains
+- Circle Programmable Wallets: Real Circle-managed wallets created via API on email login
+- USDC Paymaster: Sponsor gas in USDC so users never need native tokens
+- Band Protocol: On-chain price oracle for live USDC/EURC FX rates
+
+NAN WALLET FEATURES:
+- Send USDC/EURC to any wallet address or .arc name
+- Swap USDC ↔ EURC at live FX rates (NANSwap on Arc)
+- Lend USDC and earn 4.80% APY (NANLendingPool on Arc)
+- Borrow against USDC collateral at 7.20% APR
+- Bridge USDC cross-chain via Circle CCTP V2
+- Register .arc names (NANNameRegistry on Arc)
+- Email login creates a real Circle Programmable Wallet
+- All transactions on Arc Testnet — real on-chain!
+
+RECENT TRANSACTIONS:
+${txHistory.slice(0,5).map(t=>`${t.type} ${t.amount} ${t.token||''} - ${new Date(t.ts).toLocaleDateString()}`).join('\n')||'None yet'}
 
 RULES:
-- Use REAL numbers from above — never fabricate balances
-- Keep replies under 100 words, friendly and specific
-- NEVER show raw JSON or code to the user in your text response
-- Answer any crypto/DeFi/blockchain question enthusiastically
-- If user wants to DO something (send, swap, lend, bridge, name), add <ACTION> block AFTER your text:
-  send:     <ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>
-  swap:     <ACTION>{"action":"swap","amount":50,"from":"USDC","to":"EURC"}</ACTION>
-  lend:     <ACTION>{"action":"navigate","tab":"lend"}</ACTION>
-  bridge:   <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
-  name:     <ACTION>{"action":"navigate","tab":"arcname"}</ACTION>
-  history:  <ACTION>{"action":"navigate","tab":"history"}</ACTION>
-- The <ACTION> block must be hidden — never mention it or show JSON in your reply text`;
+- Use REAL wallet numbers above — never fabricate
+- Keep replies under 80 words, friendly and enthusiastic
+- NEVER show raw JSON, code, or ACTION tags in your text
+- If user wants to DO something, add <ACTION> AFTER your text reply:
+  send:    <ACTION>{"action":"send","amount":1,"token":"USDC","to":"0x..."}</ACTION>
+  swap:    <ACTION>{"action":"swap","amount":1,"from":"USDC","to":"EURC"}</ACTION>
+  lend:    <ACTION>{"action":"navigate","tab":"lend"}</ACTION>
+  bridge:  <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
+  name:    <ACTION>{"action":"navigate","tab":"arcname"}</ACTION>
+  history: <ACTION>{"action":"navigate","tab":"history"}</ACTION>
+- ACTION block is invisible to user — never mention it`;
 
   try{
     const res=await fetch('/api/chat',{
@@ -2369,6 +2460,8 @@ RULES:
     try{if(actionMatch)action=JSON.parse(actionMatch[1].trim());}catch{}
     const clean=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').trim();
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
+    // Speak the AI response
+    speakResponse(clean);
   }catch{
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:'Connection error — is the server running?'};
   }
