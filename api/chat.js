@@ -866,6 +866,27 @@ a:hover{color:var(--text);}
     <div><div class="page-title">History</div><div class="page-sub">Your on-chain transactions</div></div>
     <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
   </div>
+
+  <!-- Stats card -->
+  <div class="card" style="margin-bottom:10px;" id="statsCard">
+    <div class="card-title" style="font-size:.78rem;margin-bottom:10px;">📊 Your NAN Activity</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="statsGrid">
+      <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSends">0</div>
+        <div style="font-size:.6rem;color:var(--text3);">Sends</div>
+      </div>
+      <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSwaps">0</div>
+        <div style="font-size:.6rem;color:var(--text3);">Swaps</div>
+      </div>
+      <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statBridges">0</div>
+        <div style="font-size:.6rem;color:var(--text3);">Bridges</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:.62rem;color:var(--text3);text-align:center;">All transactions on Arc Testnet · Powered by Circle</div>
+  </div>
+
   <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
 </div>
 
@@ -1236,6 +1257,7 @@ async function _doConnect(detectedWp, walletType){
     onArcNetwork=parseInt(chainHex,16)===ARC_CHAIN_ID;
     await onConnected(false);
     toast('✓ Connected via '+walletType+'!','success',4000);
+    trackEvent('connect',{type:walletType});
   }catch(err){
     if(err.code===4001)toast('Connection cancelled','error');
     else toast((err?.message||'Connection failed').slice(0,120),'error');
@@ -1300,7 +1322,7 @@ async function verifyOTP(){
           isCircleWallet=true;
           signer=null;
           circleWalletId=cwData.wallet.id;
-          toast('✓ Circle Programmable Wallet ready! 🔵','success',5000);
+          toast('✓ Circle Developer Wallet created on Arc! 🔵','success',5000);
           await onConnected(true);
           document.getElementById('otpBox').style.display='none';
           btn.innerHTML='Verify →';btn.disabled=false;
@@ -1785,6 +1807,7 @@ async function doSend(){
       const receipt=await tx.wait(1);
       addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'nan-wallet'});
       toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+' on Arc!','success',7000);
+      trackEvent('send',{amount:amt,token:sendToken});
       document.getElementById('confirmCard').classList.remove('show');
       showSendSuccess(amt,to,tx.hash);
       await refreshBalances();
@@ -2100,6 +2123,7 @@ async function doSwap(){
         : await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
       toast('✓ Swap confirmed on Arc Testnet!','success',6000);
+    trackEvent('swap',{amount:fromAmt,from:isUSDCtoEURC?'USDC':'EURC'});
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
       document.getElementById('swapFrom').value='';
@@ -2276,6 +2300,14 @@ function clearHistory(){
   txHistory=[];localStorage.removeItem('arcTx_'+userAddr);renderHistory();toast('Cleared','info',2000);
 }
 function renderHistory(){
+  // Update stats
+  const m=getMetrics();
+  const ss=document.getElementById('statSends');
+  const sw=document.getElementById('statSwaps');
+  const sb=document.getElementById('statBridges');
+  if(ss) ss.textContent=m.totalSends||txHistory.filter(t=>t.source!=='swap'&&t.type==='out').length||0;
+  if(sw) sw.textContent=m.totalSwaps||txHistory.filter(t=>t.source==='swap').length||0;
+  if(sb) sb.textContent=m.totalBridges||txHistory.filter(t=>t.source==='cctp').length||0;
   const list=document.getElementById('txList');
   if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div>';return;}
   list.innerHTML=txHistory.map(tx=>{
@@ -2524,10 +2556,56 @@ let lendPositions={supplied:0,borrowed:0,interest:0};
 let lendAsset='USDC';
 let lendDuration=1, lendFee=2;
 
+// ═══════════════════════════════════════════
+// POOL MONITOR + USER METRICS
+// ═══════════════════════════════════════════
+let poolStats={usdcLiq:0,eurcLiq:0,totalUsers:0,totalTxns:0};
+
+async function checkPoolLiquidity(){
+  try{
+    const readProvider=getArcProvider();
+    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
+    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+    poolStats.usdcLiq=parseFloat(ethers.formatUnits(usdcLiq,6));
+    poolStats.eurcLiq=parseFloat(ethers.formatUnits(eurcLiq,6));
+    console.log('Pool liquidity — USDC:',poolStats.usdcLiq,'EURC:',poolStats.eurcLiq);
+    // Warn if pool is low
+    if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
+      console.warn('Pool liquidity low — swaps will simulate');
+    }
+  }catch(e){console.log('Pool check error:',e.message);}
+}
+
+// Track user metrics for grant application
+function trackEvent(event,data={}){
+  try{
+    const metrics=JSON.parse(localStorage.getItem('nan_metrics')||'{"events":[]}');
+    metrics.events.push({event,data,ts:Date.now(),addr:userAddr?.slice(0,10)||'anon'});
+    if(metrics.events.length>100) metrics.events=metrics.events.slice(-100);
+    localStorage.setItem('nan_metrics',JSON.stringify(metrics));
+  }catch(e){}
+}
+
+function getMetrics(){
+  try{
+    const metrics=JSON.parse(localStorage.getItem('nan_metrics')||'{"events":[]}');
+    const events=metrics.events||[];
+    return{
+      totalSessions:events.filter(e=>e.event==='connect').length,
+      totalSends:events.filter(e=>e.event==='send').length,
+      totalSwaps:events.filter(e=>e.event==='swap').length,
+      totalBridges:events.filter(e=>e.event==='bridge').length,
+      totalLends:events.filter(e=>e.event==='lend').length,
+      totalNames:events.filter(e=>e.event==='arcname').length,
+    };
+  }catch(e){return{};}
+}
+
 function initLendUI(){
   updateLendPositions();
   refreshLendPosition();
   refreshArcNames();
+  checkPoolLiquidity();
 }
 function setLendTab(tab,el){
   document.querySelectorAll('#page-lend .stab').forEach(b=>b.classList.remove('active'));
