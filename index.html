@@ -521,7 +521,7 @@ a:hover{color:var(--text);}
       <button class="ibtn" onclick="copyAddr()">Copy</button>
       <button class="ibtn red" onclick="disconnect()">Disconnect</button>
     </div>
-    <div id="walletSourceBadge" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);"></div>
+    <div id="walletSourceBadge" style="display:none;"></div>
   </div>
 
   <!-- Send / Receive card -->
@@ -1331,7 +1331,7 @@ async function verifyOTP(){
         try{
           wallet=new ethers.Wallet(data.privateKey,provider);
           localStorage.setItem('nan_wallet_'+otpEmail,data.privateKey);
-          toast('✓ Welcome back! Your wallet has been restored 🎉','success',5000);
+          toast('✓ Welcome back!','success',3000);
         }catch(e){
           wallet=ethers.Wallet.createRandom().connect(provider);
           isNewWallet=true;
@@ -1343,7 +1343,7 @@ async function verifyOTP(){
             wallet=new ethers.Wallet(savedKey,provider);
             await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
               body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:savedKey,walletAddress:wallet.address})});
-            toast('✓ Welcome back! Wallet restored 🎉','success',5000);
+            toast('✓ Welcome back!','success',3000);
           }catch(e){wallet=ethers.Wallet.createRandom().connect(provider);isNewWallet=true;}
         }else{
           wallet=ethers.Wallet.createRandom().connect(provider);
@@ -1500,16 +1500,10 @@ async function onConnected(isEmail=false, isDev=false){
   // Show wallet source — detect which wallet is connected
   const srcBadge=document.getElementById('walletSourceBadge');
   if(isEmail){
-    const hasRealSigner = signer && signer instanceof ethers.Wallet;
-    srcBadge.innerHTML=`✦ NAN Wallet ${hasRealSigner?'<span style="color:var(--success);">● Live on Arc</span>':'<span style="color:var(--warning);">● Read only</span>'}`;
+    srcBadge.innerHTML='';
     document.getElementById('devBadge').style.display=isDev?'inline-block':'none';
   }else{
-    // Detect wallet name
-    let walletName='Web3 Wallet';
-    if(wp?.isRabby) walletName='Rabby';
-    else if(wp?.isCoinbaseWallet) walletName='Coinbase Wallet';
-    else if(wp?.isMetaMask) walletName='MetaMask';
-    srcBadge.innerHTML=`<span style="color:var(--success);">●</span> ${walletName} · Arc Testnet`;
+    srcBadge.innerHTML='';
     document.getElementById('devBadge').style.display='none';
   }
 
