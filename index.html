@@ -1379,8 +1379,8 @@ async function verifyOTP(){
 
 // ── Show seed phrase modal to new users ──
 function showSeedPhrase(mnemonic, privateKey, address){
-  // Create modal
   const modal = document.createElement('div');
+  modal.id='seedPhraseModal';
   modal.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;`;
   modal.innerHTML=`
     <div style="background:var(--bg);border:2px solid rgba(251,191,36,.4);border-radius:16px;padding:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;">
@@ -1420,9 +1420,9 @@ function showSeedPhrase(mnemonic, privateKey, address){
         ✓ You are the only person who controls this wallet
       </div>
 
-      <button onclick="copySeedBackup('${privateKey}','${address}')" style="width:100%;padding:11px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:8px;">📋 Copy Private Key to Clipboard</button>
+      <button id="seedCopyBtn" onclick="copySeedBackup('${privateKey}','${address}')" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all .2s;">📋 Copy Private Key to Clipboard</button>
 
-      <button onclick="closeSeedModal(this)" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ I've saved my keys — Continue</button>
+      <button id="seedContinueBtn" onclick="closeSeedModal()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;">✓ I've Saved My Keys — Continue</button>
 
       <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
     </div>
@@ -1434,11 +1434,31 @@ function copySeedBackup(privateKey, address){
   const text = `NAN Wallet Backup\n\nAddress: ${address}\nPrivate Key: ${privateKey}\n\nIMPORTANT: Never share your private key with anyone.`;
   navigator.clipboard.writeText(text).then(()=>{
     toast('✓ Wallet backup copied to clipboard — save it somewhere safe!','success',6000);
+    // Show visual confirmation on the copy button
+    const copyBtn=document.getElementById('seedCopyBtn');
+    if(copyBtn){
+      copyBtn.innerHTML='✅ Copied! Now click Continue below';
+      copyBtn.style.background='rgba(52,211,153,.15)';
+      copyBtn.style.borderColor='rgba(52,211,153,.4)';
+      copyBtn.style.color='var(--success)';
+      // Enable continue button
+      const contBtn=document.getElementById('seedContinueBtn');
+      if(contBtn){
+        contBtn.disabled=false;
+        contBtn.style.opacity='1';
+        contBtn.style.cursor='pointer';
+      }
+    }
+  }).catch(()=>{
+    // Fallback if clipboard fails
+    toast('✓ Key ready — screenshot this screen to save it','warning',6000);
+    const contBtn=document.getElementById('seedContinueBtn');
+    if(contBtn){contBtn.disabled=false;contBtn.style.opacity='1';contBtn.style.cursor='pointer';}
   });
 }
 
-function closeSeedModal(btn){
-  const modal = btn.closest('div[style*="position:fixed"]');
+function closeSeedModal(){
+  const modal=document.getElementById('seedPhraseModal');
   if(modal) modal.remove();
   toast('✓ Welcome to NAN! Get free USDC at faucet.circle.com 🎉','success',8000);
 }
