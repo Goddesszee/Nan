@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#07081a"/>
 <title>NAN — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -24,22 +28,101 @@
   --danger:#dc2626;--success:#059669;--gold:#d97706;--warning:#d97706;
   --topbar-bg:rgba(244,243,255,.96);--nav-bg:rgba(244,243,255,.97);
 }
-*{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;}
+*{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
 #app-root{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;overflow-y:auto;overflow-x:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;}
 #app-root::-webkit-scrollbar{display:none;}
-/* Mobile full width */
+
+/* ── MOBILE RESPONSIVE ── */
 @media(max-width:480px){
+  /* Full width on phone */
   #app-root{left:0;transform:none;max-width:100%;box-shadow:none;}
-  .page{padding:10px 12px 80px!important;}
-  .card{padding:12px!important;}
-  .feat-grid{grid-template-columns:1fr 1fr!important;}
-  .wallet-modal{border-radius:20px 20px 0 0!important;padding:20px 14px 40px!important;}
-  .bal-num{font-size:2.4rem!important;}
-  .btn{font-size:.85rem!important;padding:12px!important;}
-  .big-btn{font-size:.95rem!important;padding:14px 20px!important;}
-  #aiBtn{right:12px!important;}
+
+  /* Bigger touch targets */
+  .btn{font-size:.9rem!important;padding:14px!important;min-height:48px;}
+  .big-btn{font-size:1rem!important;padding:16px 20px!important;min-height:52px;}
+  .ibtn{padding:8px 14px!important;font-size:.75rem!important;min-height:36px;}
+  .nav-btn{padding:8px 2px!important;min-height:52px;}
+  .nav-btn .ni{font-size:1.3rem!important;}
+  .nav-btn{font-size:.58rem!important;}
+
+  /* Better spacing */
+  .page{padding:10px 12px 85px!important;}
+  .card{padding:14px!important;margin-bottom:10px!important;}
+  .bal-card{padding:16px!important;}
+
+  /* Bigger balance display */
+  .bal-num{font-size:2.8rem!important;line-height:1.1!important;}
+  .bal-usd{font-size:.82rem!important;}
+
+  /* Top bar */
+  #globalTopBar{padding:10px 14px!important;}
+  .brand-name{font-size:.9rem!important;}
+  .net-pill{font-size:.55rem!important;padding:3px 7px!important;}
+
+  /* Landing page */
+  .land-hero h1{font-size:1.7rem!important;line-height:1.2!important;}
+  .land-tag{font-size:.65rem!important;}
+  .feat-grid{grid-template-columns:1fr 1fr!important;gap:8px!important;}
+  .land-note{font-size:.72rem!important;}
+
+  /* Wallet modal — slides up from bottom */
+  .wallet-modal{border-radius:24px 24px 0 0!important;padding:20px 16px 40px!important;max-height:85vh;overflow-y:auto;}
+  .wallet-modal-overlay{align-items:flex-end!important;}
+  .wallet-opt{padding:12px!important;min-height:56px;}
+  .wallet-opt-name{font-size:.88rem!important;}
+  .wallet-opt-desc{font-size:.72rem!important;}
+  .wallet-opt-icon{width:38px!important;height:38px!important;font-size:1.1rem!important;}
+  .wallet-logos-row{gap:10px!important;margin-bottom:14px!important;}
+  .wallet-logo-icon{width:44px!important;height:44px!important;font-size:1.3rem!important;}
+
+  /* Input fields */
+  input{font-size:16px!important;} /* Prevents iOS zoom */
+  .otp-input{font-size:1.4rem!important;letter-spacing:8px!important;}
+  .recip-input{font-size:.85rem!important;}
+
+  /* Send page */
+  .type-tabs{gap:8px!important;}
+  .topt{padding:10px!important;font-size:.78rem!important;min-height:52px;}
+
+  /* Swap page */
+  .swap-box{padding:14px!important;}
+  .swap-amt{font-size:1.6rem!important;}
+  .swap-flip-btn{width:40px!important;height:40px!important;}
+
+  /* Lend page */
+  .lend-stat{padding:10px!important;}
+  .stab{padding:9px 14px!important;font-size:.78rem!important;}
+
+  /* Bridge page */
+  .bridge-chain-box{padding:12px!important;}
+
+  /* Arc name page */
+  .name-input{font-size:.9rem!important;}
+
+  /* AI button */
+  #aiBtn{right:12px!important;bottom:75px!important;width:46px!important;height:46px!important;}
+
+  /* Receipt modal */
+  #receiptModal > div{padding:10px!important;}
+  #receiptCard{padding:20px 16px!important;}
+
+  /* History */
+  .tx-item{padding:10px!important;}
+  .tx-title{font-size:.82rem!important;}
+  .tx-amt{font-size:.82rem!important;}
+
+  /* Confirm card */
+  .confirm-wrap{padding:16px!important;}
+  .conf-row{font-size:.8rem!important;}
+
+  /* Toast */
+  #toast{font-size:.82rem!important;max-width:90%!important;}
+
+  /* Safe area for notch phones */
+  .bottom-nav{padding-bottom:max(env(safe-area-inset-bottom),12px)!important;}
+  .page{padding-bottom:max(85px,calc(70px + env(safe-area-inset-bottom)))!important;}
 }
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
