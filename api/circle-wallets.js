@@ -1,97 +1,51 @@
 // api/circle-wallets.js
 // Circle Developer-Controlled Wallets API
-// Creates real Circle-managed wallets on Arc Testnet for email users
+// Fixed version — uses Circle SDK for all operations (auto-encrypts entity secret)
 // Docs: https://developers.circle.com/wallets/dev-controlled/create-your-first-wallet
 
 import crypto from 'crypto';
+import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
 
 const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY || '';
 const CIRCLE_ENTITY_SECRET = process.env.CIRCLE_ENTITY_SECRET || '';
 const CIRCLE_WALLET_SET_ID = process.env.CIRCLE_WALLET_SET_ID || '';
-const CIRCLE_BASE = 'https://api.circle.com/v1/w3s';
 
-// In-memory store (persists per serverless instance)
-// For production: use Vercel KV or a database
+// ── Initialize Circle SDK client ──
+// The SDK automatically handles RSA-OAEP encryption of the entity secret
+// before every API call, preventing replay attacks (each ciphertext is single-use)
+function getClient() {
+  if (!CIRCLE_API_KEY || !CIRCLE_ENTITY_SECRET) {
+    throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET are required');
+  }
+  return initiateDeveloperControlledWalletsClient({
+    apiKey: CIRCLE_API_KEY,
+    entitySecret: CIRCLE_ENTITY_SECRET,
+  });
+}
+
+// ── In-memory cache (per serverless instance) ──
+// NOTE: For production, replace with Vercel KV or a database
+// so wallet lookups persist across cold starts
 const emailToWallet = {};
 
-// ── Circle API helper ──
-async function circleRequest(method, path, body = null) {
-  const headers = {
-    'Authorization': `Bearer ${CIRCLE_API_KEY}`,
-    'Content-Type': 'application/json',
-  };
-
-  const res = await fetch(`${CIRCLE_BASE}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    const msg = data?.message || data?.error || 'Circle API error';
-    throw new Error(msg);
-  }
-  return data;
-}
-
-// ── Generate entity secret ciphertext for signing ──
-function generateEntitySecretCiphertext() {
-  if (!CIRCLE_ENTITY_SECRET) return null;
-  try {
-    // Circle requires RSA-OAEP encryption of entity secret
-    // This is a simplified version — full implementation needs Circle's public key
-    return CIRCLE_ENTITY_SECRET;
-  } catch (e) {
-    return null;
-  }
-}
-
-// ── Create a developer-controlled wallet on Arc Testnet ──
-async function createWallet(email) {
-  if (!CIRCLE_API_KEY) throw new Error('CIRCLE_API_KEY not configured');
-  if (!CIRCLE_WALLET_SET_ID) throw new Error('CIRCLE_WALLET_SET_ID not configured');
-
-  const idempotencyKey = crypto.createHash('sha256')
-    .update(email + '-nan-arc-wallet-v2')
-    .digest('hex');
-
-  // Create wallet on Arc Testnet
-  const data = await circleRequest('POST', '/developer/wallets', {
-    idempotencyKey,
-    walletSetId: CIRCLE_WALLET_SET_ID,
-    blockchains: ['ARC-TESTNET'],
-    count: 1,
-    accountType: 'EOA',
-    metadata: [{ name: `NAN-${email}`, refId: email }],
-  });
-
-  const wallet = data?.data?.wallets?.[0];
-  if (!wallet?.address) throw new Error('Wallet creation returned no address');
-
-  return {
-    id: wallet.id,
-    address: wallet.address,
-    blockchain: wallet.blockchain || 'ARC-TESTNET',
-    state: wallet.state,
-    custodyType: 'DEVELOPER',
-  };
-}
-
-// ── Get wallet by email (from cache or API) ──
+// ── Get or create wallet for an email ──
 async function getWalletForEmail(email) {
-  // Check cache first
+  // Check in-memory cache first
   if (emailToWallet[email]) return emailToWallet[email];
 
-  // Try to find existing wallet by refId
+  if (!CIRCLE_WALLET_SET_ID) throw new Error('CIRCLE_WALLET_SET_ID not configured');
+
+  const client = getClient();
+
+  // Search for existing wallet by refId (email)
   try {
-    const data = await circleRequest('GET',
-      `/wallets?walletSetId=${CIRCLE_WALLET_SET_ID}&pageSize=50`
-    );
-    const wallets = data?.data?.wallets || [];
+    const result = await client.listWallets({
+      walletSetId: CIRCLE_WALLET_SET_ID,
+      pageSize: 50,
+    });
+    const wallets = result.data?.wallets || [];
     const existing = wallets.find(w =>
-      w.metadata?.some?.(m => m.refId === email) ||
-      w.name === `NAN-${email}`
+      w.refId === email || w.name === `NAN-${email}`
     );
     if (existing?.address) {
       const wallet = {
@@ -108,55 +62,94 @@ async function getWalletForEmail(email) {
     console.log('Could not search existing wallets:', e.message);
   }
 
-  // Create new wallet
-  const wallet = await createWallet(email);
-  emailToWallet[email] = wallet;
-  return wallet;
+  // Create new wallet — SDK auto-encrypts entity secret per Circle docs
+  const idempotencyKey = crypto.createHash('sha256')
+    .update(email + '-nan-arc-wallet-v2')
+    .digest('hex');
+
+  const result = await client.createWallets({
+    idempotencyKey,
+    walletSetId: CIRCLE_WALLET_SET_ID,
+    blockchains: ['ARC-TESTNET'],
+    count: 1,
+    accountType: 'EOA',
+    metadata: [{ name: `NAN-${email}`, refId: email }],
+  });
+
+  const wallet = result.data?.wallets?.[0];
+  if (!wallet?.address) throw new Error('Wallet creation returned no address');
+
+  const walletData = {
+    id: wallet.id,
+    address: wallet.address,
+    blockchain: wallet.blockchain || 'ARC-TESTNET',
+    state: wallet.state,
+    custodyType: 'DEVELOPER',
+  };
+
+  emailToWallet[email] = walletData;
+  return walletData;
 }
 
-// ── Get wallet balances from Circle ──
+// ── Get wallet token balances ──
 async function getWalletBalances(walletId) {
   try {
-    const data = await circleRequest('GET', `/wallets/${walletId}/balances`);
-    return data?.data?.tokenBalances || [];
+    const client = getClient();
+    const result = await client.getWalletTokenBalance({ id: walletId });
+    return result.data?.tokenBalances || [];
   } catch (e) {
+    console.error('Balance fetch error:', e.message);
     return [];
   }
 }
 
-// ── Transfer USDC via Circle API (for Circle wallet users) ──
-async function transferViaCircle(walletId, toAddress, amount, tokenAddress) {
-  if (!CIRCLE_ENTITY_SECRET) throw new Error('CIRCLE_ENTITY_SECRET required for transfers');
+// ── Transfer tokens via Circle SDK ──
+// SDK handles entity secret re-encryption automatically per Circle docs
+async function transferViaCircle(walletId, walletAddress, toAddress, amount, tokenAddress) {
+  const client = getClient();
 
-  const idempotencyKey = crypto.randomUUID();
-  const data = await circleRequest('POST', '/developer/transactions/transfer', {
-    idempotencyKey,
+  // Get wallet blockchain first
+  const walletResult = await client.getWallet({ id: walletId });
+  const blockchain = walletResult.data?.wallet?.blockchain || 'ARC-TESTNET';
+
+  const result = await client.createTransaction({
     walletId,
+    blockchain,
     destinationAddress: toAddress,
-    amounts: [amount.toString()],
     tokenAddress,
-    blockchain: 'ARC-TESTNET',
+    amounts: [amount.toString()],
     fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
   });
 
-  return data?.data?.id; // transaction ID
+  return result.data?.id; // transaction ID
+}
+
+// ── Get transaction status ──
+async function getTransactionStatus(txId) {
+  try {
+    const client = getClient();
+    const result = await client.getTransaction({ id: txId });
+    return result.data?.transaction;
+  } catch (e) {
+    return null;
+  }
 }
 
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).end();
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { action, email, walletId, toAddress, amount, tokenAddress } = req.body;
-  if (!email && action !== 'health') {
-    return res.status(400).json({ error: 'Email required' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { action, email, walletId, walletAddress, toAddress, amount, tokenAddress, txId } = req.body || {};
 
   // ── HEALTH CHECK ──
   if (action === 'health') {
     return res.json({
-      configured: !!(CIRCLE_API_KEY && CIRCLE_WALLET_SET_ID),
+      configured: !!(CIRCLE_API_KEY && CIRCLE_WALLET_SET_ID && CIRCLE_ENTITY_SECRET),
       hasEntitySecret: !!CIRCLE_ENTITY_SECRET,
       walletSetId: CIRCLE_WALLET_SET_ID ? CIRCLE_WALLET_SET_ID.slice(0, 8) + '...' : null,
     });
@@ -164,11 +157,13 @@ export default async function handler(req, res) {
 
   // ── GET OR CREATE WALLET ──
   if (action === 'getWallet') {
-    if (!CIRCLE_API_KEY || !CIRCLE_WALLET_SET_ID) {
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    if (!CIRCLE_API_KEY || !CIRCLE_WALLET_SET_ID || !CIRCLE_ENTITY_SECRET) {
       return res.json({
         success: false,
         fallback: true,
-        error: 'Circle Programmable Wallets not configured',
+        error: 'Circle Programmable Wallets not fully configured',
       });
     }
 
@@ -177,17 +172,13 @@ export default async function handler(req, res) {
       return res.json({ success: true, wallet });
     } catch (err) {
       console.error('Circle wallet error:', err.message);
-      return res.json({
-        success: false,
-        fallback: true,
-        error: err.message,
-      });
+      return res.json({ success: false, fallback: true, error: err.message });
     }
   }
 
   // ── GET BALANCES ──
   if (action === 'getBalance') {
-    if (!walletId) return res.json({ success: false, balances: [] });
+    if (!walletId) return res.status(400).json({ error: 'walletId required' });
     try {
       const balances = await getWalletBalances(walletId);
       return res.json({ success: true, balances });
@@ -196,18 +187,30 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── TRANSFER (for Circle wallet users) ──
+  // ── TRANSFER ──
   if (action === 'transfer') {
     if (!walletId || !toAddress || !amount) {
       return res.status(400).json({ error: 'walletId, toAddress, amount required' });
     }
     try {
-      const txId = await transferViaCircle(walletId, toAddress, amount, tokenAddress);
+      const txId = await transferViaCircle(walletId, walletAddress, toAddress, amount, tokenAddress);
       return res.json({ success: true, txId });
+    } catch (err) {
+      console.error('Transfer error:', err.message);
+      return res.json({ success: false, error: err.message });
+    }
+  }
+
+  // ── GET TRANSACTION STATUS ──
+  if (action === 'getTransaction') {
+    if (!txId) return res.status(400).json({ error: 'txId required' });
+    try {
+      const tx = await getTransactionStatus(txId);
+      return res.json({ success: true, transaction: tx });
     } catch (err) {
       return res.json({ success: false, error: err.message });
     }
   }
 
-  return res.status(400).json({ error: 'Invalid action' });
+  return res.status(400).json({ error: 'Invalid action. Use: health, getWallet, getBalance, transfer, getTransaction' });
 }
