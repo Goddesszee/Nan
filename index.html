@@ -1178,7 +1178,7 @@ function updateTopBar(connected){
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
   // Try our server API first (tries Band → CoinGecko → ExchangeRate)
-  try{
+  
     const res=await fetch('/api/fx-rate');
     if(res.ok){
       const data=await res.json();
