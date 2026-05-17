@@ -3,7 +3,6 @@
 // Uses CommonJS (require) for Vercel compatibility
 // Docs: https://developers.circle.com/wallets/dev-controlled/create-your-first-wallet
 
-const crypto = require('crypto');
 const { initiateDeveloperControlledWalletsClient } = require('@circle-fin/developer-controlled-wallets');
 
 const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY || '';
@@ -11,8 +10,7 @@ const CIRCLE_ENTITY_SECRET = process.env.CIRCLE_ENTITY_SECRET || '';
 const CIRCLE_WALLET_SET_ID = process.env.CIRCLE_WALLET_SET_ID || '';
 
 // ── Initialize Circle SDK client ──
-// The SDK automatically handles RSA-OAEP encryption of the entity secret
-// before every API call, preventing replay attacks (each ciphertext is single-use)
+// SDK automatically handles RSA-OAEP encryption of entity secret per request
 function getClient() {
   if (!CIRCLE_API_KEY || !CIRCLE_ENTITY_SECRET) {
     throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET are required');
@@ -24,29 +22,23 @@ function getClient() {
 }
 
 // ── In-memory cache (per serverless instance) ──
-// NOTE: For production, replace with Vercel KV or a database
-// so wallet lookups persist across cold starts
 const emailToWallet = {};
 
 // ── Get or create wallet for an email ──
 async function getWalletForEmail(email) {
-  // Check in-memory cache first
   if (emailToWallet[email]) return emailToWallet[email];
-
   if (!CIRCLE_WALLET_SET_ID) throw new Error('CIRCLE_WALLET_SET_ID not configured');
 
   const client = getClient();
 
-  // Search for existing wallet by refId (email)
+  // Search for existing wallet by name
   try {
     const result = await client.listWallets({
       walletSetId: CIRCLE_WALLET_SET_ID,
       pageSize: 50,
     });
     const wallets = result.data?.wallets || [];
-    const existing = wallets.find(w =>
-      w.refId === email || w.name === `NAN-${email}`
-    );
+    const existing = wallets.find(w => w.name === `NAN-${email}`);
     if (existing?.address) {
       const wallet = {
         id: existing.id,
@@ -62,18 +54,12 @@ async function getWalletForEmail(email) {
     console.log('Could not search existing wallets:', e.message);
   }
 
-  // Create new wallet — SDK auto-encrypts entity secret per Circle docs
-  const idempotencyKey = crypto.createHash('sha256')
-    .update(email + '-nan-arc-wallet-v2')
-    .digest('hex');
-
+  // Create new wallet
   const result = await client.createWallets({
-    idempotencyKey,
     walletSetId: CIRCLE_WALLET_SET_ID,
     blockchains: ['ARC-TESTNET'],
     count: 1,
     accountType: 'EOA',
-    metadata: [{ name: `NAN-${email}`, refId: email }],
   });
 
   const wallet = result.data?.wallets?.[0];
@@ -104,11 +90,9 @@ async function getWalletBalances(walletId) {
 }
 
 // ── Transfer tokens via Circle SDK ──
-// SDK handles entity secret re-encryption automatically per Circle docs
 async function transferViaCircle(walletId, toAddress, amount, tokenAddress) {
   const client = getClient();
 
-  // Get wallet blockchain first
   const walletResult = await client.getWallet({ id: walletId });
   const blockchain = walletResult.data?.wallet?.blockchain || 'ARC-TESTNET';
 
@@ -121,7 +105,7 @@ async function transferViaCircle(walletId, toAddress, amount, tokenAddress) {
     fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
   });
 
-  return result.data?.id; // transaction ID
+  return result.data?.id;
 }
 
 // ── Get transaction status ──
@@ -136,7 +120,6 @@ async function getTransactionStatus(txId) {
 }
 
 module.exports = async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -158,15 +141,9 @@ module.exports = async function handler(req, res) {
   // ── GET OR CREATE WALLET ──
   if (action === 'getWallet') {
     if (!email) return res.status(400).json({ error: 'Email required' });
-
     if (!CIRCLE_API_KEY || !CIRCLE_WALLET_SET_ID || !CIRCLE_ENTITY_SECRET) {
-      return res.json({
-        success: false,
-        fallback: true,
-        error: 'Circle Programmable Wallets not fully configured',
-      });
+      return res.json({ success: false, fallback: true, error: 'Circle not fully configured' });
     }
-
     try {
       const wallet = await getWalletForEmail(email);
       return res.json({ success: true, wallet });
@@ -213,4 +190,4 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(400).json({ error: 'Invalid action. Use: health, getWallet, getBalance, transfer, getTransaction' });
-}
+};
