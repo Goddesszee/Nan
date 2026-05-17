@@ -2209,7 +2209,7 @@ async function doBridge(){
     let tx;
     try{
       tx=await messenger['depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)'](
-        amtParsed,domain,mintRecipient,USDC_ADDR,destinationCaller,0,1000
+        ,destinationCaller,0,1000
       );
     }catch(e2){
       
