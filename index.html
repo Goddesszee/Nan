@@ -2268,7 +2268,7 @@ async function pollCCTPAttestation(messageHash,messageBytes,destChain,destAddr,a
 
       // Fallback: hit Circle Iris API directly
       if(!attestation){
-        const IRIS='https://iris-api-sandbox.circle.com/v2/messages/'+domain;
+        const IRIS='https://iris-api-sandbox.circle.com/v2/messages/'+ARC_CCTP_DOMAIN;
         const res=await fetch(IRIS+'?transactionHash='+lastTxHash);
         if(res.ok){
           const data=await res.json();
