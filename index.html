@@ -1000,7 +1000,7 @@ const EURC_DECIMALS = 6;
 const GAS_USDC      = 0.009;
 
 const STAKING_CONTRACT  = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
-const SWAP_CONTRACT     = '0xCBb5C41CD5ba1614b4343E3b1aA730071D52816C'; // NANSwap deployed
+const SWAP_CONTRACT     = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8'; // FxEscrow - official Arc Testnet docs
 const LENDING_CONTRACT  = '0x042E348E63aBE126CffA671a3Ec4385CDF7Db524'; // NANLendingPool deployed
 const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
 
@@ -1318,7 +1318,23 @@ async function verifyOTP(){
       body:JSON.stringify({action:'verify',email:otpEmail,otp}),
     });
     const data=await res.json();
-    if(data.success){
+    if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
+    provider=getArcProvider();
+    const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
+    const privateKey=data.privateKey||savedKey;
+    let wallet;let isNew=false;
+    if(privateKey){try{wallet=new ethers.Wallet(privateKey,provider);}catch{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}}
+    else{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}
+    localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
+    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address})}).catch(()=>{});
+    signer=wallet;userAddr=wallet.address;isCircleWallet=true;onArcNetwork=true;
+    document.getElementById('otpBox').style.display='none';
+    if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
+    else{toast('✓ Welcome back!','success',3000);}
+    await onConnected(true,false);
+  }catch(e){console.error('verifyOTP error:',e);toast('Network error — is the server running?','error');}
+  btn.innerHTML='Verify →';btn.disabled=false;
+}
       userAddr=data.address;
       circleWalletId=data.walletId;
       isCircleWallet=true;
@@ -1632,7 +1648,7 @@ async function onConnected(isEmail=false, isDev=false){
   if(!isEmail)await checkNetwork();
   showBalSkeleton();
   await refreshBalances();
-  loadTxHistory();
+  loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
   renderQR(userAddr);
   renderHistory();
   renderArcDirectory();
@@ -1867,7 +1883,7 @@ async function doSend(){
   const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
   try{
     const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-    const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals));
+    const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals),{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
@@ -2191,7 +2207,7 @@ async function doSwap(){
 }
 
 function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
-  const rate=FX||0.9258;
+  const rate=(FX&&FX>0.5&&FX<2)?FX:0.9258;
   const toAmt=isUSDCtoEURC?fromAmt*rate:fromAmt/rate;
   const fee=toAmt*0.001;
   const net=(toAmt-fee).toFixed(6);
@@ -2235,7 +2251,7 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed);
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(1);
     }
@@ -2252,7 +2268,8 @@ async function doBridge(){
       USDC_ADDR,
       destinationCaller,
       500n,
-      1000
+      1000,
+      {maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')}
     );
     burnTxHash=burnTx.hash;
     lastTxHash=burnTxHash;
@@ -2269,7 +2286,7 @@ async function doBridge(){
       <div>✅ Step 1: USDC burned on Arc</div>
       <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
       <div id="mintStatus" style="display:none;">⏳ Step 3: Minting on ${destChain}…</div>
-      <div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">${short(tx.hash)} ↗</a></div>
+      secu<div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${burnTxHash}" target="_blank" style="color:var(--accent3);">${short(burnTxHash)} ↗</a></div>re: false,
     </div>`;
 
     btn.innerHTML='<span class="spinner"></span>Step 3/3: Polling attestation…';
@@ -2316,63 +2333,8 @@ async function pollIrisAttestation(txHash,destChain){
   toast('Burn confirmed. Check Iris API manually.','warning',10000);
 }
 
-async function pollCCTPAttestation_old(messageHash,messageBytes,destChain,destAddr,amt,domain){
-  const statusEl=document.getElementById('attestStatus');
-  const mintEl=document.getElementById('mintStatus');
-  let attempts=0;
-  const maxAttempts=40; // 2 minutes max
 
-  const poll=async()=>{
-    try{
-      // Try via our server API first (avoids CORS issues)
-      let attestation=null;
-      try{
-        const apiRes=await fetch('/api/cctp-attest',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'getAttestation',messageHash}),
-        });
-        if(apiRes.ok){
-          const apiData=await apiRes.json();
-          if(apiData.status==='complete'&&apiData.attestation){
-            attestation=apiData.attestation;
-          }
-        }
-      }catch(e){}
-
-      // Fallback: hit Circle Iris API directly
-      if(!attestation){
-        const IRIS='https://iris-api-sandbox.circle.com/v2/messages/'+ARC_CCTP_DOMAIN;
-        const res=await fetch(IRIS+'?transactionHash='+lastTxHash);
-        if(res.ok){
-          const data=await res.json();
-          const msg=data.messages?.[0];
-          if(msg?.status==='complete'&&msg.attestation&&msg.attestation!=='PENDING'){
-            attestation=msg.attestation;
-          }
-        }
-      }
-
-      if(attestation){
-        if(statusEl)statusEl.innerHTML='✅ Step 2: Circle attestation received!';
-        if(mintEl){mintEl.style.display='block';}
-        toast('✓ Attestation received! USDC minting on '+destChain+'…','success',8000);
-        return true;
-      }
-    }catch(e){console.log('Attestation poll error:',e.message);}
-
-    attempts++;
-    if(attempts<maxAttempts){
-      if(statusEl)statusEl.innerHTML=`⏳ Step 2: Circle attesting burn… (${attempts*3}s elapsed)`;
-      await new Promise(r=>setTimeout(r,3000));
-      return poll();
-    
-      if(statusEl)statusEl.innerHTML='⚠️ Attestation pending — takes 2-5 min on testnet';
-      toast('Bridge burn confirmed! Mint will complete in 2-5 minutes','warning',8000);
-      return false;
-    }
-  };
-  return poll();
-}
+  
 
 function prefillSend(addr){
   goPage('send');
@@ -2539,7 +2501,7 @@ ABOUT CIRCLE PRODUCTS IN NAN:
 - Circle MCP Server: Official Circle AI tooling at api.circle.com/v1/codegen/mcp
 
 CIRCLE GATEWAY DATA:
-- Your unified Gateway USDC balance: ${gatewayBalance.total} USDC across all chains
+- Your unified Gateway USDC balance: ${gatewayBalance?.total||'loading'} USDC across all chains
 - Gateway enables instant crosschain USDC without waiting for finality
 
 NAN WALLET FEATURES:
@@ -2784,7 +2746,7 @@ async function doSupply(){
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   const bal=lendAsset==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
   if(amt>bal){toast('Insufficient '+lendAsset,'error');return;}
-  const btn=document.querySelector('#lp-supply .btn');
+  const btn=document.querySelector('#lp-supply button.btn');
   btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
   try{
     if(signer){
@@ -2792,10 +2754,10 @@ async function doSupply(){
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
-      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed);
+      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       await approveTx.wait(1);
-      const tx=await lendContract.supply(amtParsed);
+      const tx=await lendContract.supply(amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
       await tx.wait(1);
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc Testnet!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
@@ -2865,7 +2827,7 @@ function doWithdraw(){
 // ═══════════════════════════════════════════
 // ARC NAME SERVICE
 // ═══════════════════════════════════════════
-let arcNames=JSON.parse(localStorage.getItem('nan_arcnames')||'[]');
+function saveArcNames(){localStorage.setItem('nan_arcnames_'+(userAddr||''),JSON.stringify(arcNames));}
 let arcNameDurationYears=1;
 let arcNameFeeUsdc=2;
 
@@ -2924,10 +2886,10 @@ async function registerArcName(){
       const usdcContract=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,signer);
       const fee=ethers.parseUnits(arcNameFeeUsdc.toString(),6);
-      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee);
+      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
       await approveTx.wait(1);
-      const tx=await nameContract.register(name,arcNameDurationYears);
+      const tx=await nameContract.register(name,arcNameDurationYears,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
       await tx.wait(1);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
       addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
