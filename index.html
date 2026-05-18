@@ -1782,6 +1782,7 @@ async function doSend(){
 
   // ── Circle API path (no private key, use Circle transfer API) ──
   if(isCircleWallet){
+    if(!circleWalletId){toast('Wallet not ready — please log in again','error');return;}
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
       const res=await fetch('/api/transfer',{
