@@ -1762,14 +1762,27 @@ async function onRecipInput(){
       else showNo('Invalid address checksum');
     }else if(val.startsWith('0x')&&val.length>2)showNo('Address must be 42 chars');
   }else if(recipType==='arcname'){
-    // Resolve from local arc names registry
     const name=val.toLowerCase().replace('.arc','');
+    // Check local first (fast)
     const found=arcNames.find(n=>n.name===name);
     if(found){
       resolvedTo=found.owner;lastResolvedInput=val;
       showOk('✓ '+name+'.arc → '+short(found.owner));
     }else{
-      showNo('Arc name not found — register it in the Name tab');
+      // Fall back to on-chain lookup
+      try{
+        const readProvider=getArcProvider();
+        const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,readProvider);
+        const addr=await nameContract.resolve(name);
+        if(addr&&addr!=='0x0000000000000000000000000000000000000000'){
+          resolvedTo=addr;lastResolvedInput=val;
+          showOk('✓ '+name+'.arc → '+short(addr));
+        }else{
+          showNo('Arc name not found — register it in the Name tab');
+        }
+      }catch(e){
+        showNo('Arc name not found — register it in the Name tab');
+      }
     }
   }
   validateSend();
