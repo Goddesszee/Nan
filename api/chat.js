@@ -1,3 +1,18 @@
+const rateLimitMap = new Map();
+
+function checkRateLimit(ip, limit = 20, windowMs = 60000) {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip) || { count: 0, start: now };
+  if (now - record.start > windowMs) {
+    rateLimitMap.set(ip, { count: 1, start: now });
+    return true;
+  }
+  if (record.count >= limit) return false;
+  record.count++;
+  rateLimitMap.set(ip, record);
+  return true;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -5,11 +20,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages, usdcBal, eurcBal, userAddress } = req.body;
-  if (!messages || messages.length > 20) {
-    return res.status(400).json({ error: 'Invalid request' });
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
+  if (!checkRateLimit(ip, 20, 60000)) {
+    return res.status(429).json({ error: 'Too many requests — please wait a minute' });
   }
-  if (!messages || !Array.isArray(messages)) {
+
+  const { messages, usdcBal, eurcBal, userAddress } = req.body;
+  if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
     return res.status(400).json({ error: 'Invalid messages' });
   }
 
@@ -34,7 +51,6 @@ RULES:
 - If user wants to navigate somewhere add NAVIGATE:pagename at end
   Pages: send, swap, stake, handle, history`;
 
-  // Try Anthropic Claude first
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (ANTHROPIC_KEY) {
     try {
@@ -51,7 +67,7 @@ RULES:
           system: systemPrompt,
           messages: messages.slice(-10).map(m => ({
             role: m.role,
-            content: String(m.content),
+            content: String(m.content).slice(0, 2000),
           })),
         }),
       });
@@ -70,9 +86,8 @@ RULES:
     }
   }
 
-  // Fallback to Groq
   const GROQ_KEY = process.env.GROQ_API_KEY;
-  if (!GROQ_KEY) return res.status(500).json({ error: 'No AI key set in Vercel environment variables' });
+  if (!GROQ_KEY) return res.status(500).json({ error: 'No AI key configured' });
 
   try {
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -86,13 +101,16 @@ RULES:
         max_tokens: 500,
         messages: [
           { role: 'system', content: systemPrompt },
-          ...messages.slice(-10),
+          ...messages.slice(-10).map(m => ({
+            role: m.role,
+            content: String(m.content).slice(0, 2000),
+          })),
         ],
       }),
     });
 
     const data = await r.json();
-    if (!r.ok) return res.status(r.status).json({ error: data?.error?.message || 'Groq error' });
+    if (!r.ok) return res.status(429).json({ error: 'AI service busy — try again' });
 
     let reply = data.choices?.[0]?.message?.content || 'No response.';
     let navigatePage = null;
@@ -101,6 +119,6 @@ RULES:
 
     return res.json({ reply, navigatePage });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'AI service unavailable' });
   }
 }
