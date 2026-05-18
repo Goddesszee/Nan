@@ -2,20 +2,19 @@
 // CCTP V2 attestation — Circle deprecated V1 July 2026
 // Docs: https://developers.circle.com/stablecoins/cctp-getting-started
 
+import { createHash } from 'crypto';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { action, messageHash, txHash, sourceDomain } = req.body;
 
-  // ── GET ATTESTATION — CCTP V2 ──
   if (action === 'getAttestation') {
-    if (!messageHash) {
-      return res.status(400).json({ error: 'messageHash required' });
-    }
+    if (!messageHash) return res.status(400).json({ error: 'messageHash required' });
+    if (!/^0x[a-fA-F0-9]+$/.test(messageHash)) return res.status(400).json({ error: 'Invalid messageHash' });
 
-    // CCTP V2 uses iris-api-sandbox for testnet
     const IRIS_URL = 'https://iris-api-sandbox.circle.com/v2/messages';
-    const domain = sourceDomain || 26; // Arc Testnet domain = 26
+    const domain = sourceDomain || 26;
 
     try {
       const response = await fetch(`${IRIS_URL}/${domain}?messageHash=${messageHash}`, {
@@ -54,9 +53,9 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── GET TX STATUS ──
   if (action === 'getTxStatus') {
     if (!txHash) return res.status(400).json({ error: 'txHash required' });
+    if (!/^0x[a-fA-F0-9]{64}$/.test(txHash)) return res.status(400).json({ error: 'Invalid txHash' });
 
     try {
       const ARC_RPC = 'https://rpc.testnet.arc.network';
@@ -77,7 +76,6 @@ export default async function handler(req, res) {
         return res.json({ status: 'pending', message: 'Transaction not yet mined' });
       }
 
-      // MessageSent event topic — same in V1 and V2
       const MESSAGE_SENT_TOPIC = '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036';
       const messageSentLog = receipt.logs?.find(log =>
         log.topics?.[0]?.toLowerCase() === MESSAGE_SENT_TOPIC
@@ -89,11 +87,9 @@ export default async function handler(req, res) {
 
       const messageBytes = messageSentLog.data;
 
-      // Hash using Web Crypto API — no external dependency needed
+      // Use Node.js crypto for keccak256-like hash
       const msgBuffer = Buffer.from(messageBytes.slice(2), 'hex');
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const msgHash = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const msgHash = '0x' + createHash('sha256').update(msgBuffer).digest('hex');
 
       return res.json({
         status: 'burned',
