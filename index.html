@@ -1298,7 +1298,7 @@ async function sendEmailOTP(){
     });
     const data=await res.json();
     if(data.success){
-      if(data.dev){toast('Dev mode: OTP printed to server console','info',6000);}
+      userAddr=data.address;isCircleWallet=true;signer=null;provider=getArcProvider();onArcNetwork=true;document.getElementById('otpBox').style.display='none';await onConnected(true);toast(data.isNew?'✓ Circle wallet created! Get free USDC 🎉':'✓ Welcome back!','success',6000);
       else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
@@ -1330,7 +1330,7 @@ async function verifyOTP(){
       if(data.isNew){toast('✓ Circle wallet created on Arc! Get free USDC at faucet.circle.com 🎉','success',8000);}
       else{toast('✓ Welcome back!','success',3000);}
 
-      await onConnected(true, false);
+      
       
       
         
@@ -1871,7 +1871,7 @@ async function doSend(){
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
-    const receipt=await burnTx.wait(1);
+    const receipt=await tx.wait(1);
     addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'metamask'});
     toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+'!','success',7000);
     document.getElementById('confirmCard').classList.remove('show');
@@ -2258,7 +2258,7 @@ async function doBridge(){
     lastTxHash=burnTxHash;
     toast('✓ Burn submitted! Waiting for Circle attestation…','info',8000);
     const receipt=await burnTx.wait(1);
-    addTx({hash:tx.hash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
+    addTx({hash:burnTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
 
     // Get message bytes from receipt
     const messageHash='0x'+receipt.logs?.[0]?.topics?.[1]?.slice(2)||'';
@@ -2637,7 +2637,7 @@ async function connectSpecific(walletType){
     else if(walletType==='rabby') detectedWp=providers.find(p=>p.isRabby);
     else if(walletType==='coinbase') detectedWp=providers.find(p=>p.isCoinbaseWallet);
     if(!detectedWp) detectedWp=providers[0];
-  
+  } else {
     detectedWp=window.ethereum||null;
   }
   if(!detectedWp){toast(walletType+' not found — is it installed?','error',6000);return;}
