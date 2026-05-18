@@ -1853,7 +1853,7 @@ async function doSend(){
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
-    const receipt=await tx.wait(1);
+    const receipt=await burnTx.wait(1);
     addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'metamask'});
     toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+'!','success',7000);
     document.getElementById('confirmCard').classList.remove('show');
@@ -2234,13 +2234,13 @@ async function doBridge(){
       mintRecipient,
       USDC_ADDR,
       destinationCaller,
-      0n,
-      2000
+      500n,
+      1000
     );
     burnTxHash=burnTx.hash;
     lastTxHash=burnTxHash;
     toast('✓ Burn submitted! Waiting for Circle attestation…','info',8000);
-    const receipt=await tx.wait(1);
+    const receipt=await burnTx.wait(1);
     addTx({hash:tx.hash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
 
     // Get message bytes from receipt
