@@ -1086,7 +1086,6 @@ let circleWalletId=null, circleWalletAddress=null, circleWalletBlockchain=null; 
 let isCircleWallet=false; // true = email login, false = MetaMask
 
 let arcNames=[];
-let arcNames=[];
 let txHistory=[];
 function loadTxHistory(){txHistory=JSON.parse(localStorage.getItem('arcTx_'+(userAddr||''))||'[]');}
 function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(txHistory.slice(0,100)));}
@@ -1343,13 +1342,7 @@ async function verifyOTP(){
       
       
         
-      }
-
       
-      
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'getWallet',email:otpEmail}),
-        });
         
 
       
@@ -2766,7 +2759,6 @@ function doWithdraw(){
 function saveArcNames(){localStorage.setItem('nan_arcnames_'+(userAddr||''),JSON.stringify(arcNames));}
 let arcNameDurationYears=1;
 let arcNameFeeUsdc=2;
-
 
 function setArcNameDuration(years,fee,el){
   arcNameDurationYears=years;arcNameFeeUsdc=fee;
