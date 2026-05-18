@@ -1273,7 +1273,6 @@ async function _doConnect(detectedWp, walletType){
     const chainHex=await wp.request({method:'eth_chainId'});
     onArcNetwork=parseInt(chainHex,16)===ARC_CHAIN_ID;
     await onConnected(false);
-    toast('✓ Connected via '+walletType+'!','success',4000);
     trackEvent('connect',{type:walletType});
   }catch(err){
     if(err.code===4001)toast('Connection cancelled','error');
