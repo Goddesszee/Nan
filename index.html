@@ -2451,7 +2451,7 @@ RULES:
     const res=await fetch('/api/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        system:context,
+        system:context,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
         messages:agentMsgs.slice(0,-1).filter(m=>!m.content.includes('spinner')).map(m=>({role:m.role,content:m.content}))
       }),
     });
