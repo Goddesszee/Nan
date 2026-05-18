@@ -1307,6 +1307,9 @@ async function sendEmailOTP(){
   }catch(e){toast('Network error — is the server running?','error');}
   btn.innerHTML='Send Code';btn.disabled=false;
 }
+  }catch(e){toast('Network error — is the server running?','error');}
+  btn.innerHTML='Send Code';btn.disabled=false;
+}
 
 async function verifyOTP(){
   const otp=document.getElementById('otpInput').value.trim();
