@@ -1335,20 +1335,11 @@ async function verifyOTP(){
         btn.innerHTML='Verify →';btn.disabled=false;
         return;
       }
-    }catch(e){console.log('Circle wallet API failed, using local wallet:',e.message);}
-    provider=getArcProvider();
-    const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
-    const privateKey=data.privateKey||savedKey;
-    let wallet;let isNew=false;
-    if(privateKey){try{wallet=new ethers.Wallet(privateKey,provider);}catch{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}}
-    else{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}
-    localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
-    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address})}).catch(()=>{});
-    signer=wallet;userAddr=wallet.address;isCircleWallet=false;onArcNetwork=true;
-    document.getElementById('otpBox').style.display='none';
-    if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
-    else{toast('✓ Welcome back!','success',3000);}
-    await onConnected(true,false);
+    }catch(e){
+      toast('Circle wallet error — '+e.message.slice(0,80),'error',6000);
+      btn.innerHTML='Verify →';btn.disabled=false;
+      return;
+    }
   }catch(e){console.error('verifyOTP error:',e);toast('Network error — is the server running?','error');}
   btn.innerHTML='Verify →';btn.disabled=false;
 }
