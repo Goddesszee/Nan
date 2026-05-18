@@ -1,20 +1,20 @@
 // api/gateway.js
 // Circle Gateway — Unified USDC Balance across chains
-// Fully permissionless — no API key needed!
 // Docs: https://developers.circle.com/gateway/quickstarts/unified-balance-evm
 
 const GATEWAY_API = 'https://gateway-api-testnet.circle.com/v1';
-
-// Arc Testnet Gateway Wallet contract address
 const GATEWAY_WALLET_ARC = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
 
-// Domain IDs from Circle docs
 const DOMAINS = {
   'ETH-SEPOLIA': 0,
   'AVAX-FUJI': 1,
   'BASE-SEPOLIA': 6,
   'ARC-TESTNET': 26,
 };
+
+function isValidAddress(addr) {
+  return /^0x[a-fA-F0-9]{40}$/.test(addr);
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,9 +23,9 @@ export default async function handler(req, res) {
 
   const { action, address } = req.body;
 
-  // ── GET UNIFIED BALANCE ──
   if (action === 'getBalance') {
     if (!address) return res.status(400).json({ error: 'address required' });
+    if (!isValidAddress(address)) return res.status(400).json({ error: 'Invalid wallet address' });
 
     try {
       const body = {
@@ -43,8 +43,7 @@ export default async function handler(req, res) {
       });
 
       if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`Gateway API error: ${err}`);
+        throw new Error('Gateway API unavailable');
       }
 
       const result = await response.json();
@@ -69,21 +68,21 @@ export default async function handler(req, res) {
       console.error('Gateway balance error:', err.message);
       return res.json({
         success: false,
-        error: err.message,
+        error: 'Could not fetch Gateway balance',
         total: '0.00',
         balances: {},
       });
     }
   }
 
-  // ── GET GATEWAY INFO ──
   if (action === 'info') {
     try {
       const response = await fetch(`${GATEWAY_API}/info`);
+      if (!response.ok) throw new Error('Gateway info unavailable');
       const data = await response.json();
       return res.json({ success: true, data });
     } catch (err) {
-      return res.json({ success: false, error: err.message });
+      return res.json({ success: false, error: 'Could not fetch Gateway info' });
     }
   }
 
