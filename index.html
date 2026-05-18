@@ -2151,7 +2151,7 @@ async function doSwap(){
     return;
   }catch(e){
     console.log('StableFX:',e.message);
-    toast('StableFX: '+e.message.slice(0,60)+' — using simulation','warning',5000);
+    console.log('StableFX:',e.message);
     btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
   }
   try{
