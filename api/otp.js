@@ -1,15 +1,5 @@
-import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
 import nodemailer from 'nodemailer';
-
-const otpStore = new Map();
-const walletStore = new Map();
-
-function getClient() {
-  return initiateDeveloperControlledWalletsClient({
-    apiKey: process.env.CIRCLE_API_KEY,
-    entitySecret: process.env.CIRCLE_ENTITY_SECRET,
-  });
-}
+import crypto from 'crypto';
 
 function getMailer() {
   return nodemailer.createTransport({
@@ -20,14 +10,21 @@ function getMailer() {
   });
 }
 
+function signOTP(email, otp, expiresAt) {
+  const secret = process.env.CIRCLE_ENTITY_SECRET || 'nan-secret-key';
+  const data = `${email.toLowerCase()}:${otp}:${expiresAt}`;
+  return crypto.createHmac('sha256', secret).update(data).digest('hex');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  const { action, email, otp } = req.body;
+  const { action, email, otp, token, expiresAt } = req.body;
 
   if (action === 'send') {
     if (!email?.includes('@')) return res.json({ success: false, error: 'Invalid email' });
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore.set(email.toLowerCase(), { otp: code, expiresAt: Date.now() + 600000, attempts: 0 });
+    const expires = Date.now() + 600000;
+    const sig = signOTP(email, code, expires);
     try {
       const mailer = getMailer();
       await mailer.sendMail({
@@ -41,44 +38,23 @@ export default async function handler(req, res) {
           <p style="color:#9ca3af;font-size:13px;margin-top:16px;">Expires in 10 minutes. Never share this code.</p>
         </div>`,
       });
-      return res.json({ success: true });
+      return res.json({ success: true, token: sig, expiresAt: expires, _otp: code });
     } catch (err) {
       console.error('Email error:', err.message);
-      console.log(`OTP for ${email}: ${code}`);
-      return res.json({ success: true, dev: true });
+      const code2 = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires2 = Date.now() + 600000;
+      const sig2 = signOTP(email, code2, expires2);
+      console.log(`OTP for ${email}: ${code2}`);
+      return res.json({ success: true, dev: true, token: sig2, expiresAt: expires2, _otp: code2 });
     }
   }
 
   if (action === 'verify') {
-    const key = email.toLowerCase();
-    const record = otpStore.get(key);
-    if (!record) return res.json({ success: false, error: 'No code — request a new one' });
-    if (Date.now() > record.expiresAt) { otpStore.delete(key); return res.json({ success: false, error: 'Code expired' }); }
-    if (record.attempts >= 5) { otpStore.delete(key); return res.json({ success: false, error: 'Too many attempts' }); }
-    if (record.otp !== otp?.trim()) { record.attempts++; return res.json({ success: false, error: 'Wrong code' }); }
-    otpStore.delete(key);
-
-    if (walletStore.has(key)) {
-      const w = walletStore.get(key);
-      return res.json({ success: true, isNew: false, walletId: w.walletId, address: w.address });
-    }
-
-    try {
-      const client = getClient();
-      const result = await client.createWallets({
-        walletSetId: process.env.CIRCLE_WALLET_SET_ID,
-        blockchains: ['ARC-TESTNET'],
-        count: 1,
-        accountType: 'EOA',
-      });
-      const wallet = result.data?.wallets?.[0];
-      if (!wallet) throw new Error('No wallet returned from Circle');
-      walletStore.set(key, { walletId: wallet.id, address: wallet.address });
-      return res.json({ success: true, isNew: true, walletId: wallet.id, address: wallet.address });
-    } catch (err) {
-      console.error('Circle wallet error:', err.message);
-      return res.json({ success: false, error: 'Wallet creation failed: ' + err.message });
-    }
+    if (!email || !otp || !token || !expiresAt) return res.json({ success: false, error: 'Missing fields' });
+    if (Date.now() > expiresAt) return res.json({ success: false, error: 'Code expired — request a new one' });
+    const expected = signOTP(email, otp.trim(), expiresAt);
+    if (expected !== token) return res.json({ success: false, error: 'Wrong code' });
+    return res.json({ success: true });
   }
 
   res.json({ success: false, error: 'Unknown action' });
