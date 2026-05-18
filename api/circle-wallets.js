@@ -13,7 +13,9 @@ export default async function handler(req, res) {
 
   if (action === 'getWallet') {
     if (!email) return res.json({ success: false, error: 'Missing email' });
-    if (!email.includes('@') || email.length > 100 || email.includes('<')) return res.json({ success: false, error: 'Invalid email' });
+    if (!email.includes('@') || email.length > 100 || email.includes('<')) {
+      return res.json({ success: false, error: 'Invalid email' });
+    }
     try {
       const client = getClient();
       const walletSetName = 'nan-' + email.replace('@','_').replace(/\./g,'_');
@@ -51,55 +53,6 @@ export default async function handler(req, res) {
     if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
       return res.json({ success: false, error: 'Invalid amount' });
     }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
-      return res.json({ success: false, error: 'Invalid destination address' });
-    }
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
-      return res.json({ success: false, error: 'Invalid amount' });
-    }
     try {
       const client = getClient();
       const walletData = await client.getWallet({ id: walletId });
@@ -107,7 +60,6 @@ export default async function handler(req, res) {
       const tokenAddress = tokenSymbol === 'EURC'
         ? '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a'
         : '0x3600000000000000000000000000000000000000';
-
       const tx = await client.createTransaction({
         blockchain: 'ARC-TESTNET',
         walletAddress,
@@ -116,10 +68,8 @@ export default async function handler(req, res) {
         tokenAddress,
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
-
       const txId = tx.data?.id;
       if (!txId) throw new Error('No transaction ID returned');
-
       let state = tx.data?.state;
       let txHash = null;
       for (let i = 0; i < 30 && !['COMPLETE','FAILED','CANCELLED','DENIED'].includes(state); i++) {
