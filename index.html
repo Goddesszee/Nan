@@ -1300,7 +1300,7 @@ async function sendEmailOTP(){
     if(data.success){
       if(data.dev){toast('Dev mode: OTP printed to server console','info',6000);}
       else{toast('✓ Code sent to '+email,'success',6000);};document.getElementById('otpBox').style.display='none';await onConnected(true);toast(data.isNew?'✓ Circle wallet created! Get free USDC 🎉':'✓ Welcome back!','success',6000);
-      }else{toast(data.error||'✓ Code sent to '+email,'success',6000);}
+      }else{toast(data.error||'Failed to send code','error',6000);} '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
     }else{toast(data.error||'Failed to send code','error',6000);}
