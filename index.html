@@ -1332,26 +1332,10 @@ async function verifyOTP(){
     document.getElementById('otpBox').style.display='none';
     if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
     else{toast('✓ Welcome back!','success',3000);}
-    
-      
-
-      
-      
-      
-        
-      
-        
-
-      
-      
-        
-        
-        
-      
-        
-      
-
-    
+    await onConnected(true,false);
+  }catch(e){console.error('verifyOTP error:',e);toast('Network error — is the server running?','error');}
+  btn.innerHTML='Verify →';btn.disabled=false;
+}
 
 // ── Show seed phrase modal to new users ──
 function showSeedPhrase(mnemonic, privateKey, address){
