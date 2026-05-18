@@ -1330,6 +1330,7 @@ async function verifyOTP(){
         signer=null;
         provider=getArcProvider();
         onArcNetwork=true;
+        document.getElementById('otpBox').style.display='none';
         toast('✓ Circle wallet ready!','success',3000);
         await onConnected(true,false);
         btn.innerHTML='Verify →';btn.disabled=false;
