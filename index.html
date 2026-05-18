@@ -1300,7 +1300,7 @@ async function sendEmailOTP(){
       document.getElementById('otpInput').focus();
       window._otpToken=data.token||'dev';
       window._otpExpiry=data.expiresAt||Date.now()+600000;
-      if(data._otp)console.log('Dev OTP:',data._otp);
+      
     }else{toast(data.error||'Failed to send code','error',6000);}
   }catch(e){toast('Network error — is the server running?','error');}
   btn.innerHTML='Send Code';btn.disabled=false;
