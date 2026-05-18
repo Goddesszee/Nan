@@ -59,7 +59,7 @@ RULES:
       let reply = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || 'No response.';
       let navigatePage = null;
       const nav = reply.match(/NAVIGATE:(\w+)/);
-      if (nav) { navigatePage = nav[1]; reply = reply.replace(/NAVIGATE:\w+/g, '').trim(); }
+      if (nav) { navigatePage = nav[1]; reply = reply.replace(/NAVIGATE:\s*\w+/g, '').trim(); }
 
       return res.json({ reply, navigatePage });
     } catch (err) {
