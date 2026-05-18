@@ -1008,12 +1008,13 @@ const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNa
 const ARC_CCTP_DOMAIN = 26; const CCTP_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA'; // Arc Testnet TokenMessengerV2 (official)
 const CCTP_MESSAGE_TRANSMITTER = '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275'; // Arc Testnet MessageTransmitterV2
 // Arc Testnet CCTP Domain = 26 (official from docs.arc.io)
-const CCTP_DEST_DOMAIN = {   'ETH-SEPOLIA':   0,   'AVAX-FUJI':     1,   'OP-SEPOLIA':    2,   'ARB-SEPOLIA':   3,   'BASE-SEPOLIA':  6,   'POLYGON-AMOY':  7, };
-  'ETH-SEPOLIA':  0,
-  'AVAX-FUJI':    1,
-  'ARB-SEPOLIA':  3,
-  'BASE-SEPOLIA': 6,
-  'MATIC-MUMBAI': 7,
+const CCTP_DEST_DOMAIN = {
+  'ETH-SEPOLIA':   0,
+  'AVAX-FUJI':     1,
+  'OP-SEPOLIA':    2,
+  'ARB-SEPOLIA':   3,
+  'BASE-SEPOLIA':  6,
+  'POLYGON-AMOY':  7,
 };
 
 // Arc Testnet provider — ENS disabled since Arc doesn't support it
@@ -1062,10 +1063,10 @@ const ERC20_ABI = [
   'function decimals() view returns (uint8)',
 ];
 const CCTP_ABI = [
-  // TokenMessengerV2 depositForBurn
   'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken, bytes32 destinationCaller, uint256 maxFee, uint32 minFinalityThreshold) external returns (uint64 nonce)',
-  // Also support V1 for compatibility
-  'function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken) external returns (uint64 nonce)',
+];
+const CCTP_TRANSMITTER_ABI = [
+  'function receiveMessage(bytes message, bytes attestation) external returns (bool success)',
 ];
 // ═══════════════════════════════════════════
 // STATE
@@ -1177,8 +1178,7 @@ function updateTopBar(connected){
 // FX RATE
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
-  // Try our server API first (tries Band → CoinGecko → ExchangeRate)
-  
+  try{
     const res=await fetch('/api/fx-rate');
     if(res.ok){
       const data=await res.json();
@@ -2182,13 +2182,16 @@ async function doBridge(){
   const destChain=document.getElementById('bridgeDestChain').value;
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  if(!signer){toast('Wallet signer required','error');return;}
+  if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   await refreshBalances();
-  if(amt>parseFloat(usdcBal)){toast('Insufficient USDC — you have '+parseFloat(usdcBal).toFixed(2)+' USDC','error',5000);return;}
-  if(!signer||!onArcNetwork){toast('Connect wallet on Arc Testnet for CCTP bridging','error');return;}
-  const domain=CCTP_DEST_DOMAIN[destChain];
-  if(domain===undefined){toast('Unsupported destination chain','error');return;}
+  const currentUsdc=parseFloat(usdcBal)||0;
+  if(amt+GAS_USDC*2>currentUsdc){toast('Insufficient USDC — need '+(amt+GAS_USDC*2).toFixed(3)+', have '+currentUsdc.toFixed(3),'error',6000);return;}
+  const destDomain=CCTP_DEST_DOMAIN[destChain];
+  if(destDomain===undefined){toast('Unsupported destination chain','error');return;}
   const btn=document.getElementById('bridgeBtn');
   const statusCard=document.getElementById('bridgeStatusCard');
   const statusContent=document.getElementById('bridgeStatusContent');
@@ -2206,17 +2209,19 @@ async function doBridge(){
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
     const destinationCaller=ethers.zeroPadValue('0x0000000000000000000000000000000000000000',32);
     const messenger=new ethers.Contract(CCTP_TOKEN_MESSENGER,CCTP_ABI,signer);
-    try{
-    try{
-      tx=await messenger['depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)'](
-        ,destinationCaller,0,1000
-      );
-    
-      
-        
-      );
-    }
-    lastTxHash=tx.hash;
+    let burnTx=null;
+    let burnTxHash=null;
+    burnTx=await messenger.depositForBurn(
+      amtParsed,
+      destDomain,
+      mintRecipient,
+      USDC_ADDR,
+      destinationCaller,
+      0n,
+      2000
+    );
+    burnTxHash=burnTx.hash;
+    lastTxHash=burnTxHash;
     toast('✓ Burn submitted! Waiting for Circle attestation…','info',8000);
     const receipt=await tx.wait(1);
     addTx({hash:tx.hash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
@@ -2236,7 +2241,7 @@ async function doBridge(){
     btn.innerHTML='<span class="spinner"></span>Step 3/3: Polling attestation…';
 
     // Poll Circle Iris API for attestation
-    await pollCCTPAttestation(messageHash,messageBytes,destChain,destAddr,amt,domain);
+    await pollIrisAttestation(burnTxHash,destChain);
     await refreshBalances();
   }catch(err){
     toast((err?.info?.error?.message||err?.reason||err?.message||'Bridge failed').slice(0,140),'error',8000);
