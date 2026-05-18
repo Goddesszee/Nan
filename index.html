@@ -1303,8 +1303,8 @@ async function sendEmailOTP(){
       else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
-      window._otpToken=data.token;
-      window._otpExpiry=data.expiresAt;
+      window._otpToken=data.token||'dev';
+      window._otpExpiry=data.expiresAt||Date.now()+600000;
       if(data._otp)console.log('Dev OTP:',data._otp);
     }else{toast(data.error||'Failed to send code','error',6000);}
   }catch(e){toast('Network error — is the server running?','error');}
@@ -1313,7 +1313,8 @@ async function sendEmailOTP(){
 
 async function verifyOTP(){
   const otp=document.getElementById('otpInput').value.trim();
-  if(otp.length!==6){toast('Enter the 6-digit code','error');return;}
+  if(!otp||otp.length!==6){toast('Enter the 6-digit code — got: '+otp.length,'error');return;}
+      if(!window._otpToken){toast('Please click Send Code first','error');return;}
   const btn=document.getElementById('verifyBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
