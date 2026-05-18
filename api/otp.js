@@ -1,6 +1,21 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
+const otpRateLimit = new Map();
+
+function checkOtpLimit(email) {
+  const now = Date.now();
+  const record = otpRateLimit.get(email) || { count: 0, start: now };
+  if (now - record.start > 3600000) {
+    otpRateLimit.set(email, { count: 1, start: now });
+    return true;
+  }
+  if (record.count >= 5) return false;
+  record.count++;
+  otpRateLimit.set(email, record);
+  return true;
+}
+
 function getMailer() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -25,6 +40,9 @@ export default async function handler(req, res) {
     if (!email?.includes('@')) return res.json({ success: false, error: 'Invalid email' });
     if (email.length > 100) return res.json({ success: false, error: 'Invalid email' });
     if (email.includes('<') || email.includes('>')) return res.json({ success: false, error: 'Invalid email' });
+    if (!checkOtpLimit(email.toLowerCase())) {
+      return res.json({ success: false, error: 'Too many codes sent — try again in 1 hour' });
+    }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = Date.now() + 600000;
     const sig = signOTP(email, code, expires);
@@ -47,13 +65,16 @@ export default async function handler(req, res) {
       const code2 = Math.floor(100000 + Math.random() * 900000).toString();
       const expires2 = Date.now() + 600000;
       const sig2 = signOTP(email, code2, expires2);
-      console.log(`OTP sent in dev mode`);
+      console.log('OTP sent in dev mode');
       return res.json({ success: true, dev: true, token: sig2, expiresAt: expires2 });
     }
   }
 
   if (action === 'verify') {
     if (!email || !otp || !token || !expiresAt) return res.json({ success: false, error: 'Missing fields' });
+    if (typeof otp !== 'string' || otp.length !== 6 || !/^\d+$/.test(otp)) {
+      return res.json({ success: false, error: 'Invalid code format' });
+    }
     if (Date.now() > expiresAt) return res.json({ success: false, error: 'Code expired — request a new one' });
     const expected = signOTP(email, otp.trim(), expiresAt);
     if (expected !== token) return res.json({ success: false, error: 'Wrong code' });
