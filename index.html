@@ -1319,11 +1319,22 @@ async function verifyOTP(){
     });
     const data=await res.json();
     if(data.success){
-      provider=new ethers.JsonRpcProvider(ARC_RPC,{chainId:ARC_CHAIN_ID,name:'arc-testnet',ensAddress:null});
+      userAddr=data.address;
+      circleWalletId=data.walletId;
+      isCircleWallet=true;
+      signer=null;
+      provider=getArcProvider();
       onArcNetwork=true;
+      document.getElementById('otpBox').style.display='none';
+      await onConnected(true);
+      if(data.isNew){toast('✓ Circle wallet created on Arc! Get free USDC at faucet.circle.com 🎉','success',8000);}
+      else{toast('✓ Welcome back!','success',3000);}
 
-      let wallet;
-      let isNewWallet=false;
+      await onConnected(true, false);
+      showSeedPhrase(wallet.mnemonic?.phrase, wallet.privateKey, wallet.address);
+      } else {
+        await onConnected(true, false);
+      }
 
       // ── Try Circle Programmable Wallet API first ──
       try{
@@ -1808,34 +1819,10 @@ async function doSend(){
   if(to.toLowerCase()===userAddr.toLowerCase()){toast('Cannot send to yourself','error');return;}
   const btn=document.getElementById('confirmSendBtn');
 
-  // ── Email wallet path (has real private key signer) ──
-  if(isCircleWallet && signer){
-    if(!onArcNetwork){toast('Not connected to Arc Testnet','error');return;}
-    btn.innerHTML='<span class="spinner"></span>Signing transaction…';btn.disabled=true;
-    const tokenAddr=sendToken==='USDC'?USDC_ADDR:EURC_ADDR;
-    const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
-    try{
-      const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-      const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals));
-      lastTxHash=tx.hash;
-      btn.innerHTML='<span class="spinner"></span>Confirming on Arc…';
-      toast('Submitted! '+short(tx.hash),'info',14000);
-      const receipt=await tx.wait(1);
-      addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'nan-wallet'});
-      toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+' on Arc!','success',7000);
-      trackEvent('send',{amount:amt,token:sendToken});
-      document.getElementById('confirmCard').classList.remove('show');
-      showSendSuccess(amt,to,tx.hash);
-      await refreshBalances();
-    }catch(err){
-      toast((err?.info?.error?.message||err?.reason||err?.message||'Failed').slice(0,140),'error',8000);
-      btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
-    }
-    return;
-  }
+  
 
   // ── Circle API path (no private key, use Circle transfer API) ──
-  if(isCircleWallet && !signer){
+  if(isCircleWallet){
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
       const res=await fetch('/api/transfer',{
