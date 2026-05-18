@@ -1791,7 +1791,13 @@ function showOk(t){const b=document.getElementById('resolvedBar');b.className='r
 function showNo(t){const b=document.getElementById('resolvedBar');b.className='res-bar no';b.style.display='flex';document.getElementById('resolvedTxt').textContent=t;}
 function hideRes(){document.getElementById('resolvedBar').style.display='none';}
 function toggleSendToken(){sendToken=sendToken==='USDC'?'EURC':'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;updateSendAvailable();validateSend();}
-function updateSendAvailable(){const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);document.getElementById('sendAvailable')&&(document.getElementById('sendAvailable').textContent=isNaN(bal)?'—':bal.toFixed(2));}
+function updateSendAvailable(){
+  const bal=sendToken==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
+  const el=document.getElementById('sendAvailable');
+  if(el)el.textContent=isNaN(bal)?'—':bal.toFixed(2);
+  // Update token switcher badge
+  document.getElementById('sendTokenLabel').textContent=sendToken;
+}
 function setMax(){document.getElementById('amtInput').value=(sendToken==='USDC'?Math.max(0,parseFloat(usdcBal)-GAS_USDC):Math.max(0,parseFloat(eurcBal))).toFixed(6);validateSend();}
 function validateSend(){
   const addr=document.getElementById('recipInput').value.trim();
