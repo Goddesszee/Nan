@@ -1660,7 +1660,6 @@ function disconnect(){
   circleWalletId=circleWalletAddress=circleWalletBlockchain=null;   circleUserToken=circleUserId=otpEmail=null;
   isCircleWallet=false;
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
-  if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
   document.getElementById('page-land').style.display='flex';
