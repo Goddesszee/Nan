@@ -2248,7 +2248,41 @@ async function doBridge(){
   }finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}
 }
 
-async function pollCCTPAttestation(messageHash,messageBytes,destChain,destAddr,amt,domain){
+async function pollIrisAttestation(txHash,destChain){
+  const irisUrl='https://iris-api-sandbox.circle.com/v2/messages/'+ARC_CCTP_DOMAIN+'?transactionHash='+txHash;
+  const maxAttempts=80;
+  let attempts=0;
+  while(attempts<maxAttempts){
+    attempts++;
+    await new Promise(r=>setTimeout(r,15000));
+    try{
+      let attestation=null,message=null;
+      try{
+        const pr=await fetch('/api/cctp-attest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getAttestation',txHash,sourceDomain:ARC_CCTP_DOMAIN})});
+        if(pr.ok){const pd=await pr.json();if(pd.status==='complete'&&pd.attestation){attestation=pd.attestation;message=pd.message;}}
+      }catch(_){}
+      if(!attestation){
+        try{
+          const res=await fetch(irisUrl);
+          if(res.ok){const data=await res.json();const m=data.messages?.[0];if(m?.status==='complete'&&m.attestation&&m.attestation!=='PENDING'){attestation=m.attestation;message=m.message;}}
+        }catch(_){}
+      }
+      if(attestation&&message){
+        const el=document.getElementById('attestStatus');
+        if(el)el.innerHTML='✅ Iris attestation received!';
+        toast('Attestation ready! Switch to '+destChain+' and call receiveMessage to mint.','success',12000);
+        return;
+      }
+      const el=document.getElementById('attestStatus');
+      if(el)el.textContent='⏳ Iris attesting… ('+(attempts*15)+'s, up to ~20 min on testnet)';
+    }catch(e){console.warn('Iris poll attempt',attempts,e.message);}
+  }
+  const el=document.getElementById('attestStatus');
+  if(el)el.textContent='⚠️ Still pending — check Iris manually.';
+  toast('Burn confirmed. Check Iris API manually.','warning',10000);
+}
+
+async function pollCCTPAttestation_old(messageHash,messageBytes,destChain,destAddr,amt,domain){
   const statusEl=document.getElementById('attestStatus');
   const mintEl=document.getElementById('mintStatus');
   let attempts=0;
