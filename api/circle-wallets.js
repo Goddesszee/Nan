@@ -11,6 +11,34 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { action, walletId, destinationAddress, amount, tokenSymbol, email } = req.body;
 
+  if (action === 'getWallet') {
+    if (!email) return res.json({ success: false, error: 'Missing email' });
+    try {
+      const client = getClient();
+      const walletSetName = 'nan-' + email.replace('@','_').replace(/\./g,'_');
+      const sets = await client.listWalletSets({ pageSize: 50 });
+      let walletSet = sets.data?.walletSets?.find(ws => ws.name === walletSetName);
+      if (!walletSet) {
+        const newSet = await client.createWalletSet({ name: walletSetName });
+        walletSet = newSet.data?.walletSet;
+      }
+      const wallets = await client.listWallets({ walletSetId: walletSet.id, pageSize: 10 });
+      let wallet = wallets.data?.wallets?.find(w => w.blockchain === 'ARC-TESTNET');
+      if (!wallet) {
+        const newWallet = await client.createWallets({
+          walletSetId: walletSet.id,
+          blockchains: ['ARC-TESTNET'],
+          count: 1,
+        });
+        wallet = newWallet.data?.wallets?.[0];
+      }
+      return res.json({ success: true, wallet: { id: wallet.id, address: wallet.address } });
+    } catch (err) {
+      console.error('getWallet error:', err.message);
+      return res.json({ success: false, error: err.message });
+    }
+  }
+
   if (action === 'transfer') {
     if (!walletId || !destinationAddress || !amount) {
       return res.json({ success: false, error: 'Missing fields' });
