@@ -1299,14 +1299,10 @@ async function sendEmailOTP(){
     const data=await res.json();
     if(data.success){
       if(data.dev){toast('Dev mode: OTP printed to server console','info',6000);}
-      else{toast('✓ Code sent to '+email,'success',6000);};document.getElementById('otpBox').style.display='none';await onConnected(true);toast(data.isNew?'✓ Circle wallet created! Get free USDC 🎉':'✓ Welcome back!','success',6000);
-      }else{toast(data.error||'Failed to send code','error',6000);} '+email,'success',6000);}
+      else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
     }else{toast(data.error||'Failed to send code','error',6000);}
-  }catch(e){toast('Network error — is the server running?','error');}
-  btn.innerHTML='Send Code';btn.disabled=false;
-}
   }catch(e){toast('Network error — is the server running?','error');}
   btn.innerHTML='Send Code';btn.disabled=false;
 }
