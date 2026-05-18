@@ -1085,6 +1085,8 @@ let FX=0.9258, fxLastUpdated=null;
 let circleWalletId=null, circleWalletAddress=null, circleWalletBlockchain=null; let circleUserToken=null, circleUserId=null, otpEmail=null;
 let isCircleWallet=false; // true = email login, false = MetaMask
 
+let arcNames=[];
+let arcNames=[];
 let txHistory=[];
 function loadTxHistory(){txHistory=JSON.parse(localStorage.getItem('arcTx_'+(userAddr||''))||'[]');}
 function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(txHistory.slice(0,100)));}
@@ -1326,7 +1328,7 @@ async function verifyOTP(){
     if(privateKey){try{wallet=new ethers.Wallet(privateKey,provider);}catch{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}}
     else{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}
     localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
-    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},ddress:wallet.address})}).catch(()=>{});
+    fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address})}).catch(()=>{});
     signer=wallet;userAddr=wallet.address;isCircleWallet=true;onArcNetwork=true;
     document.getElementById('otpBox').style.display='none';
     if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
@@ -1335,16 +1337,7 @@ async function verifyOTP(){
   }catch(e){console.error('verifyOTP error:',e);toast('Network error — is the server running?','error');}
   btn.innerHTML='Verify →';btn.disabled=false;
 }
-      userAddr=data.address;
-      circleWalletId=data.walletId;
-      isCircleWallet=true;
-      signer=null;
-      provider=getArcProvider();
-      onArcNetwork=true;
-      document.getElementById('otpBox').style.display='none';
-      await onConnected(true);
-      if(data.isNew){toast('✓ Circle wallet created on Arc! Get free USDC at faucet.circle.com 🎉','success',8000);}
-      else{toast('✓ Welcome back!','success',3000);}
+      
 
       
       
@@ -1353,62 +1346,14 @@ async function verifyOTP(){
       }
 
       
-      try{
-        
-        const cwRes=await fetch('/api/circle-wallets',{
+      
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'getWallet',email:otpEmail}),
         });
-        const cwData=await cwRes.json();
-        if(cwData.success&&cwData.wallet?.address){
-          userAddr=cwData.wallet.address;
-          isCircleWallet=true;
-          signer=null;
-          circleWalletId=cwData.wallet.id;
-          toast('✓ Circle Developer Wallet created on Arc! 🔵','success',5000);
-          await onConnected(true);
-          document.getElementById('otpBox').style.display='none';
-          btn.innerHTML='Verify →';btn.disabled=false;
-          return;
-        }
-      }catch(e){console.log('Circle wallet API not available, using browser wallet');}
-
-      
-      if(data.returning&&data.privateKey){
-        try{
-          wallet=new ethers.Wallet(data.privateKey,provider);
-          localStorage.setItem('nan_wallet_'+otpEmail,data.privateKey);
-          toast('✓ Welcome back!','success',3000);
-        }catch(e){
-          wallet=ethers.Wallet.createRandom().connect(provider);
-          isNewWallet=true;
-        }
-      }else{
-        const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
-        if(savedKey){
-          try{
-            wallet=new ethers.Wallet(savedKey,provider);
-            await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:savedKey,walletAddress:wallet.address})});
-            toast('✓ Welcome back!','success',3000);
-          }catch(e){wallet=ethers.Wallet.createRandom().connect(provider);isNewWallet=true;}
-        }else{
-          wallet=ethers.Wallet.createRandom().connect(provider);
-          isNewWallet=true;
-        }
-      }
-
-      signer=wallet;
-      userAddr=wallet.address;
-      isCircleWallet=true;
-      localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
-
-      
         
-        await fetch('/api/otp',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'save',email:otpEmail,otp:'',ddress:wallet.address}),
-        });
+
+      
+      
         
         
         
@@ -2280,7 +2225,7 @@ async function doBridge(){
       <div>✅ Step 1: USDC burned on Arc</div>
       <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
       <div id="mintStatus" style="display:none;">⏳ Step 3: Minting on ${destChain}…</div>
-      secu<div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${burnTxHash}" target="_blank" style="color:var(--accent3);">${short(burnTxHash)} ↗</a></div>re: false,
+      <div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${burnTxHash}" target="_blank" style="color:var(--accent3);">${short(burnTxHash)} ↗</a></div>
     </div>`;
 
     btn.innerHTML='<span class="spinner"></span>Step 3/3: Polling attestation…';
@@ -2326,9 +2271,6 @@ async function pollIrisAttestation(txHash,destChain){
   if(el)el.textContent='⚠️ Still pending — check Iris manually.';
   toast('Burn confirmed. Check Iris API manually.','warning',10000);
 }
-
-
-  
 
 function prefillSend(addr){
   goPage('send');
@@ -2825,7 +2767,7 @@ function saveArcNames(){localStorage.setItem('nan_arcnames_'+(userAddr||''),JSON
 let arcNameDurationYears=1;
 let arcNameFeeUsdc=2;
 
-function saveArcNames(){localStorage.setItem('nan_arcnames',JSON.stringify(arcNames));}
+
 function setArcNameDuration(years,fee,el){
   arcNameDurationYears=years;arcNameFeeUsdc=fee;
   document.querySelectorAll('.price-opt').forEach(b=>b.classList.remove('active'));
