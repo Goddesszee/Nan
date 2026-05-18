@@ -1303,6 +1303,9 @@ async function sendEmailOTP(){
       else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
+      window._otpToken=data.token;
+      window._otpExpiry=data.expiresAt;
+      if(data._otp)console.log('Dev OTP:',data._otp);
     }else{toast(data.error||'Failed to send code','error',6000);}
   }catch(e){toast('Network error — is the server running?','error');}
   btn.innerHTML='Send Code';btn.disabled=false;
@@ -1316,7 +1319,7 @@ async function verifyOTP(){
   try{
     const res=await fetch('/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'verify',email:otpEmail,otp}),
+      body:JSON.stringify({action:'verify',email:otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry}),
     });
     const data=await res.json();
     if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
