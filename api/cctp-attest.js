@@ -1,23 +1,24 @@
 // api/cctp-attest.js
-// Polls Circle's attestation API to complete CCTP bridge transfers
-// After burning USDC on source chain, call this to get attestation and mint on destination
-// Docs: https://developers.circle.com/stablecoins/reference/getattestation
+// CCTP V2 attestation — Circle deprecated V1 July 2026
+// Docs: https://developers.circle.com/stablecoins/cctp-getting-started
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { action, messageHash, txHash } = req.body;
+  const { action, messageHash, txHash, sourceDomain } = req.body;
 
-  // ── GET ATTESTATION ──
+  // ── GET ATTESTATION — CCTP V2 ──
   if (action === 'getAttestation') {
     if (!messageHash) {
       return res.status(400).json({ error: 'messageHash required' });
     }
 
-    const ATTESTATION_URL = 'https://iris-api-sandbox.circle.com/attestations';
+    // CCTP V2 uses iris-api-sandbox for testnet
+    const IRIS_URL = 'https://iris-api-sandbox.circle.com/v2/messages';
+    const domain = sourceDomain || 26; // Arc Testnet domain = 26
 
     try {
-      const response = await fetch(`${ATTESTATION_URL}/${messageHash}`, {
+      const response = await fetch(`${IRIS_URL}/${domain}?messageHash=${messageHash}`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -25,38 +26,39 @@ export default async function handler(req, res) {
         return res.json({
           status: 'pending',
           attestation: null,
-          message: 'Attestation not ready yet — Circle is processing',
+          message: 'Attestation not ready — Circle is processing',
         });
       }
 
       const data = await response.json();
+      const msg = data.messages?.[0];
 
-      if (data.status === 'complete' && data.attestation) {
+      if (msg?.status === 'complete' && msg?.attestation && msg.attestation !== 'PENDING') {
         return res.json({
           status: 'complete',
-          attestation: data.attestation,
-          message: 'Attestation ready — mint on destination chain',
+          attestation: msg.attestation,
+          message: msg.message,
+          result: 'Attestation ready — mint on destination chain',
         });
       }
 
       return res.json({
-        status: data.status || 'pending',
+        status: msg?.status || 'pending',
         attestation: null,
         message: 'Circle is attesting the burn — check again in 20 seconds',
       });
 
     } catch (err) {
       console.error('Attestation error:', err.message);
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Attestation service unavailable' });
     }
   }
 
-  // ── GET TX STATUS (helper) ──
+  // ── GET TX STATUS ──
   if (action === 'getTxStatus') {
     if (!txHash) return res.status(400).json({ error: 'txHash required' });
 
     try {
-      // Get message bytes from tx receipt using Arc RPC
       const ARC_RPC = 'https://rpc.testnet.arc.network';
       const rpcRes = await fetch(ARC_RPC, {
         method: 'POST',
@@ -75,8 +77,7 @@ export default async function handler(req, res) {
         return res.json({ status: 'pending', message: 'Transaction not yet mined' });
       }
 
-      // Find MessageSent event from CCTP
-      // Topic: keccak256("MessageSent(bytes)")
+      // MessageSent event topic — same in V1 and V2
       const MESSAGE_SENT_TOPIC = '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036';
       const messageSentLog = receipt.logs?.find(log =>
         log.topics?.[0]?.toLowerCase() === MESSAGE_SENT_TOPIC
@@ -86,11 +87,13 @@ export default async function handler(req, res) {
         return res.json({ status: 'no_message', message: 'No CCTP message found in tx' });
       }
 
-      // Extract message bytes from log data
       const messageBytes = messageSentLog.data;
-      // Hash the message to get messageHash for attestation API
-      const { keccak256, toBytes } = await import('viem');
-      const msgHash = keccak256(messageBytes);
+
+      // Hash using Web Crypto API — no external dependency needed
+      const msgBuffer = Buffer.from(messageBytes.slice(2), 'hex');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const msgHash = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
       return res.json({
         status: 'burned',
@@ -101,7 +104,7 @@ export default async function handler(req, res) {
 
     } catch (err) {
       console.error('TX status error:', err.message);
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Could not get transaction status' });
     }
   }
 
