@@ -13,6 +13,7 @@ export default async function handler(req, res) {
 
   if (action === 'getWallet') {
     if (!email) return res.json({ success: false, error: 'Missing email' });
+    if (!email.includes('@') || email.length > 100 || email.includes('<')) return res.json({ success: false, error: 'Invalid email' });
     try {
       const client = getClient();
       const walletSetName = 'nan-' + email.replace('@','_').replace(/\./g,'_');
@@ -35,13 +36,69 @@ export default async function handler(req, res) {
       return res.json({ success: true, wallet: { id: wallet.id, address: wallet.address } });
     } catch (err) {
       console.error('getWallet error:', err.message);
-      return res.json({ success: false, error: err.message });
+      return res.json({ success: false, error: 'Wallet error — please try again' });
     }
   }
 
   if (action === 'transfer') {
     if (!walletId || !destinationAddress || !amount) {
       return res.json({ success: false, error: 'Missing fields' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress)) {
+      return res.json({ success: false, error: 'Invalid destination address' });
+    }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > 10000) {
+      return res.json({ success: false, error: 'Invalid amount' });
     }
     try {
       const client = getClient();
@@ -75,7 +132,7 @@ export default async function handler(req, res) {
       return res.json({ success: true, txHash, transactionId: txId });
     } catch (err) {
       console.error('Transfer error:', err.message);
-      return res.json({ success: false, error: err.message });
+      return res.json({ success: false, error: 'Transfer failed — please try again' });
     }
   }
 
