@@ -39,14 +39,14 @@ export default async function handler(req, res) {
           <p style="color:#9ca3af;font-size:13px;margin-top:16px;">Expires in 10 minutes. Never share this code.</p>
         </div>`,
       });
-      return res.json({ success: true, token: sig, expiresAt: expires, _otp: code });
+      return res.json({ success: true, token: sig, expiresAt: expires });
     } catch (err) {
       console.error('Email error:', err.message);
       const code2 = Math.floor(100000 + Math.random() * 900000).toString();
       const expires2 = Date.now() + 600000;
       const sig2 = signOTP(email, code2, expires2);
       console.log(`OTP for ${email}: ${code2}`);
-      return res.json({ success: true, dev: true, token: sig2, expiresAt: expires2, _otp: code2 });
+      return res.json({ success: true, dev: true, token: sig2, expiresAt: expires2 });
     }
   }
 
