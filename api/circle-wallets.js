@@ -9,7 +9,7 @@ function getClient() {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  const { action, walletId, destinationAddress, amount, tokenSymbol } = req.body;
+  const { action, walletId, destinationAddress, amount, tokenSymbol, email } = req.body;
 
   if (action === 'transfer') {
     if (!walletId || !destinationAddress || !amount) {
