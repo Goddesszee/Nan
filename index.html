@@ -1352,9 +1352,9 @@ async function verifyOTP(){
         
       }
 
-      // ── Try Circle Programmable Wallet API first ──
+      
       try{
-        btn.innerHTML='<span class="spinner"></span>Creating Circle wallet...';
+        
         const cwRes=await fetch('/api/circle-wallets',{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'getWallet',email:otpEmail}),
