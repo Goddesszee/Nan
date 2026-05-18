@@ -6,6 +6,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { messages, usdcBal, eurcBal, userAddress } = req.body;
+  if (!messages || messages.length > 20) {
+    return res.status(400).json({ error: 'Invalid request' });
+  }
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Invalid messages' });
   }
