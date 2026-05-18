@@ -1331,7 +1331,7 @@ async function verifyOTP(){
       else{toast('✓ Welcome back!','success',3000);}
 
       await onConnected(true, false);
-      showSeedPhrase(wallet.mnemonic?.phrase, wallet.privateKey, wallet.address);
+      
       } else {
         await onConnected(true, false);
       }
@@ -1395,7 +1395,7 @@ async function verifyOTP(){
         });
         await onConnected(true, false);
         // Show seed phrase ONLY for new users
-        showSeedPhrase(wallet.mnemonic?.phrase, wallet.privateKey, wallet.address);
+        
       } else {
         await onConnected(true, false);
       }
