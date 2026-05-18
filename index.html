@@ -625,7 +625,7 @@ a:hover{color:var(--text);}
     </div>
     <div class="swap-rate" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; 1 EURC ≈ 1.0801 USDC</div>
     <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC · 0.1% swap fee</span></div>
-    <button class="btn" id="swapBtn" onclick="doSwap()">Simulate Swap</button>
+    <button class="btn" id="swapBtn" onclick="doSwap()">Swap via Circle StableFX</button>
   </div>
 </div>
 
@@ -2123,7 +2123,37 @@ async function doSwap(){
   const fromBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
   if(fromAmt>fromBal){toast('Insufficient balance','error');return;}
   const btn=document.getElementById('swapBtn');
-  btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Getting Circle quote…';btn.disabled=true;
+  try{
+    const fromCurrency=isUSDCtoEURC?'USDC':'EURC';
+    const toCurrency=isUSDCtoEURC?'EURC':'USDC';
+    const qr=await fetch('/api/stablefx',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'quote',from:fromCurrency,to:toCurrency,amount:fromAmt.toFixed(6),recipientAddress:userAddr})});
+    const qd=await qr.json();
+    if(!qd.success)throw new Error(qd.error||'Quote failed');
+    const quote=qd.quote;
+    toast('Rate: 1 '+fromCurrency+' = '+quote.rate+' '+toCurrency,'info',5000);
+    btn.innerHTML='<span class="spinner"></span>Sign in wallet…';
+    const td=quote.typedData;
+    const sig=await signer.signTypedData(td.domain,
+      {PermitWitnessTransferFrom:td.types.PermitWitnessTransferFrom,TokenPermissions:td.types.TokenPermissions,TakerDetails:td.types.TakerDetails,Consideration:td.types.Consideration},
+      td.message);
+    btn.innerHTML='<span class="spinner"></span>Executing trade…';
+    const tr=await fetch('/api/stablefx',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'trade',idempotencyKey:crypto.randomUUID(),quoteId:quote.id,address:userAddr,message:td.message,signature:sig})});
+    const td2=await tr.json();
+    if(!td2.success)throw new Error(td2.error||'Trade failed');
+    toast('✓ Swapped '+fromAmt.toFixed(2)+' '+fromCurrency+' → '+parseFloat(quote.to.amount).toFixed(4)+' '+toCurrency,'success',8000);
+    addTx({hash:td2.trade.id,to:userAddr,toRaw:'Circle StableFX',amount:fromAmt.toFixed(6),type:'out',token:fromCurrency,ts:Date.now(),confirmed:true});
+    document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+    await refreshBalances();
+    btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
+    return;
+  }catch(e){
+    console.log('StableFX:',e.message);
+    toast('StableFX: '+e.message.slice(0,60)+' — using simulation','warning',5000);
+    btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
+  }
   try{
     if(signer){
       const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
@@ -2171,7 +2201,7 @@ function initSwapUI(){
   const real=hasSwap();
   document.getElementById('swapModeBanner').style.display=real?'none':'block';
   document.getElementById('swapLiveBadge').style.display=real?'flex':'none';
-  document.getElementById('swapBtn').textContent=real?'Swap':'Simulate Swap';
+  document.getElementById('swapBtn').textContent=real?'Swap':'Swap via Circle StableFX';
 }
 
 // ═══════════════════════════════════════════
