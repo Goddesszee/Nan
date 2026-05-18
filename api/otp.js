@@ -23,6 +23,8 @@ export default async function handler(req, res) {
 
   if (action === 'send') {
     if (!email?.includes('@')) return res.json({ success: false, error: 'Invalid email' });
+    if (email.length > 100) return res.json({ success: false, error: 'Invalid email' });
+    if (email.includes('<') || email.includes('>')) return res.json({ success: false, error: 'Invalid email' });
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = Date.now() + 600000;
     const sig = signOTP(email, code, expires);
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
       const code2 = Math.floor(100000 + Math.random() * 900000).toString();
       const expires2 = Date.now() + 600000;
       const sig2 = signOTP(email, code2, expires2);
-      console.log(`OTP for ${email}: ${code2}`);
+      console.log(`OTP sent in dev mode`);
       return res.json({ success: true, dev: true, token: sig2, expiresAt: expires2 });
     }
   }
