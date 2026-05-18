@@ -1344,7 +1344,7 @@ async function verifyOTP(){
     else{wallet=ethers.Wallet.createRandom().connect(provider);isNew=true;}
     localStorage.setItem('nan_wallet_'+otpEmail,wallet.privateKey);
     fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address})}).catch(()=>{});
-    signer=wallet;userAddr=wallet.address;isCircleWallet=true;onArcNetwork=true;
+    signer=wallet;userAddr=wallet.address;isCircleWallet=false;onArcNetwork=true;
     document.getElementById('otpBox').style.display='none';
     if(isNew){showSeedPhrase(wallet.mnemonic?.phrase||null,wallet.privateKey,wallet.address);}
     else{toast('✓ Welcome back!','success',3000);}
