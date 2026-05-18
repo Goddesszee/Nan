@@ -1332,8 +1332,8 @@ async function verifyOTP(){
 
       await onConnected(true, false);
       
-      } else {
-        await onConnected(true, false);
+      
+        
       }
 
       // ── Try Circle Programmable Wallet API first ──
@@ -1357,7 +1357,7 @@ async function verifyOTP(){
         }
       }catch(e){console.log('Circle wallet API not available, using browser wallet');}
 
-      // ── Fallback: browser-generated ethers wallet ──
+      
       if(data.returning&&data.privateKey){
         try{
           wallet=new ethers.Wallet(data.privateKey,provider);
@@ -1393,12 +1393,12 @@ async function verifyOTP(){
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'save',email:otpEmail,otp:'',privateKey:wallet.privateKey,walletAddress:wallet.address}),
         });
-        await onConnected(true, false);
+        
         // Show seed phrase ONLY for new users
         
-      } else {
+      
         await onConnected(true, false);
-      }
+      
 
     }else{toast(data.error||'Wrong code — try again','error',5000);}
   }catch(e){
@@ -2365,7 +2365,7 @@ async function pollCCTPAttestation_old(messageHash,messageBytes,destChain,destAd
       if(statusEl)statusEl.innerHTML=`⏳ Step 2: Circle attesting burn… (${attempts*3}s elapsed)`;
       await new Promise(r=>setTimeout(r,3000));
       return poll();
-    } else {
+    
       if(statusEl)statusEl.innerHTML='⚠️ Attestation pending — takes 2-5 min on testnet';
       toast('Bridge burn confirmed! Mint will complete in 2-5 minutes','warning',8000);
       return false;
@@ -2637,7 +2637,7 @@ async function connectSpecific(walletType){
     else if(walletType==='rabby') detectedWp=providers.find(p=>p.isRabby);
     else if(walletType==='coinbase') detectedWp=providers.find(p=>p.isCoinbaseWallet);
     if(!detectedWp) detectedWp=providers[0];
-  } else {
+  
     detectedWp=window.ethereum||null;
   }
   if(!detectedWp){toast(walletType+' not found — is it installed?','error',6000);return;}
