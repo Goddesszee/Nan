@@ -1320,6 +1320,22 @@ async function verifyOTP(){
     });
     const data=await res.json();
     if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
+    try{
+      const cwRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getWallet',email:otpEmail})});
+      const cwData=await cwRes.json();
+      if(cwData.success&&cwData.wallet?.address){
+        circleWalletId=cwData.wallet.id;
+        userAddr=cwData.wallet.address;
+        isCircleWallet=true;
+        signer=null;
+        provider=getArcProvider();
+        onArcNetwork=true;
+        toast('✓ Circle wallet ready!','success',3000);
+        await onConnected(true,false);
+        btn.innerHTML='Verify →';btn.disabled=false;
+        return;
+      }
+    }catch(e){console.log('Circle wallet API failed, using local wallet:',e.message);}
     provider=getArcProvider();
     const savedKey=localStorage.getItem('nan_wallet_'+otpEmail);
     const privateKey=data.privateKey||savedKey;
