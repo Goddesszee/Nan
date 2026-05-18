@@ -1,4 +1,5 @@
 import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
+import crypto from 'crypto';
 
 function getClient() {
   return initiateDeveloperControlledWalletsClient({
@@ -22,7 +23,10 @@ export default async function handler(req, res) {
       const sets = await client.listWalletSets({ pageSize: 50 });
       let walletSet = sets.data?.walletSets?.find(ws => ws.name === walletSetName);
       if (!walletSet) {
-        const newSet = await client.createWalletSet({ name: walletSetName });
+        const newSet = await client.createWalletSet({
+          name: walletSetName,
+          idempotencyKey: crypto.randomUUID(),
+        });
         walletSet = newSet.data?.walletSet;
       }
       const wallets = await client.listWallets({ walletSetId: walletSet.id, pageSize: 10 });
@@ -32,6 +36,7 @@ export default async function handler(req, res) {
           walletSetId: walletSet.id,
           blockchains: ['ARC-TESTNET'],
           count: 1,
+          idempotencyKey: crypto.randomUUID(),
         });
         wallet = newWallet.data?.wallets?.[0];
       }
@@ -61,16 +66,17 @@ export default async function handler(req, res) {
         ? '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a'
         : '0x3600000000000000000000000000000000000000';
       const tx = await client.createTransaction({
+        idempotencyKey: crypto.randomUUID(),
         blockchain: 'ARC-TESTNET',
-        walletAddress,
+        walletId,
         destinationAddress,
-        amount: [amount.toString()],
+        amounts: [parsedAmount.toFixed(6)],
         tokenAddress,
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
-      const txId = tx.data?.id;
+      const txId = tx.data?.transaction?.id;
       if (!txId) throw new Error('No transaction ID returned');
-      let state = tx.data?.state;
+      let state = tx.data?.transaction?.state;
       let txHash = null;
       for (let i = 0; i < 30 && !['COMPLETE','FAILED','CANCELLED','DENIED'].includes(state); i++) {
         await new Promise(r => setTimeout(r, 3000));
