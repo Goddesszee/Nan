@@ -2541,7 +2541,8 @@ let lendDuration=1, lendFee=2;
 let gatewayBalance={total:'0.00',balances:{}};
 
 async function depositToGateway() {
-  if (!circleWalletId) return showToast('Connect with email wallet to deposit to Gateway','warning');
+  if (!window.circleWalletId && !circleWalletId) return showToast('Connect with email wallet to deposit to Gateway','warning');
+const _wId = window.circleWalletId || circleWalletId;
   const amount = document.getElementById('gatewayDepositAmt')?.value;
   if (!amount || parseFloat(amount) < 1) return showToast('Enter at least 1 USDC','warning');
   showToast('Approving Gateway contract...','info');
@@ -2549,7 +2550,7 @@ async function depositToGateway() {
     const r = await fetch('/api/gateway-deposit', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ walletId: circleWalletId, amount }),
+      body: JSON.stringify({ walletId: _wId, amount }),
     });
     const data = await r.json();
     if (!data.success) return showToast(data.error || 'Deposit failed','error');
