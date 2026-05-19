@@ -2169,7 +2169,7 @@ async function doBridge(){
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
-  if(!signer){toast('Wallet signer required','error');return;}
+  if(isCircleWallet){if(!circleWalletId){toast('Wallet not ready — log in again','error');return;}const btn=document.getElementById('bridgeBtn');btn.innerHTML='<span class="spinner"></span>Step 1/3: Approving USDC…';btn.disabled=true;try{const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bridge',walletId:circleWalletId,destChain,destAddr,bridgeAmount:amt.toString()})});const data=await r.json();if(!data.success)throw new Error(data.error||'Bridge failed');lastTxHash=data.burnTxHash;addTx({hash:data.burnTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});toast('✓ USDC burned! Polling attestation…','success',8000);await refreshBalances();await pollIrisAttestation(data.burnTxHash,destChain);}catch(err){toast((err?.message||'Bridge failed').slice(0,140),'error',8000);}finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}return;}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
