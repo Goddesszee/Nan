@@ -759,7 +759,11 @@ a:hover{color:var(--text);}
       <div style="font-size:.65rem;color:var(--text3);">Total unified USDC</div>
     </div>
     <div id="gatewayChains" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;"></div>
-    <div style="font-size:.6rem;color:var(--text3);margin-top:8px;text-align:center;">Circle Gateway · Permissionless · &lt;500ms transfers</div>
+    <div style="font-size:.6rem;color:var(--text3);margin-top:8px;text-align:center;">Circle Gateway · Permissionless ·
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+                <input id="gatewayDepositAmt" type="number" min="1" placeholder="Amount USDC" style="padding:8px 12px;border-radius:8px;border:1px solid rgba(139,92,246,0.3);background:rgba(255,255,255,0.05);color:#fff;width:140px;font-size:14px;">
+                <button onclick="depositToGateway()" style="padding:8px 16px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;border-radius:8px;color:#fff;font-size:14px;cursor:pointer;">⚡ Deposit to Gateway</button>
+              </div> &lt;500ms transfers</div>
   </div>
 
   <div class="card">
@@ -2535,6 +2539,26 @@ let lendDuration=1, lendFee=2;
 // CIRCLE GATEWAY — Unified USDC Balance
 // ═══════════════════════════════════════════
 let gatewayBalance={total:'0.00',balances:{}};
+
+async function depositToGateway() {
+  if (!circleWalletId) return showToast('Connect with email wallet to deposit to Gateway','warning');
+  const amount = document.getElementById('gatewayDepositAmt')?.value;
+  if (!amount || parseFloat(amount) < 1) return showToast('Enter at least 1 USDC','warning');
+  showToast('Approving Gateway contract...','info');
+  try {
+    const r = await fetch('/api/gateway-deposit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ walletId: circleWalletId, amount }),
+    });
+    const data = await r.json();
+    if (!data.success) return showToast(data.error || 'Deposit failed','error');
+    showToast(`✅ Depositing ${amount} USDC to Gateway — refreshing balance...`,'success');
+    setTimeout(() => refreshGatewayBalance(), 10000);
+  } catch(err) {
+    showToast('Gateway deposit error: ' + err.message,'error');
+  }
+}
 
 async function refreshGatewayBalance(){
   if(!userAddr) return;
