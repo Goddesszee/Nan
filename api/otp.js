@@ -1,118 +1,85 @@
-// api/otp.js
-// Email OTP login — HMAC-signed codes, rate limited per email
-// Fix: dev-mode fallback now logs AND signs the SAME code (was signing code2 but logging code2 separately)
-
-import nodemailer from 'nodemailer';
-import crypto     from 'crypto';
-
-const otpRateLimit = new Map();
-
-function checkOtpLimit(email) {
-  const now    = Date.now();
-  const record = otpRateLimit.get(email) || { count: 0, start: now };
-  if (now - record.start > 3_600_000) {
-    otpRateLimit.set(email, { count: 1, start: now });
-    return true;
-  }
-  if (record.count >= 5) return false;
-  record.count++;
-  otpRateLimit.set(email, record);
-  return true;
-}
-
-function getMailer() {
-  return nodemailer.createTransport({
-    host:       process.env.SMTP_HOST,
-    port:       parseInt(process.env.SMTP_PORT || '587'),
-    // port 587 + requireTLS=true is the correct combo for STARTTLS
-    // port 465 + secure=true  is the correct combo for implicit TLS
-    // Do NOT mix secure:false with port 465
-    secure:     parseInt(process.env.SMTP_PORT || '587') === 465,
-    requireTLS: parseInt(process.env.SMTP_PORT || '587') !== 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-}
-
-function signOTP(email, otp, expiresAt) {
-  const secret = process.env.CIRCLE_ENTITY_SECRET || 'nan-dev-secret-key';
-  const data   = `${email.toLowerCase()}:${otp}:${expiresAt}`;
-  return crypto.createHmac('sha256', secret).update(data).digest('hex');
-}
-
-function generateCode() {
-  return Math.floor(100_000 + Math.random() * 900_000).toString();
-}
+const otpStore = {};
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { action, email, otp, token, expiresAt } = req.body;
+  const { action, email, otp } = req.body;
 
-  // ── send ─────────────────────────────────────────────────────────────────
   if (action === 'send') {
-    if (!email?.includes('@'))                return res.json({ success: false, error: 'Invalid email' });
-    if (email.length > 100)                   return res.json({ success: false, error: 'Email too long' });
-    if (email.includes('<') || email.includes('>')) return res.json({ success: false, error: 'Invalid email' });
-
-    if (!checkOtpLimit(email.toLowerCase()))
-      return res.json({ success: false, error: 'Too many codes — try again in 1 hour' });
-
-    const code    = generateCode();
-    const expires = Date.now() + 600_000; // 10 min
-    const sig     = signOTP(email, code, expires);
-
-    // Try real email first
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      try {
-        const mailer = getMailer();
-        await mailer.sendMail({
-          from:    process.env.SMTP_USER,
-          to:      email,
-          subject: 'Your NAN Wallet login code',
-          html: `
-            <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px;">
-              <h2 style="color:#8b5cf6;">NAN Wallet</h2>
-              <p>Your login code is:</p>
-              <div style="background:#f3f4f6;border-radius:12px;padding:24px;text-align:center;
-                          letter-spacing:8px;font-size:32px;font-weight:700;font-family:monospace;">
-                ${code}
-              </div>
-              <p style="color:#9ca3af;font-size:13px;margin-top:16px;">
-                Expires in 10 minutes. Never share this code.
-              </p>
-            </div>`,
-        });
-        return res.json({ success: true, token: sig, expiresAt: expires });
-      } catch (err) {
-        console.error('SMTP error:', err.message);
-        // Fall through to dev mode
-      }
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Invalid email' });
     }
 
-    // Dev mode fallback — SAME code is both logged and signed
-    // (Previously the bug was: code logged, but code2 was generated & signed separately)
-    console.log(`[NAN DEV] OTP for ${email}: ${code}`);
-    return res.json({ success: true, dev: true, token: sig, expiresAt: expires });
+    // Generate 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    otpStore[email.toLowerCase()] = { code, expires };
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer re_F7HkPfjB_H36uMUfnDyezGU2MNCg5ytRo'
+        },
+        body: JSON.stringify({
+          from: 'NAN Wallet <onboarding@resend.dev>',
+          to: [email],
+          subject: 'Your NAN Login Code',
+          html: `
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#07081a;color:#ede9fe;border-radius:16px;">
+              <div style="text-align:center;margin-bottom:24px;">
+                <div style="display:inline-block;background:#8b5cf6;border-radius:12px;padding:12px 20px;">
+                  <span style="font-size:1.2rem;font-weight:700;letter-spacing:.1em;color:#ede9fe;">NAN</span>
+                </div>
+              </div>
+              <h2 style="text-align:center;font-size:1.3rem;margin-bottom:8px;color:#ede9fe;">Your login code</h2>
+              <p style="text-align:center;color:#c4b5fd;font-size:.9rem;margin-bottom:28px;">Enter this code in the NAN app to access your wallet.</p>
+              <div style="text-align:center;background:#0e1030;border:2px solid #8b5cf6;border-radius:12px;padding:24px;margin-bottom:24px;">
+                <div style="font-size:2.8rem;font-weight:700;letter-spacing:.4em;color:#a78bfa;">${code}</div>
+              </div>
+              <p style="text-align:center;color:#6b5fa0;font-size:.78rem;">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+            </div>
+          `
+        })
+      });
+
+      const data = await response.json();
+      if (data.id) {
+        return res.status(200).json({ success: true });
+      } else {
+        console.error('Resend error:', data);
+        return res.status(500).json({ error: data.message || 'Failed to send email' });
+      }
+    } catch (err) {
+      console.error('Send error:', err);
+      return res.status(500).json({ error: err.message });
+    }
   }
 
-  // ── verify ────────────────────────────────────────────────────────────────
   if (action === 'verify') {
-    if (!email || !otp || !token || !expiresAt)
-      return res.json({ success: false, error: 'Missing fields' });
-    if (typeof otp !== 'string' || otp.length !== 6 || !/^\d+$/.test(otp))
-      return res.json({ success: false, error: 'Code must be 6 digits' });
-    if (Date.now() > Number(expiresAt))
-      return res.json({ success: false, error: 'Code expired — request a new one' });
+    if (!email || !otp) {
+      return res.status(400).json({ error: 'Missing email or code' });
+    }
 
-    const expected = signOTP(email, otp.trim(), Number(expiresAt));
-    // Use timingSafeEqual to prevent timing attacks
-    const a = Buffer.from(expected, 'hex');
-    const b = Buffer.from(token,    'hex');
-    if (a.length !== b.length || !crypto.timingSafeEqual(a, b))
-      return res.json({ success: false, error: 'Wrong code — try again' });
+    const record = otpStore[email.toLowerCase()];
+    if (!record) {
+      return res.status(400).json({ error: 'No code found — request a new one' });
+    }
+    if (Date.now() > record.expires) {
+      delete otpStore[email.toLowerCase()];
+      return res.status(400).json({ error: 'Code expired — request a new one' });
+    }
+    if (record.code !== otp.trim()) {
+      return res.status(400).json({ error: 'Wrong code — try again' });
+    }
 
-    return res.json({ success: true });
+    delete otpStore[email.toLowerCase()];
+    return res.status(200).json({ success: true });
   }
 
-  return res.json({ success: false, error: 'Unknown action' });
+  return res.status(400).json({ error: 'Unknown action' });
 }
