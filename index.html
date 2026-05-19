@@ -1084,6 +1084,13 @@ let FX=0.9258, fxLastUpdated=null;
 // Circle wallet info (from email login)
 let circleWalletId=null, circleWalletAddress=null, circleWalletBlockchain=null; let circleUserToken=null, circleUserId=null, otpEmail=null;
 let isCircleWallet=false; // true = email login, false = MetaMask
+// Restore session on page load
+if(sessionStorage.getItem('circleWalletId')){
+  circleWalletId=sessionStorage.getItem('circleWalletId');
+  circleWalletAddress=sessionStorage.getItem('circleWalletAddr');
+  userAddr=circleWalletAddress;
+  isCircleWallet=true;
+}
 
 let arcNames=[];
 let txHistory=[];
@@ -1328,6 +1335,10 @@ async function verifyOTP(){
       const cwData=await cwRes.json();
       if(cwData.success&&cwData.wallet?.address){
         circleWalletId=cwData.wallet.id;
+sessionStorage.setItem('circleWalletId', cwData.wallet.id);
+sessionStorage.setItem('circleWalletAddr', cwData.wallet.address);
+sessionStorage.setItem('circleWalletId', cwData.wallet.id);
+sessionStorage.setItem('circleWalletAddr', cwData.wallet.address);
         userAddr=cwData.wallet.address;
         isCircleWallet=true;
         signer=null;
