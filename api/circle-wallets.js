@@ -248,11 +248,11 @@ export default async function handler(req, res) {
 
     // maxFee: set to 1000 USDC subunits — covers Standard Transfer fee on testnet
     // For Fast Transfer set maxFee >= Fast Transfer fee for that chain
-    const maxFee = '1000';
+    const maxFee = '10000';
 
     // minFinalityThreshold: 1000 = Standard Transfer (matches source chain finality)
     // Set to 1 for Fast Transfer (faster but higher fee)
-    const minFinalityThreshold = '1000';
+    const minFinalityThreshold = '10000';
 
     try {
       const client = getClient();
@@ -273,7 +273,7 @@ export default async function handler(req, res) {
       if (!approveTxId) throw new Error('Approve transaction failed to submit');
 
       // Wait for approval to confirm (up to 30s)
-      await waitForTx(client, approveTxId, 'USDC approve', 30_000);
+      await waitForTx(client, approveTxId, 'USDC approve', 60_000);
       console.log(`[CCTP] Approval confirmed`);
 
       // ── Step 2: Call depositForBurn on TokenMessengerV2 ─────────────────────
@@ -355,3 +355,4 @@ export default async function handler(req, res) {
 
   return res.json({ success: false, error: 'Unknown action' });
 }
+
