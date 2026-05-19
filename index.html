@@ -1785,7 +1785,7 @@ async function doSend(){
   const amt=parseFloat(document.getElementById('amtInput').value);
   const to=(resolvedTo&&lastResolvedInput===raw)?resolvedTo:null;
   if(!to||!amt){return;}
-  if(to.toLowerCase()===userAddr.toLowerCase()){toast('Cannot send to yourself','error');return;}
+  
   const btn=document.getElementById('confirmSendBtn');
 
   
@@ -2932,4 +2932,6 @@ window.addEventListener('load',()=>{
 </script>
 </body>
 </html>
+
+
 
