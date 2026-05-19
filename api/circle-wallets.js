@@ -248,7 +248,7 @@ export default async function handler(req, res) {
 
     // maxFee: set to 1000 USDC subunits — covers Standard Transfer fee on testnet
     // For Fast Transfer set maxFee >= Fast Transfer fee for that chain
-    const maxFee = '10000';
+    const maxFee = Math.floor(parsed * 1000).toString();
 
     // minFinalityThreshold: 1000 = Standard Transfer (matches source chain finality)
     // Set to 1 for Fast Transfer (faster but higher fee)
@@ -355,4 +355,5 @@ export default async function handler(req, res) {
 
   return res.json({ success: false, error: 'Unknown action' });
 }
+
 
