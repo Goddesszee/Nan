@@ -995,7 +995,8 @@ const EURC_DECIMALS = 6;
 const GAS_USDC      = 0.009;
 
 const STAKING_CONTRACT  = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
-const SWAP_CONTRACT     = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8'; // FxEscrow - official Arc Testnet docs
+const PERMIT2_ADDR  = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+const FXESCROW_ADDR = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8';
 const LENDING_CONTRACT  = '0x042E348E63aBE126CffA671a3Ec4385CDF7Db524'; // NANLendingPool deployed
 const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
 
@@ -2187,7 +2188,7 @@ async function doBridge(){
       mintRecipient,
       USDC_ADDR,
       destinationCaller,
-      500n,
+      1000n,
       1000,
       {maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')}
     );
@@ -2229,7 +2230,7 @@ async function pollIrisAttestation(txHash,destChain){
     try{
       let attestation=null,message=null;
       try{
-        const pr=await fetch('/api/cctp-attest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getAttestation',txHash,sourceDomain:ARC_CCTP_DOMAIN})});
+        const pr=await fetch('/api/cctp-attest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getAttestation',txHash,sourceDomain:26})});
         if(pr.ok){const pd=await pr.json();if(pd.status==='complete'&&pd.attestation){attestation=pd.attestation;message=pd.message;}}
       }catch(_){}
       if(!attestation){
