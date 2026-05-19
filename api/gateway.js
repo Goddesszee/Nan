@@ -1,30 +1,41 @@
 // api/gateway.js
-// Circle Gateway — Unified USDC Balance across chains
+// Circle Gateway — Unified USDC Balance
 // Docs: https://developers.circle.com/gateway/quickstarts/unified-balance-evm
+//
+// IMPORTANT per Circle docs:
+// - Do NOT transfer USDC directly to Gateway contract — use deposit() function
+// - Balance updates require block confirmations — can take up to 20 minutes
+// - Gateway API returns balances already in USDC format (not atomic units)
+// - Arc Testnet domain = 26
 
-const GATEWAY_API = 'https://gateway-api-testnet.circle.com/v1';
-const GATEWAY_WALLET_ARC = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
+const GATEWAY_API    = 'https://gateway-api-testnet.circle.com/v1';
+const GATEWAY_WALLET = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
+const GATEWAY_MINTER = '0x0022222ABE238Cc2C7Bb1f21003F0a260052475B';
 
+// All supported Gateway testnet domains per Circle docs
 const DOMAINS = {
-  'ETH-SEPOLIA': 0,
-  'AVAX-FUJI': 1,
+  'ETH-SEPOLIA':  0,
+  'AVAX-FUJI':    1,
   'BASE-SEPOLIA': 6,
-  'ARC-TESTNET': 26,
+  'ARC-TESTNET':  26,
 };
 
 function isValidAddress(addr) {
-  return /^0x[a-fA-F0-9]{40}$/.test(addr);
+  return typeof addr === 'string' && /^0x[a-fA-F0-9]{40}$/.test(addr);
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin',  '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST')   return res.status(405).end();
 
   const { action, address } = req.body;
 
+  // ── getBalance ────────────────────────────────────────────────────────────
   if (action === 'getBalance') {
-    if (!address) return res.status(400).json({ error: 'address required' });
+    if (!address)              return res.status(400).json({ error: 'address required' });
     if (!isValidAddress(address)) return res.status(400).json({ error: 'Invalid wallet address' });
 
     try {
@@ -37,13 +48,14 @@ export default async function handler(req, res) {
       };
 
       const response = await fetch(`${GATEWAY_API}/balances`, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body:    JSON.stringify(body),
       });
 
       if (!response.ok) {
-        throw new Error('Gateway API unavailable');
+        const errText = await response.text().catch(() => '');
+        throw new Error(`Gateway API ${response.status}: ${errText}`);
       }
 
       const result = await response.json();
@@ -51,30 +63,38 @@ export default async function handler(req, res) {
       const balances = {};
 
       for (const balance of (result.balances || [])) {
-        const amount = parseFloat(balance.balance || 0) / 1e6;
-        const chain = Object.keys(DOMAINS).find(k => DOMAINS[k] === balance.domain) || `domain-${balance.domain}`;
+        // Gateway API returns balance as a decimal string already in USDC
+        // e.g. "2.000000" means 2 USDC — do NOT divide by 1e6
+        const amount = parseFloat(balance.balance || 0);
+        const chain  = Object.keys(DOMAINS).find(k => DOMAINS[k] === balance.domain)
+                    || `domain-${balance.domain}`;
         balances[chain] = amount;
         total += amount;
       }
 
       return res.json({
-        success: true,
-        total: total.toFixed(2),
+        success:       true,
+        total:         total.toFixed(6),
         balances,
-        gatewayWallet: GATEWAY_WALLET_ARC,
+        gatewayWallet: GATEWAY_WALLET,
+        gatewayMinter: GATEWAY_MINTER,
+        note: total === 0
+          ? 'Balance pending finality — deposits can take up to 20 minutes to confirm per Circle docs'
+          : undefined,
       });
 
     } catch (err) {
       console.error('Gateway balance error:', err.message);
       return res.json({
-        success: false,
-        error: 'Could not fetch Gateway balance',
-        total: '0.00',
+        success:  false,
+        error:    'Could not fetch Gateway balance — ' + err.message.slice(0, 100),
+        total:    '0.00',
         balances: {},
       });
     }
   }
 
+  // ── info ──────────────────────────────────────────────────────────────────
   if (action === 'info') {
     try {
       const response = await fetch(`${GATEWAY_API}/info`);
@@ -86,5 +106,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(400).json({ error: 'Invalid action. Use: getBalance, info' });
+  return res.status(400).json({ error: 'Valid actions: getBalance, info' });
 }
