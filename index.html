@@ -2053,7 +2053,7 @@ function setSendTab(tab){
 // ═══════════════════════════════════════════
 // SWAP
 // ═══════════════════════════════════════════
-const hasSwap=()=>SWAP_CONTRACT&&SWAP_CONTRACT.length===42;
+const hasSwap=()=>typeof PERMIT2_ADDR!=='undefined'&&PERMIT2_ADDR.length===42;
 function calcSwap(){
   const amt=parseFloat(document.getElementById('swapFrom').value)||0;
   const rate=swapFlipped?(1/FX):FX;
