@@ -2257,7 +2257,7 @@ async function pollIrisAttestation(txHash,destChain){
       if(attestation&&message){
         const el=document.getElementById('attestStatus');
         if(el)el.innerHTML='âœ… Iris attestation received!';
-        toast('Attestation ready! Switch to '+destChain+' and call receiveMessage to mint.','success',12000);
+        toast('? Attestation ready! USDC will be minted on '+destChain+' shortly.','success',12000);document.getElementById('attestStatus').innerHTML='? Attestation ready! <a href=\'https://testnet.arcscan.app/tx/'+burnTxHash+'\' target=\'_blank\' style=\'color:var(--accent3)\'>View burn ?</a><br><small style=\'color:var(--text3)\'>USDC minting on destination — may take a few minutes.</small>';
         return;
       }
       const el=document.getElementById('attestStatus');
@@ -2932,6 +2932,7 @@ window.addEventListener('load',()=>{
 </script>
 </body>
 </html>
+
 
 
 
