@@ -51,6 +51,14 @@ function deterministicKey(scope, email) {
     .digest('hex');
 }
 
+function deterministicUUID(scope, email) {
+  const hex = crypto
+    .createHash('sha256')
+    .update(`nan:${scope}:${email.toLowerCase()}`)
+    .digest('hex');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+}
+
 // ── Find existing walletSet by deterministic name ─────────────────────────────
 // Name is a short hash — stable across cold starts, unique per email.
 function walletSetName(email) {
@@ -147,7 +155,7 @@ export default async function handler(req, res) {
         // FIX 1: deterministic idempotencyKey — retry-safe
         const wsRes = await client.createWalletSet({
           name,
-          idempotencyKey: deterministicKey('walletset', email),
+          idempotencyKey: deterministicUUID('walletset', email),
         });
         walletSet = wsRes.data?.walletSet;
         if (!walletSet?.id) throw new Error('Circle did not return a walletSet ID');
@@ -165,7 +173,7 @@ export default async function handler(req, res) {
           blockchains:    [BLOCKCHAIN],
           count:          1,
           accountType:    'EOA',
-          idempotencyKey: deterministicKey('wallet', email),
+          idempotencyKey: deterministicUUID('wallet', email),
           metadata: [{ name: `NAN-${email}`, refId }],  // FIX 2: required by Circle docs
         });
         wallet = wRes.data?.wallets?.[0];
@@ -204,20 +212,23 @@ export default async function handler(req, res) {
 
     try {
       const client = getClient();
-      const txRes  = await client.createTransaction({
-        idempotencyKey:     crypto.randomUUID(), // OK to be random for transfers
-        blockchain:         BLOCKCHAIN,
+
+      // Arc uses ERC-20 contract execution for transfers — not createTransaction
+      const atomicAmt = Math.floor(parsed * 1_000_000).toString(); // 6 decimals as integer
+
+      const txRes = await client.createContractExecutionTransaction({
         walletId,
-        destinationAddress,
-        amounts:            [parsed.toFixed(6)],
-        tokenAddress,
+        blockchain:           BLOCKCHAIN,
+        contractAddress:      tokenAddress,
+        abiFunctionSignature: 'transfer(address,uint256)',
+        abiParameters:        [destinationAddress, atomicAmt],
+        idempotencyKey:       crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
 
-      // FIX 3: correct response path — was txRes.data?.id, must be txRes.data?.transaction?.id
       const tx   = txRes.data?.transaction;
       const txId = tx?.id;
-      if (!txId) throw new Error('No transaction ID in Circle response');
+      if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
 
       const state = tx?.state;
       const hash  = tx?.txHash || null;
@@ -225,7 +236,6 @@ export default async function handler(req, res) {
       if (state === 'COMPLETE' || state === 'CONFIRMED')
         return res.json({ success: true, txHash: hash, transactionId: txId });
 
-      // Still pending — client polls /api/transaction/:txId
       return res.json({ success: true, pending: true, transactionId: txId, txHash: hash });
 
     } catch (err) {
@@ -276,7 +286,7 @@ export default async function handler(req, res) {
         blockchain:           BLOCKCHAIN,
         contractAddress:      ARC_USDC,
         abiFunctionSignature: 'approve(address,uint256)',
-        abiParameters:        [ARC_TOKEN_MESSENGER, atomicAmount],
+        abiParameters:        [ARC_TOKEN_MESSENGER, atomicAmount], // atomicAmount already integer string — correct
         idempotencyKey:       crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
@@ -298,12 +308,12 @@ export default async function handler(req, res) {
         abiFunctionSignature: 'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)',
         abiParameters: [
           atomicAmount,      // uint256 amount in atomic units
-          String(destDomain),// uint32  destinationDomain
+          destDomain,        // uint32  destinationDomain (integer)
           mintRecipient,     // bytes32 mintRecipient (padded address)
           ARC_USDC,          // address burnToken
           destinationCaller, // bytes32 destinationCaller (zero = any relayer)
           maxFee,            // uint256 maxFee (1% in atomic units)
-          '1000',            // uint32  minFinalityThreshold (Standard Transfer)
+          1000,              // uint32  minFinalityThreshold (integer, Standard Transfer)
         ],
         idempotencyKey: crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
