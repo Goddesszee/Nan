@@ -2125,6 +2125,41 @@ async function doSwap(){
     console.log('StableFX:',e.message);
     btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
   }
+  // Circle email wallet path — use contract execution API
+  if(isCircleWallet&&circleWalletId){
+    btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
+    try{
+      const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
+      const amtAtomic=Math.floor(fromAmt*1_000_000).toString();
+      // Step 1: approve swap contract
+      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'transfer',walletId:circleWalletId,
+          contractAddress:tokenIn,functionSignature:'approve(address,uint256)',
+          params:[SWAP_CONTRACT,amtAtomic]})});
+      // Step 2: execute swap via contract call
+      btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
+      const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
+      const swapRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:SWAP_CONTRACT,functionSignature:swapFn,
+          params:[amtAtomic]})});
+      const swapData=await swapRes.json();
+      if(!swapData.success)throw new Error(swapData.error||'Swap failed');
+      toast('✓ Swap submitted on Arc!','success',6000);
+      trackEvent('swap',{amount:fromAmt,from:isUSDCtoEURC?'USDC':'EURC'});
+      addTx({hash:swapData.txHash||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
+      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+      setTimeout(()=>refreshBalances(),8000);
+      btn.innerHTML='Swap on Arc';btn.disabled=false;
+      return;
+    }catch(err){
+      console.log('Circle swap failed:',err.message);
+      toast('Swap failed: '+err.message.slice(0,80),'error',5000);
+      btn.innerHTML='Swap on Arc';btn.disabled=false;
+      return;
+    }
+  }
+  // MetaMask path
   try{
     if(signer){
       const swapContract=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
@@ -2140,7 +2175,7 @@ async function doSwap(){
         : await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
       toast('✓ Swap confirmed on Arc Testnet!','success',6000);
-    trackEvent('swap',{amount:fromAmt,from:isUSDCtoEURC?'USDC':'EURC'});
+      trackEvent('swap',{amount:fromAmt,from:isUSDCtoEURC?'USDC':'EURC'});
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
       document.getElementById('swapFrom').value='';

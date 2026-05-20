@@ -365,5 +365,33 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.json({ success: false, error: 'Unknown action. Valid: getWallet, transfer, bridge, getAttestation' });
+  // ── contractCall ────────────────────────────────────────────────────────────
+  if (action === 'contractCall') {
+    const { walletId, contractAddress, functionSignature, params } = req.body || {};
+    if (!walletId || !contractAddress || !functionSignature)
+      return res.json({ success: false, error: 'walletId, contractAddress, functionSignature required' });
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+      return res.json({ success: true, txHash: '0xdev'+crypto.randomBytes(16).toString('hex'), dev: true });
+    try {
+      const client = getClient();
+      const txRes = await client.createContractExecutionTransaction({
+        walletId,
+        blockchain: BLOCKCHAIN,
+        contractAddress,
+        abiFunctionSignature: functionSignature,
+        abiParameters: params || [],
+        idempotencyKey: crypto.randomUUID(),
+        fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
+      });
+      const tx = txRes.data?.transaction;
+      const txId = tx?.id;
+      if (!txId) throw new Error('No transaction ID returned');
+      return res.json({ success: true, transactionId: txId, txHash: tx?.txHash || null, pending: true });
+    } catch (err) {
+      console.error('[contractCall]', err.message);
+      return res.json({ success: false, error: err.message.slice(0, 120) });
+    }
+  }
+
+  return res.json({ success: false, error: 'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall' });
 }
