@@ -992,12 +992,13 @@ const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://rpc.testnet.arc.network';
 const ARC_EXP       = 'https://testnet.arcscan.app';
 const ARC_PARAMS    = {chainId:ARC_HEX,chainName:'Arc Testnet',nativeCurrency:{name:'USD Coin',symbol:'USDC',decimals:18},rpcUrls:[ARC_RPC],blockExplorerUrls:[ARC_EXP]};
-const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
-const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+const USDC_ADDR     = '0xAE024fdaEbb3F61a7E443D46222597cCD02C9FB3';
+const EURC_ADDR     = '0x9276Ce1561C6bb0F8737A63537d08448A36dF589';
 const USDC_DECIMALS = 6; // ERC-20 only — native gas token uses 18, never mix!
 const EURC_DECIMALS = 6;
 const GAS_USDC      = 0.009;
 
+const SWAP_CONTRACT = '0x1A29f5E63077804837B180A1457dc4f0878d0887';
 const STAKING_CONTRACT  = '0x90Cd6958c159CB68fDe588D0d2E4D30Ac1a81Ff0';
 const PERMIT2_ADDR  = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
 const FXESCROW_ADDR = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8';
@@ -1025,6 +1026,7 @@ function getArcProvider(){
     ensAddress: null,
   });
 }
+const SWAP_CONTRACT = '0x1A29f5E63077804837B180A1457dc4f0878d0887';
 const SWAP_ABI = [
   'function swapUSDCtoEURC(uint256) external returns (uint256)',
   'function swapEURCtoUSDC(uint256) external returns (uint256)',
@@ -2257,7 +2259,7 @@ async function pollIrisAttestation(txHash,destChain){
       if(attestation&&message){
         const el=document.getElementById('attestStatus');
         if(el)el.innerHTML='✅ Iris attestation received!';
-        toast('? Attestation ready! USDC will be minted on '+destChain+' shortly.','success',12000);document.getElementById('attestStatus').innerHTML='? Attestation ready! <a href=\'https://testnet.arcscan.app/tx/'+burnTxHash+'\' target=\'_blank\' style=\'color:var(--accent3)\'>View burn ?</a><br><small style=\'color:var(--text3)\'>USDC minting on destination � may take a few minutes.</small>';
+        toast('? Attestation ready! USDC will be minted on '+destChain+' shortly.','success',12000);document.getElementById('attestStatus').innerHTML='? Attestation ready! <a href=\'https://testnet.arcscan.app/tx/'+burnTxHash+'\' target=\'_blank\' style=\'color:var(--accent3)\'>View burn ?</a><br><small style=\'color:var(--text3)\'>USDC minting on destination � may take a few minutes.</small>';
         return;
       }
       const el=document.getElementById('attestStatus');
