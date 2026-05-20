@@ -1182,13 +1182,17 @@ function initTheme(){
 }
 function updateTopBar(connected){
   const btn=document.getElementById('connectTopBtn');
+  const landBtn=document.getElementById('landConnectBtn');
   if(connected){
     btn.style.display='block';
     btn.textContent=otpEmail?otpEmail.split('@')[0].slice(0,10):short(userAddr);
     btn.className='connected';
     btn.onclick=null;
+    // Hide the landing connect button completely
+    if(landBtn) landBtn.style.display='none';
   }else{
     btn.style.display='none';
+    if(landBtn) landBtn.style.display='block';
   }
 }
 
@@ -1582,13 +1586,9 @@ async function onConnected(isEmail=false, isDev=false){
 
   // Show wallet source — detect which wallet is connected
   const srcBadge=document.getElementById('walletSourceBadge');
-  if(isEmail){
-    srcBadge.innerHTML='';
-    document.getElementById('devBadge').style.display=isDev?'inline-block':'none';
-  }else{
-    srcBadge.innerHTML='';
-    document.getElementById('devBadge').style.display='none';
-  }
+  srcBadge.innerHTML='';
+  srcBadge.style.display='none';
+  document.getElementById('devBadge').style.display=(isEmail&&isDev)?'inline-block':'none';
 
   if(!isEmail)await checkNetwork();
   showBalSkeleton();
