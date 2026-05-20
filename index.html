@@ -104,7 +104,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
   .name-input{font-size:.9rem!important;}
 
   /* AI button */
-  #aiBtn{right:12px!important;bottom:75px!important;width:46px!important;height:46px!important;}
+  #aiBtn{right:16px!important;bottom:72px!important;width:46px!important;height:46px!important;}
 
   /* Receipt modal */
   #receiptModal > div{padding:10px!important;}
@@ -152,7 +152,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .nav-btn.active .ni{transform:scale(1.15);}
 
 /* ── Pages ── */
-.page{display:none;position:absolute;top:57px;left:0;right:0;bottom:60px;z-index:10;overflow-y:auto;overflow-x:hidden;padding:10px 13px 10px;animation:up .28s ease both;scrollbar-width:none;}
+.page{display:none;position:absolute;top:52px;left:0;right:0;bottom:60px;z-index:10;overflow-y:auto;overflow-x:hidden;padding:10px 13px 10px;animation:up .28s ease both;scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}
 .page-land{bottom:0!important;display:none;flex-direction:column;z-index:0;}
@@ -175,7 +175,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .land-note a{color:var(--accent3);}
 
 /* ── Cards ── */
-.card{background:var(--card);border:1px solid var(--border);border-top:2px solid rgba(139,92,246,.45);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.card{background:var(--card);border:1px solid var(--border);border-top:1px solid rgba(139,92,246,.25);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
 .card-title{font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent3);}
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
 .bal-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:9px;position:relative;overflow:hidden;}
@@ -183,7 +183,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
 .bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;}
 .bal-badge{display:flex;align-items:center;gap:4px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:3px 8px;font-size:.56rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;}
-.bal-num{font-size:3.2rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;}
+.bal-num{font-size:2.6rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;}
 .bal-usd{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:7px;}
 .token-row{display:flex;gap:7px;margin-bottom:8px;}
 .tok{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
@@ -478,7 +478,25 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ SEND PAGE ═══════ -->
 <div class="page" id="page-send">
-  <div class="alert" style="justify-content:space-between;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;">
+  <button onclick="setSendTab('send')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
+    <span style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:16px;">↑</span>
+    <span style="font-size:10px;">Send</span>
+  </button>
+  <button onclick="setSendTab('receive')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
+    <span style="width:36px;height:36px;border-radius:10px;background:rgba(96,165,250,.12);display:flex;align-items:center;justify-content:center;font-size:16px;">↓</span>
+    <span style="font-size:10px;">Receive</span>
+  </button>
+  <button onclick="goPage('swap')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
+    <span style="width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,.1);display:flex;align-items:center;justify-content:center;font-size:16px;">⇄</span>
+    <span style="font-size:10px;">Swap</span>
+  </button>
+  <button onclick="goPage('bridge')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;color:var(--text2);cursor:pointer;">
+    <span style="width:36px;height:36px;border-radius:10px;background:rgba(251,191,36,.1);display:flex;align-items:center;justify-content:center;font-size:16px;">⬡</span>
+    <span style="font-size:10px;">Bridge</span>
+  </button>
+</div>
+<div class="alert" style="justify-content:space-between;">
     <span>🧪 Testnet · <a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></span>
     <button onclick="claimFaucet()" id="faucetBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(139,92,246,.4);">💧 Get Free Tokens</button>
   </div>
