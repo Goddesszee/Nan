@@ -2150,7 +2150,8 @@ async function doSwap(){
       const appData=await appRes.json();
       if(!appData.success)throw new Error(appData.error||'Approve failed');
       // Wait for approval to confirm before swapping
-      await new Promise(r=>setTimeout(r,6000));
+      btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
+      await waitForCircleTx(appData.transactionId, 'approve');
       // Step 2: execute swap via contract call
       btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
       const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
@@ -2781,7 +2782,8 @@ async function doSupply(){
           params:[LENDING_CONTRACT,amtAtomic]})});
       const appData=await appRes.json();
       if(!appData.success)throw new Error(appData.error||'Approve failed');
-      await new Promise(r=>setTimeout(r,6000));
+      btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
+      await waitForCircleTx(appData.transactionId, 'approve');
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       const supRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
@@ -3005,6 +3007,28 @@ function renderArcDirectory(){
       <button class="send-sm">Send</button>
     </div>
   `).join('');
+}
+
+// ═══════════════════════════════════════════
+// CIRCLE TX POLL HELPER
+// ═══════════════════════════════════════════
+async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
+  if(!txId) return true;
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    await new Promise(r => setTimeout(r, 4000));
+    try {
+      const res = await fetch('/api/transaction/' + txId);
+      const data = await res.json();
+      const state = data.state || data.status || '';
+      if (state === 'CONFIRMED' || state === 'COMPLETE') return true;
+      if (['FAILED','CANCELLED','DENIED'].includes(state))
+        throw new Error(label + ' failed: ' + state);
+    } catch(e) {
+      if (e.message.includes('failed:')) throw e;
+    }
+  }
+  throw new Error(label + ' timed out');
 }
 
 // ═══════════════════════════════════════════
