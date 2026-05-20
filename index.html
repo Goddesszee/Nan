@@ -1828,9 +1828,21 @@ async function doSend(){
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
       lastTxHash=data.txHash||data.transactionId;
-      addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
+      const isConfirmed=!!data.txHash&&!data.pending;
+      addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:isConfirmed,source:'circle'});
       showSendSuccess(amt,to,lastTxHash);
-      await refreshBalances();
+      if(data.pending&&data.transactionId){
+        pollTxStatus(data.transactionId,'',async(confirmedHash)=>{
+          lastTxHash=confirmedHash||lastTxHash;
+          document.getElementById('successHash').textContent=lastTxHash;
+          txHistory[0].hash=lastTxHash;txHistory[0].confirmed=true;
+          saveTxHistory();renderHistory();
+          toast('✓ Transaction confirmed on-chain!','success',5000);
+          await refreshBalances();
+        });
+      }else{
+        await refreshBalances();
+      }
     }catch(err){
       toast((err?.message||'Transfer failed').slice(0,140),'error',8000);
       btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
@@ -2151,7 +2163,7 @@ async function doSwap(){
       if(!appData.success)throw new Error(appData.error||'Approve failed');
       // Wait for approval to confirm before swapping
       btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
-      await waitForCircleTx(appData.transactionId, 'approve');
+      await waitForCircleTx(appData.transactionId, 'approve').catch(e=>{console.warn('Approve poll:',e.message);});
       // Step 2: execute swap via contract call
       btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
       const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
@@ -2790,10 +2802,17 @@ async function doSupply(){
           contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
           params:[amtAtomic]})});
       const supData=await supRes.json();
-      if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
+      await if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
-      addTx({hash:supData.txHash||'pending',to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
-      setTimeout(()=>refreshBalances(),8000);
+      const supplyHash=supData.txHash||supData.transactionId||'pending';
+      addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:!!supData.txHash&&!supData.pending,source:'lending'});
+      if(supData.pending&&supData.transactionId){
+        pollTxStatus(supData.transactionId,'',async()=>{
+          txHistory[0].confirmed=true;saveTxHistory();
+          toast('✓ Supply confirmed on-chain!','success',4000);
+          await refreshBalances();await refreshLendPosition();
+        });
+      }else{setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);}waitForCircleTx(appData.transactionId, 'approve').catch(e=>{console.warn('Approve poll:',e.message);});
     } else if(signer){
       // MetaMask path
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
