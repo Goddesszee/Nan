@@ -594,7 +594,7 @@ a:hover{color:var(--text);}
 <div class="page" id="page-swap">
   <div class="page-title">Swap</div>
   <div class="page-sub">Exchange USDC and EURC at live rates</div>
-  <div class="info-banner" id="swapModeBanner">⚗️ <strong>Simulated swap</strong> — Arc's StableFX engine is live on testnet. Full integration coming soon.</div>
+  <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
   
   <div class="card">
     <div class="card-title"><div class="cticon">⇄</div>Swap Tokens</div>
@@ -2648,8 +2648,8 @@ let lendDuration=1, lendFee=2;
 let gatewayBalance={total:'0.00',balances:{}};
 
 async function depositToGateway() {
-  if (!window.circleWalletId && !circleWalletId) return toast('Connect with email wallet to deposit to Gateway','warning');
-const _wId = window.circleWalletId || circleWalletId;
+  if (!circleWalletId) return toast('Connect with email wallet to deposit to Gateway','warning');
+  const _wId = circleWalletId;
   const amount = document.getElementById('gatewayDepositAmt')?.value;
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
   toast('Approving Gateway contract...','info');
