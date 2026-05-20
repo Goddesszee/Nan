@@ -174,10 +174,15 @@ export default async function handler(req, res) {
           count:          1,
           accountType:    'EOA',
           idempotencyKey: deterministicUUID('wallet', email),
-          metadata: [{ name: `NAN-${email}`, refId }],  // FIX 2: required by Circle docs
         });
         wallet = wRes.data?.wallets?.[0];
         if (!wallet?.id || !wallet?.address) throw new Error('Circle did not return a wallet');
+        // Link wallet to user via updateWallet (correct Circle API pattern)
+        try {
+          await client.updateWallet({ id: wallet.id, name: `NAN-${email}`, refId });
+        } catch (e) {
+          console.warn('[getWallet] updateWallet refId failed (non-fatal):', e.message);
+        }
       }
 
       return res.json({
@@ -230,13 +235,18 @@ export default async function handler(req, res) {
       const txId = tx?.id;
       if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
 
-      const state = tx?.state;
-      const hash  = tx?.txHash || null;
-
-      if (state === 'COMPLETE' || state === 'CONFIRMED')
-        return res.json({ success: true, txHash: hash, transactionId: txId });
-
-      return res.json({ success: true, pending: true, transactionId: txId, txHash: hash });
+      // Poll for confirmation (30s) before responding so frontend gets a real txHash
+      try {
+        const confirmed = await waitForTx(client, txId, 'transfer', 30_000);
+        return res.json({ success: true, txHash: confirmed.txHash, transactionId: txId });
+      } catch (e) {
+        // Timed out or failed — return pending so client can poll /api/transaction/:id
+        const state = tx?.state;
+        const hash  = tx?.txHash || null;
+        if (['FAILED', 'CANCELLED', 'DENIED'].includes(state))
+          return res.json({ success: false, error: 'Transaction ' + state.toLowerCase() });
+        return res.json({ success: true, pending: true, transactionId: txId, txHash: hash });
+      }
 
     } catch (err) {
       console.error('[transfer]', err.message);
@@ -307,13 +317,13 @@ export default async function handler(req, res) {
         contractAddress:      ARC_TOKEN_MESSENGER,
         abiFunctionSignature: 'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)',
         abiParameters: [
-          atomicAmount,      // uint256 amount in atomic units
-          destDomain,        // uint32  destinationDomain (integer)
-          mintRecipient,     // bytes32 mintRecipient (padded address)
-          ARC_USDC,          // address burnToken
-          destinationCaller, // bytes32 destinationCaller (zero = any relayer)
-          maxFee,            // uint256 maxFee (1% in atomic units)
-          1000,              // uint32  minFinalityThreshold (integer, Standard Transfer)
+          atomicAmount,           // uint256 amount in atomic units (string)
+          destDomain.toString(),  // uint32  destinationDomain (must be string)
+          mintRecipient,          // bytes32 mintRecipient (padded address)
+          ARC_USDC,               // address burnToken
+          destinationCaller,      // bytes32 destinationCaller (zero = any relayer)
+          maxFee,                 // uint256 maxFee (1% in atomic units)
+          "1000",                 // uint32  minFinalityThreshold (must be string)
         ],
         idempotencyKey: crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
