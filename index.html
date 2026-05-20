@@ -2353,7 +2353,7 @@ async function pollIrisAttestation(txHash,destChain){
         const el=document.getElementById('attestStatus');
         if(el)el.innerHTML='✅ Iris attestation received!';
         toast('✓ Attestation ready! Complete the mint on '+destChain+' to receive USDC.','success',12000);
-        document.getElementById('attestStatus').innerHTML='✅ Attestation ready! <a href="https://testnet.arcscan.app/tx/'+burnTxHash+'" target="_blank" style="color:var(--accent3)">View burn ↗</a><br><small style="color:var(--warning)">⚠️ Step 3 required: call receiveMessage on '+destChain+' using the attestation above to mint your USDC. Use <a href="https://developers.circle.com/cctp" target="_blank" style="color:var(--accent3)">Circle CCTP docs ↗</a> or a relayer.</small>';
+        document.getElementById('attestStatus').innerHTML='✅ Attestation ready! <a href="https://testnet.arcscan.app/tx/'+txHash+'" target="_blank" style="color:var(--accent3)">View burn ↗</a><br><small style="color:var(--warning)">⚠️ Step 3 required: call receiveMessage on '+destChain+' using the attestation above to mint your USDC. Use <a href="https://developers.circle.com/cctp" target="_blank" style="color:var(--accent3)">Circle CCTP docs ↗</a> or a relayer.</small>';
         return;
       }
       const el=document.getElementById('attestStatus');
