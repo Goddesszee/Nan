@@ -1830,8 +1830,7 @@ async function doSend(){
       lastTxHash=data.txHash||data.transactionId;
       addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
       showSendSuccess(amt,to,lastTxHash);
-      await refreshBalances();
-    }catch(err){
+      await arcGasOpts()catch(err){
       toast((err?.message||'Transfer failed').slice(0,140),'error',8000);
       btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
     }
@@ -2253,7 +2252,7 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(1);
     }
@@ -2271,7 +2270,7 @@ async function doBridge(){
       destinationCaller,
       1000n,
       1000,
-      {maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')}
+      arcGasOpts()
     );
     burnTxHash=burnTx.hash;
     lastTxHash=burnTxHash;
@@ -2797,10 +2796,10 @@ async function doSupply(){
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
-      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       await approveTx.wait(1);
-      const tx=await lendContract.supply(amtParsed,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+      const tx=await lendContract.supply(amtParsed,arcGasOpts());
       await tx.wait(1);
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc Testnet!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
@@ -2930,10 +2929,10 @@ async function registerArcName(){
       const usdcContract=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,signer);
       const fee=ethers.parseUnits(arcNameFeeUsdc.toString(),6);
-      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee,arcGasOpts());
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
       await approveTx.wait(1);
-      const tx=await nameContract.register(name,arcNameDurationYears,{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+      const tx=await nameContract.register(name,arcNameDurationYears,arcGasOpts());
       await tx.wait(1);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
       addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
