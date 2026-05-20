@@ -2205,45 +2205,7 @@ async function doSwap(){
       return;
     }
   }
-  // Circle email wallet path — use contract execution API
-  if(isCircleWallet&&circleWalletId){
-    btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
-    try{
-      const tokenIn=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
-      const amtAtomic=Math.floor(fromAmt*1_000_000).toString();
-      // Step 1: approve swap contract
-      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:tokenIn,functionSignature:'approve(address,uint256)',
-          params:[SWAP_CONTRACT,amtAtomic]})});
-      const appData=await appRes.json();
-      if(!appData.success)throw new Error(appData.error||'Approve failed');
-      // Wait for approval to confirm before swapping
-      btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
-      await waitForCircleTx(appData.transactionId, 'approve').catch(e=>{console.warn('Approve poll:',e.message);});
-      // Step 2: execute swap via contract call
-      btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
-      const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
-      const swapRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:SWAP_CONTRACT,functionSignature:swapFn,
-          params:[amtAtomic]})});
-      const swapData=await swapRes.json();
-      if(!swapData.success)throw new Error(swapData.error||'Swap failed');
-      toast('✓ Swap submitted on Arc!','success',6000);
-      trackEvent('swap',{amount:fromAmt,from:isUSDCtoEURC?'USDC':'EURC'});
-      addTx({hash:swapData.txHash||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'swap'});
-      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-      setTimeout(()=>refreshBalances(),8000);
-      btn.innerHTML='Swap on Arc';btn.disabled=false;
-      return;
-    }catch(err){
-      console.log('Circle swap failed:',err.message);
-      toast('Swap failed: '+err.message.slice(0,80),'error',5000);
-      btn.innerHTML='Swap on Arc';btn.disabled=false;
-      return;
-    }
-  }
+  
   // MetaMask path
   try{
     if(signer){
@@ -2289,11 +2251,8 @@ function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
   refreshBalances();
 }
 function initSwapUI(){
-  const real=hasSwap();
-  document.getElementById('swapModeBanner').style.display=real?'none':'block';
-  const liveBadge=document.getElementById('swapLiveBadge');
-  if(liveBadge) liveBadge.style.display=real?'flex':'none';
-  document.getElementById('swapBtn').textContent=real?'Swap on Arc':'Swap via Circle StableFX';
+  document.getElementById('swapModeBanner').style.display='none';
+  document.getElementById('swapBtn').textContent='Swap via Circle App Kit';
 }
 
 // ═══════════════════════════════════════════
@@ -2716,34 +2675,28 @@ async function refreshGatewayBalance(){
   if(display) display.textContent='Loading...';
   try{
     const res=await fetch('/api/gateway',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'getBalance',address:userAddr}),
     });
+    if(!res.ok) throw new Error('Gateway API returned '+res.status);
     const data=await res.json();
     if(data.success){
       gatewayBalance=data;
       if(display) display.textContent=data.total+' USDC';
       if(chains){
-        const entries=Object.entries(data.balances).filter(([_,v])=>v>0);
-        if(entries.length===0){
-          chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">No Gateway balance yet — bridge USDC to create one</div>';
-        } else {
-          chains.innerHTML=entries.map(([chain,amount])=>`
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(139,92,246,.06);border-radius:6px;">
-              <span style="font-size:.65rem;color:var(--text2);">${chain.replace('-',' ')}</span>
-              <span style="font-size:.65rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span>
-            </div>
-          `).join('');
-        }
+        const entries=Object.entries(data.balances||{}).filter(([_,v])=>parseFloat(v)>0);
+        chains.innerHTML=entries.length===0
+          ?'<div style="font-size:.65rem;color:var(--text3);text-align:center;">No Gateway balance yet — bridge USDC to create one</div>'
+          :entries.map(([chain,amount])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(139,92,246,.06);border-radius:6px;"><span style="font-size:.65rem;color:var(--text2);">${chain.replace(/_/g,' ')}</span><span style="font-size:.65rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span></div>`).join('');
       }
-    } else {
+    }else{
       if(display) display.textContent='—';
-      if(chains) chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">'+( data.error||'Could not load Gateway balance')+'</div>';
+      if(chains) chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">'+(data.error||'Gateway unavailable — bridge USDC to get started')+'</div>';
     }
   }catch(e){
     if(display) display.textContent='—';
-    console.log('Gateway error:',e.message);
+    if(chains) chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">Gateway unavailable — bridge USDC to get started</div>';
+    console.log('[gateway]',e.message);
   }
 }
 
@@ -2906,45 +2859,102 @@ async function refreshLendPosition(){
     updateLendPositions();
   }catch(e){console.log('Lend position fetch error:',e.message);}
 }
-function doBorrow(){
+async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   if(lendPositions.supplied===0){toast('Supply collateral first','error');return;}
   if(amt>lendPositions.supplied*0.75){toast('Exceeds 75% LTV limit','error');return;}
-  lendPositions.borrowed+=amt;
-  usdcBal=String(parseFloat(usdcBal)+amt);
-  addTx({hash:'borrow-'+Date.now(),to:'lending-pool',toRaw:'Borrowed USDC',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Borrowed '+amt.toFixed(2)+' USDC — 7.20% APR (simulated — on-chain via NANLendingPool)','success',5000);
+  const btn=document.querySelector('#lp-borrow button');
+  btn.innerHTML='<span class="spinner"></span>Borrowing…';btn.disabled=true;
+  try{
+    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    if(isCircleWallet&&circleWalletId){
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
+      const d=await r.json();
+      if(!d.success)throw new Error(d.error||'Borrow failed');
+      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on-chain!','success',5000);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
+    }else if(signer){
+      const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+      const tx=await lendContract.borrow(ethers.parseUnits(amt.toFixed(6),6),arcGasOpts());
+      await tx.wait(1);
+      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      await refreshBalances();await refreshLendPosition();
+    }else{throw new Error('No wallet connected');}
+  }catch(err){toast('Borrow failed: '+err.message.slice(0,100),'error',5000);}
   document.getElementById('borrowAmt').value='';
-  updateLendPositions();
-  refreshBalances();
+  btn.innerHTML='Borrow USDC';btn.disabled=false;
 }
-function doRepay(){
+async function doRepay(){
   const amt=parseFloat(document.getElementById('repayAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   if(amt>lendPositions.borrowed){toast('More than you owe','error');return;}
-  lendPositions.borrowed=Math.max(0,lendPositions.borrowed-amt);
-  usdcBal=String(Math.max(0,parseFloat(usdcBal)-amt));
-  addTx({hash:'repay-'+Date.now(),to:'lending-pool',toRaw:'Repaid USDC',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Repaid '+amt.toFixed(2)+' USDC (simulated)','success',5000);
+  const btn=document.querySelector('#lp-repay button');
+  btn.innerHTML='<span class="spinner"></span>Repaying…';btn.disabled=true;
+  try{
+    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    if(isCircleWallet&&circleWalletId){
+      // Approve first
+      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,amtAtomic]})});
+      const appD=await appR.json();
+      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      btn.innerHTML='<span class="spinner"></span>Waiting…';
+      await waitForCircleTx(appD.transactionId,'approve');
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'repay(uint256)',params:[amtAtomic]})});
+      const d=await r.json();
+      if(!d.success)throw new Error(d.error||'Repay failed');
+      toast('✓ Repaid '+amt.toFixed(2)+' USDC on-chain!','success',5000);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
+    }else if(signer){
+      const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+      const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+      const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
+      const appTx=await usdc.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
+      await appTx.wait(1);
+      const tx=await lendContract.repay(amtParsed,arcGasOpts());
+      await tx.wait(1);
+      toast('✓ Repaid '+amt.toFixed(2)+' USDC on Arc!','success',5000);
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      await refreshBalances();await refreshLendPosition();
+    }else{throw new Error('No wallet connected');}
+  }catch(err){toast('Repay failed: '+err.message.slice(0,100),'error',5000);}
   document.getElementById('repayAmt').value='';
-  updateLendPositions();
-  refreshBalances();
+  btn.innerHTML='Repay Debt';btn.disabled=false;
 }
-function doWithdraw(){
+async function doWithdraw(){
   const amt=parseFloat(document.getElementById('withdrawAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   if(amt>lendPositions.supplied){toast('More than supplied','error');return;}
   if(lendPositions.borrowed>0&&(lendPositions.supplied-amt)*0.8<lendPositions.borrowed){toast('Would make health factor unsafe','error');return;}
-  const withInterest=amt+lendPositions.interest;
-  lendPositions.supplied=Math.max(0,lendPositions.supplied-amt);
-  lendPositions.interest=0;
-  usdcBal=String(parseFloat(usdcBal)+withInterest);
-  addTx({hash:'withdraw-'+Date.now(),to:userAddr,toRaw:'Withdrew USDC + Interest',amount:withInterest.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Withdrew '+withInterest.toFixed(4)+' USDC inc. interest (simulated)','success',5000);
+  const btn=document.querySelector('#lp-withdraw button');
+  btn.innerHTML='<span class="spinner"></span>Withdrawing…';btn.disabled=true;
+  try{
+    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    if(isCircleWallet&&circleWalletId){
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'withdraw(uint256)',params:[amtAtomic]})});
+      const d=await r.json();
+      if(!d.success)throw new Error(d.error||'Withdraw failed');
+      toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on-chain!','success',5000);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
+    }else if(signer){
+      const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+      const tx=await lendContract.withdraw(ethers.parseUnits(amt.toFixed(6),6),arcGasOpts());
+      await tx.wait(1);
+      toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on Arc!','success',5000);
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      await refreshBalances();await refreshLendPosition();
+    }else{throw new Error('No wallet connected');}
+  }catch(err){toast('Withdraw failed: '+err.message.slice(0,100),'error',5000);}
   document.getElementById('withdrawAmt').value='';
-  updateLendPositions();
-  refreshBalances();
+  btn.innerHTML='Withdraw + Interest';btn.disabled=false;
 }
 
 // ═══════════════════════════════════════════
@@ -3004,7 +3014,24 @@ async function registerArcName(){
   const btn=document.querySelector('#page-arcname .card:nth-child(3) .btn');
   if(btn){btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;}
   try{
-    if(signer){
+    const feeAtomic=Math.floor(arcNameFeeUsdc*1_000_000).toString();
+    if(isCircleWallet&&circleWalletId){
+      if(btn)btn.innerHTML='<span class="spinner"></span>Approving USDC…';
+      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,feeAtomic]})});
+      const appD=await appR.json();
+      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      if(btn)btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
+      await waitForCircleTx(appD.transactionId,'approve');
+      if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc…';
+      const regR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:NAME_REGISTRY,functionSignature:'register(string,uint8)',params:[name,arcNameDurationYears]})});
+      const regD=await regR.json();
+      if(!regD.success)throw new Error(regD.error||'Registration failed');
+      toast('✓ '+name+'.arc registered on Arc! 🎉','success',7000);
+      addTx({hash:regD.txHash||regD.transactionId,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!regD.txHash,source:'arcname'});
+      await refreshBalances();await refreshArcNames();
+    }else if(signer){
       const usdcContract=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,signer);
       const fee=ethers.parseUnits(arcNameFeeUsdc.toString(),6);
@@ -3015,9 +3042,8 @@ async function registerArcName(){
       await tx.wait(1);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
       addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
-      await refreshBalances();
-      await refreshArcNames();
-    } else { throw new Error('No signer'); }
+      await refreshBalances();await refreshArcNames();
+    }else{throw new Error('No wallet connected — use email login or MetaMask');}
   }catch(err){
     const msg=err?.reason||err?.message||'Registration failed';
     if(msg.includes('No signer')){
