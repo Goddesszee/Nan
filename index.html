@@ -1815,9 +1815,9 @@ async function doSend(){
     if(!circleWalletId){toast('Wallet not ready — please log in again','error');return;}
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
-      const res=await fetch('/api/transfer',{
+      const res=await fetch('/api/circle-wallets',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({walletId:circleWalletId,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken,userToken:circleUserToken}),
+        body:JSON.stringify({action:'transfer',walletId:circleWalletId,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
       });
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
@@ -2138,9 +2138,13 @@ async function doSwap(){
       const amtAtomic=Math.floor(fromAmt*1_000_000).toString();
       // Step 1: approve swap contract
       const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'transfer',walletId:circleWalletId,
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:tokenIn,functionSignature:'approve(address,uint256)',
           params:[SWAP_CONTRACT,amtAtomic]})});
+      const appData=await appRes.json();
+      if(!appData.success)throw new Error(appData.error||'Approve failed');
+      // Wait for approval to confirm before swapping
+      await new Promise(r=>setTimeout(r,6000));
       // Step 2: execute swap via contract call
       btn.innerHTML='<span class="spinner"></span>Swapping on Arc...';
       const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
@@ -2760,8 +2764,30 @@ async function doSupply(){
   const btn=document.querySelector('#lp-supply button.btn');
   btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
   try{
-    if(signer){
-      const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
+    const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
+    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    if(isCircleWallet&&circleWalletId){
+      // Circle email wallet path
+      btn.innerHTML='<span class="spinner"></span>Approving...';
+      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
+          params:[LENDING_CONTRACT,amtAtomic]})});
+      const appData=await appRes.json();
+      if(!appData.success)throw new Error(appData.error||'Approve failed');
+      await new Promise(r=>setTimeout(r,6000));
+      btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
+      const supRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
+          params:[amtAtomic]})});
+      const supData=await supRes.json();
+      if(!supData.success)throw new Error(supData.error||'Supply failed');
+      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
+      addTx({hash:supData.txHash||'pending',to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
+      setTimeout(()=>refreshBalances(),8000);
+    } else if(signer){
+      // MetaMask path
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
@@ -2774,7 +2800,9 @@ async function doSupply(){
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();
       await refreshLendPosition();
-    } else { throw new Error('No signer'); }
+    } else {
+      throw new Error('No wallet connected');
+    }
   }catch(err){
     const msg=err?.reason||err?.message||'Supply failed';
     toast('Supply failed: '+msg.slice(0,100),'error',5000);
