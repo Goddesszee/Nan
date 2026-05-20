@@ -31,7 +31,7 @@
 *{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
-#app-root{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;}
+#app-root{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;isolation:isolate;}
 #app-root::-webkit-scrollbar{display:none;}
 
 /* ── MOBILE RESPONSIVE ── */
@@ -152,10 +152,10 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .nav-btn.active .ni{transform:scale(1.15);}
 
 /* ── Pages ── */
-.page{display:none;position:absolute;top:57px;left:0;right:0;bottom:60px;z-index:1;overflow-y:auto;overflow-x:hidden;padding:10px 13px 10px;animation:up .28s ease both;scrollbar-width:none;}
+.page{display:none;position:absolute;top:57px;left:0;right:0;bottom:60px;z-index:10;overflow-y:auto;overflow-x:hidden;padding:10px 13px 10px;animation:up .28s ease both;scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}
-.page-land{bottom:0!important;display:none;flex-direction:column;}
+.page-land{bottom:0!important;display:none;flex-direction:column;z-index:0;}
 .page-land.active{display:flex;}
 @keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 
@@ -1575,6 +1575,8 @@ function speakResponse(text){
 window.addEventListener('load',()=>{ initVoice(); });
 async function onConnected(isEmail=false, isDev=false){
   document.getElementById('page-land').style.display='none';
+  document.getElementById('page-land').style.visibility='hidden';
+  document.getElementById('page-land').style.zIndex='-1';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
   updateTopBar(true);
