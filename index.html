@@ -795,6 +795,7 @@ a:hover{color:var(--text);}
       </div>
     </div>
     <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">CCTP burn + mint (2 txns)</span><span>~0.009 USDC</span></div>
+    <div class="info-banner" style="margin-bottom:8px;">⚠️ After burning, you must call <strong>receiveMessage</strong> on the destination chain to complete the mint. Check the Bridge Status card for attestation and instructions.</div>
     <button class="btn" id="bridgeBtn" onclick="doBridge()">Bridge USDC via CCTP</button>
   </div>
   <div class="card" id="bridgeStatusCard" style="display:none;">
@@ -2258,7 +2259,8 @@ async function pollIrisAttestation(txHash,destChain){
       if(attestation&&message){
         const el=document.getElementById('attestStatus');
         if(el)el.innerHTML='✅ Iris attestation received!';
-        toast('? Attestation ready! USDC will be minted on '+destChain+' shortly.','success',12000);document.getElementById('attestStatus').innerHTML='? Attestation ready! <a href=\'https://testnet.arcscan.app/tx/'+burnTxHash+'\' target=\'_blank\' style=\'color:var(--accent3)\'>View burn ?</a><br><small style=\'color:var(--text3)\'>USDC minting on destination � may take a few minutes.</small>';
+        toast('✓ Attestation ready! Complete the mint on '+destChain+' to receive USDC.','success',12000);
+        document.getElementById('attestStatus').innerHTML='✅ Attestation ready! <a href="https://testnet.arcscan.app/tx/'+burnTxHash+'" target="_blank" style="color:var(--accent3)">View burn ↗</a><br><small style="color:var(--warning)">⚠️ Step 3 required: call receiveMessage on '+destChain+' using the attestation above to mint your USDC. Use <a href="https://developers.circle.com/cctp" target="_blank" style="color:var(--accent3)">Circle CCTP docs ↗</a> or a relayer.</small>';
         return;
       }
       const el=document.getElementById('attestStatus');
