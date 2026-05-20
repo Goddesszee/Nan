@@ -233,7 +233,7 @@ export default async function handler(req, res) {
 
       const tx   = txRes.data?.transaction;
       const txId = tx?.id || txRes.data?.id;
-if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
+      if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
 
       // Poll for confirmation (30s) before responding so frontend gets a real txHash
       try {
