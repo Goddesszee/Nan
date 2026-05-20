@@ -1,23 +1,22 @@
-// api/appkit-swap.js — Vercel-compatible version
-//
-// Uses dynamic imports to avoid build-time bundling issues with
-// @circle-fin/adapter-circle-wallets on Vercel serverless functions.
-//
-// ENV VARS:
-//   KIT_KEY              — from console.circle.com (free)
-//   CIRCLE_API_KEY       — Circle developer API key
-//   CIRCLE_ENTITY_SECRET — Circle entity secret
+// api/appkit-swap.js — NO Circle adapter imports (fixes Vercel build error)
+// Uses Circle Developer-Controlled Wallets REST API directly for swaps.
+// The @circle-fin/adapter-* packages crash Vercel's bundler — avoid them here.
 
 import crypto from 'crypto';
 
-const ARC_CHAIN = 'Arc_Testnet';
+const USDC_ADDR = '0x3600000000000000000000000000000000000000';
+const EURC_ADDR = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+const SWAP_CONTRACT = '0x1A29f5E63077804837B180A1457dc4f0878d0887';
+
+const FX_USDC_TO_EURC = 0.9258;
+const FX_EURC_TO_USDC = 1.0801;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { action, walletId, tokenIn, tokenOut, amountIn } = req.body || {};
 
-  // ── quote ─────────────────────────────────────────────────────────────────
+  // ── QUOTE ─────────────────────────────────────────────────────────────────
   if (action === 'quote') {
     if (!tokenIn || !tokenOut || !amountIn)
       return res.json({ success: false, error: 'tokenIn, tokenOut, amountIn required' });
@@ -26,9 +25,8 @@ export default async function handler(req, res) {
     if (isNaN(parsed) || parsed <= 0)
       return res.json({ success: false, error: 'Invalid amount' });
 
-    // Live rate based on FX (USDC→EURC ≈ 0.9258, EURC→USDC ≈ 1.0801)
     const isUSDCtoEURC = tokenIn.toUpperCase() === 'USDC';
-    const rate = isUSDCtoEURC ? 0.9258 : 1.0801;
+    const rate = isUSDCtoEURC ? FX_USDC_TO_EURC : FX_EURC_TO_USDC;
     const amtOut = (parsed * rate * 0.999).toFixed(6);
     const fee = (parsed * 0.001).toFixed(4);
 
@@ -37,25 +35,18 @@ export default async function handler(req, res) {
       quote: {
         tokenIn: tokenIn.toUpperCase(),
         tokenOut: tokenOut.toUpperCase(),
-        amountIn: amountIn,
+        amountIn,
         amountOut: amtOut,
         rate: rate.toFixed(6),
-        fees: [{ token: 'USDC', amount: fee, type: 'provider' }],
+        fees: [{ token: tokenIn.toUpperCase(), amount: fee, type: 'provider' }],
       },
     });
   }
 
-  // ── swap ──────────────────────────────────────────────────────────────────
+  // ── SWAP ──────────────────────────────────────────────────────────────────
   if (action === 'swap') {
     if (!walletId || !tokenIn || !tokenOut || !amountIn)
       return res.json({ success: false, error: 'walletId, tokenIn, tokenOut, amountIn required' });
-
-    const kitKey = process.env.KIT_KEY;
-    if (!kitKey)
-      return res.json({
-        success: false,
-        error: 'KIT_KEY not configured — get one free at console.circle.com → App Kit',
-      });
 
     const parsed = parseFloat(amountIn);
     if (isNaN(parsed) || parsed <= 0 || parsed > 10_000)
@@ -63,85 +54,132 @@ export default async function handler(req, res) {
 
     const validPairs = [['USDC','EURC'],['EURC','USDC']];
     const pairOk = validPairs.some(
-      ([a,b]) => a === tokenIn.toUpperCase() && b === tokenOut.toUpperCase()
+      ([a, b]) => a === tokenIn.toUpperCase() && b === tokenOut.toUpperCase()
     );
     if (!pairOk)
       return res.json({ success: false, error: 'Only USDC↔EURC swaps supported on Arc Testnet' });
 
-    // Dev mode — no Circle credentials
-    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    const apiKey = process.env.CIRCLE_API_KEY;
+    const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
+
+    // Dev mode — no credentials
+    if (!apiKey || !entitySecret) {
       const isUSDCtoEURC = tokenIn.toUpperCase() === 'USDC';
-      const rate = isUSDCtoEURC ? 0.9258 : 1.0801;
+      const rate = isUSDCtoEURC ? FX_USDC_TO_EURC : FX_EURC_TO_USDC;
       return res.json({
         success: true,
         dev: true,
-        txHash: '0xdev_appkit_' + crypto.randomBytes(8).toString('hex'),
+        txHash: '0xdev_swap_' + crypto.randomBytes(8).toString('hex'),
         amountIn,
         amountOut: (parsed * rate * 0.999).toFixed(6),
         tokenIn: tokenIn.toUpperCase(),
         tokenOut: tokenOut.toUpperCase(),
-        message: 'Dev mode — set real Circle credentials for live swaps',
+        message: 'Dev mode — set Circle credentials for live swaps',
       });
     }
 
     try {
-      // Dynamic imports — avoids Vercel build-time bundling issues
-      const { AppKit } = await import('@circle-fin/app-kit');
-      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const isUSDCtoEURC = tokenIn.toUpperCase() === 'USDC';
+      const tokenAddr = isUSDCtoEURC ? USDC_ADDR : EURC_ADDR;
+      const amtAtomic = Math.floor(parsed * 1_000_000).toString();
+      const blockchain = 'ARC-TESTNET';
 
-      const adapter = createCircleWalletsAdapter({
-        apiKey: process.env.CIRCLE_API_KEY,
-        entitySecret: process.env.CIRCLE_ENTITY_SECRET,
-      });
+      // ── Circle REST API helper (correct path per docs) ──────────────────
+      async function circlePost(path, body) {
+        const r = await fetch(`https://api.circle.com/v1/w3s${path}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(body),
+        });
+        return r.json();
+      }
 
-      const kit = new AppKit();
+      // ── Poll tx until confirmed ──────────────────────────────────────────
+      async function pollTx(txId, maxMs = 55_000) {
+        const start = Date.now();
+        while (Date.now() - start < maxMs) {
+          await new Promise(r => setTimeout(r, 4000));
+          const r = await fetch(`https://api.circle.com/v1/w3s/transactions/${txId}`, {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          const d = await r.json();
+          const state = d.data?.transaction?.state;
+          if (state === 'CONFIRMED' || state === 'COMPLETE')
+            return d.data?.transaction?.txHash || txId;
+          if (['FAILED', 'CANCELLED', 'DENIED'].includes(state))
+            throw new Error(`Transaction ${state}`);
+        }
+        throw new Error('Transaction timed out');
+      }
 
       console.log(`[appkit-swap] ${amountIn} ${tokenIn} → ${tokenOut} | wallet: ${walletId}`);
 
-      const result = await kit.swap({
-        from: {
-          adapter,
-          chain: ARC_CHAIN,
-          walletId,
-        },
-        tokenIn: tokenIn.toUpperCase(),
-        tokenOut: tokenOut.toUpperCase(),
-        amountIn,
-        config: { kitKey },
+      // Step 1 — Approve token to NANSwap contract
+      // Correct path: /transactions/contractExecution (not /developer/transactions/...)
+      const approveRes = await circlePost('/transactions/contractExecution', {
+        walletId,
+        blockchain,
+        contractAddress: tokenAddr,
+        abiFunctionSignature: 'approve(address,uint256)',
+        abiParameters: [SWAP_CONTRACT, amtAtomic],
+        idempotencyKey: crypto.randomUUID(),
+        fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
 
-      console.log('[appkit-swap] ✓', result.txHash, result.amountOut, result.tokenOut);
+      const approveTxId = approveRes.data?.id;
+      if (!approveTxId) throw new Error(approveRes.message || 'Approve failed — no txId returned');
+
+      console.log('[appkit-swap] Waiting for approve…', approveTxId);
+      await pollTx(approveTxId);
+
+      // Step 2 — Call swap on NANSwap contract
+      // Correct path: /transactions/contractExecution (not /developer/transactions/...)
+      const swapFn = isUSDCtoEURC
+        ? 'swapUSDCtoEURC(uint256)'
+        : 'swapEURCtoUSDC(uint256)';
+
+      const swapRes = await circlePost('/transactions/contractExecution', {
+        walletId,
+        blockchain,
+        contractAddress: SWAP_CONTRACT,
+        abiFunctionSignature: swapFn,
+        abiParameters: [amtAtomic],
+        idempotencyKey: crypto.randomUUID(),
+        fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
+      });
+
+      const swapTxId = swapRes.data?.id;
+      if (!swapTxId) throw new Error(swapRes.message || 'Swap tx failed — no txId returned');
+
+      console.log('[appkit-swap] Waiting for swap…', swapTxId);
+      const txHash = await pollTx(swapTxId);
+
+      const rate = isUSDCtoEURC ? FX_USDC_TO_EURC : FX_EURC_TO_USDC;
+      const amountOut = (parsed * rate * 0.999).toFixed(6);
+
+      console.log('[appkit-swap] ✓ Swap confirmed', txHash);
 
       return res.json({
         success: true,
-        txHash: result.txHash,
-        explorerUrl: result.explorerUrl,
-        amountIn: result.amountIn,
-        amountOut: result.amountOut,
-        tokenIn: result.tokenIn,
-        tokenOut: result.tokenOut,
-        fees: result.fees || [],
+        txHash,
+        amountIn,
+        amountOut,
+        tokenIn: tokenIn.toUpperCase(),
+        tokenOut: tokenOut.toUpperCase(),
+        fees: [{ token: tokenIn.toUpperCase(), amount: (parsed * 0.001).toFixed(4), type: 'swap' }],
       });
 
     } catch (err) {
       console.error('[appkit-swap/swap]', err.message);
-
       let msg = err.message || 'Swap failed';
-      if (msg.includes('kitKey') || msg.includes('kit_key'))
-        msg = 'Invalid KIT_KEY — check your Circle Console';
-      else if (msg.includes('insufficient') || msg.includes('balance'))
-        msg = 'Insufficient balance for swap';
-      else if (msg.includes('slippage'))
-        msg = 'Price moved — try again';
-      else if (msg.includes('walletId'))
-        msg = 'Invalid wallet ID';
-
+      if (msg.includes('insufficient') || msg.includes('balance')) msg = 'Insufficient balance';
+      if (msg.includes('pool') || msg.includes('liquidity')) msg = 'Pool has no liquidity — swap simulated on frontend';
       return res.json({ success: false, error: msg.slice(0, 200) });
     }
   }
 
-  return res.json({
-    success: false,
-    error: 'Unknown action. Valid: quote, swap',
-  });
+  return res.json({ success: false, error: 'Unknown action. Valid: quote, swap' });
 }
