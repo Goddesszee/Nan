@@ -1092,6 +1092,14 @@ if(localStorage.getItem('circleWalletId')){
   circleWalletAddress=localStorage.getItem('circleWalletAddr');
   userAddr=circleWalletAddress;
   isCircleWallet=true;
+  // Auto-restore UI after DOM is ready
+  window.addEventListener('load', async ()=>{
+    if(userAddr&&isCircleWallet){
+      provider=getArcProvider();
+      onArcNetwork=true;
+      await onConnected(true, false);
+    }
+  });
 }
 
 let arcNames=[];
@@ -1610,8 +1618,11 @@ async function onConnected(isEmail=false, isDev=false){
 function disconnect(){
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=lastTxId=null;
-  circleWalletId=circleWalletAddress=circleWalletBlockchain=null;   circleUserToken=circleUserId=otpEmail=null;
+  circleWalletId=circleWalletAddress=circleWalletBlockchain=null;
+  circleUserToken=circleUserId=otpEmail=null;
   isCircleWallet=false;
+  localStorage.removeItem('circleWalletId');
+  localStorage.removeItem('circleWalletAddr');
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
