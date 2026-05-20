@@ -2812,7 +2812,7 @@ async function doSupply(){
           toast('✓ Supply confirmed on-chain!','success',4000);
           await refreshBalances();await refreshLendPosition();
         });
-      }else{setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);}waitForCircleTx(appData.transactionId, 'approve').catch(e=>{console.warn('Approve poll:',e.message);});
+      }else{setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);}
     } else if(signer){
       // MetaMask path
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
