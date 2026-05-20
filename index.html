@@ -2802,7 +2802,7 @@ async function doSupply(){
           contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
           params:[amtAtomic]})});
       const supData=await supRes.json();
-      await if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
+      if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
       addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:!!supData.txHash&&!supData.pending,source:'lending'});
