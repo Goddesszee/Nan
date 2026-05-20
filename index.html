@@ -2351,9 +2351,32 @@ async function pollIrisAttestation(txHash,destChain){
       }
       if(attestation&&message){
         const el=document.getElementById('attestStatus');
-        if(el)el.innerHTML='✅ Iris attestation received!';
-        toast('✓ Attestation ready! Complete the mint on '+destChain+' to receive USDC.','success',12000);
-        document.getElementById('attestStatus').innerHTML='✅ Attestation ready! <a href="https://testnet.arcscan.app/tx/'+txHash+'" target="_blank" style="color:var(--accent3)">View burn ↗</a><br><small style="color:var(--warning)">⚠️ Step 3 required: call receiveMessage on '+destChain+' using the attestation above to mint your USDC. Use <a href="https://developers.circle.com/cctp" target="_blank" style="color:var(--accent3)">Circle CCTP docs ↗</a> or a relayer.</small>';
+        if(el)el.innerHTML='✅ Iris attestation received! Attempting auto-mint…';
+        toast('✓ Attestation ready! Attempting auto-mint on '+destChain+'…','success',8000);
+        try{
+          if(signer&&window.ethereum){
+            const DEST_TRANSMITTER={
+              'ETH-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+              'BASE-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+              'ARB-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+              'OP-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+              'AVAX-FUJI':'0xa9fB1b3009DCb79E2fe346c16a604B8Fa8aE0a79',
+              'POLYGON-AMOY':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+            };
+            const transmitterAddr=DEST_TRANSMITTER[destChain];
+            if(transmitterAddr){
+              const transmitter=new ethers.Contract(transmitterAddr,['function receiveMessage(bytes,bytes) returns(bool)'],signer);
+              const mintTx=await transmitter.receiveMessage(message,attestation);
+              await mintTx.wait(1);
+              toast('✅ USDC minted on '+destChain+'! Bridge complete!','success',10000);
+              if(el)el.innerHTML='✅ Bridge complete! USDC minted on '+destChain+'.';
+            }
+          }
+        }catch(mintErr){
+          console.log('[auto-mint]',mintErr.message);
+          toast('Auto-mint failed — complete manually on '+destChain,'warning',8000);
+          if(el)el.innerHTML='✅ Attestation ready — complete mint manually on '+destChain;
+        }
         return;
       }
       const el=document.getElementById('attestStatus');
