@@ -994,7 +994,7 @@ const ARC_RPC       = 'https://rpc.testnet.arc.network';
 const ARC_EXP       = 'https://testnet.arcscan.app';
 const ARC_PARAMS    = {chainId:ARC_HEX,chainName:'Arc Testnet',nativeCurrency:{name:'USD Coin',symbol:'USDC',decimals:18},rpcUrls:[ARC_RPC],blockExplorerUrls:[ARC_EXP]};
 const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
-const EURC_ADDR     = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+const EURC_ADDR     = '';
 const USDC_DECIMALS = 6; // ERC-20 only — native gas token uses 18, never mix!
 const EURC_DECIMALS = 6;
 const GAS_USDC      = 0.009;
@@ -1026,6 +1026,41 @@ function getArcProvider(){
     name: 'arc-testnet',
     ensAddress: null,
   });
+}
+// Arc gas helper — EVM gwei units, settled in USDC not ETH
+function arcGasOpts(){
+  return {
+    maxFeePerGas: ethers.parseUnits('20','gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('1','gwei'),
+  };
+}
+// Arc gas helper — EVM gwei units, settled in USDC not ETH
+function arcGasOpts(){
+  return {
+    maxFeePerGas: ethers.parseUnits('20','gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('1','gwei'),
+  };
+}
+// Arc gas helper — EVM gwei units, settled in USDC not ETH
+function arcGasOpts(){
+  return {
+    maxFeePerGas: ethers.parseUnits('20','gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('1','gwei'),
+  };
+}
+// Arc gas helper — EVM gwei units, settled in USDC not ETH
+function arcGasOpts(){
+  return {
+    maxFeePerGas: ethers.parseUnits('20','gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('1','gwei'),
+  };
+}
+// Arc gas helper — EVM gwei units, settled in USDC not ETH
+function arcGasOpts(){
+  return {
+    maxFeePerGas: ethers.parseUnits('20','gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('1','gwei'),
+  };
 }
 const SWAP_ABI = [
   'function swapUSDCtoEURC(uint256) external returns (uint256)',
@@ -1354,10 +1389,9 @@ async function verifyOTP(){
       const cwData=await cwRes.json();
       if(cwData.success&&cwData.wallet?.address){
         circleWalletId=cwData.wallet.id;
-localStorage.setItem('circleWalletId', cwData.wallet.id);
-localStorage.setItem('circleWalletAddr', cwData.wallet.address);
-localStorage.setItem('circleWalletId', cwData.wallet.id);
-localStorage.setItem('circleWalletAddr', cwData.wallet.address);
+        circleWalletAddress=cwData.wallet.address;
+        localStorage.setItem('circleWalletId', cwData.wallet.id);
+        localStorage.setItem('circleWalletAddr', cwData.wallet.address);
         userAddr=cwData.wallet.address;
         isCircleWallet=true;
         signer=null;
@@ -1839,7 +1873,7 @@ async function doSend(){
   const decimals=sendToken==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
   try{
     const c=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-    const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals),{maxFeePerGas:ethers.parseUnits('20','gwei'),maxPriorityFeePerGas:ethers.parseUnits('1','gwei')});
+    const tx=await c.transfer(to,ethers.parseUnits(amt.toFixed(decimals),decimals),arcGasOpts());
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
@@ -2487,7 +2521,7 @@ ABOUT ARC (Circle's L1 blockchain):
 ABOUT CIRCLE PRODUCTS IN NAN:
 - USDC: World's largest regulated digital dollar — 100% backed, 30+ chains
 - EURC: World's largest regulated digital euro — MiCAR compliant
-- CCTP (Cross-Chain Transfer Protocol): Burns USDC on Arc, mints natively on destination — $126B+ cumulative volume, 26+ chains. Arc supports Standard Transfer only as source. CCTP V1 deprecated July 2026.
+- CCTP (Cross-Chain Transfer Protocol): Burns USDC on Arc, mints natively on destination — $126B+ cumulative volume, 26+ chains. Arc supports Standard Transfer only as source. CCTP V1 (Legacy) phase-out begins July 31, 2026 — still active until deprecation completes..
 - Circle Programmable Wallets: Real Circle-managed wallets created via API on email login
 - Circle Gateway: Unified USDC balance across all chains — instant transfers under 500ms, permissionless
 - USDC Paymaster: Sponsor gas in USDC so users never need native tokens
@@ -2782,7 +2816,7 @@ async function doSupply(){
           contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
           params:[amtAtomic]})});
       const supData=await supRes.json();
-      if(!supData.success)throw new Error(supData.error||'Supply failed');
+      if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
       addTx({hash:supData.txHash||'pending',to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>refreshBalances(),8000);
@@ -2830,7 +2864,7 @@ function doBorrow(){
   lendPositions.borrowed+=amt;
   usdcBal=String(parseFloat(usdcBal)+amt);
   addTx({hash:'borrow-'+Date.now(),to:'lending-pool',toRaw:'Borrowed USDC',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Borrowed '+amt.toFixed(2)+' USDC — 7.20% APR','success',5000);
+  toast('✓ Borrowed '+amt.toFixed(2)+' USDC — 7.20% APR (simulated — on-chain via NANLendingPool)','success',5000);
   document.getElementById('borrowAmt').value='';
   updateLendPositions();
   refreshBalances();
@@ -2842,7 +2876,7 @@ function doRepay(){
   lendPositions.borrowed=Math.max(0,lendPositions.borrowed-amt);
   usdcBal=String(Math.max(0,parseFloat(usdcBal)-amt));
   addTx({hash:'repay-'+Date.now(),to:'lending-pool',toRaw:'Repaid USDC',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Repaid '+amt.toFixed(2)+' USDC','success',5000);
+  toast('✓ Repaid '+amt.toFixed(2)+' USDC (simulated)','success',5000);
   document.getElementById('repayAmt').value='';
   updateLendPositions();
   refreshBalances();
@@ -2857,7 +2891,7 @@ function doWithdraw(){
   lendPositions.interest=0;
   usdcBal=String(parseFloat(usdcBal)+withInterest);
   addTx({hash:'withdraw-'+Date.now(),to:userAddr,toRaw:'Withdrew USDC + Interest',amount:withInterest.toFixed(6),type:'in',token:'USDC',ts:Date.now(),source:'sim'});
-  toast('✓ Withdrew '+withInterest.toFixed(4)+' USDC (inc. interest)','success',5000);
+  toast('✓ Withdrew '+withInterest.toFixed(4)+' USDC inc. interest (simulated)','success',5000);
   document.getElementById('withdrawAmt').value='';
   updateLendPositions();
   refreshBalances();
@@ -2936,13 +2970,19 @@ async function registerArcName(){
     } else { throw new Error('No signer'); }
   }catch(err){
     const msg=err?.reason||err?.message||'Registration failed';
-    if(msg.includes('No signer')||msg.includes('taken')){
-      // Fallback simulation
+    if(msg.includes('No signer')){
+      toast('Connect a wallet to register names on-chain','error',5000);
+    } else if(msg.includes('taken')||msg.includes('already registered')){
+      toast(name+'.arc is already taken','error',4000);
+    } else if(msg.includes('execution reverted')){
+      toast('Registration failed — check contract is deployed: '+msg.slice(0,80),'error',7000);
+    } else {
+      // Fallback simulation for testing only
       usdcBal=String(bal-arcNameFeeUsdc-0.009);
       const expiry=new Date();expiry.setFullYear(expiry.getFullYear()+arcNameDurationYears);
       arcNames.unshift({name,owner:userAddr,expires:expiry.toLocaleDateString(),years:arcNameDurationYears,fee:arcNameFeeUsdc,ts:Date.now()});
       saveArcNames();
-      toast('✓ '+name+'.arc registered! (simulated)','success',6000);
+      toast('✓ '+name+'.arc registered! (simulated — deploy NANNameRegistry for on-chain)','success',6000);
       refreshBalances();
     } else {
       toast(msg.slice(0,120),'error',5000);
