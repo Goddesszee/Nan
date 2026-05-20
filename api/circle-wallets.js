@@ -12,8 +12,8 @@ import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-
 import crypto from 'crypto';
 
 // ── Token addresses — must match index.html exactly ──────────────────────────
-const ARC_USDC = process.env.USDC_ADDRESS || '0xAE024fdaEbb3F61a7E443D46222597cCD02C9FB3';
-const ARC_EURC = process.env.EURC_ADDRESS || '0x9276Ce1561C6bb0F8737A63537d08448A36dF589';
+const ARC_USDC = process.env.USDC_ADDRESS || '0x3600000000000000000000000000000000000000';
+const ARC_EURC = process.env.EURC_ADDRESS || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 
 // ── CCTP V2 on Arc Testnet ────────────────────────────────────────────────────
 const ARC_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA';
