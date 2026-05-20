@@ -1830,7 +1830,8 @@ async function doSend(){
       lastTxHash=data.txHash||data.transactionId;
       addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:true,source:'circle'});
       showSendSuccess(amt,to,lastTxHash);
-      await arcGasOpts()catch(err){
+      await refreshBalances();
+    }catch(err){
       toast((err?.message||'Transfer failed').slice(0,140),'error',8000);
       btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
     }
