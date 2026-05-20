@@ -2092,6 +2092,7 @@ function setSendTab(tab){
 // SWAP
 // ═══════════════════════════════════════════
 const hasSwap=()=>typeof PERMIT2_ADDR!=='undefined'&&PERMIT2_ADDR.length===42;
+let _quoteTimer=null,_quoteCache={};
 function calcSwap(){
   const amt=parseFloat(document.getElementById('swapFrom').value)||0;
   const rate=swapFlipped?(1/FX):FX;
@@ -2099,9 +2100,32 @@ function calcSwap(){
   document.getElementById('swapTo').value=amt>0?out:'';
   document.getElementById('swapFromUSD').textContent=swapFlipped?(amt*(1/FX)).toFixed(2):amt.toFixed(2);
   document.getElementById('swapToUSD').textContent=swapFlipped?parseFloat(out).toFixed(2):(parseFloat(out)*(1/FX)).toFixed(2);
+  if(!amt||amt<=0)return;
+  clearTimeout(_quoteTimer);
+  _quoteTimer=setTimeout(()=>_fetchAppKitQuote(amt),700);
+}
+async function _fetchAppKitQuote(amt){
+  const tokenIn=swapFlipped?'EURC':'USDC';
+  const tokenOut=swapFlipped?'USDC':'EURC';
+  const key=`${tokenIn}-${tokenOut}-${amt}`;
+  if(_quoteCache[key]&&Date.now()-_quoteCache[key].ts<10000){_applyQuote(_quoteCache[key].q);return;}
+  try{
+    const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
+    const d=await r.json();
+    if(d.success&&d.quote){_quoteCache[key]={q:d.quote,ts:Date.now()};_applyQuote(d.quote);}
+  }catch(e){console.log('[quote]',e.message);}
+}
+function _applyQuote(q){
+  if(!q)return;
+  document.getElementById('swapTo').value=parseFloat(q.amountOut).toFixed(6);
+  const feeStr=q.fees?.length?' · Fee: '+q.fees.map(f=>f.amount+' '+f.token).join(', '):'';
+  const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el=document.getElementById('swapRate');
+  if(el)el.innerHTML=`1 ${q.tokenIn} ≈ ${parseFloat(q.rate).toFixed(4)} ${q.tokenOut}${feeStr} &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● App Kit ${t}</span>`;
 }
 function flipSwap(){
   swapFlipped=!swapFlipped;
+  _quoteCache={};
   document.getElementById('fromToken').innerHTML=swapFlipped?'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC':'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC';
   document.getElementById('toToken').innerHTML=swapFlipped?'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC':'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC';
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
@@ -2114,39 +2138,72 @@ async function doSwap(){
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   const fromAmt=parseFloat(document.getElementById('swapFrom').value);
   if(!fromAmt||fromAmt<=0){toast('Enter an amount','error');return;}
-  const isUSDCtoEURC=document.getElementById('fromToken').textContent.includes('USDC');
+  const isUSDCtoEURC=!swapFlipped;
+  const tokenIn=isUSDCtoEURC?'USDC':'EURC';
+  const tokenOut=isUSDCtoEURC?'EURC':'USDC';
   const fromBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
-  if(fromAmt>fromBal){toast('Insufficient balance','error');return;}
+  if(fromAmt>fromBal){toast('Insufficient '+tokenIn+' balance','error');return;}
   const btn=document.getElementById('swapBtn');
-  btn.innerHTML='<span class="spinner"></span>Getting Circle quote…';btn.disabled=true;
-  try{
-    const fromCurrency=isUSDCtoEURC?'USDC':'EURC';
-    const toCurrency=isUSDCtoEURC?'EURC':'USDC';
-    const qr=await fetch('/api/stablefx',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'quote',from:fromCurrency,to:toCurrency,amount:fromAmt.toFixed(6),recipientAddress:userAddr})});
-    const qd=await qr.json();
-    if(!qd.success)throw new Error(qd.error||'Quote failed');
-    const quote=qd.quote;
-    toast('Rate: 1 '+fromCurrency+' = '+quote.rate+' '+toCurrency,'info',5000);
-    btn.innerHTML='<span class="spinner"></span>Sign in wallet…';
-    const td=quote.typedData;
-    const sig=await signer.signTypedData(td.domain,
-      {PermitWitnessTransferFrom:td.types.PermitWitnessTransferFrom,TokenPermissions:td.types.TokenPermissions,TakerDetails:td.types.TakerDetails,Consideration:td.types.Consideration},
-      td.message);
-    btn.innerHTML='<span class="spinner"></span>Executing trade…';
-    const tr=await fetch('/api/stablefx',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'trade',idempotencyKey:crypto.randomUUID(),quoteId:quote.id,address:userAddr,message:td.message,signature:sig})});
-    const td2=await tr.json();
-    if(!td2.success)throw new Error(td2.error||'Trade failed');
-    toast('✓ Swapped '+fromAmt.toFixed(2)+' '+fromCurrency+' → '+parseFloat(quote.to.amount).toFixed(4)+' '+toCurrency,'success',8000);
-    addTx({hash:td2.trade.id,to:userAddr,toRaw:'Circle StableFX',amount:fromAmt.toFixed(6),type:'out',token:fromCurrency,ts:Date.now(),confirmed:true});
-    document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-    await refreshBalances();
-    btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
-    return;
-  }catch(e){
-    console.log('StableFX:',e.message);
-    btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
+  btn.innerHTML='<span class="spinner"></span>Swapping via Circle App Kit…';btn.disabled=true;
+
+  // ── PATH 1: Circle App Kit (email wallet users) ───────────────────────────
+  if(isCircleWallet&&circleWalletId){
+    try{
+      const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'swap',walletId:circleWalletId,tokenIn,tokenOut,amountIn:fromAmt.toFixed(6)})});
+      const d=await r.json();
+      if(d.success){
+        const amtOut=parseFloat(d.amountOut).toFixed(4);
+        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'! 🎉','success',8000);
+        addTx({hash:d.txHash,to:userAddr,toRaw:'Circle App Kit Swap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'appkit'});
+        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+        _quoteCache={};lastTxHash=d.txHash;
+        btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
+        setTimeout(()=>refreshBalances(),3000);
+        trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'appkit'});
+        return;
+      }
+      // KIT_KEY missing → fall through to contract path
+      if(!d.error?.includes('KIT_KEY'))throw new Error(d.error||'Swap failed');
+      console.log('[swap] No KIT_KEY — falling back to NANSwap contract');
+    }catch(e){
+      if(!e.message.includes('KIT_KEY')){
+        toast('Swap failed: '+e.message.slice(0,100),'error',6000);
+        btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
+        return;
+      }
+    }
+
+    // ── Circle wallet fallback: NANSwap contract ────────────────────────────
+    btn.innerHTML='<span class="spinner"></span>Approving token…';
+    try{
+      const tokenAddr=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
+      const amtAtomic=Math.floor(fromAmt*1_000_000).toString();
+      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,amtAtomic]})});
+      const appData=await appRes.json();
+      if(!appData.success)throw new Error(appData.error||'Approve failed');
+      btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
+      await waitForCircleTx(appData.transactionId,'approve');
+      btn.innerHTML='<span class="spinner"></span>Swapping on Arc…';
+      const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
+      const swapRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:swapFn,params:[amtAtomic]})});
+      const swapData=await swapRes.json();
+      if(!swapData.success)throw new Error(swapData.error||'NANSwap failed — pool may need liquidity');
+      const localOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → ~'+localOut+' '+tokenOut,'success',6000);
+      addTx({hash:swapData.txHash||swapData.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap on Arc',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:localOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:!!swapData.txHash,source:'nanswap'});
+      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+      btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
+      setTimeout(()=>refreshBalances(),8000);
+      trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'nanswap'});
+      return;
+    }catch(err){
+      toast('Swap failed: '+err.message.slice(0,100),'error',5000);
+      btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
+      return;
+    }
   }
   // Circle email wallet path — use contract execution API
   if(isCircleWallet&&circleWalletId){
