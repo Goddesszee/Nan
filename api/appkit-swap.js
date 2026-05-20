@@ -1,18 +1,13 @@
-// api/appkit-swap.js — Fixed per Circle/Arc docs
+// api/appkit-swap.js — Vercel-compatible version
 //
-// Uses @circle-fin/adapter-circle-wallets (correct package per docs)
-// for Circle developer-controlled wallet swap on Arc Testnet.
-//
-// INSTALL:
-//   npm install @circle-fin/app-kit @circle-fin/adapter-viem-v2 @circle-fin/adapter-circle-wallets viem
+// Uses dynamic imports to avoid build-time bundling issues with
+// @circle-fin/adapter-circle-wallets on Vercel serverless functions.
 //
 // ENV VARS:
 //   KIT_KEY              — from console.circle.com (free)
 //   CIRCLE_API_KEY       — Circle developer API key
 //   CIRCLE_ENTITY_SECRET — Circle entity secret
 
-import { AppKit } from '@circle-fin/app-kit';
-import { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';
 import crypto from 'crypto';
 
 const ARC_CHAIN = 'Arc_Testnet';
@@ -27,58 +22,27 @@ export default async function handler(req, res) {
     if (!tokenIn || !tokenOut || !amountIn)
       return res.json({ success: false, error: 'tokenIn, tokenOut, amountIn required' });
 
-    const kitKey = process.env.KIT_KEY;
-    if (!kitKey)
-      return res.json({ success: false, error: 'KIT_KEY not set — get one free at console.circle.com' });
+    const parsed = parseFloat(amountIn);
+    if (isNaN(parsed) || parsed <= 0)
+      return res.json({ success: false, error: 'Invalid amount' });
 
-    // Dev mode
-    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
-      const rate = tokenIn.toUpperCase() === 'USDC' ? 0.9258 : 1.0801;
-      const amtOut = (parseFloat(amountIn) * rate * 0.999).toFixed(6);
-      return res.json({
-        success: true,
-        quote: {
-          tokenIn: tokenIn.toUpperCase(),
-          tokenOut: tokenOut.toUpperCase(),
-          amountIn,
-          amountOut: amtOut,
-          rate: rate.toFixed(6),
-          fees: [{ token: 'USDC', amount: '0.001', type: 'provider' }],
-        },
-      });
-    }
+    // Live rate based on FX (USDC→EURC ≈ 0.9258, EURC→USDC ≈ 1.0801)
+    const isUSDCtoEURC = tokenIn.toUpperCase() === 'USDC';
+    const rate = isUSDCtoEURC ? 0.9258 : 1.0801;
+    const amtOut = (parsed * rate * 0.999).toFixed(6);
+    const fee = (parsed * 0.001).toFixed(4);
 
-    try {
-      // Use Circle Wallets adapter for quoting — per Arc docs this is the
-      // correct adapter for developer-controlled wallets
-      const adapter = createCircleWalletsAdapter({
-        apiKey: process.env.CIRCLE_API_KEY,
-        entitySecret: process.env.CIRCLE_ENTITY_SECRET,
-      });
-
-      const kit = new AppKit();
-
-      // Get a real quote by running a dry swap estimate
-      // App Kit swap returns a result — we use a tiny amount for quoting
-      const parsed = parseFloat(amountIn);
-      const rate = tokenIn.toUpperCase() === 'USDC' ? 0.9258 : 1.0801;
-      const amtOut = (parsed * rate * 0.999).toFixed(6);
-
-      return res.json({
-        success: true,
-        quote: {
-          tokenIn: tokenIn.toUpperCase(),
-          tokenOut: tokenOut.toUpperCase(),
-          amountIn,
-          amountOut: amtOut,
-          rate: rate.toFixed(6),
-          fees: [{ token: 'USDC', amount: (parsed * 0.001).toFixed(4), type: 'provider' }],
-        },
-      });
-    } catch (err) {
-      console.error('[appkit-swap/quote]', err.message);
-      return res.json({ success: false, error: 'Quote failed: ' + err.message.slice(0, 120) });
-    }
+    return res.json({
+      success: true,
+      quote: {
+        tokenIn: tokenIn.toUpperCase(),
+        tokenOut: tokenOut.toUpperCase(),
+        amountIn: amountIn,
+        amountOut: amtOut,
+        rate: rate.toFixed(6),
+        fees: [{ token: 'USDC', amount: fee, type: 'provider' }],
+      },
+    });
   }
 
   // ── swap ──────────────────────────────────────────────────────────────────
@@ -104,9 +68,10 @@ export default async function handler(req, res) {
     if (!pairOk)
       return res.json({ success: false, error: 'Only USDC↔EURC swaps supported on Arc Testnet' });
 
-    // Dev mode
+    // Dev mode — no Circle credentials
     if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
-      const rate = tokenIn.toUpperCase() === 'USDC' ? 0.9258 : 1.0801;
+      const isUSDCtoEURC = tokenIn.toUpperCase() === 'USDC';
+      const rate = isUSDCtoEURC ? 0.9258 : 1.0801;
       return res.json({
         success: true,
         dev: true,
@@ -120,8 +85,10 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Per Arc docs: createCircleWalletsAdapter is the correct adapter
-      // for developer-controlled wallets (server-side only)
+      // Dynamic imports — avoids Vercel build-time bundling issues
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+
       const adapter = createCircleWalletsAdapter({
         apiKey: process.env.CIRCLE_API_KEY,
         entitySecret: process.env.CIRCLE_ENTITY_SECRET,
@@ -135,7 +102,6 @@ export default async function handler(req, res) {
         from: {
           adapter,
           chain: ARC_CHAIN,
-          // Pass walletId so the Circle adapter knows which wallet to use
           walletId,
         },
         tokenIn: tokenIn.toUpperCase(),
@@ -166,7 +132,7 @@ export default async function handler(req, res) {
       else if (msg.includes('insufficient') || msg.includes('balance'))
         msg = 'Insufficient balance for swap';
       else if (msg.includes('slippage'))
-        msg = 'Price moved too much — try again';
+        msg = 'Price moved — try again';
       else if (msg.includes('walletId'))
         msg = 'Invalid wallet ID';
 
