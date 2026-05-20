@@ -31,17 +31,13 @@
 *{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);}
-<<<<<<< HEAD
-#app-root{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;height:100%;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;isolation:isolate;}
-=======
-#app-root{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;background:var(--bg);scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;isolation:isolate;}
->>>>>>> d2dab11f7189c7fec668609536d5efa79cbb59ad
+#app-root{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;overflow:hidden;background:var(--bg);box-shadow:0 0 80px rgba(139,92,246,.15);scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;isolation:isolate;}
 #app-root::-webkit-scrollbar{display:none;}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:480px){
   /* Full width on phone */
-  #app-root{left:50%;transform:translateX(-50%);max-width:440px;height:100dvh;}
+  #app-root{left:0;transform:none;max-width:100%;box-shadow:none;height:100dvh;}
   .page{bottom:60px!important;padding-bottom:10px!important;}
   .bottom-nav{height:60px!important;}
 
@@ -108,7 +104,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
   .name-input{font-size:.9rem!important;}
 
   /* AI button */
-  #aiBtn{right:16px!important;bottom:72px!important;width:46px!important;height:46px!important;}
+  #aiBtn{right:12px!important;bottom:75px!important;width:46px!important;height:46px!important;}
 
   /* Receipt modal */
   #receiptModal > div{padding:10px!important;}
@@ -134,7 +130,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
 /* ── Top bar ── */
-#globalTopBar{position:absolute;top:0;left:72px;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 20px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+#globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
 .brand{display:flex;align-items:center;gap:9px;}
 .brand-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);}
 .brand-logo svg{width:20px;height:20px;}
@@ -146,25 +142,20 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #connectTopBtn:hover{transform:translateY(-1px);}
 #connectTopBtn.connected{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);box-shadow:none;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:.66rem;cursor:default;}
 
-/* ── Sidebar Nav ── */
+/* ── Nav ── */
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:60px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:5px 0;display:none;}
 .bottom-nav.show{display:block;}
-.sidebar-nav{display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;height:100%;}
-.snav-logo{width:42px;height:42px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex-shrink:0;}
-.snav-btn{width:46px;min-height:46px;border-radius:10px;border:none;background:transparent;color:rgba(167,139,250,.4);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .2s;flex-shrink:0;}
-.snav-btn:hover:not(.active){background:rgba(139,92,246,.08);color:rgba(167,139,250,.7);}
-.snav-btn.active{background:rgba(139,92,246,.18);color:#a78bfa;border:1px solid rgba(139,92,246,.3);}
-.sni{font-size:1.2rem;line-height:1;}
-.snl{font-size:.52rem;letter-spacing:.04em;font-family:'Space Grotesk',sans-serif;font-weight:600;text-transform:uppercase;}
-.snav-div{width:32px;height:1px;background:rgba(139,92,246,.12);margin:6px 0;flex-shrink:0;}
-.snav-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;}
-.snav-avatar{width:34px;height:34px;border-radius:50%;background:rgba(139,92,246,.2);border:2px solid rgba(139,92,246,.35);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#a78bfa;cursor:pointer;}
+.nav-items{display:flex;max-width:520px;margin:0 auto;padding:0 6px;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border:none;background:transparent;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.03em;}
+.nav-btn .ni{font-size:1.1rem;transition:transform .2s;}
+.nav-btn.active{color:var(--accent3);border-top:2px solid var(--accent3);}
+.nav-btn.active .ni{transform:scale(1.15);}
 
 /* ── Pages ── */
-.page{display:none;position:absolute;top:52px;left:0;right:0;bottom:60px;z-index:10;overflow-y:auto;overflow-x:hidden;padding:16px 20px;animation:up .28s ease both;scrollbar-width:none;}
+.page{display:none;position:absolute;top:57px;left:0;right:0;bottom:60px;z-index:10;overflow-y:auto;overflow-x:hidden;padding:10px 13px 10px;animation:up .28s ease both;scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}
-.page-land{bottom:0!important;left:0!important;display:none;flex-direction:column;z-index:0;}
+.page-land{bottom:0!important;display:none;flex-direction:column;z-index:0;}
 .page-land.active{display:flex;}
 @keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 
@@ -184,7 +175,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .land-note a{color:var(--accent3);}
 
 /* ── Cards ── */
-.card{background:var(--card);border:1px solid var(--border);border-top:1px solid rgba(139,92,246,.25);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.card{background:var(--card);border:1px solid var(--border);border-top:2px solid rgba(139,92,246,.45);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
 .card-title{font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent3);}
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
 .bal-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:9px;position:relative;overflow:hidden;}
@@ -192,7 +183,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
 .bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;}
 .bal-badge{display:flex;align-items:center;gap:4px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:3px 8px;font-size:.56rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;}
-.bal-num{font-size:2.6rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;}
+.bal-num{font-size:3.2rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:5px;}
 .bal-usd{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:7px;}
 .token-row{display:flex;gap:7px;margin-bottom:8px;}
 .tok{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
@@ -211,7 +202,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ── Wallet Modal ── */
 .wallet-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);}
 .wallet-modal-overlay.show{display:flex;}
-.wallet-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:500px;animation:up .3s ease both;}
+.wallet-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;animation:up .3s ease both;}
 .wallet-modal-title{font-size:1rem;font-weight:700;text-align:center;margin-bottom:4px;}
 .wallet-modal-sub{font-size:.68rem;color:var(--text3);text-align:center;margin-bottom:16px;}
 .wallet-logos-row{display:flex;justify-content:center;gap:10px;margin-bottom:16px;}
@@ -430,30 +421,15 @@ a:hover{color:var(--text);}
   </div>
 </div>
 
-<!-- ── Left Sidebar Nav ── -->
+<!-- ── Bottom Nav ── -->
 <nav class="bottom-nav" id="bottomNav">
-  <div class="sidebar-nav">
-    <div class="snav-logo">
-      <svg viewBox="0 0 72 72" fill="none" width="20" height="20">
-        <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
-        <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-      </svg>
-    </div>
-    <button class="snav-btn active" onclick="goPage('send')"><span class="sni">⌂</span><span class="snl">Home</span></button>
-    <button class="snav-btn" onclick="goPage('swap')"><span class="sni">⇄</span><span class="snl">Swap</span></button>
-    <button class="snav-btn" onclick="goPage('lend')"><span class="sni">💰</span><span class="snl">Lend</span></button>
-    <button class="snav-btn" onclick="goPage('bridge')"><span class="sni">⬡</span><span class="snl">Bridge</span></button>
-    <div class="snav-div"></div>
-    <button class="snav-btn" onclick="goPage('arcname')"><span class="sni">@</span><span class="snl">Name</span></button>
-    <button class="snav-btn" onclick="goPage('history')"><span class="sni">⟳</span><span class="snl">History</span></button>
-    <div class="snav-bottom">
-      <button class="snav-btn" onclick="toggleTheme()"><span class="sni">🌙</span></button>
-      <div class="snav-avatar" id="snavAvatar">N</div>
-    </div>
+  <div class="nav-items">
+    <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
+    <button class="nav-btn" onclick="goPage('swap')"><span class="ni">⇄</span>Swap</button>
+    <button class="nav-btn" onclick="goPage('lend')"><span class="ni">💰</span>Lend</button>
+    <button class="nav-btn" onclick="goPage('bridge')"><span class="ni">🌉</span>Bridge</button>
+    <button class="nav-btn" onclick="goPage('arcname')"><span class="ni">@</span>Name</button>
+    <button class="nav-btn" onclick="goPage('history')"><span class="ni">⟳</span>History</button>
   </div>
 </nav>
 
@@ -503,25 +479,7 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ SEND PAGE ═══════ -->
 <div class="page" id="page-send">
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;">
-  <button onclick="setSendTab('send')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
-    <span style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:16px;">↑</span>
-    <span style="font-size:10px;">Send</span>
-  </button>
-  <button onclick="setSendTab('receive')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
-    <span style="width:36px;height:36px;border-radius:10px;background:rgba(96,165,250,.12);display:flex;align-items:center;justify-content:center;font-size:16px;">↓</span>
-    <span style="font-size:10px;">Receive</span>
-  </button>
-  <button onclick="goPage('swap')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);cursor:pointer;">
-    <span style="width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,.1);display:flex;align-items:center;justify-content:center;font-size:16px;">⇄</span>
-    <span style="font-size:10px;">Swap</span>
-  </button>
-  <button onclick="goPage('bridge')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;background:transparent;border:none;color:var(--text2);cursor:pointer;">
-    <span style="width:36px;height:36px;border-radius:10px;background:rgba(251,191,36,.1);display:flex;align-items:center;justify-content:center;font-size:16px;">⬡</span>
-    <span style="font-size:10px;">Bridge</span>
-  </button>
-</div>
-<div class="alert" style="justify-content:space-between;">
+  <div class="alert" style="justify-content:space-between;">
     <span>🧪 Testnet · <a href="https://testnet.arcscan.app" target="_blank">Explorer ↗</a></span>
     <button onclick="claimFaucet()" id="faucetBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(139,92,246,.4);">💧 Get Free Tokens</button>
   </div>
@@ -1203,12 +1161,10 @@ function showBalSkeleton(){
 }
 function showPage(name){
   document.querySelectorAll('.page:not(.page-land)').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.snav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   const idx=['send','swap','lend','bridge','arcname','history'].indexOf(name);
-  if(idx>=0)document.querySelectorAll('.snav-btn')[idx+1].classList.add('active');
-  const av=document.getElementById('snavAvatar');
-  if(av&&userAddr)av.textContent=userAddr.slice(2,4).toUpperCase();
+  if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
 }
 function goPage(name){
   if(!userAddr){toast('Connect wallet first','error');return;}
