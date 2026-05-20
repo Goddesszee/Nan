@@ -233,7 +233,8 @@ export default async function handler(req, res) {
 
       const tx   = txRes.data?.transaction;
       const txId = tx?.id;
-      if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
+      const txId = tx?.id || txRes.data?.id;
+if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
 
       // Poll for confirmation (30s) before responding so frontend gets a real txHash
       try {
@@ -302,7 +303,7 @@ export default async function handler(req, res) {
       });
 
       // FIX 3: correct path for contract execution transaction ID
-      const approveTxId = approveRes.data?.transaction?.id;
+      const approveTxId = approveRes.data?.transaction?.id || approveRes.data?.id;
       if (!approveTxId) throw new Error('Approve tx: no ID returned from Circle');
 
       // Wait for approve — short timeout is OK, approve confirms fast
@@ -330,7 +331,7 @@ export default async function handler(req, res) {
       });
 
       // FIX 3: correct path
-      const burnTxId = burnRes.data?.transaction?.id;
+      const burnTxId = burnRes.data?.transaction?.id || burnRes.data?.id;
       if (!burnTxId) throw new Error('Burn tx: no ID returned from Circle');
 
       // FIX 5: return immediately — client polls /api/transaction/:id and /api/cctp-attest
@@ -394,7 +395,7 @@ export default async function handler(req, res) {
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
       const tx = txRes.data?.transaction;
-      const txId = tx?.id;
+      const txId = tx?.id || txRes.data?.id;
       if (!txId) throw new Error('No transaction ID returned');
       return res.json({ success: true, transactionId: txId, txHash: tx?.txHash || null, pending: true });
     } catch (err) {
