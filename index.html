@@ -1823,7 +1823,7 @@ async function doSend(){
     try{
       const res=await fetch('/api/circle-wallets',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'transfer',walletId:circleWalletId,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        body:JSON.stringify({body: JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),,amount:amt.toString(),tokenSymbol:sendToken}),
       });
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
@@ -2234,22 +2234,12 @@ async function doSwap(){
     console.log('On-chain swap failed:',err.message);
     toast('On-chain swap failed — using simulation','warning',3000);
   }
-  // Fallback simulation
-  _doSimulatedSwap(fromAmt,isUSDCtoEURC);
-  btn.innerHTML='Swap on Arc';btn.disabled=false;
+  toast('Swap failed — NANSwap pool may have no liquidity. Add USDC+EURC liquidity to the contract first.','error',8000);
+  btn.innerHTML='Swap via Circle StableFX';btn.disabled=false;
+  return;
 }
 
-function _doSimulatedSwap(fromAmt,isUSDCtoEURC){
-  const rate=(FX&&FX>0.5&&FX<2)?FX:0.9258;
-  const toAmt=isUSDCtoEURC?fromAmt*rate:fromAmt/rate;
-  const fee=toAmt*0.001;
-  const net=(toAmt-fee).toFixed(6);
-  if(isUSDCtoEURC){usdcBal=String(parseFloat(usdcBal)-fromAmt);eurcBal=String(parseFloat(eurcBal)+parseFloat(net));}
-  else{eurcBal=String(parseFloat(eurcBal)-fromAmt);usdcBal=String(parseFloat(usdcBal)+parseFloat(net));}
-  addTx({hash:'sim-swap-'+Date.now(),to:SWAP_CONTRACT,toRaw:'Simulated Swap',amount:fromAmt.toFixed(6),type:'out',token:isUSDCtoEURC?'USDC':'EURC',ts:Date.now(),confirmed:true,source:'sim'});
-  toast('✓ Simulated swap complete (add liquidity to pool for real swaps)','success',5000);
-  refreshBalances();
-}
+
 function initSwapUI(){
   document.getElementById('swapModeBanner').style.display='none';
   document.getElementById('swapBtn').textContent='Swap via Circle App Kit';
