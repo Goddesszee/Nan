@@ -1,5 +1,10 @@
 {
   "redirects": [
     { "source": "/", "destination": "/landing.html", "permanent": false }
-  ]
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "memory": 512
+    }
+  }
 }
