@@ -10,6 +10,125 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
+  "vercel": {
+    "functions": {
+      "api/*.js": {
+        "memory": 512
+      }
+    }
+  },
   "dependencies": {
     "@circle-fin/adapter-circle-wallets": "^1.0.0",
     "@circle-fin/app-kit": "^1.0.0",
