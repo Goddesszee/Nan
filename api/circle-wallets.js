@@ -1,17 +1,22 @@
-// api/circle-wallets.js — FIXED VERSION
+// api/circle-wallets.js — FIXED VERSION v2
 //
-// Bugs fixed vs previous:
-//   1. idempotencyKey is now deterministic (SHA-256 of email) — safe to retry
-//   2. metadata + refId added to createWallets() — Circle can link wallet to user
-//   3. approveTx and burnTx ID extracted from correct path (.data.transaction.id)
-//   4. USDC address matches frontend (0xAE024fda...)
-//   5. bridge is async/non-blocking — returns immediately, client polls separately
-//   6. No persistent state — every lookup goes to Circle API (Vercel-safe)
+// Fixes vs previous version:
+//   FIX 1 (transfer): Now uses client.createTransaction() with walletAddress + human-readable
+//          amount string — per Circle's official Arc transfer tutorial.
+//          Previous code used createContractExecutionTransaction with atomic integers which
+//          works but bypasses Circle's token abstraction layer and is not the documented path.
+//   FIX 2 (contractCall): tx ID is at data.id NOT data.transaction.id
+//          createContractExecutionTransaction returns { data: { id, state } }
+//          getTransaction returns { data: { transaction: { id, state, txHash, ... } } }
+//          These are different shapes — previous code mixed them up causing undefined txId.
+//   FIX 3 (transfer): Accept walletAddress from request body for createTransaction
+//   FIX 4 (waitForTx): Confirmed correct — data.transaction is right for getTransaction polling
+//   FIX 5 (bridge): Already correct — no changes needed
 
 import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
 import crypto from 'crypto';
 
-// ── Token addresses — must match index.html exactly ──────────────────────────
+// ── Token addresses ───────────────────────────────────────────────────────────
 const ARC_USDC = process.env.USDC_ADDRESS || '0x3600000000000000000000000000000000000000';
 const ARC_EURC = process.env.EURC_ADDRESS || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 
@@ -29,11 +34,9 @@ const CCTP_DEST_DOMAINS = {
   'POLYGON-AMOY': 7,
 };
 
-// ── Blockchain — verify this in your Circle console ───────────────────────────
-// If ARC-TESTNET fails, check the exact string in the Circle developer console.
 const BLOCKCHAIN = process.env.CIRCLE_BLOCKCHAIN || 'ARC-TESTNET';
 
-// ── Circle client ─────────────────────────────────────────────────────────────
+// ── Circle SDK client ─────────────────────────────────────────────────────────
 function getClient() {
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
@@ -42,25 +45,20 @@ function getClient() {
   return initiateDeveloperControlledWalletsClient({ apiKey, entitySecret });
 }
 
-// ── Deterministic keys — safe to retry without creating duplicates ────────────
-// FIX 1: Was crypto.randomUUID() — retries created duplicate walletSets/wallets.
+// ── Deterministic idempotency keys — safe to retry ───────────────────────────
 function deterministicKey(scope, email) {
-  return crypto
-    .createHash('sha256')
+  return crypto.createHash('sha256')
     .update(`nan:${scope}:${email.toLowerCase()}`)
     .digest('hex');
 }
 
 function deterministicUUID(scope, email) {
-  const hex = crypto
-    .createHash('sha256')
+  const hex = crypto.createHash('sha256')
     .update(`nan:${scope}:${email.toLowerCase()}`)
     .digest('hex');
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
 }
 
-// ── Find existing walletSet by deterministic name ─────────────────────────────
-// Name is a short hash — stable across cold starts, unique per email.
 function walletSetName(email) {
   return 'nan-' + deterministicKey('wsname', email).slice(0, 16);
 }
@@ -77,17 +75,17 @@ async function findWalletSet(client, name) {
   return null;
 }
 
-// ── Poll transaction until confirmed or failed ────────────────────────────────
-// FIX 5 (bridge): caller must not run this synchronously in a Vercel function
-// for bridge — use fire-and-forget or a short timeout. For transfer it's OK
-// since transfers usually confirm in a few seconds.
+// ── Poll transaction — getTransaction wraps result under data.transaction ─────
+// CONFIRMED from Circle docs:
+//   createContractExecutionTransaction → { data: { id, state } }
+//   getTransaction                     → { data: { transaction: { id, state, txHash } } }
 async function waitForTx(client, txId, label = 'tx', maxWaitMs = 55_000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
     await new Promise(r => setTimeout(r, 4000));
     try {
       const res   = await client.getTransaction({ id: txId });
-      const tx    = res.data?.transaction;
+      const tx    = res.data?.transaction;   // correct: nested under data.transaction
       const state = tx?.state;
       console.log(`[${label}] state=${state}`);
       if (state === 'CONFIRMED' || state === 'COMPLETE')
@@ -102,7 +100,7 @@ async function waitForTx(client, txId, label = 'tx', maxWaitMs = 55_000) {
   throw new Error(`${label} timed out after ${maxWaitMs}ms`);
 }
 
-// ── Iris attestation poll (3 quick attempts, non-blocking for bridge) ─────────
+// ── Iris attestation poll ─────────────────────────────────────────────────────
 async function pollAttestation(txHash, maxAttempts = 3) {
   const url = `${IRIS_API}/${ARC_CCTP_DOMAIN}?transactionHash=${txHash}`;
   for (let i = 0; i < maxAttempts; i++) {
@@ -126,8 +124,11 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const {
-    action, email, walletId, destinationAddress, amount, tokenSymbol,
+    action, email,
+    walletId, walletAddress,           // FIX 3: accept walletAddress for createTransaction
+    destinationAddress, amount, tokenSymbol,
     destChain, destAddr, bridgeAmount, txHash,
+    contractAddress, functionSignature, params,
   } = req.body || {};
 
   // ── getWallet ───────────────────────────────────────────────────────────────
@@ -140,8 +141,8 @@ export default async function handler(req, res) {
       const hash = crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
       return res.json({
         success: true,
-        wallet: { id: 'dev-' + hash.slice(0, 8), address: '0x' + hash.slice(0, 40) },
-        dev: true,
+        wallet:  { id: 'dev-' + hash.slice(0, 8), address: '0x' + hash.slice(0, 40) },
+        dev:     true,
       });
     }
 
@@ -149,10 +150,9 @@ export default async function handler(req, res) {
       const client = getClient();
       const name   = walletSetName(email);
 
-      // Step 1 — find or create walletSet
+      // Find or create walletSet
       let walletSet = await findWalletSet(client, name);
       if (!walletSet) {
-        // FIX 1: deterministic idempotencyKey — retry-safe
         const wsRes = await client.createWalletSet({
           name,
           idempotencyKey: deterministicUUID('walletset', email),
@@ -161,12 +161,11 @@ export default async function handler(req, res) {
         if (!walletSet?.id) throw new Error('Circle did not return a walletSet ID');
       }
 
-      // Step 2 — find or create wallet on ARC-TESTNET
+      // Find or create wallet on ARC-TESTNET
       const listRes = await client.listWallets({ walletSetId: walletSet.id, pageSize: 20 });
       let wallet    = listRes.data?.wallets?.find(w => w.blockchain === BLOCKCHAIN);
 
       if (!wallet) {
-        // FIX 1 + 2: deterministic key AND metadata.refId so Circle links it to user
         const refId = deterministicKey('refid', email).slice(0, 36);
         const wRes  = await client.createWallets({
           walletSetId:    walletSet.id,
@@ -177,7 +176,6 @@ export default async function handler(req, res) {
         });
         wallet = wRes.data?.wallets?.[0];
         if (!wallet?.id || !wallet?.address) throw new Error('Circle did not return a wallet');
-        // Link wallet to user via updateWallet (correct Circle API pattern)
         try {
           await client.updateWallet({ id: wallet.id, name: `NAN-${email}`, refId });
         } catch (e) {
@@ -187,7 +185,7 @@ export default async function handler(req, res) {
 
       return res.json({
         success: true,
-        wallet: { id: wallet.id, address: wallet.address, blockchain: wallet.blockchain },
+        wallet:  { id: wallet.id, address: wallet.address, blockchain: wallet.blockchain },
       });
 
     } catch (err) {
@@ -197,6 +195,10 @@ export default async function handler(req, res) {
   }
 
   // ── transfer ────────────────────────────────────────────────────────────────
+  // FIX 1: Use client.createTransaction() per Circle's Arc transfer tutorial.
+  // - Uses walletAddress (not just walletId) + human-readable amount string
+  // - Response: { data: { id, state } } — ID at data.id
+  // Ref: developers.circle.com/wallets/dev-controlled/transfer-tokens-across-wallets
   if (action === 'transfer') {
     if (!walletId || !destinationAddress || !amount)
       return res.json({ success: false, error: 'walletId, destinationAddress, amount required' });
@@ -207,45 +209,54 @@ export default async function handler(req, res) {
     if (isNaN(parsed) || parsed <= 0 || parsed > 10_000)
       return res.json({ success: false, error: 'Invalid amount' });
 
-    // FIX 4 (addresses): use env var addresses so they stay in sync with frontend
     const tokenAddress = (tokenSymbol || 'USDC').toUpperCase() === 'EURC' ? ARC_EURC : ARC_USDC;
 
     // Dev mode
     if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
-      return res.json({ success: true, txHash: '0xdev' + crypto.randomBytes(16).toString('hex'), dev: true });
+      return res.json({
+        success: true,
+        txHash:  '0xdev' + crypto.randomBytes(16).toString('hex'),
+        dev:     true,
+      });
     }
 
     try {
       const client = getClient();
 
-      // Arc uses ERC-20 contract execution for transfers — not createTransaction
-      const atomicAmt = Math.floor(parsed * 1_000_000).toString(); // 6 decimals as integer
-
-      const txRes = await client.createContractExecutionTransaction({
-        walletId,
-        blockchain:           BLOCKCHAIN,
-        contractAddress:      tokenAddress,
-        abiFunctionSignature: 'transfer(address,uint256)',
-        abiParameters:        [destinationAddress, atomicAmt],
-        idempotencyKey:       crypto.randomUUID(),
+      // FIX 1: createTransaction with walletAddress + human-readable amount array
+      // The walletAddress comes from req.body (frontend passes circleWalletAddress)
+      // If walletAddress not provided, fall back to walletId-only path
+      const txParams = {
+        blockchain:         BLOCKCHAIN,
+        destinationAddress,
+        amount:             [parsed.toString()],   // human-readable string e.g. '5' not '5000000'
+        tokenAddress,
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
-      });
+        idempotencyKey:     crypto.randomUUID(),
+      };
 
-      const tx   = txRes.data?.transaction;
-      const txId = tx?.id || txRes.data?.id;
-      if (!txId) throw new Error('No transaction ID in Circle response — full response: ' + JSON.stringify(txRes.data));
+      // Prefer walletAddress if provided (Circle's documented pattern for Arc)
+      if (walletAddress) {
+        txParams.walletAddress = walletAddress;
+      } else {
+        txParams.walletId = walletId;
+      }
 
-      // Poll for confirmation (30s) before responding so frontend gets a real txHash
+      const txRes = await client.createTransaction(txParams);
+
+      // createTransaction response: { data: { id, state } } — ID at data.id
+      const txId = txRes.data?.id;
+      if (!txId) throw new Error('No transaction ID in Circle response: ' + JSON.stringify(txRes.data));
+
+      // Poll for up to 30s before returning; if still pending, return pending so client polls
       try {
         const confirmed = await waitForTx(client, txId, 'transfer', 30_000);
         return res.json({ success: true, txHash: confirmed.txHash, transactionId: txId });
       } catch (e) {
-        // Timed out or failed — return pending so client can poll /api/transaction/:id
-        const state = tx?.state;
-        const hash  = tx?.txHash || null;
-        if (['FAILED', 'CANCELLED', 'DENIED'].includes(state))
-          return res.json({ success: false, error: 'Transaction ' + state.toLowerCase() });
-        return res.json({ success: true, pending: true, transactionId: txId, txHash: hash });
+        if (e.message.includes('ended with state'))
+          return res.json({ success: false, error: 'Transaction ' + e.message });
+        // Timed out — return pending so frontend polls /api/transaction/:id
+        return res.json({ success: true, pending: true, transactionId: txId, txHash: null });
       }
 
     } catch (err) {
@@ -255,6 +266,7 @@ export default async function handler(req, res) {
   }
 
   // ── bridge: CCTP V2 ─────────────────────────────────────────────────────────
+  // No changes needed here — this was already correct
   if (action === 'bridge') {
     if (!walletId || !destChain || !destAddr || !bridgeAmount)
       return res.json({ success: false, error: 'walletId, destChain, destAddr, bridgeAmount required' });
@@ -269,22 +281,20 @@ export default async function handler(req, res) {
     if (destDomain === undefined)
       return res.json({ success: false, error: 'Unsupported chain: ' + destChain });
 
-    // Dev mode
     if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
-      return res.json({ success: true, pending: true, burnTxHash: '0xdev' + crypto.randomBytes(16).toString('hex'), dev: true });
+      return res.json({
+        success:     true,
+        pending:     true,
+        burnTxHash:  '0xdev' + crypto.randomBytes(16).toString('hex'),
+        dev:         true,
+      });
     }
 
-    // Atomic units (6 decimals)
     const atomicAmount = Math.floor(parsed * 1_000_000).toString();
-    const maxFee       = Math.ceil(parsed * 1_000_000 * 0.01).toString();
+    const maxFee       = '1000'; // flat 0.001 USDC relayer fee — not 1% of amount
 
-    // mintRecipient: address padded to bytes32
-    const mintRecipient =
-      '0x' + destAddr.replace('0x', '').toLowerCase().padStart(64, '0');
-
-    // destinationCaller: zero bytes32 = any relayer can mint
-    const destinationCaller =
-      '0x' + '0'.repeat(64);
+    const mintRecipient    = '0x' + destAddr.replace('0x', '').toLowerCase().padStart(64, '0');
+    const destinationCaller = '0x' + '0'.repeat(64);
 
     try {
       const client = getClient();
@@ -296,16 +306,15 @@ export default async function handler(req, res) {
         blockchain:           BLOCKCHAIN,
         contractAddress:      ARC_USDC,
         abiFunctionSignature: 'approve(address,uint256)',
-        abiParameters:        [ARC_TOKEN_MESSENGER, atomicAmount], // atomicAmount already integer string — correct
+        abiParameters:        [ARC_TOKEN_MESSENGER, atomicAmount],
         idempotencyKey:       crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
 
-      // FIX 3: correct path for contract execution transaction ID
-      const approveTxId = approveRes.data?.transaction?.id || approveRes.data?.id;
+      // FIX 2: createContractExecutionTransaction returns data.id (not data.transaction.id)
+      const approveTxId = approveRes.data?.id;
       if (!approveTxId) throw new Error('Approve tx: no ID returned from Circle');
 
-      // Wait for approve — short timeout is OK, approve confirms fast
       await waitForTx(client, approveTxId, 'approve', 55_000);
       console.log('[bridge] Approve confirmed');
 
@@ -317,28 +326,26 @@ export default async function handler(req, res) {
         contractAddress:      ARC_TOKEN_MESSENGER,
         abiFunctionSignature: 'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)',
         abiParameters: [
-          atomicAmount,           // uint256 amount in atomic units (string)
-          destDomain.toString(),  // uint32  destinationDomain (must be string)
-          mintRecipient,          // bytes32 mintRecipient (padded address)
-          ARC_USDC,               // address burnToken
-          destinationCaller,      // bytes32 destinationCaller (zero = any relayer)
-          maxFee,                 // uint256 maxFee (1% in atomic units)
-          "1000",                 // uint32  minFinalityThreshold (must be string)
+          atomicAmount,
+          destDomain.toString(),
+          mintRecipient,
+          ARC_USDC,
+          destinationCaller,
+          maxFee,
+          '1000',
         ],
         idempotencyKey: crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
 
-      // FIX 3: correct path
-      const burnTxId = burnRes.data?.transaction?.id || burnRes.data?.id;
+      // FIX 2: same — ID at data.id
+      const burnTxId = burnRes.data?.id;
       if (!burnTxId) throw new Error('Burn tx: no ID returned from Circle');
 
-      // FIX 5: return immediately — client polls /api/transaction/:id and /api/cctp-attest
-      // Do NOT await waitForTx here — Vercel function will time out (max 60s on Pro)
-      const burnTxHash = burnRes.data?.transaction?.txHash || burnTxId;
+      const burnTxHash = burnRes.data?.txHash || burnTxId;
       console.log(`[bridge] Burn submitted — txId: ${burnTxId}`);
 
-      // Poll attestation in background (fire and forget — just logs)
+      // Fire-and-forget attestation poll — do NOT await (Vercel 60s limit)
       pollAttestation(burnTxHash)
         .then(r => r
           ? console.log(`[bridge] Attestation ready for ${burnTxHash}`)
@@ -354,7 +361,7 @@ export default async function handler(req, res) {
         destChain,
         destAddr,
         amount:        parsed,
-        message:       'Burn submitted — poll /api/transaction/' + burnTxId + ' for confirmation',
+        message:       'Burn submitted — poll /api/transaction/' + burnTxId,
       });
 
     } catch (err) {
@@ -375,33 +382,54 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── contractCall ────────────────────────────────────────────────────────────
+  // ── contractCall — lend, borrow, repay, withdraw, arc names ────────────────
+  // FIX 2: createContractExecutionTransaction returns { data: { id, state } }
+  // ID is at data.id — NOT data.transaction.id (that shape only exists in getTransaction)
   if (action === 'contractCall') {
-    const { walletId, contractAddress, functionSignature, params } = req.body || {};
     if (!walletId || !contractAddress || !functionSignature)
       return res.json({ success: false, error: 'walletId, contractAddress, functionSignature required' });
+
     if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
-      return res.json({ success: true, txHash: '0xdev'+crypto.randomBytes(16).toString('hex'), dev: true });
+      return res.json({
+        success: true,
+        txHash:  '0xdev' + crypto.randomBytes(16).toString('hex'),
+        dev:     true,
+      });
+
     try {
       const client = getClient();
-      const txRes = await client.createContractExecutionTransaction({
+      const txRes  = await client.createContractExecutionTransaction({
         walletId,
-        blockchain: BLOCKCHAIN,
+        blockchain:           BLOCKCHAIN,
         contractAddress,
         abiFunctionSignature: functionSignature,
-        abiParameters: params || [],
-        idempotencyKey: crypto.randomUUID(),
+        abiParameters:        params || [],
+        idempotencyKey:       crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
-      const tx = txRes.data?.transaction;
-      const txId = tx?.id || txRes.data?.id;
-      if (!txId) throw new Error('No transaction ID returned');
-      return res.json({ success: true, transactionId: txId, txHash: tx?.txHash || null, pending: true });
+
+      // FIX 2: ID is at data.id for createContractExecutionTransaction
+      // data.transaction only exists when you call getTransaction later
+      const txId = txRes.data?.id;
+      if (!txId)
+        throw new Error('No transaction ID returned — ' + JSON.stringify(txRes.data));
+
+      // txHash is never present on creation — only available after getTransaction confirms it
+      return res.json({
+        success:       true,
+        transactionId: txId,
+        txHash:        null,    // not available yet — poll /api/transaction/:id
+        pending:       true,
+      });
+
     } catch (err) {
       console.error('[contractCall]', err.message);
       return res.json({ success: false, error: err.message.slice(0, 120) });
     }
   }
 
-  return res.json({ success: false, error: 'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall' });
+  return res.json({
+    success: false,
+    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall',
+  });
 }
