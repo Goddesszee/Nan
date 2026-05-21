@@ -1589,7 +1589,7 @@ async function _autoSeedLiquidity(){
     const readProvider=getArcProvider();
     const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
     const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
-    if(parseFloat(ethers.formatUnits(usdcLiq,6))>100&&parseFloat(ethers.formatUnits(eurcLiq,6))>100){return;}
+    if(parseFloat(ethers.formatUnits(usdcLiq,6))>10000&&parseFloat(ethers.formatUnits(eurcLiq,6))>10000){return;}
     const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
     const swapC=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
