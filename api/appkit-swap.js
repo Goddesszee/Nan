@@ -1,5 +1,4 @@
-// api/appkit-swap.js — Circle App Kit SDK
-// Uses the REAL @circle-fin/app-kit + @circle-fin/adapter-circle-wallets packages
+
 //
 // INSTALL FIRST (run in your project root):
 //   npm install @circle-fin/app-kit @circle-fin/adapter-circle-wallets
@@ -9,8 +8,20 @@
 //   CIRCLE_ENTITY_SECRET  — your 64-char entity secret
 //   CIRCLE_APP_KIT_KEY    — your kit key from console.circle.com → App Kit
 
-import { AppKit } from '@circle-fin/app-kit';
-import { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';
+let _AppKit = null;
+let _createAdapter = null;
+async function loadSDK() {
+  if (_AppKit) return { AppKit: _AppKit, createCircleWalletsAdapter: _createAdapter };
+  try {
+    const a = await import('@circle-fin/app-kit');
+    const b = await import('@circle-fin/adapter-circle-wallets');
+    _AppKit = a.AppKit;
+    _createAdapter = b.createCircleWalletsAdapter;
+    return { AppKit: _AppKit, createCircleWalletsAdapter: _createAdapter };
+  } catch (e) {
+    throw new Error('SDK not installed: npm install @circle-fin/app-kit @circle-fin/adapter-circle-wallets');
+  }
+}
 
 const FX_USDC_TO_EURC = 0.9258;
 const FX_EURC_TO_USDC = 1.0801;
@@ -19,7 +30,7 @@ const FX_EURC_TO_USDC = 1.0801;
 let _kit = null;
 let _adapter = null;
 
-function getKitAndAdapter() {
+async function getKitAndAdapter() {
   if (_kit && _adapter) return { kit: _kit, adapter: _adapter };
 
   const apiKey       = process.env.CIRCLE_API_KEY;
@@ -28,8 +39,7 @@ function getKitAndAdapter() {
   if (!apiKey || !entitySecret)
     throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET must be set');
 
-  // createCircleWalletsAdapter is a developer-controlled adapter —
-  // this means `address` MUST be passed in every kit.swap() / kit.send() call
+  const { AppKit, createCircleWalletsAdapter } = await loadSDK();
   _adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
   _kit     = new AppKit();
   return { kit: _kit, adapter: _adapter };
@@ -82,7 +92,7 @@ export default async function handler(req, res) {
       return res.json({ success: false, error: 'CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET required' });
 
     try {
-      const { kit, adapter } = getKitAndAdapter();
+      const { kit, adapter } = await getKitAndAdapter();
 
       console.log(`[appkit-swap] swap ${amountIn} ${tokenIn}→${tokenOut} addr:${walletAddress}`);
 
@@ -127,8 +137,7 @@ export default async function handler(req, res) {
 
   return res.json({ success: false, error: 'Unknown action. Valid: quote, swap' });
 }
-// api/appkit-swap.js — Circle App Kit SDK
-// Uses the REAL @circle-fin/app-kit + @circle-fin/adapter-circle-wallets packages
+
 //
 // INSTALL FIRST (run in your project root):
 //   npm install @circle-fin/app-kit @circle-fin/adapter-circle-wallets
@@ -148,7 +157,7 @@ const FX_EURC_TO_USDC = 1.0801;
 let _kit = null;
 let _adapter = null;
 
-function getKitAndAdapter() {
+async function getKitAndAdapter() {
   if (_kit && _adapter) return { kit: _kit, adapter: _adapter };
 
   const apiKey       = process.env.CIRCLE_API_KEY;
@@ -157,8 +166,7 @@ function getKitAndAdapter() {
   if (!apiKey || !entitySecret)
     throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET must be set');
 
-  // createCircleWalletsAdapter is a developer-controlled adapter —
-  // this means `address` MUST be passed in every kit.swap() / kit.send() call
+  const { AppKit, createCircleWalletsAdapter } = await loadSDK();
   _adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
   _kit     = new AppKit();
   return { kit: _kit, adapter: _adapter };
@@ -211,7 +219,7 @@ export default async function handler(req, res) {
       return res.json({ success: false, error: 'CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET required' });
 
     try {
-      const { kit, adapter } = getKitAndAdapter();
+      const { kit, adapter } = await getKitAndAdapter();
 
       console.log(`[appkit-swap] swap ${amountIn} ${tokenIn}→${tokenOut} addr:${walletAddress}`);
 
