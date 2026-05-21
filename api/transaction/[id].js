@@ -1,4 +1,4 @@
-const { initiateDeveloperControlledWalletsClient } = require('@circle-fin/developer-controlled-wallets');
+import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
 
 function getClient() {
   return initiateDeveloperControlledWalletsClient({
@@ -7,7 +7,7 @@ function getClient() {
   });
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
