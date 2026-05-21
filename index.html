@@ -2201,61 +2201,24 @@ async function doSwap(){
   const btn=document.getElementById('swapBtn');
   btn.innerHTML='<span class="spinner"></span>Swapping via Circle App Kit…';btn.disabled=true;
 
-  // ── PATH 1: Circle App Kit (email wallet users) ───────────────────────────
-  if(isCircleWallet&&circleWalletId){
+  // ── Circle App Kit path (email wallet users) ──────────────────────────────
+  if(isCircleWallet&&circleWalletId&&circleWalletAddress){
     try{
       const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'swap',walletId:circleWalletId,tokenIn,tokenOut,amountIn:fromAmt.toFixed(6)})});
+        body:JSON.stringify({action:'swap',walletId:circleWalletId,walletAddress:circleWalletAddress,tokenIn,tokenOut,amountIn:fromAmt.toFixed(2)})});
       const d=await r.json();
-      if(d.success){
-        const amtOut=parseFloat(d.amountOut).toFixed(4);
-        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'! 🎉','success',8000);
-        addTx({hash:d.txHash,to:userAddr,toRaw:'Circle App Kit Swap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'appkit'});
-        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-        _quoteCache={};lastTxHash=d.txHash;
-        btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
-        setTimeout(()=>refreshBalances(),3000);
-        trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'appkit'});
-        return;
-      }
-      // KIT_KEY missing → fall through to contract path
-      if(!d.error?.includes('KIT_KEY'))throw new Error(d.error||'Swap failed');
-      console.log('[swap] No KIT_KEY — falling back to NANSwap contract');
-    }catch(e){
-      if(!e.message.includes('KIT_KEY')){
-        toast('Swap failed: '+e.message.slice(0,100),'error',6000);
-        btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
-        return;
-      }
-    }
-
-    // ── Circle wallet fallback: NANSwap contract ────────────────────────────
-    btn.innerHTML='<span class="spinner"></span>Approving token…';
-    try{
-      const tokenAddr=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
-      const amtAtomic=Math.floor(fromAmt*1_000_000).toString();
-      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,amtAtomic]})});
-      const appData=await appRes.json();
-      if(!appData.success)throw new Error(appData.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
-      await waitForCircleTx(appData.transactionId,'approve');
-      btn.innerHTML='<span class="spinner"></span>Swapping on Arc…';
-      const swapFn=isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)';
-      const swapRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:swapFn,params:[amtAtomic]})});
-      const swapData=await swapRes.json();
-      if(!swapData.success)throw new Error(swapData.error||'NANSwap failed — pool may need liquidity');
-      const localOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → ~'+localOut+' '+tokenOut,'success',6000);
-      addTx({hash:swapData.txHash||swapData.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap on Arc',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:localOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:!!swapData.txHash,source:'nanswap'});
+      if(!d.success)throw new Error(d.error||'Swap failed');
+      const amtOut=parseFloat(d.amountOut).toFixed(4);
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'! 🎉','success',8000);
+      addTx({hash:d.txHash,to:userAddr,toRaw:'Circle App Kit Swap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'appkit'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+      _quoteCache={};lastTxHash=d.txHash;
       btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
-      setTimeout(()=>refreshBalances(),8000);
-      trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'nanswap'});
+      setTimeout(()=>refreshBalances(),3000);
+      trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'appkit'});
       return;
     }catch(err){
-      toast('Swap failed: '+err.message.slice(0,100),'error',5000);
+      toast('Swap failed: '+err.message.slice(0,120),'error',7000);
       btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
       return;
     }
