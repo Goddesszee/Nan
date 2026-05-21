@@ -1,5 +1,9 @@
 {
+  "version": 2,
   "redirects": [
     { "source": "/", "destination": "/landing.html", "permanent": false }
+  ],
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ]
 }
