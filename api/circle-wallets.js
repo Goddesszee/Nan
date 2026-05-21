@@ -79,10 +79,10 @@ async function findWalletSet(client, name) {
 // CONFIRMED from Circle docs:
 //   createContractExecutionTransaction → { data: { id, state } }
 //   getTransaction                     → { data: { transaction: { id, state, txHash } } }
-async function waitForTx(client, txId, label = 'tx', maxWaitMs = 55_000) {
+async function waitForTx(client, txId, label = 'tx', maxWaitMs = 120_000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, 6000));
     try {
       const res   = await client.getTransaction({ id: txId });
       const tx    = res.data?.transaction;   // correct: nested under data.transaction
