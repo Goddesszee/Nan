@@ -138,35 +138,22 @@ export default async function handler(req, res) {
       console.log(`[appkit-swap] swap ${amountIn} ${tokenIn}→${tokenOut} wallet:${walletId}`);
 
       // Call Circle App Kit swap endpoint
-      const client = getClient();
-      const tokenAddr = isUSDCtoEURC ? USDC_ADDR : EURC_ADDR;
-
-      // Step 1: Approve
-      const approveRes = await client.createContractExecutionTransaction({
-        walletId,
-        blockchain: 'ARC-TESTNET',
-        contractAddress: tokenAddr,
-        abiFunctionSignature: 'approve(address,uint256)',
-        abiParameters: [FXESCROW_ADDR, amtAtomic],
-        idempotencyKey: crypto.randomUUID(),
-        fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
+      const swapRes = await fetch('https://api.circle.com/v1/w3s/developer/transactions/swap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${kitApiKey}`,
+        },
+        body: JSON.stringify({
+          idempotencyKey: crypto.randomUUID(),
+          walletId,
+          blockchain: 'ARC-TESTNET',
+          tokenIn:  { contractAddress: tokenInAddr,  amount: amtAtomic },
+          tokenOut: { contractAddress: tokenOutAddr },
+          slippageBps: 100,
+          fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
+        }),
       });
-      const approveTxId = approveRes.data?.id;
-      if (!approveTxId) throw new Error('Approve: no tx ID');
-      await waitForTx(client, approveTxId, 'approve');
-
-      // Step 2: Swap via FX Escrow
-      const swapFn = isUSDCtoEURC ? 'swapUSDCtoEURC(uint256)' : 'swapEURCtoUSDC(uint256)';
-      const swapRes2 = await client.createContractExecutionTransaction({
-        walletId,
-        blockchain: 'ARC-TESTNET',
-        contractAddress: FXESCROW_ADDR,
-        abiFunctionSignature: swapFn,
-        abiParameters: [amtAtomic],
-        idempotencyKey: crypto.randomUUID(),
-        fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
-      });
-      const swapData = { data: { id: swapRes2.data?.id } };
 
       const swapData = await swapRes.json();
       console.log('[appkit-swap] swap response:', JSON.stringify(swapData).slice(0, 300));
