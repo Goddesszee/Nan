@@ -11,10 +11,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@circle-fin/app-kit": "latest",
-    "@circle-fin/adapter-circle-wallets": "latest",
-    "@circle-fin/adapter-viem-v2": "latest",
-    "viem": "latest",
     "@circle-fin/developer-controlled-wallets": "^10.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
