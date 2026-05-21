@@ -1584,6 +1584,33 @@ function speakResponse(text){
 
 // Init voice when page loads
 window.addEventListener('load',()=>{ initVoice(); });
+async function _autoSeedLiquidity(){
+  try{
+    const readProvider=getArcProvider();
+    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
+    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+    if(parseFloat(ethers.formatUnits(usdcLiq,6))>100&&parseFloat(ethers.formatUnits(eurcLiq,6))>100){return;}
+    const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+    const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
+    const swapC=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
+    const [uBal,eBal]=await Promise.all([usdcC.balanceOf(userAddr),eurcC.balanceOf(userAddr)]);
+    if(parseFloat(ethers.formatUnits(uBal,6))<1||parseFloat(ethers.formatUnits(eBal,6))<1){return;}
+    toast('Adding pool liquidity…','info',4000);
+    const UNLIMITED=ethers.MaxUint256;
+    const [appU,appE]=await Promise.all([
+      usdcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
+      eurcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
+    ]);
+    await Promise.all([appU.wait(1),appE.wait(1)]);
+    const seedU=uBal/2n;
+    const seedE=eBal/2n;
+    const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
+    await liqTx.wait(1);
+    toast('✓ Pool liquidity added — swaps ready!','success',5000);
+    await refreshBalances();
+  }catch(e){console.warn('[pool] Liquidity seed skipped:',e.message);}
+}
+
 async function onConnected(isEmail=false, isDev=false){
   document.getElementById('page-land').style.display='none';
   document.getElementById('page-land').style.visibility='hidden';
@@ -1604,6 +1631,7 @@ async function onConnected(isEmail=false, isDev=false){
   document.getElementById('devBadge').style.display=(isEmail&&isDev)?'inline-block':'none';
 
   if(!isEmail)await checkNetwork();
+  if(!isEmail&&signer&&onArcNetwork)_autoSeedLiquidity();
   showBalSkeleton();
   await refreshBalances();
   loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
@@ -2862,9 +2890,10 @@ async function doSupply(){
 }
 
 async function refreshLendPosition(){
-  if(!userAddr||!provider)return;
+  if(!userAddr)return;
   try{
-    const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,provider);
+    const readProvider=provider||getArcProvider();
+    const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,readProvider);
     const pos=await lendContract.getPosition(userAddr);
     lendPositions.supplied=parseFloat(ethers.formatUnits(pos[0],6));
     lendPositions.interest=parseFloat(ethers.formatUnits(pos[1],6));
