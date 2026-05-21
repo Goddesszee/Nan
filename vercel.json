@@ -4,6 +4,9 @@
     { "source": "/", "destination": "/landing.html", "permanent": false }
   ],
   "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" }
+    { "src": "api/**/*.js", "use": "@vercel/node", "config": { "includeFiles": "api/**" } }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" }
   ]
 }
