@@ -1584,6 +1584,32 @@ function speakResponse(text){
 
 // Init voice when page loads
 window.addEventListener('load',()=>{ initVoice(); });
+async function _ensureUnlimitedApprovals(){
+  try{
+    const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+    const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
+    const CONTRACTS=[SWAP_CONTRACT,LENDING_CONTRACT,NAME_REGISTRY];
+    const THRESHOLD=ethers.parseUnits('1000000',6);
+    for(const contract of CONTRACTS){
+      const uAllow=await usdcC.allowance(userAddr,contract);
+      if(uAllow<THRESHOLD){
+        const tx=await usdcC.approve(contract,ethers.MaxUint256,arcGasOpts());
+        await tx.wait(1);
+        console.log('USDC approved for',contract);
+        addTx({hash:tx.hash,to:contract,toRaw:'Unlimited USDC Approval',amount:'0',type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'approval'});
+      }
+    }
+    const eAllow=await eurcC.allowance(userAddr,SWAP_CONTRACT);
+    if(eAllow<THRESHOLD){
+      const tx=await eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
+      await tx.wait(1);
+      console.log('EURC approved for',SWAP_CONTRACT);
+      addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
+    }
+    toast('✓ Token approvals verified','success',3000);
+  }catch(e){console.warn('Approval check failed:',e.message);}
+}
+
 async function _autoSeedLiquidity(){
   try{
     const readProvider=getArcProvider();
@@ -1632,6 +1658,7 @@ async function onConnected(isEmail=false, isDev=false){
 
   if(!isEmail)await checkNetwork();
   if(!isEmail&&signer&&onArcNetwork)_autoSeedLiquidity();
+if(!isEmail&&signer&&onArcNetwork)_ensureUnlimitedApprovals();
   showBalSkeleton();
   await refreshBalances();
   loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
