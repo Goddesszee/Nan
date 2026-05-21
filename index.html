@@ -1823,7 +1823,7 @@ async function doSend(){
     try{
       const res=await fetch('/api/circle-wallets',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({body: JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),,amount:amt.toString(),tokenSymbol:sendToken}),
+        body:body: JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}), JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),,amount:amt.toString(),tokenSymbol:sendToken}),
       });
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
