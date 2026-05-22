@@ -1670,7 +1670,6 @@ async function _ensureUnlimitedApprovals(){
       addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
     }
     localStorage.setItem(key,'1');
-    localStorage.setItem(key,'1');
     toast('✓ Token approvals verified','success',3000);
   }catch(e){console.warn('Approval check failed:',e.message);}
 }
