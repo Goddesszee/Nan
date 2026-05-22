@@ -1646,6 +1646,8 @@ function speakResponse(text){
 // Init voice when page loads
 window.addEventListener('load',()=>{ initVoice(); });
 async function _ensureUnlimitedApprovals(){
+  const key='nan_approved_'+userAddr;
+  if(localStorage.getItem(key))return;
   try{
     const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
@@ -1667,6 +1669,8 @@ async function _ensureUnlimitedApprovals(){
       console.log('EURC approved for',SWAP_CONTRACT);
       addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
     }
+    localStorage.setItem(key,'1');
+    localStorage.setItem(key,'1');
     toast('✓ Token approvals verified','success',3000);
   }catch(e){console.warn('Approval check failed:',e.message);}
 }
@@ -2218,9 +2222,6 @@ function calcSwap(){
   document.getElementById('swapTo').value=amt>0?out:'';
   document.getElementById('swapFromUSD').textContent=swapFlipped?(amt*(1/FX)).toFixed(2):amt.toFixed(2);
   document.getElementById('swapToUSD').textContent=swapFlipped?parseFloat(out).toFixed(2):(parseFloat(out)*(1/FX)).toFixed(2);
-  if(!amt||amt<=0)return;
-  clearTimeout(_quoteTimer);
-  _quoteTimer=setTimeout(()=>_fetchAppKitQuote(amt),700);
 }
 async function _fetchAppKitQuote(amt){
   const tokenIn=swapFlipped?'EURC':'USDC';
