@@ -2202,7 +2202,7 @@ async function doSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping via Circle App Kit…';btn.disabled=true;
 
   // ── Circle App Kit path (email wallet users) ──────────────────────────────
-  if(isCircleWallet&&circleWalletId&&circleWalletAddress){
+  if(isCircleWallet&&circleWalletId&&false){
     try{
       const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'swap',walletId:circleWalletId,walletAddress:circleWalletAddress,tokenIn,tokenOut,amountIn:fromAmt.toFixed(2)})});
@@ -3185,6 +3185,7 @@ window.addEventListener('load',()=>{
 </script>
 </body>
 </html>
+
 
 
 
