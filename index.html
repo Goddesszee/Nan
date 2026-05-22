@@ -2736,62 +2736,7 @@ async function pollIrisAttestation(txHash, destChain) {
   if (el) el.textContent = '⚠️ Attestation still pending after 20 min — check Iris manually.';
   toast('Burn confirmed. Check Iris API manually.', 'warning', 10000);
 }
-  const irisUrl='https://iris-api-sandbox.circle.com/v2/messages/'+ARC_CCTP_DOMAIN+'?transactionHash='+txHash;
-  const maxAttempts=80;
-  let attempts=0;
-  while(attempts<maxAttempts){
-    attempts++;
-    await new Promise(r=>setTimeout(r,15000));
-    try{
-      let attestation=null,message=null;
-      try{
-        const pr=await fetch('/api/cctp-attest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getAttestation',txHash,sourceDomain:26})});
-        if(pr.ok){const pd=await pr.json();if(pd.status==='complete'&&pd.attestation){attestation=pd.attestation;message=pd.message;}}
-      }catch(_){}
-      if(!attestation){
-        try{
-          const res=await fetch(irisUrl);
-          if(res.ok){const data=await res.json();const m=data.messages?.[0];if(m?.status==='complete'&&m.attestation&&m.attestation!=='PENDING'){attestation=m.attestation;message=m.message;}}
-        }catch(_){}
-      }
-      if(attestation&&message){
-        const el=document.getElementById('attestStatus');
-        if(el)el.innerHTML='✅ Iris attestation received! Attempting auto-mint…';
-        toast('✓ Attestation ready! Attempting auto-mint on '+destChain+'…','success',8000);
-        try{
-          if(signer&&window.ethereum){
-            const DEST_TRANSMITTER={
-              'ETH-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-              'BASE-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-              'ARB-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-              'OP-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-              'AVAX-FUJI':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-              'POLYGON-AMOY':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
-            };
-            const transmitterAddr=DEST_TRANSMITTER[destChain];
-            if(transmitterAddr){
-              const transmitter=new ethers.Contract(transmitterAddr,['function receiveMessage(bytes,bytes) returns(bool)'],signer);
-              const mintTx=await transmitter.receiveMessage(message,attestation);
-              await mintTx.wait(1);
-              toast('✅ USDC minted on '+destChain+'! Bridge complete!','success',10000);
-              if(el)el.innerHTML='✅ Bridge complete! USDC minted on '+destChain+'.';
-            }
-          }
-        }catch(mintErr){
-          console.log('[auto-mint]',mintErr.message);
-          toast('Auto-mint failed — complete manually on '+destChain,'warning',8000);
-          if(el)el.innerHTML='✅ Attestation ready — complete mint manually on '+destChain;
-        }
-        return;
-      }
-      const el=document.getElementById('attestStatus');
-      if(el)el.textContent='⏳ Iris attesting… ('+(attempts*15)+'s, up to ~20 min on testnet)';
-    }catch(e){console.warn('Iris poll attempt',attempts,e.message);}
-  }
-  const el=document.getElementById('attestStatus');
-  if(el)el.textContent='⚠️ Still pending — check Iris manually.';
-  toast('Burn confirmed. Check Iris API manually.','warning',10000);
-}
+  
 
 function prefillSend(addr){
   goPage('send');
