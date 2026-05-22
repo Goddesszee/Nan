@@ -145,8 +145,9 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ── Nav ── */
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:70px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-top:1px solid rgba(139,92,246,0.15);padding:8px 0;display:none;}
 .bottom-nav.show{display:block;}
-.nav-items{display:flex;max-width:520px;margin:0 auto;padding:0 6px;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.03em;}
+.nav-items{display:flex;max-width:520px;margin:0 auto;padding:0 6px;overflow-x:auto;scrollbar-width:none;}
+.nav-items::-webkit-scrollbar{display:none;}
+.nav-btn{flex:0 0 auto;min-width:56px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.03em;}
 .nav-btn .ni{font-size:1.3rem;transition:transform .2s;}
 .nav-btn.active{color:var(--accent3);border-top:2px solid var(--accent3);background:rgba(139,92,246,0.06);}
 .nav-btn.active .ni{transform:scale(1.15);}
@@ -429,6 +430,7 @@ a:hover{color:var(--text);}
     <button class="nav-btn" onclick="goPage('lend')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Lend</button>
     <button class="nav-btn" onclick="goPage('bridge')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M3 17a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2M3 17v3m18-3v3M7 12V7a5 5 0 0 1 10 0v5"/></svg></span>Bridge</button>
     <button class="nav-btn" onclick="goPage('arcname')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg></span>Name</button>
+    <button class="nav-btn" id="nav-naira" onclick="goPage('naira')"><span class="ni">₦</span>Naira</button>
     <button class="nav-btn" onclick="goPage('history')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>History</button>
   </div>
 </nav>
@@ -926,6 +928,152 @@ a:hover{color:var(--text);}
   <div class="card">
     <div class="card-title"><div class="cticon">👥</div>Directory</div>
     <div id="arcNameDirectory"><div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No names registered yet. Be the first!</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════ NAIRA PAGE ═══════ -->
+<div class="page" id="page-naira">
+  <div class="page-title" style="display:flex;align-items:center;gap:8px;">
+    <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#ede9fe;flex-shrink:0;">₦</div>
+    Naira
+  </div>
+  <div class="page-sub">Deposit · Withdraw · Convert NGN ↔ USDC/EURC</div>
+
+  <div class="bal-card" style="margin-bottom:12px;">
+    <div class="bal-head">
+      <div class="bal-lbl">Naira Balance</div>
+      <div class="bal-badge">● NGN · Nigeria</div>
+    </div>
+    <div class="bal-num"><span id="ngnBal">0.00</span> <span style="font-size:.8rem;color:var(--text3);">NGN</span></div>
+    <div class="bal-usd" id="ngnUsd">≈ $0.00 USDC · Rate: ₦1,620 / USDC</div>
+  </div>
+
+  <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:12px;">
+    <button class="stab active" id="ntab-deposit" onclick="setNairaTab('deposit')" style="border-radius:8px;">↓ Deposit</button>
+    <button class="stab" id="ntab-withdraw" onclick="setNairaTab('withdraw')" style="border-radius:8px;">🏦 Withdraw</button>
+    <button class="stab" id="ntab-convert" onclick="setNairaTab('convert')" style="border-radius:8px;">⇄ Convert</button>
+  </div>
+
+  <div id="npanel-deposit" class="card">
+    <div class="card-title"><div class="cticon">↓</div>Deposit Naira</div>
+    <p style="font-size:.65rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">Transfer naira to this virtual account. Funds arrive in 1–5 minutes and auto-convert to USDC.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;">
+      <div class="conf-row"><span class="conf-lbl">Bank</span><span class="conf-val">Providus Bank</span></div>
+      <div class="conf-row"><span class="conf-lbl">Account name</span><span class="conf-val">NAN / Your Name</span></div>
+      <div class="conf-row" style="border-bottom:none;">
+        <span class="conf-lbl">Account number</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;">9012 3456 78</span>
+          <button class="ibtn" onclick="navigator.clipboard.writeText('9012345678').then(()=>toast('Copied!','success',2000))">Copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="live-badge" style="margin-bottom:10px;">
+      <div class="live-dot"></div>
+      Min ₦5,000 · Auto-converts to USDC · ₦100 fee
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+      <button class="ibtn" style="padding:8px;text-align:center;">₦10,000</button>
+      <button class="ibtn" style="padding:8px;text-align:center;">₦50,000</button>
+      <button class="ibtn" style="padding:8px;text-align:center;">₦100,000</button>
+    </div>
+    <button class="btn" onclick="navigator.clipboard.writeText('9012345678').then(()=>toast('Account number copied — send naira now!','success',3000))">Copy Account Number</button>
+  </div>
+
+  <div id="npanel-withdraw" class="card" style="display:none;">
+    <div class="card-title"><div class="cticon">🏦</div>Withdraw to Bank</div>
+    <p style="font-size:.65rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">Withdraw naira directly to any Nigerian bank account.</p>
+    <div class="field">
+      <div class="flbl">Amount (NGN)</div>
+      <div class="amt-row">
+        <div class="field" style="margin-bottom:0;position:relative;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--text3);font-family:'IBM Plex Mono',monospace;z-index:1;">₦</span>
+          <input id="ngnWithdrawAmt" type="number" placeholder="0.00" style="padding-left:24px;" oninput="calcNgnWithdraw()"/>
+        </div>
+        <button class="max-btn">MAX</button>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
+    </div>
+    <div class="field">
+      <div class="flbl">Bank</div>
+      <select id="ngnBankName">
+        <option value="">Select bank</option>
+        <option>Access Bank</option>
+        <option>GTBank</option>
+        <option>First Bank</option>
+        <option>Zenith Bank</option>
+        <option>UBA</option>
+        <option>Kuda Bank</option>
+        <option>OPay</option>
+        <option>PalmPay</option>
+        <option>Stanbic IBTC</option>
+        <option>Fidelity Bank</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="flbl">Account Number</div>
+      <input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/>
+    </div>
+    <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok">
+      <span id="ngnAcctNameTxt"></span>
+    </div>
+    <div class="gas-row"><span class="gas-icon">₦</span><span style="flex:1;">Withdrawal fee</span><span>₦100 flat</span></div>
+    <button class="btn btn-outline" onclick="doNgnWithdraw()">Withdraw to Bank</button>
+  </div>
+
+  <div id="npanel-convert" class="card" style="display:none;">
+    <div class="card-title"><div class="cticon">⇄</div>Convert</div>
+    <p style="font-size:.65rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">Convert between naira and stablecoins at live market rates.</p>
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:4px;margin-bottom:10px;">
+      <div style="background:var(--surface);border-radius:14px 14px 4px 4px;padding:14px 16px 10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;">You Pay</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnFromBal">Bal: ₦0.00</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="ngnFromToken" onclick="flipNgnConvert()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;">
+            ₦ NGN <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>
+          </div>
+          <input class="swap-input" id="ngnConvertFrom" type="number" placeholder="0.00" oninput="calcNgnConvert()" style="flex:1;text-align:right;font-size:1.6rem;"/>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;position:relative;height:28px;margin:0 -4px;">
+        <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
+        <button onclick="flipNgnConvert()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">⇅</button>
+      </div>
+      <div style="background:var(--surface);border-radius:4px 4px 14px 14px;padding:10px 16px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.1em;">You Receive</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnToBalLabel">Bal: 0.00 USDC</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="ngnToToken" onclick="toggleNgnToToken()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--accent3);white-space:nowrap;cursor:pointer;">
+            <span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>
+          </div>
+          <input class="swap-input" id="ngnConvertTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.6rem;opacity:.65;"/>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px;margin-bottom:10px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);" id="ngnRateDisplay">₦1,620 = 1 USDC</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Fee: 0.5%</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+      <button class="ibtn" style="padding:8px;text-align:center;" onclick="document.getElementById('ngnConvertFrom').value=10000;calcNgnConvert()">₦10,000</button>
+      <button class="ibtn" style="padding:8px;text-align:center;" onclick="document.getElementById('ngnConvertFrom').value=50000;calcNgnConvert()">₦50,000</button>
+    </div>
+    <button class="btn" onclick="doNgnConvert()" id="ngnConvertBtn">Convert NGN → USDC</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+    <div class="card" style="padding:12px;margin-bottom:0;">
+      <div class="bal-lbl" style="margin-bottom:4px;">NGN / USDC</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'IBM Plex Mono',monospace;">₦1,620</div>
+    </div>
+    <div class="card" style="padding:12px;margin-bottom:0;">
+      <div class="bal-lbl" style="margin-bottom:4px;">NGN / EURC</div>
+      <div style="font-size:1rem;font-weight:700;color:#60a5fa;font-family:'IBM Plex Mono',monospace;">₦1,765</div>
+    </div>
   </div>
 </div>
 
@@ -3212,6 +3360,128 @@ async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
     }
   }
   throw new Error(label + ' timed out');
+}
+
+// ═══════════════════════════════════════════
+// NAIRA PAGE
+// ═══════════════════════════════════════════
+const NGN_USDC_RATE=1620,NGN_EURC_RATE=1765;
+let ngnFlipped=false,ngnToToken='USDC';
+
+function setNairaTab(tab){
+  ['deposit','withdraw','convert'].forEach(t=>{
+    document.getElementById('npanel-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('ntab-'+t).classList.toggle('active',t===tab);
+  });
+}
+function calcNgnWithdraw(){
+  const amt=parseFloat(document.getElementById('ngnWithdrawAmt').value)||0;
+  document.getElementById('ngnWithdrawUsdc').textContent='≈ '+(amt/NGN_USDC_RATE).toFixed(4)+' USDC deducted · Rate: ₦'+NGN_USDC_RATE+' / USDC';
+}
+function verifyNgnAcct(){
+  const num=document.getElementById('ngnAcctNum').value;
+  const bar=document.getElementById('ngnAcctNameBar');
+  const txt=document.getElementById('ngnAcctNameTxt');
+  if(num.length===10){bar.style.display='flex';txt.textContent='✓ Account verified (demo)';}
+  else bar.style.display='none';
+}
+function doNgnWithdraw(){
+  const amt=parseFloat(document.getElementById('ngnWithdrawAmt').value)||0;
+  const bank=document.getElementById('ngnBankName').value;
+  const acct=document.getElementById('ngnAcctNum').value;
+  if(!amt){toast('Enter an amount','error');return;}
+  if(!bank){toast('Select a bank','error');return;}
+  if(acct.length!==10){toast('Enter a valid 10-digit account number','error');return;}
+  toast('₦'+amt.toLocaleString()+' withdrawal submitted to '+bank,'success',5000);
+}
+function calcNgnConvert(){
+  const amt=parseFloat(document.getElementById('ngnConvertFrom').value)||0;
+  const rate=ngnToToken==='USDC'?NGN_USDC_RATE:NGN_EURC_RATE;
+  const out=ngnFlipped?(amt*rate*0.995).toFixed(2):(amt/rate*0.995).toFixed(4);
+  document.getElementById('ngnConvertTo').value=amt>0?out:'';
+}
+function flipNgnConvert(){
+  ngnFlipped=!ngnFlipped;
+  const el=document.getElementById('ngnFromToken');
+  el.innerHTML=ngnFlipped?(ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC ▾':'<span class="tok-dot eurc-dot"></span>EURC ▾'):'₦ NGN <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>';
+  document.getElementById('ngnConvertFrom').value='';
+  document.getElementById('ngnConvertTo').value='';
+  document.getElementById('ngnConvertBtn').textContent=ngnFlipped?ngnToToken+' → NGN':'NGN → '+ngnToToken;
+}
+function toggleNgnToToken(){
+  ngnToToken=ngnToToken==='USDC'?'EURC':'USDC';
+  const el=document.getElementById('ngnToToken');
+  el.innerHTML=ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);">▾</span>':'<span class="tok-dot eurc-dot"></span>EURC <span style="font-size:.6rem;color:var(--text3);">▾</span>';
+  document.getElementById('ngnRateDisplay').textContent='₦'+(ngnToToken==='USDC'?NGN_USDC_RATE:NGN_EURC_RATE)+' = 1 '+ngnToToken;
+  document.getElementById('ngnToBalLabel').textContent='Bal: '+(ngnToToken==='USDC'?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2))+' '+ngnToToken;
+  document.getElementById('ngnConvertBtn').textContent='Convert NGN → '+ngnToToken;
+  calcNgnConvert();
+}
+function doNgnConvert(){
+  const amt=parseFloat(document.getElementById('ngnConvertFrom').value)||0;
+  if(!amt){toast('Enter an amount','error');return;}
+  toast('NGN conversion submitted — coming soon on mainnet!','info',5000);
+}
+
+// ═══════════════════════════════════════════
+// NAIRA PAGE
+// ═══════════════════════════════════════════
+const NGN_USDC_RATE=1620,NGN_EURC_RATE=1765;
+let ngnFlipped=false,ngnToToken='USDC';
+
+function setNairaTab(tab){
+  ['deposit','withdraw','convert'].forEach(t=>{
+    document.getElementById('npanel-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('ntab-'+t).classList.toggle('active',t===tab);
+  });
+}
+function calcNgnWithdraw(){
+  const amt=parseFloat(document.getElementById('ngnWithdrawAmt').value)||0;
+  document.getElementById('ngnWithdrawUsdc').textContent='≈ '+(amt/NGN_USDC_RATE).toFixed(4)+' USDC deducted · Rate: ₦'+NGN_USDC_RATE+' / USDC';
+}
+function verifyNgnAcct(){
+  const num=document.getElementById('ngnAcctNum').value;
+  const bar=document.getElementById('ngnAcctNameBar');
+  const txt=document.getElementById('ngnAcctNameTxt');
+  if(num.length===10){bar.style.display='flex';txt.textContent='✓ Account verified (demo)';}
+  else bar.style.display='none';
+}
+function doNgnWithdraw(){
+  const amt=parseFloat(document.getElementById('ngnWithdrawAmt').value)||0;
+  const bank=document.getElementById('ngnBankName').value;
+  const acct=document.getElementById('ngnAcctNum').value;
+  if(!amt){toast('Enter an amount','error');return;}
+  if(!bank){toast('Select a bank','error');return;}
+  if(acct.length!==10){toast('Enter a valid 10-digit account number','error');return;}
+  toast('₦'+amt.toLocaleString()+' withdrawal submitted to '+bank,'success',5000);
+}
+function calcNgnConvert(){
+  const amt=parseFloat(document.getElementById('ngnConvertFrom').value)||0;
+  const rate=ngnToToken==='USDC'?NGN_USDC_RATE:NGN_EURC_RATE;
+  const out=ngnFlipped?(amt*rate*0.995).toFixed(2):(amt/rate*0.995).toFixed(4);
+  document.getElementById('ngnConvertTo').value=amt>0?out:'';
+}
+function flipNgnConvert(){
+  ngnFlipped=!ngnFlipped;
+  const el=document.getElementById('ngnFromToken');
+  el.innerHTML=ngnFlipped?(ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC ▾':'<span class="tok-dot eurc-dot"></span>EURC ▾'):'₦ NGN <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>';
+  document.getElementById('ngnConvertFrom').value='';
+  document.getElementById('ngnConvertTo').value='';
+  document.getElementById('ngnConvertBtn').textContent=ngnFlipped?ngnToToken+' → NGN':'NGN → '+ngnToToken;
+}
+function toggleNgnToToken(){
+  ngnToToken=ngnToToken==='USDC'?'EURC':'USDC';
+  const el=document.getElementById('ngnToToken');
+  el.innerHTML=ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);">▾</span>':'<span class="tok-dot eurc-dot"></span>EURC <span style="font-size:.6rem;color:var(--text3);">▾</span>';
+  document.getElementById('ngnRateDisplay').textContent='₦'+(ngnToToken==='USDC'?NGN_USDC_RATE:NGN_EURC_RATE)+' = 1 '+ngnToToken;
+  document.getElementById('ngnToBalLabel').textContent='Bal: '+(ngnToToken==='USDC'?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2))+' '+ngnToToken;
+  document.getElementById('ngnConvertBtn').textContent='Convert NGN → '+ngnToToken;
+  calcNgnConvert();
+}
+function doNgnConvert(){
+  const amt=parseFloat(document.getElementById('ngnConvertFrom').value)||0;
+  if(!amt){toast('Enter an amount','error');return;}
+  toast('NGN conversion submitted — coming soon on mainnet!','info',5000);
 }
 
 // ═══════════════════════════════════════════
