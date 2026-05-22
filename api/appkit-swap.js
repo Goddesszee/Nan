@@ -32,7 +32,7 @@ export default async function handler(req,res){
     if(!kitKey)return res.json({success:false,error:"CIRCLE_APP_KIT_KEY not set"});
     try{
       const{kit,adapter}=await getKitAndAdapter();
-      const result=await kit.swap({from:{adapter,chain:"Arc_Testnet",address:walletAddress},tokenIn:tokenIn.toUpperCase(),tokenOut:tokenOut.toUpperCase(),amountIn:parsed.toFixed(2),config:{kitKey}});
+      const result=await kit.swap({from:{adapter,chain:"Arc_Testnet",address:walletAddress},tokenIn:tokenIn.toUpperCase(),tokenOut:tokenOut.toUpperCase(),amountIn:parsed,config:{kitKey}});
       const amountOutHuman=result.amountOut?(parseInt(result.amountOut,10)/1000000).toFixed(6):(parsed*(tokenIn.toUpperCase()==="USDC"?FX_USDC_TO_EURC:FX_EURC_TO_USDC)*0.999).toFixed(6);
       return res.json({success:true,txHash:result.txHash,amountIn,amountOut:amountOutHuman,tokenIn:result.tokenIn||tokenIn.toUpperCase(),tokenOut:result.tokenOut||tokenOut.toUpperCase()});
     }catch(err){
