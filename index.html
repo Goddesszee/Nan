@@ -436,13 +436,16 @@ a:hover{color:var(--text);}
 <!-- ═══════ LANDING PAGE ═══════ -->
 <div class="page page-land active" id="page-land">
   <div class="land-inner">
-    <div class="land-tag" style="margin-top:8px;">Weave · Connect · Build</div>
-    <div style="font-size:1.45rem;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;text-align:center;line-height:1.2;">Your stablecoin wallet<br/>on Arc Testnet</div>
-    <div style="font-size:.73rem;color:var(--text2);margin-bottom:10px;text-align:center;line-height:1.65;">Send, swap, lend and bridge USDC &amp; EURC.<br/>Gas paid in USDC — no ETH ever needed.</div>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
-      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:3px 9px;font-size:.6rem;color:#34d399;font-family:'IBM Plex Mono',monospace;">● Circle USDC</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:3px 9px;font-size:.6rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;">● Arc Testnet</span>
-      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:100px;padding:3px 9px;font-size:.6rem;color:#60a5fa;font-family:'IBM Plex Mono',monospace;">● CCTP Bridge</span>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:5px 12px;font-size:.58rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--accent3);display:inline-block;animation:pulse 2s infinite;"></span>
+      Arc Testnet · Live
+    </div>
+    <div style="font-size:1.55rem;font-weight:700;letter-spacing:-.6px;margin-bottom:8px;text-align:center;line-height:1.18;">Your stablecoin<br/>wallet on Arc</div>
+    <div style="font-size:.75rem;color:var(--text2);margin-bottom:18px;text-align:center;line-height:1.7;">Send, swap, lend & bridge USDC/EURC.<br/>Gas in USDC — never need ETH.</div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.18);border-radius:100px;padding:3px 10px;font-size:.58rem;color:#34d399;font-family:'IBM Plex Mono',monospace;">● USDC</span>
+      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);border-radius:100px;padding:3px 10px;font-size:.58rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;">● EURC</span>
+      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.18);border-radius:100px;padding:3px 10px;font-size:.58rem;color:#60a5fa;font-family:'IBM Plex Mono',monospace;">● CCTP</span>
     </div>
 
     <!-- Email login -->
@@ -496,16 +499,9 @@ a:hover{color:var(--text);}
       </button>
     </div>
 
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;text-align:center;padding-top:4px;">What you can do</div>
-    <div class="feat-grid">
-      <div class="feat"><div class="feat-icon">⇅</div><div class="feat-title">Send &amp; Receive</div><div class="feat-desc">Real on-chain USDC/EURC transfers</div></div>
-      <div class="feat"><div class="feat-icon">⇄</div><div class="feat-title">Swap</div><div class="feat-desc">USDC ↔ EURC at live FX rates</div></div>
-      <div class="feat"><div class="feat-icon">⟐</div><div class="feat-title">Lend &amp; Borrow</div><div class="feat-desc">Earn 4.80% APY or borrow against collateral</div></div>
-      <div class="feat"><div class="feat-icon">⬡</div><div class="feat-title">Bridge (CCTP)</div><div class="feat-desc">Cross-chain USDC via Circle CCTP</div></div>
-      <div class="feat"><div class="feat-icon">◎</div><div class="feat-title">Arc Name</div><div class="feat-desc">Register your .arc name from 2 USDC/yr</div></div>
-      <div class="feat"><div class="feat-icon">✦</div><div class="feat-title">AI Assistant</div><div class="feat-desc">Ask anything about your wallet</div></div>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:4px;padding-bottom:20px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Circle Powered · Arc Testnet · Non-custodial</span>
     </div>
-    <div class="land-note">Circle Powered · Built on Arc Testnet · Non-custodial<br/>Get free testnet USDC at <a href="https://faucet.circle.com" target="_blank">faucet.circle.com</a></div>
   </div>
 </div>
 
@@ -562,9 +558,9 @@ a:hover{color:var(--text);}
     <div id="tab-send">
       <div class="field">
         <div class="flbl">Send To</div>
-        <div class="type-sel">
-          <button class="topt active" id="topt-address" onclick="setType('address',this)"><span class="oi">💳</span><span>Wallet</span></button>
-          <button class="topt" id="topt-arcname" onclick="setType('arcname',this)"><span class="oi">◎</span><span>Arc Name</span></button>
+        <div style="display:flex;gap:5px;margin-bottom:7px;">
+          <button class="topt active" id="topt-address" onclick="setType('address',this)" style="flex:1;padding:7px 8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.68rem;"><span>💳</span><span>Wallet</span></button>
+          <button class="topt" id="topt-arcname" onclick="setType('arcname',this)" style="flex:1;padding:7px 8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.68rem;"><span>◎</span><span>Arc Name</span></button>
         </div>
         <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
         <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
@@ -625,37 +621,61 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ SWAP PAGE ═══════ -->
 <div class="page" id="page-swap">
-  <div class="page-title">Swap</div>
-  <div class="page-sub">Exchange USDC and EURC at live rates</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div>
+      <div class="page-title" style="margin-bottom:2px;">Swap</div>
+      <div style="font-size:.68rem;color:var(--text3);">Live FX · 0.1% fee · No ETH needed</div>
+    </div>
+    <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.62rem;padding:6px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;">↻ Rate</button>
+  </div>
   <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
   
-  <div class="card">
-    <div class="card-title"><div class="cticon">⇄</div>Swap Tokens</div>
-    <div class="swap-box">
-      <div class="swap-label">You Pay</div>
-      <div class="token-select">
-        <div class="token-badge" id="fromToken"><span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC</div>
-        <div style="flex:1;"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);">Bal: <span id="swapFromBal">0.00</span></div>
+  <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:4px;margin-bottom:14px;">
+
+    <!-- You Pay box -->
+    <div style="background:var(--surface);border-radius:14px 14px 4px 4px;padding:14px 16px 10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">You Pay</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapFromBal" style="color:var(--text2);">0.00</span> <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:4px;color:var(--accent3);font-size:.5rem;padding:1px 5px;cursor:pointer;font-family:'IBM Plex Mono',monospace;">MAX</button></span>
       </div>
-      <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()"/>
-      <div class="swap-balance">≈ $<span id="swapFromUSD">0.00</span></div>
-    </div>
-    <div class="swap-arrow-btn"><div class="swap-arrow" onclick="flipSwap()">⇅</div></div>
-    <div class="swap-box">
-      <div class="swap-label">You Receive</div>
-      <div class="token-select">
-        <div class="token-badge" id="toToken"><span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC</div>
-        <div style="flex:1;"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);">Bal: <span id="swapToBal">0.00</span></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="fromToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;" onclick="flipSwap()">
+          <span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>
+        </div>
+        <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;font-size:1.6rem;"/>
       </div>
-      <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="opacity:.7;"/>
-      <div class="swap-balance">≈ $<span id="swapToUSD">0.00</span></div>
+      <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
     </div>
-    <div class="swap-rate" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; 1 EURC ≈ 1.0801 USDC</div>
-    <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC · 0.1% swap fee</span></div>
-    <button class="btn" id="swapBtn" onclick="doSwap()">Swap via Circle StableFX</button>
+
+    <!-- Flip button -->
+    <div style="display:flex;align-items:center;justify-content:center;position:relative;height:28px;margin:0 -4px;">
+      <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
+      <button onclick="flipSwap()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0deg)'">⇅</button>
+    </div>
+
+    <!-- You Receive box -->
+    <div style="background:var(--surface);border-radius:4px 4px 14px 14px;padding:10px 16px 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;">You Receive</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapToBal" style="color:var(--text2);">0.00</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="toToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(96,165,250,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;">
+          <span class="tok-dot eurc-dot"></span>EURC
+        </div>
+        <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.6rem;opacity:.65;"/>
+      </div>
+      <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
+    </div>
   </div>
+
+  <!-- Rate + fee row -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px;margin-bottom:10px;">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC</span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 USDC · 0.1% fee</span>
+  </div>
+
+  <button class="btn" id="swapBtn" onclick="doSwap()" style="font-size:.88rem;letter-spacing:.02em;">Swap</button>
 </div>
 
 <!-- ═══════ LEND PAGE ═══════ -->
