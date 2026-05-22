@@ -12,13 +12,13 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#07081a;--surface:#0e1030;--card:rgba(255,255,255,0.025);--card2:rgba(255,255,255,0.04);
-  --border:rgba(139,92,246,0.22);--border2:rgba(139,92,246,0.32);
-  --accent:#8b5cf6;--accent3:#a78bfa;
-  --text:#ede9fe;--text2:#c4b5fd;--text3:#6b5fa0;
+  --bg:#07081a;--surface:#0f1130;--card:rgba(255,255,255,0.045);--card2:rgba(255,255,255,0.08);
+  --border:rgba(139,92,246,0.22);--border2:rgba(139,92,246,0.4);
+  --accent:#8b5cf6;--accent3:#a78bfa;--accent4:#c4b5fd;
+  --text:#f5f3ff;--text2:#c4b5fd;--text3:rgba(196,181,253,0.55);
   --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#f59e0b;
-  --radius:18px;--radius-sm:12px;
-  --topbar-bg:rgba(7,8,26,.96);--nav-bg:rgba(7,8,26,.97);
+  --radius:20px;--radius-sm:16px;
+  --topbar-bg:rgba(7,8,26,0.98);--nav-bg:rgba(7,8,26,0.99);
 }
 [data-theme="light"]{
   --bg:#f4f3ff;--surface:#ffffff;--card:rgba(139,92,246,0.06);--card2:rgba(139,92,246,0.1);
@@ -132,24 +132,24 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ── Top bar ── */
 #globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
 .brand{display:flex;align-items:center;gap:9px;}
-.brand-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);}
+.brand-logo{width:36px;height:36px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(139,92,246,0.55);}
 .brand-logo svg{width:20px;height:20px;}
 .brand-name{font-size:.95rem;font-weight:700;letter-spacing:.06em;}
 .net-pill{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--accent3);border:1px solid rgba(139,92,246,.3);padding:4px 9px;border-radius:100px;background:rgba(139,92,246,.08);display:flex;align-items:center;gap:5px;}
 .net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);animation:pulse 2s ease infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-#connectTopBtn{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#ede9fe;border:none;border-radius:100px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(139,92,246,0.4);white-space:nowrap;display:none;}
+#connectTopBtn{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:none;border-radius:100px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 16px rgba(139,92,246,0.45),inset 0 1px 0 rgba(255,255,255,0.15);white-space:nowrap;display:none;}
 #connectTopBtn:hover{transform:translateY(-1px);}
 #connectTopBtn.connected{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);box-shadow:none;color:var(--accent3);font-family:'IBM Plex Mono',monospace;font-size:.66rem;cursor:default;}
 
 /* ── Nav ── */
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:70px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-top:1px solid rgba(139,92,246,0.15);padding:8px 0;display:none;}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:72px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(32px);border-top:1px solid rgba(255,255,255,0.07);padding:6px 0 8px;display:none;}
 .bottom-nav.show{display:block;}
 .nav-items{display:flex;max-width:520px;margin:0 auto;padding:0 6px;overflow-x:auto;scrollbar-width:none;}
 .nav-items::-webkit-scrollbar{display:none;}
 .nav-btn{flex:0 0 auto;min-width:56px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.03em;}
 .nav-btn .ni{font-size:1.3rem;transition:transform .2s;}
-.nav-btn.active{color:var(--accent3);border-top:2px solid var(--accent3);background:rgba(139,92,246,0.06);}
+.nav-btn.active{color:var(--accent3);border-top:none;background:rgba(139,92,246,0.12);border-radius:12px;}
 .nav-btn.active .ni{transform:scale(1.15);}
 
 /* ── Pages ── */
@@ -176,21 +176,21 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .land-note a{color:var(--accent3);}
 
 /* ── Cards ── */
-.card{background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:0 4px 24px rgba(0,0,0,0.25),inset 0 1px 0 rgba(139,92,246,0.08);}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(139,92,246,0.12),inset 0 0 0 0.5px rgba(255,255,255,0.03);}
 .card-title{font-size:.72rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent3);opacity:0.85;}
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;}
-.bal-card{background:linear-gradient(145deg,rgba(30,28,60,0.85),rgba(15,14,38,0.95));border:1px solid rgba(139,92,246,0.35);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(139,92,246,0.2);}
+.bal-card{background:linear-gradient(145deg,#1c1060 0%,#0f0b2e 55%,#190d50 100%);border:1px solid rgba(139,92,246,0.42);border-radius:var(--radius);padding:22px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(139,92,246,0.35);}
 .bal-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);pointer-events:none;}
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.bal-lbl{font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;}
+.bal-lbl{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:rgba(255,255,255,0.4);letter-spacing:.18em;text-transform:uppercase;}
 .bal-badge{display:flex;align-items:center;gap:4px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:3px 8px;font-size:.56rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;}
-.bal-num{font-size:3.2rem;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:6px;}
+.bal-num{font-size:3.4rem;font-weight:700;letter-spacing:-3px;line-height:1;margin-bottom:6px;color:#fff;}
 .bal-usd{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:7px;}
 .token-row{display:flex;gap:7px;margin-bottom:8px;}
-.tok{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 11px;font-size:.7rem;font-weight:500;}
+.tok{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:5px 12px;font-size:.7rem;font-weight:500;color:rgba(255,255,255,0.8);}
 .tok-dot{width:6px;height:6px;border-radius:50%;}
-.usdc-dot{background:var(--accent3);}
-.eurc-dot{background:#60a5fa;}
+.usdc-dot{background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.6);}
+.eurc-dot{background:#60a5fa;box-shadow:0 0 5px rgba(96,165,250,0.6);}
 .wal-row{display:flex;align-items:center;gap:7px;padding-top:8px;border-top:1px solid var(--border);}
 .wal-dot{width:26px;height:26px;border-radius:8px;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.54rem;font-weight:700;color:#ede9fe;}
 .wal-addr{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
@@ -272,10 +272,10 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .res-bar{display:none;align-items:center;gap:6px;padding:5px 9px;border-radius:var(--radius-sm);margin-top:5px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;}
 .res-bar.ok{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);color:var(--success);}
 .res-bar.no{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);color:var(--danger);}
-.gas-row{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text2);margin-bottom:8px;padding:8px 11px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:var(--radius-sm);}
+.gas-row{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--success);margin-bottom:8px;padding:10px 13px;background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.15);border-radius:var(--radius-xs);}
 .gas-row .gas-icon{font-size:.75rem;}
-.btn{width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:var(--radius-sm);color:#ede9fe;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 16px rgba(139,92,246,0.35);letter-spacing:.03em;}
-.btn:hover:not(:disabled){transform:translateY(-1px);background:#9d70f8;}
+.btn{width:100%;padding:15px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(139,92,246,0.45),inset 0 1px 0 rgba(255,255,255,0.15);letter-spacing:.03em;}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(139,92,246,0.55);}
 .btn:disabled{opacity:.35;cursor:not-allowed;transform:none;background:var(--surface);box-shadow:none;color:var(--text3);border:1px solid var(--border);}
 .btn-outline{background:transparent;border:1px solid var(--border2);box-shadow:none;color:var(--text2);}
 .btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent3);background:rgba(139,92,246,.06);}
@@ -376,7 +376,7 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .bridge-arrow{font-size:1rem;color:var(--accent3);}
 
 /* ── Toast ── */
-#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:.76rem;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:.76rem;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #toast.success{border-color:rgba(52,211,153,.35);color:var(--success);}
 #toast.error{border-color:rgba(248,113,113,.35);color:var(--danger);}
@@ -426,12 +426,12 @@ a:hover{color:var(--text);}
 <nav class="bottom-nav" id="bottomNav">
   <div class="nav-items">
     <button class="nav-btn active" onclick="goPage('send')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>Send</button>
-    <button class="nav-btn" onclick="goPage('swap')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>Swap</button>
-    <button class="nav-btn" onclick="goPage('lend')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Lend</button>
-    <button class="nav-btn" onclick="goPage('bridge')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M3 17a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2M3 17v3m18-3v3M7 12V7a5 5 0 0 1 10 0v5"/></svg></span>Bridge</button>
+    <button class="nav-btn" onclick="goPage('swap')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>Convert</button>
+    <button class="nav-btn" onclick="goPage('lend')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Earn</button>
+    <button class="nav-btn" onclick="goPage('bridge')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M3 17a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2M3 17v3m18-3v3M7 12V7a5 5 0 0 1 10 0v5"/></svg></span>Move</button>
     <button class="nav-btn" onclick="goPage('arcname')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg></span>Name</button>
     <button class="nav-btn" id="nav-naira" onclick="goPage('naira')"><span class="ni">₦</span>Naira</button>
-    <button class="nav-btn" onclick="goPage('history')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>History</button>
+    <button class="nav-btn" onclick="goPage('history')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Activity</button>
   </div>
 </nav>
 
@@ -682,8 +682,8 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ LEND PAGE ═══════ -->
 <div class="page" id="page-lend">
-  <div class="page-title">Lend &amp; Borrow</div>
-  <div class="page-sub">Supply USDC/EURC to earn interest or borrow against collateral</div>
+  <div class="page-title">Earn Interest</div>
+  <div class="page-sub">Save your dollars and earn 4.80% — withdraw anytime</div>
   
 
   <!-- Stats -->
@@ -798,8 +798,8 @@ a:hover{color:var(--text);}
 
 <!-- ═══════ BRIDGE PAGE (CCTP + Gateway) ═══════ -->
 <div class="page" id="page-bridge">
-  <div class="page-title">Bridge</div>
-  <div class="page-sub">Move USDC cross-chain via Circle CCTP</div>
+  <div class="page-title">Move Money</div>
+  <div class="page-sub">Send your dollars to another blockchain instantly</div>
   
 
   <!-- Gateway unified balance card -->
