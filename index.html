@@ -2350,12 +2350,12 @@ async function pollIrisAttestation(txHash,destChain){
         try{
           if(signer&&window.ethereum){
             const DEST_TRANSMITTER={
-              'ETH-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
-              'BASE-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
-              'ARB-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
-              'OP-SEPOLIA':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
-              'AVAX-FUJI':'0xa9fB1b3009DCb79E2fe346c16a604B8Fa8aE0a79',
-              'POLYGON-AMOY':'0x7865fAfC2db2093669d92c0197E5d0a401D7A8C4',
+              'ETH-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+              'BASE-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+              'ARB-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+              'OP-SEPOLIA':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+              'AVAX-FUJI':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+              'POLYGON-AMOY':'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
             };
             const transmitterAddr=DEST_TRANSMITTER[destChain];
             if(transmitterAddr){
