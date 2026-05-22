@@ -2208,21 +2208,7 @@ async function doSwap(){
         body:JSON.stringify({action:'swap',walletId:circleWalletId,walletAddress:circleWalletAddress,tokenIn,tokenOut,amountIn:fromAmt.toFixed(2)})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
-      const amtOut=parseFloat(d.amountOut).toFixed(4);
-      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'! 🎉','success',8000);
-      addTx({hash:d.txHash,to:userAddr,toRaw:'Circle App Kit Swap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'appkit'});
-      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-      _quoteCache={};lastTxHash=d.txHash;
-      btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
-      setTimeout(()=>refreshBalances(),3000);
-      trackEvent('swap',{amount:fromAmt,from:tokenIn,via:'appkit'});
-      return;
-    }catch(err){
-      toast('Swap failed: '+err.message.slice(0,120),'error',7000);
-      btn.innerHTML='Swap via Circle App Kit';btn.disabled=false;
-      return;
-    }
-  }
+
   
   // MetaMask path
   try{
