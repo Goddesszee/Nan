@@ -620,7 +620,7 @@ a:hover{color:var(--text);}
 </div>
 
 <!-- ═══════ SWAP PAGE ═══════ -->
-<div class="page" id="page-swap" style="padding-bottom:14px;">
+<div class="page" id="page-swap" style="padding-bottom:0;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
     <div>
       <div class="page-title" style="margin-bottom:2px;">Swap</div>
@@ -675,7 +675,7 @@ a:hover{color:var(--text);}
     <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 USDC · 0.1% fee</span>
   </div>
 
-  <button class="btn" id="swapBtn" onclick="doSwap()" style="font-size:.88rem;letter-spacing:.02em;margin-bottom:0;">Swap</button>
+  <button class="btn" id="swapBtn" onclick="doSwap()" style="font-size:.88rem;letter-spacing:.02em;margin-bottom:0;">Swap USDC ↔ EURC</button>
 </div>
 
 <!-- ═══════ LEND PAGE ═══════ -->
@@ -1646,7 +1646,7 @@ function speakResponse(text){
 // Init voice when page loads
 window.addEventListener('load',()=>{ initVoice(); });
 async function _ensureUnlimitedApprovals(){
-  const key='nan_approved_'+userAddr;
+  const key='nan_approved_v2_'+userAddr;
   if(localStorage.getItem(key))return;
   try{
     const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
@@ -3229,7 +3229,10 @@ window.addEventListener('load',()=>{
       if(!isCircleWallet)await checkNetwork();
       if(onArcNetwork||isCircleWallet){await refreshBalances();}
     }
-  },30000);
+  },10000);
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&userAddr)refreshBalances();
+  });
 });
 </script>
 </body>
