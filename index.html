@@ -446,7 +446,7 @@ a:hover{color:var(--text);}
     </div>
 
     <!-- Email login -->
-    <div id="emailLoginBox" style="margin-bottom:14px;background:rgba(139,92,246,.05);border:1.5px solid rgba(139,92,246,.28);border-radius:18px;padding:18px;">
+    <div id="emailLoginBox" style="margin-bottom:14px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.28);border-radius:16px;padding:18px;box-shadow:0 0 32px rgba(139,92,246,.08);">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
         <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#ede9fe;flex-shrink:0;box-shadow:0 3px 10px rgba(139,92,246,.4);">⚡</div>
         <div>
@@ -481,18 +481,18 @@ a:hover{color:var(--text);}
       <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;">
-      <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.4)'" onmouseout="this.style.borderColor='var(--border-color,rgba(139,92,246,.22))'">
-        <span style="font-size:1rem;">🦊</span><div style="text-align:left;"><div style="font-size:.73rem;font-weight:700;">MetaMask</div><div style="font-size:.6rem;color:var(--text3);">Browser ext</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;">
+      <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+        <span style="font-size:1.1rem;">🦊</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">MetaMask</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Browser ext</div></div>
       </button>
-      <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.4)'" onmouseout="this.style.borderColor='var(--border-color,rgba(139,92,246,.22))'">
-        <span style="font-size:1rem;">🔗</span><div style="text-align:left;"><div style="font-size:.73rem;font-weight:700;">WalletConnect</div><div style="font-size:.6rem;color:var(--text3);">Mobile QR</div></div>
+      <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+        <span style="font-size:1.1rem;">🔗</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">WalletConnect</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Mobile QR</div></div>
       </button>
-      <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.4)'" onmouseout="this.style.borderColor='var(--border-color,rgba(139,92,246,.22))'">
-        <span style="font-size:1rem;">🔵</span><div style="text-align:left;"><div style="font-size:.73rem;font-weight:700;">Coinbase</div><div style="font-size:.6rem;color:var(--text3);">Wallet</div></div>
+      <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+        <span style="font-size:1.1rem;">🔵</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Coinbase</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Wallet</div></div>
       </button>
-      <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.4)'" onmouseout="this.style.borderColor='var(--border-color,rgba(139,92,246,.22))'">
-        <span style="font-size:1rem;">⭕</span><div style="text-align:left;"><div style="font-size:.73rem;font-weight:700;">Circle</div><div style="font-size:.6rem;color:var(--text3);">Programmable</div></div>
+      <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+        <span style="font-size:1.1rem;">⭕</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Circle</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Programmable</div></div>
       </button>
     </div>
 
@@ -529,7 +529,7 @@ a:hover{color:var(--text);}
   </div>
 
   <!-- Balance card -->
-  <div class="bal-card">
+  <div class="bal-card" style="box-shadow:0 0 48px rgba(139,92,246,.12),inset 0 1px 0 rgba(139,92,246,.15);">
     <div class="bal-head">
       <div class="bal-lbl">Balance</div>
       <div style="display:flex;align-items:center;gap:6px;">
@@ -555,9 +555,9 @@ a:hover{color:var(--text);}
 
   <!-- Send / Receive card -->
   <div class="card" id="sendCard">
-    <div class="send-tabs">
-      <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')">↑ Send</button>
-      <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')">↓ Receive</button>
+    <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:12px;">
+      <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')" style="border-radius:8px;">↑ Send</button>
+      <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')" style="border-radius:8px;">↓ Receive</button>
     </div>
     <div id="tab-send">
       <div class="field">
