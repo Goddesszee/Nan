@@ -1224,6 +1224,47 @@ const CCTP_DEST_DOMAIN = {
   'BASE-SEPOLIA':  6,
   'POLYGON-AMOY':  7,
 };
+// Destination chain config for auto-mint after CCTP burn
+// MessageTransmitterV2 address is the same on all EVM testnets (Circle CREATE2)
+// Source: developers.circle.com/cctp/references/contract-addresses
+const CCTP_DEST_CONFIG = {
+  'ETH-SEPOLIA': {
+    chainId:'0xaa36a7', chainName:'Ethereum Sepolia',
+    rpc:'https://rpc.sepolia.org',
+    explorer:'https://sepolia.etherscan.io', currency:'ETH',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+  'AVAX-FUJI': {
+    chainId:'0xa869', chainName:'Avalanche Fuji',
+    rpc:'https://api.avax-test.network/ext/bc/C/rpc',
+    explorer:'https://testnet.snowtrace.io', currency:'AVAX',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+  'BASE-SEPOLIA': {
+    chainId:'0x14a34', chainName:'Base Sepolia',
+    rpc:'https://sepolia.base.org',
+    explorer:'https://sepolia.basescan.org', currency:'ETH',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+  'ARB-SEPOLIA': {
+    chainId:'0x66eee', chainName:'Arbitrum Sepolia',
+    rpc:'https://sepolia-rollup.arbitrum.io/rpc',
+    explorer:'https://sepolia.arbiscan.io', currency:'ETH',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+  'OP-SEPOLIA': {
+    chainId:'0xaa37dc', chainName:'OP Sepolia',
+    rpc:'https://sepolia.optimism.io',
+    explorer:'https://sepolia-optimistic.etherscan.io', currency:'ETH',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+  'POLYGON-AMOY': {
+    chainId:'0x13882', chainName:'Polygon Amoy',
+    rpc:'https://rpc-amoy.polygon.technology',
+    explorer:'https://amoy.polygonscan.com', currency:'MATIC',
+    transmitter:'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275',
+  },
+};
 
 // Arc Testnet provider — ENS disabled since Arc doesn't support it
 function getArcProvider(){
@@ -2521,7 +2562,7 @@ async function doBridge(){
     statusContent.innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;line-height:2;color:var(--text2);">
       <div>✅ Step 1: USDC burned on Arc</div>
       <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
-      <div id="mintStatus" style="display:none;">⏳ Step 3: Minting on ${destChain}…</div>
+      <div id="mintStatus" style="display:none;"></div>
       <div style="margin-top:6px;">Burn tx: <a href="${ARC_EXP}/tx/${burnTxHash}" target="_blank" style="color:var(--accent3);">${short(burnTxHash)} ↗</a></div>
     </div>`;
 
@@ -2535,7 +2576,166 @@ async function doBridge(){
   }finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}
 }
 
-async function pollIrisAttestation(txHash,destChain){
+async function pollIrisAttestation(txHash, destChain) {
+  const irisUrl = 'https://iris-api-sandbox.circle.com/v2/messages/' + ARC_CCTP_DOMAIN + '?transactionHash=' + txHash;
+  const maxAttempts = 80;
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    await new Promise(r => setTimeout(r, 15000));
+
+    try {
+      // 1. Try server proxy first (avoids CORS)
+      let attestation = null, message = null;
+      try {
+        const pr = await fetch('/api/cctp-attest', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({action:'getAttestation', txHash, sourceDomain:26}),
+        });
+        if (pr.ok) {
+          const pd = await pr.json();
+          if (pd.status === 'complete' && pd.attestation) {
+            attestation = pd.attestation;
+            message = pd.message;
+          }
+        }
+      } catch(_) {}
+
+      // 2. Fall back to direct Iris if proxy failed
+      if (!attestation) {
+        try {
+          const res = await fetch(irisUrl);
+          if (res.ok) {
+            const data = await res.json();
+            const m = data.messages?.[0];
+            if (m?.status === 'complete' && m.attestation && m.attestation !== 'PENDING') {
+              attestation = m.attestation;
+              message = m.message;
+            }
+          }
+        } catch(_) {}
+      }
+
+      // 3. Not ready yet
+      if (!attestation || !message) {
+        const el = document.getElementById('attestStatus');
+        if (el) el.textContent = '⏳ Iris attesting… (' + (attempts * 15) + 's elapsed, up to ~20 min on testnet)';
+        continue;
+      }
+
+      // 4. Attestation ready
+      const attestEl = document.getElementById('attestStatus');
+      if (attestEl) attestEl.innerHTML = '✅ Iris attestation received!';
+      toast('✓ Attestation ready!', 'success', 5000);
+
+      const destConfig = CCTP_DEST_CONFIG[destChain];
+
+      // 5. Circle email wallet — can't sign on other chains, show manual instructions
+      if (isCircleWallet || !wp) {
+        const mintEl = document.getElementById('mintStatus');
+        if (mintEl) {
+          mintEl.style.display = 'block';
+          mintEl.innerHTML = '⚠️ Auto-mint unavailable for email wallets. '
+            + 'Complete the mint manually on ' + (destConfig?.chainName || destChain) + '. '
+            + '<a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" '
+            + 'target="_blank" style="color:var(--accent3);">Circle guide ↗</a>';
+        }
+        toast('Attestation ready — complete mint manually on ' + (destConfig?.chainName || destChain), 'info', 10000);
+        return;
+      }
+
+      // 6. MetaMask — switch to dest chain, mint, switch back to Arc
+      if (!destConfig) {
+        toast('Unknown destination chain: ' + destChain, 'error', 6000);
+        return;
+      }
+
+      const mintEl = document.getElementById('mintStatus');
+      if (mintEl) { mintEl.style.display = 'block'; mintEl.textContent = '⏳ Switching wallet to ' + destConfig.chainName + '…'; }
+
+      try {
+        // Switch to destination chain
+        try {
+          await wp.request({method:'wallet_switchEthereumChain', params:[{chainId:destConfig.chainId}]});
+        } catch(switchErr) {
+          if (switchErr.code === 4902 || switchErr.code === -32603) {
+            await wp.request({
+              method:'wallet_addEthereumChain',
+              params:[{
+                chainId: destConfig.chainId,
+                chainName: destConfig.chainName,
+                nativeCurrency: {name:destConfig.currency, symbol:destConfig.currency, decimals:18},
+                rpcUrls: [destConfig.rpc],
+                blockExplorerUrls: [destConfig.explorer],
+              }],
+            });
+            await wp.request({method:'wallet_switchEthereumChain', params:[{chainId:destConfig.chainId}]});
+          } else {
+            throw switchErr;
+          }
+        }
+
+        // Fresh provider + signer on destination chain
+        const destProvider = new ethers.BrowserProvider(wp);
+        const destSigner = await destProvider.getSigner();
+
+        if (mintEl) mintEl.textContent = '⏳ Minting USDC on ' + destConfig.chainName + '…';
+
+        const transmitter = new ethers.Contract(
+          destConfig.transmitter,
+          ['function receiveMessage(bytes message, bytes attestation) returns (bool)'],
+          destSigner,
+        );
+
+        const mintTx = await transmitter.receiveMessage(message, attestation);
+        if (mintEl) mintEl.textContent = '⏳ Waiting for confirmation…';
+        await mintTx.wait(1);
+
+        const mintUrl = destConfig.explorer + '/tx/' + mintTx.hash;
+        if (mintEl) mintEl.innerHTML = '✅ USDC minted on ' + destConfig.chainName + '! '
+          + '<a href="' + mintUrl + '" target="_blank" style="color:var(--accent3);">View tx ↗</a>';
+
+        toast('✅ Bridge complete! USDC minted on ' + destConfig.chainName, 'success', 10000);
+        addTx({
+          hash:mintTx.hash, to:destConfig.transmitter,
+          toRaw:'CCTP mint on '+destConfig.chainName,
+          amount:'0', type:'bridge', token:'USDC',
+          ts:Date.now(), confirmed:true, source:'cctp-mint', destChain,
+        });
+
+      } catch(mintErr) {
+        console.error('[cctp-mint]', mintErr);
+        const reason = mintErr?.reason || mintErr?.message || 'Unknown error';
+        if (mintEl) mintEl.innerHTML = '⚠️ Mint failed: ' + reason.slice(0,100)
+          + '<br/><small style="color:var(--text3);">Complete manually on ' + destConfig.chainName + '.</small>';
+        toast('Mint failed — complete manually on ' + destConfig.chainName, 'warning', 8000);
+
+      } finally {
+        // Always switch back to Arc so the rest of the app works
+        try {
+          await wp.request({method:'wallet_switchEthereumChain', params:[{chainId:ARC_HEX}]});
+          provider = new ethers.BrowserProvider(wp);
+          signer = await provider.getSigner();
+          onArcNetwork = true;
+          await refreshBalances();
+        } catch(_) {
+          toast('Switch back to Arc Testnet to continue using NAN', 'info', 6000);
+        }
+      }
+
+      return;
+
+    } catch(e) {
+      console.warn('pollIrisAttestation attempt', attempts, e.message);
+    }
+  }
+
+  // Timed out
+  const el = document.getElementById('attestStatus');
+  if (el) el.textContent = '⚠️ Attestation still pending after 20 min — check Iris manually.';
+  toast('Burn confirmed. Check Iris API manually.', 'warning', 10000);
+}
   const irisUrl='https://iris-api-sandbox.circle.com/v2/messages/'+ARC_CCTP_DOMAIN+'?transactionHash='+txHash;
   const maxAttempts=80;
   let attempts=0;
