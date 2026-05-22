@@ -424,12 +424,12 @@ a:hover{color:var(--text);}
 <!-- ── Bottom Nav ── -->
 <nav class="bottom-nav" id="bottomNav">
   <div class="nav-items">
-    <button class="nav-btn active" onclick="goPage('send')"><span class="ni">⇅</span>Send</button>
-    <button class="nav-btn" onclick="goPage('swap')"><span class="ni">⇄</span>Swap</button>
-    <button class="nav-btn" onclick="goPage('lend')"><span class="ni">💰</span>Lend</button>
-    <button class="nav-btn" onclick="goPage('bridge')"><span class="ni">🌉</span>Bridge</button>
-    <button class="nav-btn" onclick="goPage('arcname')"><span class="ni">@</span>Name</button>
-    <button class="nav-btn" onclick="goPage('history')"><span class="ni">⟳</span>History</button>
+    <button class="nav-btn active" onclick="goPage('send')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>Send</button>
+    <button class="nav-btn" onclick="goPage('swap')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>Swap</button>
+    <button class="nav-btn" onclick="goPage('lend')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Lend</button>
+    <button class="nav-btn" onclick="goPage('bridge')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M3 17a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2M3 17v3m18-3v3M7 12V7a5 5 0 0 1 10 0v5"/></svg></span>Bridge</button>
+    <button class="nav-btn" onclick="goPage('arcname')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg></span>Name</button>
+    <button class="nav-btn" onclick="goPage('history')"><span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>History</button>
   </div>
 </nav>
 
@@ -485,17 +485,17 @@ a:hover{color:var(--text);}
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;">
-      <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
-        <span style="font-size:1.1rem;">🦊</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">MetaMask</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Browser ext</div></div>
+      <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(139,92,246,.5)';this.style.background='rgba(139,92,246,.07)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)';this.style.boxShadow='none'">
+        <span style="font-size:1.15rem;">🦊</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">MetaMask</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Browser ext</div></div>
       </button>
-      <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
-        <span style="font-size:1.1rem;">🔗</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">WalletConnect</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Mobile QR</div></div>
+      <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(139,92,246,.5)';this.style.background='rgba(139,92,246,.07)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)';this.style.boxShadow='none'">
+        <span style="font-size:1.15rem;">🔗</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">WalletConnect</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Mobile QR</div></div>
       </button>
-      <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
-        <span style="font-size:1.1rem;">🔵</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Coinbase</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Wallet</div></div>
+      <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(139,92,246,.5)';this.style.background='rgba(139,92,246,.07)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)';this.style.boxShadow='none'">
+        <span style="font-size:1.15rem;">🔵</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Coinbase</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Wallet</div></div>
       </button>
-      <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(139,92,246,.45)';this.style.background='rgba(139,92,246,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
-        <span style="font-size:1.1rem;">⭕</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Circle</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Programmable</div></div>
+      <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(139,92,246,.5)';this.style.background='rgba(139,92,246,.07)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)';this.style.boxShadow='none'">
+        <span style="font-size:1.15rem;">⭕</span><div style="text-align:left;"><div style="font-size:.72rem;font-weight:700;color:var(--text);">Circle</div><div style="font-size:.58rem;color:var(--text3);margin-top:1px;">Programmable</div></div>
       </button>
     </div>
 
@@ -1010,7 +1010,7 @@ a:hover{color:var(--text);}
 </div>
 
 <!-- ── AI Button ── -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:80px;right:16px;transform:none;z-index:9999;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(139,92,246,.5);color:#ede9fe;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.6);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;" title="NAN AI Assistant">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:80px;right:16px;transform:none;z-index:9999;width:44px;height:44px;border-radius:13px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa;font-size:.9rem;cursor:pointer;box-shadow:0 2px 12px rgba(139,92,246,.25);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;" onmouseover="this.style.background='rgba(139,92,246,.25)';this.style.borderColor='rgba(139
   <span>✦</span>
   <span style="font-size:.5rem;font-family:'DM Sans',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
@@ -1250,7 +1250,7 @@ function updateTopBar(connected){
   const landBtn=document.getElementById('landConnectBtn');
   if(connected){
     btn.style.display='block';
-    btn.textContent=otpEmail?otpEmail.split('@')[0].slice(0,10):short(userAddr);
+    btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,12):short(userAddr);
     btn.className='connected';
     btn.onclick=null;
     // Hide the landing connect button completely
