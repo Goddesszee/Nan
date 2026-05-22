@@ -1,0 +1,12 @@
+Installing dependencies...
+
+up to date in 2s
+
+61 packages are looking for funding
+  run `npm fund` for details
+Running "npm run build"
+
+> nan-app@1.0.0 build
+> echo 'no build needed'
+
+'no build needed'

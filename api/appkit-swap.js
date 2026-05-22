@@ -7,10 +7,7 @@
 //   CIRCLE_ENTITY_SECRET  — your 64-char entity secret
 //   CIRCLE_APP_KIT_KEY    — your kit key from console.circle.com → App Kit
 
-let _AppKit = null;
-let _createAdapter = null;
-async function loadSDK() {
-  if (_AppKit) return { AppKit: _AppKit, createCircleWalletsAdapter: _createAdapter };
+import { AppKit } from '@circle-fin/app-kit';\nimport { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';;
   try {
     const a = await import('@circle-fin/app-kit');
     const b = await import('@circle-fin/adapter-circle-wallets');
