@@ -464,17 +464,17 @@ function showSeedPhrase(mnemonic, privateKey, address){
       </div>
 
       <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
-        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
+        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
       </div>
 
       ${mnemonic ? `
       <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
           ${mnemonic.split(' ').map((word,i)=>`
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text);">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);">
               <span style="color:var(--text3);font-size:.5rem;">${i+1}.</span> ${word}
             </div>
           `).join('')}
@@ -483,8 +483,8 @@ function showSeedPhrase(mnemonic, privateKey, address){
       ` : ''}
 
       <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:20px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
       </div>
 
       <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:.7rem;color:var(--success);line-height:1.6;">
@@ -493,11 +493,11 @@ function showSeedPhrase(mnemonic, privateKey, address){
         ✓ You are the only person who controls this wallet
       </div>
 
-      <button id="seedCopyBtn" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;">📋 Copy Private Key to Clipboard</button>
+      <button id="seedCopyBtn" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;">📋 Copy Private Key to Clipboard</button>
 
-      <button id="seedContinueBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✓ I've Saved My Keys — Continue</button>
+      <button id="seedContinueBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✓ I've Saved My Keys — Continue</button>
 
-      <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'IBM Plex Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
+      <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
     </div>
   `;
   document.body.appendChild(modal);
@@ -1106,9 +1106,9 @@ function showReceipt(){
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -1398,7 +1398,7 @@ async function doBridge(){
     const messageBytes=receipt.logs?.[0]?.data||'';
 
     statusCard.style.display='block';
-    statusContent.innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;line-height:2;color:var(--text2);">
+    statusContent.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;line-height:2;color:var(--text2);">
       <div>✅ Step 1: USDC burned on Arc</div>
       <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
       <div id="mintStatus" style="display:none;"></div>
@@ -1698,7 +1698,7 @@ function renderAgentMsgs(){
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
   const chips=["What's my balance?","How much staked?","Rewards?","Send USDC","Swap USDC → EURC","Bridge via CCTP","Stake USDC"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">${c}</button>`).join('');
+  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -2302,7 +2302,7 @@ function renderMyArcNames(){
   el.innerHTML=myNames.map(n=>`
     <div class="arcname-row">
       <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
         <div style="font-size:.6rem;color:var(--text3);">Expires ${n.expires}</div>
       </div>
       <span style="font-size:.6rem;padding:3px 8px;border-radius:4px;background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">Active</span>
@@ -2316,8 +2316,8 @@ function renderArcDirectory(){
   el.innerHTML=arcNames.map(n=>`
     <div class="arcname-row" style="cursor:pointer;" onclick="prefillSend('${n.owner}')">
       <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:var(--accent3);">${n.name}.arc</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">${short(n.owner)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;color:var(--accent3);">${n.name}.arc</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">${short(n.owner)}</div>
       </div>
       <button class="send-sm">Send</button>
     </div>
