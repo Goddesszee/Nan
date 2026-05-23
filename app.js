@@ -231,12 +231,12 @@ function toggleTheme(){
   const t=isLight?'dark':'light';
   root.setAttribute('data-theme',t==='light'?'light':'');
   localStorage.setItem('nan_theme',t);
-  document.getElementById('themeToggle').textContent=t==='light'?'🌙':'☀️';
+  document.getElementById('themeToggle').textContent=t==='light'?'🔆':'🌙';
 }
 function initTheme(){
   const s=localStorage.getItem('nan_theme')||'dark';
   document.documentElement.setAttribute('data-theme',s==='light'?'light':'');
-  document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
+  document.getElementById('themeToggle').textContent=s==='light'?'🔆':'🌙';
 }
 function updateTopBar(connected){
   const btn=document.getElementById('connectTopBtn');
