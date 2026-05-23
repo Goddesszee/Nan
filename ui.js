@@ -86,7 +86,7 @@ function updateHomeScreen() {
   // Greeting
   const greetEl = document.getElementById('homeGreetName');
   if (greetEl) {
-    const name = otpEmail ? otpEmail.split('@')[0] : (userAddr ? userAddr.slice(2, 8) : 'there');
+    const name = otpEmail ? otpEmail.split('@')[0] : 'there';
     const hr = new Date().getHours();
     const greet = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
     document.getElementById('homeGreet').textContent = greet + ',';
