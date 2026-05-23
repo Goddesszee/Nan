@@ -4,43 +4,5 @@
       "source": "/",
       "destination": "/landing.html"
     }
-  ],
-  "functions": {
-    "api/chat.js": {
-      "maxDuration": 30
-    },
-    "api/otp.js": {
-      "maxDuration": 10
-    },
-    "api/fx-rate.js": {
-      "maxDuration": 10
-    },
-    "api/orders.js": {
-      "maxDuration": 30
-    },
-    "api/circle.js": {
-      "maxDuration": 30
-    },
-    "api/circle-wallets.js": {
-      "maxDuration": 30
-    },
-    "api/gateway.js": {
-      "maxDuration": 30
-    },
-    "api/cctp-attest.js": {
-      "maxDuration": 30
-    },
-    "api/prices.js": {
-      "maxDuration": 10
-    },
-    "api/transaction/[id].js": {
-      "maxDuration": 10
-    }
-  },
-  "crons": [
-    {
-      "path": "/api/orders?cron=1",
-      "schedule": "0 * * * *"
-    }
   ]
 }
