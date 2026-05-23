@@ -805,6 +805,13 @@ async function refreshBalances(){
     if(emptyHint){emptyHint.style.display=(parseFloat(u)===0&&parseFloat(e)===0)?'flex':'none';}
     document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
     document.getElementById('swapToBal').textContent=swapFlipped?u:e;
+    // Update home page asset rows
+    const haUsdc=document.getElementById('homeAssetUsdc');
+    const haEurc=document.getElementById('homeAssetEurc');
+    const haNgn=document.getElementById('homeAssetNgn');
+    if(haUsdc)haUsdc.textContent=u;
+    if(haEurc)haEurc.textContent=e;
+    if(haNgn)haNgn.textContent='₦0.00';
     updateSendAvailable();
     validateSend();
   }catch(err){
@@ -1118,6 +1125,7 @@ function shareReceiptX(){
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
 
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 function downloadReceipt(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
@@ -1142,11 +1150,17 @@ function downloadReceipt(){
   ctx.strokeStyle='rgba(139,92,246,0.5)';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.roundRect(10,10,580,380,16);ctx.stroke();
 
-  // NAN logo circle
+  // NAN logo - rounded square like the brand
   ctx.fillStyle='#8b5cf6';
-  ctx.beginPath();ctx.arc(50,50,22,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#ede9fe';ctx.font='bold 16px Space Grotesk, sans-serif';
-  ctx.textAlign='center';ctx.fillText('N',50,56);
+  roundRect(ctx,28,28,44,44,10);ctx.fill();
+  // NAN network icon - 3 dots + lines
+  ctx.fillStyle='#ede9fe';
+  ctx.beginPath();ctx.arc(42,50,3.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(58,42,3.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(58,58,3.5,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ede9fe';ctx.lineWidth=1.5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,43.5);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,56.5);ctx.stroke();
 
   // NAN title
   ctx.fillStyle='#ede9fe';ctx.font='bold 20px Space Grotesk, sans-serif';
@@ -1196,7 +1210,7 @@ function downloadReceipt(){
   // Footer
   ctx.fillStyle='rgba(139,92,246,0.15)';ctx.fillRect(0,360,600,40);
   ctx.fillStyle='#a78bfa';ctx.font='11px Space Grotesk, sans-serif';
-  ctx.textAlign='center';ctx.fillText('nan-swart.vercel.app  ·  Powered by Circle USDC  ·  Arc Network',300,385);
+  ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
 
   // Download
   const link=document.createElement('a');
@@ -1300,8 +1314,12 @@ function flipSwap(){
       const tokenAddr=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
-      const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn);
-      await approveTx.wait(1);
+      // Only approve if allowance is insufficient
+      const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
+      if(currentAllowance<amtIn){
+        const approveTx=await tokenContract.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await approveTx.wait(1);
+      }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
       toast('Swap confirmed on Arc!','success',6000);
@@ -2058,7 +2076,7 @@ async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   if(lendPositions.supplied===0){toast('Supply collateral first','error');return;}
-  if(amt>lendPositions.supplied*0.75){toast('Exceeds 75% LTV limit','error');return;}
+  if(amt>lendPositions.supplied*0.75){toast('Max borrow: '+(lendPositions.supplied*0.75).toFixed(2)+' USDC (75% LTV limit)','error',5000);return;}
   const btn=document.querySelector('#lp-borrow button');
   btn.innerHTML='<span class="spinner"></span>Borrowing…';btn.disabled=true;
   try{
