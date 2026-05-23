@@ -1,0 +1,6 @@
+# Exclude these from Vercel serverless function detection
+server/
+agent.js
+faucet.js
+app.js
+ui.js
