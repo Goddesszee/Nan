@@ -1,9 +1,9 @@
 /* ── NAN Wallet — style.css ── */
 :root{
-  --bg:#07081a;--surface:#0f1130;--card:rgba(255,255,255,0.045);--card2:rgba(255,255,255,0.08);
+  --bg:#07081a;--surface:#111338;--card:rgba(255,255,255,0.045);--card2:rgba(255,255,255,0.08);
   --border:rgba(139,92,246,0.22);--border2:rgba(139,92,246,0.4);
   --accent:#8b5cf6;--accent3:#a78bfa;--accent4:#c4b5fd;
-  --text:#f5f3ff;--text2:#c4b5fd;--text3:rgba(196,181,253,0.55);
+  --text:#f5f3ff;--text2:#c4b5fd;--text3:rgba(196,181,253,0.72);
   --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#f59e0b;
   --radius:20px;--radius-sm:16px;
   --topbar-bg:rgba(7,8,26,0.98);--nav-bg:rgba(7,8,26,0.99);
@@ -65,7 +65,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .home-name{font-size:1.25rem;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:14px;}
 
 /* Home balance card */
-.home-bal-card{background:linear-gradient(145deg,#1c1060 0%,#0f0b2e 55%,#190d50 100%);border:1px solid rgba(139,92,246,0.42);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(139,92,246,0.35);}
+.home-bal-card{background:linear-gradient(145deg,#1e1268 0%,#110e36 55%,#1c0f58 100%);border:1px solid rgba(139,92,246,0.42);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(139,92,246,0.35);}
 .home-bal-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none;}
 .home-bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,0.38);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;}
 .home-bal-num{font-size:3rem;font-weight:700;letter-spacing:-2px;line-height:1;color:#fff;margin-bottom:4px;}
@@ -110,7 +110,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .cticon{width:20px;height:20px;border-radius:6px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.72rem;}
 
 /* Old balance card (send page) */
-.bal-card{background:linear-gradient(145deg,#1c1060 0%,#0f0b2e 55%,#190d50 100%);border:1px solid rgba(139,92,246,0.42);border-radius:var(--radius);padding:22px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(139,92,246,0.35);}
+.bal-card{background:linear-gradient(145deg,#1e1268 0%,#110e36 55%,#1c0f58 100%);border:1px solid rgba(139,92,246,0.42);border-radius:var(--radius);padding:22px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(139,92,246,0.35);}
 .bal-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);pointer-events:none;}
 .bal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
 .bal-lbl{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,0.4);letter-spacing:.18em;text-transform:uppercase;}
