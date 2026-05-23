@@ -714,8 +714,7 @@ async function onConnected(isEmail=false, isDev=false){
   document.getElementById('devBadge').style.display=(isEmail&&isDev)?'inline-block':'none';
 
   if(!isEmail)await checkNetwork();
-  if(!isEmail&&signer&&onArcNetwork)_autoSeedLiquidity();
-// Approvals happen per-transaction — no upfront wallet popups
+  // Auto liquidity + approvals disabled — happen per-transaction only
   showBalSkeleton();
   await refreshBalances();
   loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
