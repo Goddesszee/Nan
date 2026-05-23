@@ -21,6 +21,7 @@ function goPage(name) {
     swap:    'page-swap',
     bridge:  'page-bridge',
     arcname: 'page-arcname',
+    bulk:    'page-bulk',
     naira:   'page-naira',
     history: 'page-history',
     lend:    'page-lend',
@@ -35,6 +36,7 @@ function goPage(name) {
     swap:    'nav-more',
     bridge:  'nav-more',
     arcname: 'nav-more',
+    bulk:    'nav-more',
     naira:   'nav-more',
     history: 'nav-more',
     lend:    'nav-earn',
@@ -54,6 +56,7 @@ function goPage(name) {
   if (name === 'history') renderHistory();
   if (name === 'arcname') renderArcDirectory();
   if (name === 'swap') refreshBalances();
+  if (name === 'bulk') { renderBulkRecipients(); updateBulkSummary(); }
   if (name === 'home') updateHomeScreen();
 }
 
