@@ -213,12 +213,10 @@
       </div>
     </div>
 
-    <!-- Wallet row -->
-    <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.15);border-radius:14px;">
+    <!-- Wallet address (hidden, kept for JS compatibility) -->
+    <div style="display:none;">
       <div id="walInit" class="wal-dot">N</div>
-      <div id="walAddr" class="wal-addr" onclick="copyAddr()" style="flex:1;font-size:.62rem;">Connect wallet</div>
-      <button class="ibtn" onclick="copyAddr()">Copy</button>
-      <button class="ibtn red" onclick="disconnect()">Disconnect</button>
+      <div id="walAddr" class="wal-addr">Connect wallet</div>
     </div>
   </div>
 
@@ -445,12 +443,7 @@
       </div>
       <div class="more-item-arrow">›</div>
     </div>
-    <div class="more-item danger" onclick="disconnect()">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);">⏏</div>
-        <div><div class="more-item-title">Disconnect</div></div>
-      </div>
-    </div>
+
   </div>
 
   <!-- ══ SWAP PAGE ══ -->
