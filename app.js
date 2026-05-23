@@ -2395,4 +2395,3 @@ window.addEventListener('load',()=>{
     if(!document.hidden&&userAddr)refreshBalances();
   });
 });
-</script>
