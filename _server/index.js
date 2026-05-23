@@ -1,0 +1,464 @@
+/**
+ * NAN App — Backend Server
+ * Handles: Circle Wallets API, OTP email auth, faucet proxy, Claude AI chat
+ */
+
+const express = require('express');
+const cors = require('cors');
+const crypto = require('crypto');
+const path = require('path');
+require('dotenv').config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
+
+// ── In-memory stores (use Redis/DB in production) ──
+const otpStore = new Map();      // email -> { otp, expires, attempts }
+const userStore = new Map();     // email -> { circleUserId, userToken, walletId, walletAddress }
+const walletTokens = new Map();  // walletAddress -> userToken (for API calls)
+
+// ── Config ──
+const CIRCLE_API_KEY   = process.env.CIRCLE_API_KEY   || '';
+const CIRCLE_BASE_URL  = process.env.CIRCLE_BASE_URL  || 'https://api.circle.com/v1/w3s';
+const GROQ_API_KEY     = process.env.GROQ_API_KEY     || '';
+const SMTP_HOST        = process.env.SMTP_HOST        || 'smtp.gmail.com';
+const SMTP_PORT        = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_USER        = process.env.SMTP_USER        || '';
+const SMTP_PASS        = process.env.SMTP_PASS        || '';
+const PORT             = parseInt(process.env.PORT    || '3000');
+
+// Arc Testnet config
+const ARC_CHAIN_ID   = 'ARB-SEPOLIA'; // Circle SDK chain identifier for Arc Testnet
+const ARC_BLOCKCHAIN = 'ARB-SEPOLIA'; // Update to 'ARC-TESTNET' when Circle adds official support
+
+// ─────────────────────────────────────────────
+// Helper: Circle API proxy
+// ─────────────────────────────────────────────
+async function circleRequest(method, path, body, userToken) {
+  const fetch = require('node-fetch');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${CIRCLE_API_KEY}`,
+  };
+  if (userToken) {
+    headers['X-User-Token'] = userToken;
+  }
+
+  const url = `${CIRCLE_BASE_URL}${path}`;
+  const options = { method, headers };
+  if (body && method !== 'GET') {
+    options.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(url, options);
+  const data = await res.json();
+  return { status: res.status, data };
+}
+
+// ─────────────────────────────────────────────
+// Helper: Send OTP email
+// ─────────────────────────────────────────────
+async function sendOTPEmail(email, otp) {
+  // If no SMTP configured, log to console (dev mode)
+  if (!SMTP_USER || !SMTP_PASS) {
+    console.log(`\n📧 OTP for ${email}: ${otp}\n`);
+    return { success: true, dev: true };
+  }
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+
+  await transporter.sendMail({
+    from: `"NAN Wallet" <${SMTP_USER}>`,
+    to: email,
+    subject: 'Your NAN login code',
+    html: `
+      <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:24px;">
+        <div style="background:#07081a;border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#a78bfa;letter-spacing:-1px;margin-bottom:8px;">NAN</div>
+          <div style="color:#c4b5fd;font-size:14px;margin-bottom:24px;">Weave. Connect. Build.</div>
+          <div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:12px;padding:20px;margin-bottom:20px;">
+            <div style="color:#6b5fa0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Your login code</div>
+            <div style="font-family:monospace;font-size:36px;font-weight:700;color:#ede9fe;letter-spacing:8px;">${otp}</div>
+          </div>
+          <div style="color:#6b5fa0;font-size:12px;">Expires in 10 minutes. Never share this code.</div>
+        </div>
+      </div>
+    `,
+  });
+
+  return { success: true };
+}
+
+// ─────────────────────────────────────────────
+// Helper: Create or retrieve Circle user + wallet
+// ─────────────────────────────────────────────
+async function getOrCreateCircleWallet(email) {
+  // Check if user already exists
+  if (userStore.has(email)) {
+    const existing = userStore.get(email);
+    console.log(`Returning existing wallet for ${email}:`, existing.walletAddress);
+    return existing;
+  }
+
+  if (!CIRCLE_API_KEY) {
+    // Dev mode: generate deterministic mock wallet
+    const hash = crypto.createHash('sha256').update(email).digest('hex');
+    const mockAddress = '0x' + hash.slice(0, 40);
+    const userData = {
+      circleUserId: 'dev-' + hash.slice(0, 8),
+      userToken: 'dev-token-' + hash.slice(0, 16),
+      walletId: 'dev-wallet-' + hash.slice(0, 8),
+      walletAddress: mockAddress,
+      email,
+      dev: true,
+    };
+    userStore.set(email, userData);
+    walletTokens.set(mockAddress, userData.userToken);
+    return userData;
+  }
+
+  // Step 1: Create Circle user
+  const idempotencyKey = crypto.randomUUID();
+  const userRes = await circleRequest('POST', '/users', { idempotencyKey });
+  
+  if (userRes.status !== 201 && userRes.status !== 200) {
+    throw new Error(`Circle user creation failed: ${JSON.stringify(userRes.data)}`);
+  }
+
+  const circleUserId = userRes.data?.data?.id;
+  if (!circleUserId) throw new Error('No user ID returned from Circle');
+
+  // Step 2: Get user token
+  const tokenRes = await circleRequest('POST', `/users/token`, { userId: circleUserId });
+  const userToken = tokenRes.data?.data?.userToken;
+  if (!userToken) throw new Error('No user token returned from Circle');
+
+  // Step 3: Create wallet
+  const walletRes = await circleRequest('POST', '/user/wallets', {
+    idempotencyKey: crypto.randomUUID(),
+    blockchains: ['ARC-TESTNET'],
+    name: `NAN-${email}`,
+  }, userToken);
+
+  const wallets = walletRes.data?.data?.wallets;
+  if (!wallets || wallets.length === 0) throw new Error('No wallet created');
+
+  const wallet = wallets[0];
+  const userData = {
+    circleUserId,
+    userToken,
+    walletId: wallet.id,
+    walletAddress: wallet.address,
+    email,
+  };
+
+  userStore.set(email, userData);
+  walletTokens.set(wallet.address, userToken);
+  return userData;
+}
+
+// ═════════════════════════════════════════════
+// ROUTES
+// ═════════════════════════════════════════════
+
+// ── Health check ──
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    version: '1.0.0',
+    circle: !!CIRCLE_API_KEY,
+    claude: !!CLAUDE_API_KEY,
+    smtp: !!SMTP_USER,
+    time: new Date().toISOString(),
+  });
+});
+
+// ── OTP: Send & Verify ──
+app.post('/api/otp', async (req, res) => {
+  const { action, email, otp } = req.body;
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ success: false, error: 'Valid email required' });
+  }
+
+  // Send OTP
+  if (action === 'send') {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(email, {
+      otp: code,
+      expires: Date.now() + 10 * 60 * 1000, // 10 min
+      attempts: 0,
+    });
+
+    try {
+      const result = await sendOTPEmail(email, code);
+      return res.json({
+        success: true,
+        dev: result.dev || false,
+        message: result.dev ? 'Dev mode: check server console for OTP' : 'Code sent to your email',
+      });
+    } catch (err) {
+      console.error('Email send error:', err);
+      return res.status(500).json({ success: false, error: 'Failed to send email. Check SMTP config.' });
+    }
+  }
+
+  // Verify OTP
+  if (action === 'verify') {
+    const record = otpStore.get(email);
+    if (!record) return res.status(400).json({ success: false, error: 'No code found — request a new one' });
+    if (Date.now() > record.expires) {
+      otpStore.delete(email);
+      return res.status(400).json({ success: false, error: 'Code expired — request a new one' });
+    }
+    if (record.attempts >= 5) {
+      otpStore.delete(email);
+      return res.status(400).json({ success: false, error: 'Too many attempts — request a new code' });
+    }
+    if (record.otp !== otp) {
+      record.attempts++;
+      return res.status(400).json({ success: false, error: 'Wrong code — ' + (5 - record.attempts) + ' attempts left' });
+    }
+
+    // OTP valid — create or retrieve wallet
+    otpStore.delete(email);
+    try {
+      const userData = await getOrCreateCircleWallet(email);
+      return res.json({
+        success: true,
+        walletAddress: userData.walletAddress,
+        walletId: userData.walletId,
+        circleUserId: userData.circleUserId,
+        userToken: userData.userToken,
+        dev: userData.dev || false,
+      });
+    } catch (err) {
+      console.error('Wallet creation error:', err);
+      return res.status(500).json({ success: false, error: 'Wallet setup failed: ' + err.message });
+    }
+  }
+
+  return res.status(400).json({ success: false, error: 'Invalid action' });
+});
+
+// ── Circle API Proxy ──
+app.post('/api/circle', async (req, res) => {
+  const { path: apiPath, body, method = 'GET', userToken } = req.body;
+
+  if (!CIRCLE_API_KEY) {
+    // Dev mode stub responses
+    if (apiPath && apiPath.includes('balances')) {
+      return res.json({
+        data: {
+          tokenBalances: [
+            { token: { symbol: 'USDC', decimals: 6 }, amount: '100.000000' },
+            { token: { symbol: 'EURC', decimals: 6 }, amount: '50.000000' },
+          ]
+        }
+      });
+    }
+    return res.json({ data: {}, dev: true });
+  }
+
+  if (!apiPath) return res.status(400).json({ error: 'path required' });
+
+  try {
+    const result = await circleRequest(method, apiPath, body, userToken);
+    res.status(result.status).json(result.data);
+  } catch (err) {
+    console.error('Circle proxy error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Circle Wallet Balances (convenience endpoint) ──
+app.get('/api/balances/:walletId', async (req, res) => {
+  const { walletId } = req.params;
+  const userToken = walletTokens.get(req.query.address) || req.headers['x-user-token'];
+
+  if (!CIRCLE_API_KEY) {
+    return res.json({
+      usdc: '100.00',
+      eurc: '50.00',
+      dev: true,
+    });
+  }
+
+  try {
+    const result = await circleRequest('GET', `/wallets/${walletId}/balances`, null, userToken);
+    const balances = result.data?.data?.tokenBalances || [];
+    const usdc = balances.find(b => b.token.symbol === 'USDC')?.amount || '0';
+    const eurc = balances.find(b => b.token.symbol === 'EURC')?.amount || '0';
+    res.json({ usdc, eurc });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Circle Transaction via Wallets API ──
+app.post('/api/transfer', async (req, res) => {
+  const { walletId, destinationAddress, amount, tokenSymbol, userToken } = req.body;
+
+  if (!CIRCLE_API_KEY) {
+    return res.json({
+      success: true,
+      txHash: '0xdev' + crypto.randomBytes(32).toString('hex'),
+      dev: true,
+    });
+  }
+
+  const TOKEN_IDS = {
+    'USDC': process.env.USDC_TOKEN_ID || '36b6931a-873a-56a8-8a27-b706b17104ee',
+    'EURC': process.env.EURC_TOKEN_ID || '1b6b4d90-3602-5e74-9249-5202f14b4f93',
+  };
+
+  const tokenId = TOKEN_IDS[tokenSymbol];
+  if (!tokenId) return res.status(400).json({ error: 'Unknown token' });
+
+  try {
+    const result = await circleRequest('POST', '/user/transactions/transfer', {
+      idempotencyKey: crypto.randomUUID(),
+      walletId,
+      tokenId,
+      destinationAddress,
+      amounts: [amount.toString()],
+      fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
+    }, userToken);
+
+    if (result.status !== 201 && result.status !== 200) {
+      return res.status(result.status).json({ error: result.data?.message || 'Transfer failed' });
+    }
+
+    res.json({
+      success: true,
+      transactionId: result.data?.data?.id,
+      txHash: result.data?.data?.txHash,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Transaction Status Polling ──
+app.get('/api/transaction/:txId', async (req, res) => {
+  const { txId } = req.params;
+  const userToken = req.headers['x-user-token'];
+
+  if (!CIRCLE_API_KEY || txId.startsWith('0xdev')) {
+    return res.json({ state: 'CONFIRMED', txHash: txId });
+  }
+
+  try {
+    const result = await circleRequest('GET', `/transactions/${txId}`, null, userToken);
+    res.json(result.data?.data || {});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Faucet Proxy ──
+app.post('/api/faucet', async (req, res) => {
+  const { address } = req.body;
+  if (!address) return res.status(400).json({ error: 'address required' });
+
+  const fetch = require('node-fetch');
+  try {
+    // Try Circle's faucet API
+    const faucetRes = await fetch('https://faucet.circle.com/api/faucet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        address,
+        blockchain: 'ARC-TESTNET',
+        native: false,
+        tokens: ['USDC', 'EURC'],
+      }),
+    });
+
+    if (faucetRes.ok) {
+      const data = await faucetRes.json();
+      return res.json({ success: true, data });
+    }
+
+    // Fallback response
+    return res.json({
+      success: false,
+      error: 'Faucet unavailable — visit faucet.circle.com directly',
+    });
+  } catch (err) {
+    return res.json({
+      success: false,
+      error: 'Faucet request failed — visit faucet.circle.com directly',
+    });
+  }
+});
+
+// ── Groq AI Chat ──
+app.post('/api/chat', async (req, res) => {
+  const { system, messages } = req.body;
+  const fetch = require('node-fetch');
+
+  if (!GROQ_API_KEY) {
+    // Dev mode: smart static responses
+    const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
+    let reply = "I'm NAN AI ✦ — running in dev mode. Add GROQ_API_KEY to enable real AI responses.";
+    if (lastMsg.includes('balance')) reply = "Your balance info is shown in the wallet card above.";
+    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send tokens, use the Send tab. Enter a wallet address or Twitter/Discord handle, pick an amount, and confirm. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
+    if (lastMsg.includes('stake')) reply = "You can stake USDC to earn 5.20% APY. <ACTION>{\"action\":\"navigate\",\"tab\":\"stake\"}</ACTION>";
+    if (lastMsg.includes('swap')) reply = "Swap between USDC and EURC at live exchange rates. <ACTION>{\"action\":\"navigate\",\"tab\":\"swap\"}</ACTION>";
+    if (lastMsg.includes('bridge')) reply = "Bridge USDC cross-chain via Circle CCTP. <ACTION>{\"action\":\"navigate\",\"tab\":\"bridge\"}</ACTION>";
+    return res.json({ reply });
+  }
+
+  try {
+    // Build messages array with system prompt included
+    const groqMessages = [
+      { role: 'system', content: system || 'You are NAN AI, a helpful wallet assistant.' },
+      ...(messages || []),
+    ];
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile', // free, fast, smart
+        max_tokens: 512,
+        temperature: 0.7,
+        messages: groqMessages,
+      }),
+    });
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
+    res.json({ reply });
+  } catch (err) {
+    console.error('Groq API error:', err);
+    res.status(500).json({ reply: "Connection error — please try again." });
+  }
+});
+
+// ── Serve frontend ──
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// ── Start ──
+app.listen(PORT, () => {
+  console.log(`\n🚀 NAN App running at http://localhost:${PORT}`);
+  console.log(`\n📊 Config status:`);
+  console.log(`   Circle API: ${CIRCLE_API_KEY ? '✅ configured' : '⚠️  DEV MODE (no key)'}`);
+  console.log(`   Groq AI:    ${GROQ_API_KEY ? '✅ configured' : '⚠️  DEV MODE (no key)'}`);
+  console.log(`   SMTP Email: ${SMTP_USER ? '✅ configured' : '⚠️  DEV MODE (OTP logged to console)'}`);
+  console.log(`\n💡 Set environment variables in .env to enable production features\n`);
+});
