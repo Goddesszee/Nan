@@ -245,7 +245,17 @@ function updateTopBar(connected){
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
-    btn.onclick=null;
+    btn.title='Click to copy wallet address';
+    btn.onclick=()=>{
+      if(!userAddr)return;
+      navigator.clipboard.writeText(userAddr).then(()=>{
+        const orig=btn.textContent;
+        btn.textContent='✓ Copied!';
+        btn.style.color='var(--success)';
+        btn.style.borderColor='rgba(52,211,153,.4)';
+        setTimeout(()=>{btn.textContent=orig;btn.style.color='';btn.style.borderColor='';},1800);
+      });
+    };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
     // Hide the landing connect button completely
