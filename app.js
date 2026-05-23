@@ -1911,9 +1911,41 @@ let orderEngineRunning = false;
 
 function genOrderId(){return 'ord_'+Date.now().toString(36);}
 
-// Save orders to localStorage
-function saveOrders(){try{localStorage.setItem('nan_orders',JSON.stringify(nanOrders));}catch{}}
-function loadOrders(){try{const s=localStorage.getItem('nan_orders');if(s)nanOrders=JSON.parse(s).filter(o=>o.status==='pending');}catch{}}
+// Save orders to Redis via API + localStorage fallback
+async function saveOrders(){
+  try{localStorage.setItem('nan_orders',JSON.stringify(nanOrders));}catch{}
+  if(!userAddr)return;
+  try{
+    // Sync all pending orders to server
+    for(const order of nanOrders){
+      if(!order.synced){
+        await fetch('/api/orders?wallet='+userAddr,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({wallet:userAddr,order:{...order,email:otpEmail||null,synced:true}})
+        });
+        order.synced=true;
+      }
+    }
+  }catch(e){console.log('Order sync error:',e);}
+}
+
+async function loadOrders(){
+  // Load from localStorage first (instant)
+  try{const s=localStorage.getItem('nan_orders');if(s)nanOrders=JSON.parse(s).filter(o=>o.status==='pending');}catch{}
+  // Then sync from server
+  if(!userAddr)return;
+  try{
+    const res=await fetch('/api/orders?wallet='+userAddr);
+    const data=await res.json();
+    if(data.orders&&data.orders.length){
+      // Merge server orders with local
+      const serverIds=new Set(data.orders.map(o=>o.id));
+      const localOnly=nanOrders.filter(o=>!serverIds.has(o.id));
+      nanOrders=[...data.orders,...localOnly].filter(o=>o.status==='pending');
+      localStorage.setItem('nan_orders',JSON.stringify(nanOrders));
+    }
+  }catch(e){console.log('Order load error:',e);}
+}
 
 // Start the order monitoring loop
 function startOrderEngine(){
@@ -2079,7 +2111,7 @@ function parseNextOccurrence(freq){
 }
 
 function createOrder(orderData){
-  const order={...orderData,id:genOrderId(),status:'pending',createdAt:Date.now()};
+  const order={...orderData,id:genOrderId(),status:'pending',createdAt:Date.now(),email:otpEmail||null,synced:false};
   nanOrders.push(order);
   saveOrders();
   return order;
@@ -2087,7 +2119,18 @@ function createOrder(orderData){
 
 function cancelOrder(id){
   const order=nanOrders.find(o=>o.id===id);
-  if(order){order.status='cancelled';saveOrders();nanOrders=nanOrders.filter(o=>o.status==='pending');}
+  if(order){
+    order.status='cancelled';
+    nanOrders=nanOrders.filter(o=>o.status==='pending');
+    saveOrders();
+    // Delete from server
+    if(userAddr){
+      fetch('/api/orders?wallet='+userAddr,{
+        method:'DELETE',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet:userAddr,id})
+      }).catch(()=>{});
+    }
+  }
 }
 
 function listOrders(){
@@ -2276,6 +2319,8 @@ function executeAgentAction(action){
     case 'cancel_all':{
       const count=nanOrders.length;
       nanOrders=[];saveOrders();
+      // Delete all from server
+      if(userAddr){fetch('/api/orders?wallet='+userAddr,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:userAddr,id:'all'})}).catch(()=>{});}
       addAgentMsg(`🗑️ Cancelled all ${count} pending order${count!==1?'s':''}. Your queue is clear!`);
       break;}
     case 'list_orders':{
