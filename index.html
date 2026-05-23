@@ -62,7 +62,7 @@
   </nav>
 
   <!-- ══ LANDING PAGE ══ -->
-  <div class="page page-land active" id="page-land">
+  <div class="page page-land active" id="page-land" style="background:var(--bg);">
     <div style="padding:16px 16px 8px;">
 
       <!-- Hero -->
@@ -121,16 +121,16 @@
 
       <!-- Wallet grid -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;">
-        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🦊</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">MetaMask</div><div style="font-size:.65rem;color:var(--text3);">Browser ext</div></div>
         </button>
-        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🔗</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">WalletConnect</div><div style="font-size:.65rem;color:var(--text3);">Mobile QR</div></div>
         </button>
-        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🔵</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">Coinbase</div><div style="font-size:.65rem;color:var(--text3);">Wallet</div></div>
         </button>
-        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">⭕</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">Circle</div><div style="font-size:.65rem;color:var(--text3);">Programmable</div></div>
         </button>
       </div>
