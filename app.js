@@ -2611,9 +2611,19 @@ async function refreshLendPosition(){
     const readProvider=provider||getArcProvider();
     const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,readProvider);
     const pos=await lendContract.getPosition(userAddr);
-    lendPositions.supplied=parseFloat(ethers.formatUnits(pos[0],6));
-    lendPositions.interest=parseFloat(ethers.formatUnits(pos[1],6));
-    lendPositions.borrowed=parseFloat(ethers.formatUnits(pos[2],6));
+    // Log all position values to console for debugging
+    const p0=parseFloat(ethers.formatUnits(pos[0],6));
+    const p1=parseFloat(ethers.formatUnits(pos[1],6));
+    const p2=parseFloat(ethers.formatUnits(pos[2],6));
+    const p3=pos[3]?parseFloat(ethers.formatUnits(pos[3],6)):0;
+    const p4=pos[4]?parseFloat(ethers.formatUnits(pos[4],6)):0;
+    const p5=pos[5]?parseFloat(ethers.formatUnits(pos[5],6)):0;
+    console.log('Position values:',{p0,p1,p2,p3,p4,p5});
+    // supplied is likely the largest value matching our known deposit
+    // Try pos[0]=supplied, pos[3]=borrowed, pos[4]=interest (common DeFi layout)
+    lendPositions.supplied=p0;
+    lendPositions.borrowed=p3||p2;
+    lendPositions.interest=p4||p1;
     updateLendPositions();
   }catch(e){console.log('Lend position fetch error:',e.message);}
 }
@@ -2651,8 +2661,10 @@ async function doBorrow(){
         // Get actual on-chain position to know how much to register as collateral
         const pos=await lc2.getPosition(userAddr);
         const onChainSupplied=Number(pos[0]);
+        // Try pos[2] as collateral (most common), fall back to 0 if same as supplied
         const onChainCollateral=Number(pos[2]||0);
-        const toRegister=onChainSupplied-onChainCollateral;
+        const toRegister=onChainCollateral<onChainSupplied ? onChainSupplied-onChainCollateral : 0;
+        console.log('Collateral check: supplied=',onChainSupplied,'collateral=',onChainCollateral,'toRegister=',toRegister);
         if(toRegister>0){
           toast('Registering your collateral…','info',3000);
           const colTx=await lc2.addCollateral(toRegister.toString(),arcGasOpts());
