@@ -2626,6 +2626,19 @@ async function doBorrow(){
   btn.innerHTML='<span class="spinner"></span>Borrowing…';btn.disabled=true;
   try{
     const amtAtomic=Math.floor(amt*1_000_000).toString();
+    // Step 1: Register collateral first (required by NANLendingPool)
+    if(!isCircleWallet&&signer){
+      try{
+        const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+        const collateralAtomic=Math.floor(lendPositions.supplied*1_000_000).toString();
+        toast('Registering collateral…','info',3000);
+        const colTx=await lendContract.addCollateral(collateralAtomic,arcGasOpts());
+        await colTx.wait(1);
+      }catch(ce){
+        // If addCollateral fails, collateral may already be registered — continue
+        console.log('addCollateral note:',ce.message);
+      }
+    }
     if(isCircleWallet&&circleWalletId){
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
