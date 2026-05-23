@@ -1959,6 +1959,11 @@ function getMetrics(){
   }catch(e){return{};}
 }
 
+function updateBorrowMax(){
+  const maxBorrow = lendPositions ? Math.max(0, lendPositions.supplied*0.75 - lendPositions.borrowed) : 0;
+  const maxEl = document.getElementById('borrowMaxHint');
+  if(maxEl) maxEl.textContent = maxBorrow > 0 ? 'Max: '+maxBorrow.toFixed(2)+' USDC' : 'No capacity';
+}
 function initLendUI(){
   updateLendPositions();
   refreshLendPosition();
@@ -2077,8 +2082,10 @@ async function refreshLendPosition(){
 async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  if(lendPositions.supplied===0){toast('Supply collateral first','error');return;}
-  if(amt>lendPositions.supplied*0.75){toast('Max borrow: '+(lendPositions.supplied*0.75).toFixed(2)+' USDC (75% LTV limit)','error',5000);return;}
+  if(lendPositions.supplied===0){toast('Supply USDC as collateral first before borrowing','error',4000);return;}
+  const maxBorrow=lendPositions.supplied*0.75-lendPositions.borrowed;
+  if(maxBorrow<=0){toast('No borrowing capacity — repay existing loan first','error',4000);return;}
+  if(amt>maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;}
   const btn=document.querySelector('#lp-borrow button');
   btn.innerHTML='<span class="spinner"></span>Borrowing…';btn.disabled=true;
   try{
