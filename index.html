@@ -211,6 +211,14 @@
         <div class="home-asset-change neutral" id="homeAssetEurcSub">—</div>
       </div>
     </div>
+
+    <!-- Wallet row -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.15);border-radius:14px;">
+      <div id="walInit" class="wal-dot">N</div>
+      <div id="walAddr" class="wal-addr" onclick="copyAddr()" style="flex:1;font-size:.62rem;">Connect wallet</div>
+      <button class="ibtn" onclick="copyAddr()">Copy</button>
+      <button class="ibtn red" onclick="disconnect()">Disconnect</button>
+    </div>
   </div>
 
   <!-- ══ SEND PAGE ══ -->
@@ -226,30 +234,23 @@
       <span class="spinner" style="border-top-color:var(--accent3);"></span>
       <span id="txPollingMsg">Confirming transaction on-chain…</span>
     </div>
-    <!-- Balance card -->
-    <div class="bal-card">
-      <div class="bal-head">
-        <div class="bal-lbl">Balance</div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
-          <div class="bal-badge">● Arc Testnet</div>
+    <!-- Slim balance bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.15);border-radius:14px;margin-bottom:10px;">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">Balance</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#fff;"><span id="balAmt">0.00</span> <span style="font-size:.7rem;color:var(--text3);" id="balCurrencyLabel">USDC</span></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="balUsd">≈ $0.00 USD</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="display:flex;gap:5px;margin-bottom:4px;">
+          <div class="tok"><span class="tok-dot usdc-dot"></span><span id="usdcBal2">0.00</span></div>
+          <div class="tok"><span class="tok-dot eurc-dot"></span><span id="eurcBal2">0.00</span></div>
         </div>
+        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
       </div>
-      <div class="bal-num"><span id="balAmt">0.00</span> <span style="font-size:.8rem;color:var(--text3);" id="balCurrencyLabel">USDC</span></div>
-      <div class="bal-usd" id="balUsd">≈ $0.00 USD</div>
-      <div id="emptyBalHint" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.65rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.62rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
-      <div class="token-row">
-        <div class="tok"><span class="tok-dot usdc-dot"></span>USDC: <span id="usdcBal2">0.00</span></div>
-        <div class="tok"><span class="tok-dot eurc-dot"></span>EURC: <span id="eurcBal2">0.00</span></div>
-      </div>
-      <div class="wal-row">
-        <div class="wal-dot" id="walInit">N</div>
-        <div class="wal-addr" id="walAddr" onclick="copyAddr()">Connect wallet</div>
-        <button class="ibtn" onclick="copyAddr()">Copy</button>
-        <button class="ibtn red" onclick="disconnect()">Disconnect</button>
-      </div>
-      <div id="walletSourceBadge" style="display:none;"></div>
     </div>
+    <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.65rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.62rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
+    <div id="walletSourceBadge" style="display:none;"></div>
     <!-- Send / Receive card -->
     <div class="card" id="sendCard">
       <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:12px;">
