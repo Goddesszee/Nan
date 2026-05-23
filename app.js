@@ -754,7 +754,11 @@ function disconnect(){
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('bottomNav').classList.remove('show');
-  document.getElementById('page-land').style.display='flex';
+  const landPage=document.getElementById('page-land');
+  landPage.style.display='flex';
+  landPage.style.visibility='visible';
+  landPage.style.zIndex='10';
+  landPage.classList.add('active');
   document.getElementById('connectTopBtn').style.display='none';
   document.getElementById('wrongNetBanner').classList.remove('show');
   document.getElementById('onboardChecklist').style.display='none';
