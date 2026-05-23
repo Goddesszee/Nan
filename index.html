@@ -405,7 +405,11 @@
             <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
           </div>
         </div>
-        <div class="field"><div class="flbl">Amount</div>
+        <div class="field">
+          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Amount</span>
+            <span id="borrowMaxHint" style="font-size:.72rem;color:var(--accent3);font-weight:600;"></span>
+          </div>
           <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setBorrowMax()">MAX</button></div>
         </div>
         <div class="gas-row"><span class="gas-icon">📉</span><span style="flex:1;">Borrow APR</span><span style="color:var(--warning);">7.20%</span></div>
