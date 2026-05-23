@@ -199,7 +199,7 @@
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetUsdc">0.00</div>
-        <div class="home-asset-change" id="homeAssetUsdcSub">—</div>
+        <div class="home-asset-change" id="homeAssetUsdcSub" style="color:var(--text3);">Arc Testnet</div>
       </div>
     </div>
     <div class="home-asset-row">
@@ -209,7 +209,17 @@
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetEurc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetEurcSub">—</div>
+        <div class="home-asset-change neutral" id="homeAssetEurcSub" style="color:var(--text3);">Arc Testnet</div>
+      </div>
+    </div>
+    <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;">
+      <div class="home-asset-left">
+        <div class="home-asset-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);font-weight:700;color:var(--accent3);">₦</div>
+        <div><div class="home-asset-name">Naira</div><div class="home-asset-sub">NGN · Coming Soon</div></div>
+      </div>
+      <div>
+        <div class="home-asset-val" id="homeAssetNgn">₦0.00</div>
+        <div class="home-asset-change neutral" style="color:var(--gold);font-size:.6rem;">Coming Soon</div>
       </div>
     </div>
 
@@ -621,24 +631,26 @@
     </div>
     <div id="npanel-deposit" class="card">
       <div class="card-title"><div class="cticon">↓</div>Deposit Naira</div>
-      <p style="font-size:.65rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">Transfer naira to this virtual account. Funds arrive in 1–5 minutes and auto-convert to USDC.</p>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;">
-        <div class="conf-row"><span class="conf-lbl">Bank</span><span class="conf-val">Providus Bank</span></div>
-        <div class="conf-row"><span class="conf-lbl">Account name</span><span class="conf-val">NAN / Your Name</span></div>
-        <div class="conf-row" style="border-bottom:none;"><span class="conf-lbl">Account number</span>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;">9012 3456 78</span>
-            <button class="ibtn" onclick="navigator.clipboard.writeText('9012345678').then(()=>toast('Copied!','success',2000))">Copy</button>
-          </div>
+      <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:14px;padding:20px;margin-bottom:12px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:10px;">🏗️</div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:6px;">Virtual Account Coming Soon</div>
+        <div style="font-size:.68rem;color:var(--text3);line-height:1.7;">A dedicated Naira virtual account will be assigned to your wallet.<br/>Deposits will auto-convert to USDC at live rates.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;">
+          <span style="font-size:1.1rem;">⚡</span>
+          <div style="font-size:.72rem;color:var(--text2);">Instant auto-conversion to USDC</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;">
+          <span style="font-size:1.1rem;">🏦</span>
+          <div style="font-size:.72rem;color:var(--text2);">All Nigerian banks supported</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;">
+          <span style="font-size:1.1rem;">₦</span>
+          <div style="font-size:.72rem;color:var(--text2);">Live NGN/USDC rates · Low fees</div>
         </div>
       </div>
-      <div class="live-badge"><div class="live-dot"></div>Min ₦5,000 · Auto-converts to USDC · ₦100 fee</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
-        <button class="ibtn" style="padding:8px;text-align:center;">₦10,000</button>
-        <button class="ibtn" style="padding:8px;text-align:center;">₦50,000</button>
-        <button class="ibtn" style="padding:8px;text-align:center;">₦100,000</button>
-      </div>
-      <button class="btn" onclick="navigator.clipboard.writeText('9012345678').then(()=>toast('Account number copied!','success',3000))">Copy Account Number</button>
+      <button class="btn" style="margin-top:14px;" onclick="toast('You will be notified when Naira deposit is live! 🎉','success',4000)">🔔 Notify Me When Live</button>
     </div>
     <div id="npanel-withdraw" class="card" style="display:none;">
       <div class="card-title"><div class="cticon">🏦</div>Withdraw to Bank</div>
