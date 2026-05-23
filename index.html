@@ -221,8 +221,8 @@
   </div>
 
   <!-- ══ SEND PAGE ══ -->
-  <div class="page" id="page-send">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+  <div class="page" id="page-send" style="display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">🧪 Arc Testnet · Explorer ↗</a>
       <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'DM Sans',sans-serif;font-size:.63rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
     </div>
@@ -233,15 +233,16 @@
       <span class="spinner" style="border-top-color:var(--accent3);"></span>
       <span id="txPollingMsg">Confirming transaction on-chain…</span>
     </div>
-    <!-- Slim balance bar -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.15);border-radius:14px;margin-bottom:10px;">
+
+    <!-- Slim balance strip -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(15,11,46,.9));border:1px solid rgba(139,92,246,.35);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
       <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">Balance</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#fff;"><span id="balAmt">0.00</span> <span style="font-size:.7rem;color:var(--text3);" id="balCurrencyLabel">USDC</span></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="balUsd">≈ $0.00 USD</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:rgba(255,255,255,.38);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:.75rem;color:rgba(196,181,253,.5);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:rgba(196,181,253,.45);margin-top:3px;" id="balUsd">≈ $0.00 USD</div>
       </div>
-      <div style="text-align:right;">
-        <div style="display:flex;gap:5px;margin-bottom:4px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+        <div style="display:flex;gap:5px;">
           <div class="tok"><span class="tok-dot usdc-dot"></span><span id="usdcBal2">0.00</span></div>
           <div class="tok"><span class="tok-dot eurc-dot"></span><span id="eurcBal2">0.00</span></div>
         </div>
@@ -250,40 +251,50 @@
     </div>
     <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.65rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.62rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
     <div id="walletSourceBadge" style="display:none;"></div>
+
+    <!-- Hidden elements needed by JS -->
+    <div style="display:none;">
+      <div id="walInit">N</div>
+      <div id="walAddr">Connect wallet</div>
+    </div>
+
     <!-- Send / Receive card -->
-    <div class="card" id="sendCard">
-      <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:12px;">
+    <div class="card" id="sendCard" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
+      <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:14px;">
         <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')" style="border-radius:8px;">↑ Send</button>
         <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')" style="border-radius:8px;">↓ Receive</button>
       </div>
-      <div id="tab-send">
+      <div id="tab-send" style="display:flex;flex-direction:column;flex:1;">
         <div class="field">
           <div class="flbl">Send To</div>
-          <div style="display:flex;gap:5px;margin-bottom:7px;">
-            <button class="topt active" id="topt-address" onclick="setType('address',this)" style="flex:1;padding:7px 8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.68rem;"><span>💳</span><span>Wallet</span></button>
-            <button class="topt" id="topt-arcname" onclick="setType('arcname',this)" style="flex:1;padding:7px 8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.68rem;"><span>◎</span><span>Arc Name</span></button>
+          <div style="display:flex;gap:5px;margin-bottom:8px;">
+            <button class="topt active" id="topt-address" onclick="setType('address',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;"><span>💳</span><span>Wallet</span></button>
+            <button class="topt" id="topt-arcname" onclick="setType('arcname',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;"><span>◎</span><span>Arc Name</span></button>
           </div>
           <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
           <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
         </div>
-        <div class="amt-row">
-          <div class="field">
-            <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-              <span>Amount</span>
-              <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
-            </div>
-            <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="validateSend()"/>
+        <div class="field">
+          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Amount</span>
+            <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
           </div>
-          <button class="max-btn" onclick="setMax()">MAX</button>
+          <div class="amt-row">
+            <div class="field" style="margin-bottom:0;flex:1;">
+              <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="validateSend()"/>
+            </div>
+            <button class="max-btn" onclick="setMax()">MAX</button>
+          </div>
         </div>
-        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee (paid in USDC)</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
-        <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Send</button>
+        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
+        <button class="btn" id="sendBtn" disabled onclick="showConfirm()" style="margin-top:auto;">Send</button>
       </div>
-      <div id="tab-recv" style="display:none;">
+      <div id="tab-recv" style="display:none;flex:1;display:flex;flex-direction:column;justify-content:center;">
         <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
-        <button class="btn btn-outline" style="margin-top:9px;" onclick="copyAddr()">Copy My Address</button>
+        <button class="btn btn-outline" style="margin-top:12px;" onclick="copyAddr()">Copy My Address</button>
       </div>
     </div>
+
     <!-- Confirm -->
     <div class="confirm-wrap" id="confirmCard">
       <div class="confirm-title">⚡ Confirm Transaction</div>
@@ -300,6 +311,7 @@
         <button class="btn" onclick="doSend()" id="confirmSendBtn">✓ Confirm &amp; Send</button>
       </div>
     </div>
+
     <!-- Success -->
     <div class="success-wrap" id="successCard">
       <div class="success-circle">✓</div>
@@ -307,9 +319,9 @@
       <div class="success-sub" id="successMsg">Submitted to Arc Testnet.</div>
       <div class="success-hash" id="successHash"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
-        <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="openExplorer()">View on Explorer ↗</button>
-        <button class="btn" style="width:auto;padding:9px 22px;" onclick="showReceipt()">🧾 Receipt</button>
-        <button class="btn btn-outline" style="width:auto;padding:9px 22px;" onclick="resetSend()">Send another</button>
+        <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="openExplorer()">View on Explorer ↗</button>
+        <button class="btn" style="width:auto;padding:9px 18px;" onclick="showReceipt()">🧾 Receipt</button>
+        <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="resetSend()">Send another</button>
       </div>
     </div>
   </div>
@@ -447,13 +459,19 @@
   </div>
 
   <!-- ══ SWAP PAGE ══ -->
-  <div class="page" id="page-swap">
+  <div class="page" id="page-swap" style="display:flex;flex-direction:column;">
+    <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div><div class="page-title" style="margin-bottom:2px;">Swap</div><div style="font-size:.68rem;color:var(--text3);">Live FX · 0.1% fee · No ETH needed</div></div>
+      <div>
+        <div class="page-title" style="margin-bottom:2px;">Swap</div>
+        <div style="font-size:.68rem;color:var(--text3);">Live FX · 0.1% fee · Gas in USDC</div>
+      </div>
       <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.62rem;padding:6px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;">↻ Rate</button>
     </div>
     <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
-    <div class="swap-box-wrap">
+
+    <!-- Swap box -->
+    <div class="swap-box-wrap" style="margin-bottom:12px;">
       <div class="swap-inner top">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);">You Pay</span>
@@ -463,13 +481,13 @@
           <div id="fromToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;" onclick="flipSwap()">
             <span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>
           </div>
-          <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;"/>
+          <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;font-size:1.8rem;"/>
         </div>
         <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;position:relative;height:28px;margin:0 -4px;">
+      <div style="display:flex;align-items:center;justify-content:center;position:relative;height:30px;margin:0 -4px;">
         <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
-        <button onclick="flipSwap()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;">⇅</button>
+        <button onclick="flipSwap()" style="position:relative;width:36px;height:36px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;">⇅</button>
       </div>
       <div class="swap-inner bottom">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -480,16 +498,19 @@
           <div id="toToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(96,165,250,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;">
             <span class="tok-dot eurc-dot"></span>EURC
           </div>
-          <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;opacity:.65;"/>
+          <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.8rem;opacity:.5;"/>
         </div>
         <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px;margin-bottom:10px;">
+
+    <!-- Rate row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:12px;margin-bottom:12px;">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● live</span></span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 USDC · 0.1% fee</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 · 0.1%</span>
     </div>
-    <button class="btn" id="swapBtn" onclick="doSwap()">Swap USDC ↔ EURC</button>
+
+    <button class="btn" id="swapBtn" onclick="doSwap()" style="margin-top:auto;">Swap USDC ↔ EURC</button>
   </div>
 
   <!-- ══ BRIDGE PAGE ══ -->
