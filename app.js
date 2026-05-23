@@ -214,11 +214,8 @@ function showBalSkeleton(){
   document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';
 }
 function showPage(name){
-  document.querySelectorAll('.page:not(.page-land)').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  const idx=['send','swap','lend','bridge','arcname','naira','history'].indexOf(name);
-  if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  // Handled by ui.js — this is a no-op stub to prevent conflicts
+  if(typeof goPage === 'function') goPage(name);
 }
 function goPage(name){
   if(!userAddr){toast('Connect wallet first','error');return;}
