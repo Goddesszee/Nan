@@ -715,7 +715,7 @@ async function onConnected(isEmail=false, isDev=false){
 
   if(!isEmail)await checkNetwork();
   if(!isEmail&&signer&&onArcNetwork)_autoSeedLiquidity();
-if(!isEmail&&signer&&onArcNetwork)_ensureUnlimitedApprovals();
+// Approvals happen per-transaction — no upfront wallet popups
   showBalSkeleton();
   await refreshBalances();
   loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
