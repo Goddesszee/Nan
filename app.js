@@ -2499,6 +2499,8 @@ function initLendUI(){
   const maxBorrow = lendPositions ? Math.max(0, (lendPositions.supplied*0.75) - lendPositions.borrowed) : 0;
   const maxEl = document.getElementById('borrowMaxDisplay');
   if(maxEl) maxEl.textContent = maxBorrow > 0 ? maxBorrow.toFixed(2)+' USDC' : lendPositions&&lendPositions.supplied>0 ? 'Limit reached' : 'Supply USDC first';
+  const maxEl2 = document.getElementById('borrowMaxHint');
+  if(maxEl2) maxEl2.textContent = maxBorrow > 0 ? 'MAX: '+maxBorrow.toFixed(2)+' USDC' : '';
   const hintEl = document.getElementById('borrowMaxHint');
   if(hintEl) hintEl.textContent = maxBorrow > 0 ? 'Max: '+maxBorrow.toFixed(2)+' USDC' : '';
   updateLendPositions();
@@ -2614,6 +2616,22 @@ async function refreshLendPosition(){
     lendPositions.borrowed=parseFloat(ethers.formatUnits(pos[2],6));
     updateLendPositions();
   }catch(e){console.log('Lend position fetch error:',e.message);}
+}
+
+function updateBorrowPreview(){
+  const amt = parseFloat(document.getElementById('borrowAmt').value)||0;
+  const preview = document.getElementById('borrowPreview');
+  const receiveEl = document.getElementById('borrowReceiveAmt');
+  const interestEl = document.getElementById('borrowDailyInterest');
+  if(!preview) return;
+  if(amt > 0){
+    preview.style.display = 'block';
+    if(receiveEl) receiveEl.textContent = amt.toFixed(2)+' USDC';
+    const dailyInterest = (amt * 0.072 / 365).toFixed(4);
+    if(interestEl) interestEl.textContent = dailyInterest+' USDC/day';
+  } else {
+    preview.style.display = 'none';
+  }
 }
 async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
