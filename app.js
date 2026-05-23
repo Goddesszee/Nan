@@ -769,6 +769,9 @@ function disconnect(){
   landPage.style.visibility='visible';
   landPage.style.zIndex='10';
   landPage.classList.add('active');
+  // Reset email login box
+  const loginBox=document.getElementById('emailLoginBox');
+  if(loginBox){loginBox.style.display='block';}
   document.getElementById('connectTopBtn').style.display='none';
   const _disc=document.getElementById('disconnectTopBtn');
   if(_disc)_disc.style.display='none';
