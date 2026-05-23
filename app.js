@@ -1319,7 +1319,7 @@ function flipSwap(){
 
 function initSwapUI(){
   document.getElementById('swapModeBanner').style.display='none';
-  document.getElementById('swapBtn').textContent='Swap via Circle App Kit';
+  document.getElementById('swapBtn').textContent='Swap USDC ↔ EURC';
 }
 
 // ═══════════════════════════════════════════
