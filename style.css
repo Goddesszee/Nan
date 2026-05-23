@@ -9,12 +9,12 @@
   --topbar-bg:rgba(7,8,26,0.98);--nav-bg:rgba(7,8,26,0.99);
 }
 [data-theme="light"]{
-  --bg:#10123a;--surface:#181b4a;--card:rgba(255,255,255,0.07);--card2:rgba(255,255,255,0.12);
-  --border:rgba(139,92,246,0.3);--border2:rgba(139,92,246,0.55);
-  --accent:#9b6dff;--accent3:#b899ff;--accent4:#d4bbff;
-  --text:#f5f3ff;--text2:#d4bbff;--text3:rgba(212,187,255,0.75);
-  --danger:#ff7878;--success:#40e8a8;--gold:#ffd166;--warning:#ffb347;
-  --topbar-bg:rgba(16,18,58,0.98);--nav-bg:rgba(16,18,58,0.99);
+  --bg:#f8f7ff;--surface:#ffffff;--card:rgba(139,92,246,0.05);--card2:rgba(139,92,246,0.1);
+  --border:rgba(139,92,246,0.18);--border2:rgba(139,92,246,0.35);
+  --accent:#7c3aed;--accent3:#6d28d9;--accent4:#5b21b6;
+  --text:#1a1040;--text2:#3b1f8c;--text3:rgba(67,40,148,0.65);
+  --danger:#dc2626;--success:#059669;--gold:#b45309;--warning:#b45309;
+  --topbar-bg:rgba(248,247,255,0.97);--nav-bg:rgba(248,247,255,0.98);
 }
 *{box-sizing:border-box;margin:0;padding:0;transition:background-color .25s,border-color .25s,color .25s;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
@@ -424,3 +424,16 @@ a:hover{color:var(--text);}
   /* Naira tabs */
   .stab{font-size:.65rem!important;padding:7px 4px!important;}
 }
+
+[data-theme="light"] .bal-card{background:linear-gradient(145deg,#6d28d9 0%,#7c3aed 55%,#5b21b6 100%);}
+[data-theme="light"] .home-bal-card{background:linear-gradient(145deg,#6d28d9 0%,#7c3aed 55%,#5b21b6 100%);}
+[data-theme="light"] .brand-name{color:#1a1040;}
+[data-theme="light"] .nav-btn{color:rgba(67,40,148,0.55);}
+[data-theme="light"] .nav-btn.active{background:rgba(109,40,217,0.12);color:#6d28d9;}
+[data-theme="light"] .card{background:rgba(139,92,246,0.04);border-color:rgba(139,92,246,0.15);box-shadow:0 4px 20px rgba(139,92,246,0.08);}
+[data-theme="light"] input,[data-theme="light"] select{background:#f0eeff;border-color:rgba(139,92,246,0.2);color:#1a1040;}
+[data-theme="light"] .btn{box-shadow:0 4px 16px rgba(124,58,237,0.35);}
+[data-theme="light"] .more-item{background:rgba(139,92,246,0.04);border-color:rgba(139,92,246,0.12);}
+[data-theme="light"] .more-item:hover{background:rgba(139,92,246,0.1);}
+[data-theme="light"] .bottom-nav{border-top:1px solid rgba(139,92,246,0.15);}
+[data-theme="light"] #globalTopBar{border-bottom:1px solid rgba(139,92,246,0.15);}
