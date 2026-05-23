@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#07081a"/>
 <title>NAN — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -35,7 +35,7 @@
       <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
       <div class="net-pill" id="netPill">Arc Testnet</div>
       <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
-      <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
+      <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
     </div>
   </div>
 
@@ -67,7 +67,7 @@
 
       <!-- Hero -->
       <div style="text-align:center;margin-bottom:18px;">
-        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:4px 12px;font-size:.58rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:4px 12px;font-size:.58rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:14px;">
           <span style="width:5px;height:5px;border-radius:50%;background:var(--accent3);display:inline-block;animation:pulse 2s infinite;"></span>
           Arc Testnet · Live
         </div>
@@ -94,11 +94,11 @@
         <div id="otpStepIndicator" style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
           <div id="stepDot1" style="width:22px;height:4px;border-radius:2px;background:#8b5cf6;transition:all .3s;"></div>
           <div id="stepDot2" style="width:8px;height:4px;border-radius:2px;background:rgba(139,92,246,.25);transition:all .3s;"></div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
         </div>
         <div style="display:flex;gap:7px;margin-bottom:4px;">
           <input id="emailInput" type="email" placeholder="your@email.com" style="flex:1;padding:11px 13px;font-size:.82rem;border-radius:12px;"/>
-          <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;color:#ede9fe;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code →</button>
+          <button onclick="sendEmailOTP()" id="otpBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Send Code →</button>
         </div>
         <div id="otpBox" style="display:none;animation:up .25s ease both;margin-top:10px;">
           <div style="display:flex;align-items:center;gap:8px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);border-radius:12px;padding:10px 13px;margin-bottom:10px;">
@@ -106,8 +106,8 @@
             <div><div style="font-size:.78rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:.63rem;color:var(--text3);">Check your inbox — enter the 6-digit code below</div></div>
           </div>
           <div style="display:flex;gap:7px;">
-            <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.15rem;letter-spacing:.4em;text-align:center;border-radius:12px;font-family:'IBM Plex Mono',monospace;"/>
-            <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;color:#ede9fe;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
+            <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.15rem;letter-spacing:.4em;text-align:center;border-radius:12px;font-family:'JetBrains Mono',monospace;"/>
+            <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.76rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.4);">Verify →</button>
           </div>
         </div>
       </div>
@@ -115,29 +115,29 @@
       <!-- Divider -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
         <div style="flex:1;height:1px;background:rgba(139,92,246,.15);"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">or connect existing wallet</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">or connect existing wallet</div>
         <div style="flex:1;height:1px;background:rgba(139,92,246,.15);"></div>
       </div>
 
       <!-- Wallet grid -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;">
-        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🦊</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">MetaMask</div><div style="font-size:.6rem;color:var(--text3);">Browser ext</div></div>
         </button>
-        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🔗</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">WalletConnect</div><div style="font-size:.6rem;color:var(--text3);">Mobile QR</div></div>
         </button>
-        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">🔵</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">Coinbase</div><div style="font-size:.6rem;color:var(--text3);">Wallet</div></div>
         </button>
-        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;">
+        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
           <span style="font-size:1.2rem;">⭕</span><div style="text-align:left;"><div style="font-size:.74rem;font-weight:700;">Circle</div><div style="font-size:.6rem;color:var(--text3);">Programmable</div></div>
         </button>
       </div>
 
       <!-- Bottom trust -->
       <div style="text-align:center;padding-bottom:20px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:8px;">🔒 Your keys · Your funds · Always</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:8px;">🔒 Your keys · Your funds · Always</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
           <span style="font-size:.6rem;color:rgba(196,181,253,.4);display:flex;align-items:center;gap:4px;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.5);display:inline-block;"></span>Circle USDC</span>
           <span style="font-size:.6rem;color:rgba(196,181,253,.4);display:flex;align-items:center;gap:4px;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.5);display:inline-block;"></span>Arc Network</span>
@@ -233,8 +233,8 @@
   <!-- ══ SEND PAGE ══ -->
   <div class="page" id="page-send" style="flex-direction:column;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">🧪 Arc Testnet · Explorer ↗</a>
-      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'DM Sans',sans-serif;font-size:.63rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
+      <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">🧪 Arc Testnet · Explorer ↗</a>
+      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.63rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
     </div>
     <div id="onboardChecklist" style="display:none;"></div>
     <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
@@ -247,16 +247,16 @@
     <!-- Slim balance strip -->
     <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(15,11,46,.9));border:1px solid rgba(139,92,246,.35);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
       <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:rgba(255,255,255,.38);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;color:rgba(255,255,255,.38);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
         <div style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:.75rem;color:rgba(196,181,253,.5);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:rgba(196,181,253,.45);margin-top:3px;" id="balUsd">≈ $0.00 USD</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(196,181,253,.45);margin-top:3px;" id="balUsd">≈ $0.00 USD</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
         <div style="display:flex;gap:5px;">
           <div class="tok"><span class="tok-dot usdc-dot"></span><span id="usdcBal2">0.00</span></div>
           <div class="tok"><span class="tok-dot eurc-dot"></span><span id="eurcBal2">0.00</span></div>
         </div>
-        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
+        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
       </div>
     </div>
     <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.65rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.62rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
@@ -361,9 +361,9 @@
     <!-- Positions -->
     <div class="position-card">
       <div class="card-title" style="margin-bottom:8px;"><div class="cticon">📊</div>Your Positions</div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Supplied USDC</span><span style="color:var(--success);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:.7rem;" id="suppliedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Borrowed USDC</span><span style="color:var(--danger);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:.7rem;" id="borrowedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Accrued Interest</span><span style="color:var(--gold);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:.7rem;" id="accruedInterest">0.000000 USDC</span></div>
+      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Supplied USDC</span><span style="color:var(--success);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="suppliedAmt">0.00 USDC</span></div>
+      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Borrowed USDC</span><span style="color:var(--danger);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="borrowedAmt">0.00 USDC</span></div>
+      <div class="position-row"><span style="color:var(--text3);font-size:.65rem;">Accrued Interest</span><span style="color:var(--gold);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.7rem;" id="accruedInterest">0.000000 USDC</span></div>
       <div class="position-row" style="border-bottom:none;"><span style="color:var(--text3);font-size:.65rem;">Health Factor</span><span style="color:var(--success);font-weight:700;font-size:.75rem;" id="healthFactor">—</span></div>
     </div>
     <!-- Tabs -->
@@ -476,7 +476,7 @@
         <div class="page-title" style="margin-bottom:2px;">Swap</div>
         <div style="font-size:.68rem;color:var(--text3);">Live FX · 0.1% fee · Gas in USDC</div>
       </div>
-      <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.62rem;padding:6px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;">↻ Rate</button>
+      <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.62rem;padding:6px 10px;cursor:pointer;font-family:'JetBrains Mono',monospace;">↻ Rate</button>
     </div>
     <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
 
@@ -484,8 +484,8 @@
     <div class="swap-box-wrap" style="margin-bottom:12px;">
       <div class="swap-inner top">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);">You Pay</span>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapFromBal" style="color:var(--text2);">0.00</span> <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:4px;color:var(--accent3);font-size:.5rem;padding:1px 5px;cursor:pointer;font-family:'IBM Plex Mono',monospace;">MAX</button></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">You Pay</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapFromBal" style="color:var(--text2);">0.00</span> <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:4px;color:var(--accent3);font-size:.5rem;padding:1px 5px;cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button></span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <div id="fromToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;" onclick="flipSwap()">
@@ -493,7 +493,7 @@
           </div>
           <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;font-size:1.8rem;"/>
         </div>
-        <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:center;position:relative;height:30px;margin:0 -4px;">
         <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
@@ -501,8 +501,8 @@
       </div>
       <div class="swap-inner bottom">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);">You Receive</span>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapToBal" style="color:var(--text2);">0.00</span></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">You Receive</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">Bal: <span id="swapToBal" style="color:var(--text2);">0.00</span></span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <div id="toToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(96,165,250,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;">
@@ -510,14 +510,14 @@
           </div>
           <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.8rem;opacity:.5;"/>
         </div>
-        <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
+        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
       </div>
     </div>
 
     <!-- Rate row -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:12px;margin-bottom:12px;">
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● live</span></span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 · 0.1%</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● live</span></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">⛽ ~0.009 · 0.1%</span>
     </div>
 
     <button class="btn" id="swapBtn" onclick="doSwap()" style="margin-top:auto;">Swap USDC ↔ EURC</button>
@@ -581,7 +581,7 @@
     <div class="card" style="padding:11px 13px;">
       <div class="flbl">Search a name</div>
       <div style="display:flex;gap:7px;"><input id="arcNameSearch" type="text" placeholder="yourname.arc" style="flex:1;" oninput="checkArcName()"/><button class="max-btn" style="margin-bottom:0;" onclick="checkArcName()">Check</button></div>
-      <div id="arcNameResult" style="display:none;margin-top:7px;padding:7px 9px;border-radius:var(--radius-sm);font-family:'IBM Plex Mono',monospace;font-size:.65rem;"></div>
+      <div id="arcNameResult" style="display:none;margin-top:7px;padding:7px 9px;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:.65rem;"></div>
     </div>
     <div class="arcname-card" id="myNamesCard">
       <div class="card-title" style="margin-bottom:8px;"><div class="cticon">◎</div>Your .arc Names</div>
@@ -592,7 +592,7 @@
       <div class="field"><div class="flbl">Name</div>
         <div style="display:flex;align-items:center;gap:0;">
           <input id="arcNameInput" type="text" placeholder="yourname" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);border-right:none;"/>
-          <div style="background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:8px 11px;font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--accent3);white-space:nowrap;">.arc</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent3);white-space:nowrap;">.arc</div>
         </div>
       </div>
       <div class="field"><div class="flbl">Duration</div>
@@ -656,10 +656,10 @@
       <div class="card-title"><div class="cticon">🏦</div>Withdraw to Bank</div>
       <div class="field"><div class="flbl">Amount (NGN)</div>
         <div class="amt-row"><div class="field" style="margin-bottom:0;position:relative;">
-          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--text3);font-family:'IBM Plex Mono',monospace;z-index:1;">₦</span>
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--text3);font-family:'JetBrains Mono',monospace;z-index:1;">₦</span>
           <input id="ngnWithdrawAmt" type="number" placeholder="0.00" style="padding-left:24px;" oninput="calcNgnWithdraw()"/>
         </div><button class="max-btn">MAX</button></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
       </div>
       <div class="field"><div class="flbl">Bank</div>
         <select id="ngnBankName"><option value="">Select bank</option><option>Access Bank</option><option>GTBank</option><option>First Bank</option><option>Zenith Bank</option><option>UBA</option><option>Kuda Bank</option><option>OPay</option><option>PalmPay</option><option>Stanbic IBTC</option><option>Fidelity Bank</option></select>
@@ -674,8 +674,8 @@
       <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:4px;margin-bottom:10px;">
         <div style="background:var(--surface);border-radius:14px 14px 4px 4px;padding:14px 16px 10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);">You Pay</span>
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnFromBal">Bal: ₦0.00</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">You Pay</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnFromBal">Bal: ₦0.00</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div id="ngnFromToken" onclick="flipNgnConvert()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;">₦ NGN <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span></div>
@@ -688,8 +688,8 @@
         </div>
         <div style="background:var(--surface);border-radius:4px 4px 14px 14px;padding:10px 16px 14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--text3);">You Receive</span>
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnToBalLabel">Bal: 0.00 USDC</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--text3);">You Receive</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);" id="ngnToBalLabel">Bal: 0.00 USDC</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div id="ngnToToken" onclick="toggleNgnToToken()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--accent3);white-space:nowrap;cursor:pointer;"><span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span></div>
@@ -698,8 +698,8 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px;margin-bottom:10px;">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text3);" id="ngnRateDisplay">₦1,620 = 1 USDC</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--text3);">Fee: 0.5%</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);" id="ngnRateDisplay">₦1,620 = 1 USDC</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">Fee: 0.5%</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
         <button class="ibtn" style="padding:8px;text-align:center;" onclick="document.getElementById('ngnConvertFrom').value=10000;calcNgnConvert()">₦10,000</button>
@@ -708,8 +708,8 @@
       <button class="btn" onclick="doNgnConvert()" id="ngnConvertBtn">Convert NGN → USDC</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
-      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / USDC</div><div style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'IBM Plex Mono',monospace;">₦1,620</div></div>
-      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / EURC</div><div style="font-size:1rem;font-weight:700;color:#60a5fa;font-family:'IBM Plex Mono',monospace;">₦1,765</div></div>
+      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / USDC</div><div style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;">₦1,620</div></div>
+      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / EURC</div><div style="font-size:1rem;font-weight:700;color:#60a5fa;font-family:'JetBrains Mono',monospace;">₦1,765</div></div>
     </div>
   </div>
 
@@ -762,11 +762,11 @@
 <!-- ══ AI Button ══ -->
 <button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:90px;right:16px;z-index:9999;width:44px;height:44px;border-radius:13px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa;font-size:.9rem;cursor:pointer;box-shadow:0 2px 12px rgba(139,92,246,.25);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;">
   <span>✦</span>
-  <span style="font-size:.5rem;font-family:'DM Sans',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
+  <span style="font-size:.5rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;right:100px;width:340px;background:var(--bg);border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:9998;font-family:'DM Sans',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
+<div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;right:100px;width:340px;background:var(--bg);border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
   <div style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div>
       <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
@@ -779,7 +779,7 @@
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
-      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;"/>
+      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
     </div>
     <div id="voiceStatus" style="display:none;text-align:center;font-size:.65rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
