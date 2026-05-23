@@ -2495,6 +2495,12 @@ function updateBorrowMax(){
   if(maxEl) maxEl.textContent = maxBorrow > 0 ? 'Max: '+maxBorrow.toFixed(2)+' USDC' : 'No capacity';
 }
 function initLendUI(){
+  // Update max borrow display
+  const maxBorrow = lendPositions ? Math.max(0, (lendPositions.supplied*0.75) - lendPositions.borrowed) : 0;
+  const maxEl = document.getElementById('borrowMaxDisplay');
+  if(maxEl) maxEl.textContent = maxBorrow > 0 ? maxBorrow.toFixed(2)+' USDC' : lendPositions&&lendPositions.supplied>0 ? 'Limit reached' : 'Supply USDC first';
+  const hintEl = document.getElementById('borrowMaxHint');
+  if(hintEl) hintEl.textContent = maxBorrow > 0 ? 'Max: '+maxBorrow.toFixed(2)+' USDC' : '';
   updateLendPositions();
   refreshLendPosition();
   refreshArcNames();
@@ -2636,7 +2642,15 @@ async function doBorrow(){
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();await refreshLendPosition();
     }else{throw new Error('No wallet connected');}
-  }catch(err){toast('Borrow failed: '+err.message.slice(0,100),'error',5000);}
+  }catch(err){const _em = err.reason||err.message||'';
+    if(_em.includes('LTV')||_em.includes('ltv')||_em.includes('estimateGas')||_em.includes('Exceeds')){
+      const _mb = Math.max(0,(lendPositions.supplied*0.75)-lendPositions.borrowed).toFixed(2);
+      toast('Max borrow is '+_mb+' USDC — you need more collateral to borrow more','error',6000);
+    } else if(_em.includes('insufficient')||_em.includes('balance')){
+      toast('Not enough USDC in the pool right now','error',5000);
+    } else {
+      toast('Borrow failed — try a smaller amount','error',5000);
+    }}
   document.getElementById('borrowAmt').value='';
   btn.innerHTML='Borrow USDC';btn.disabled=false;
 }
