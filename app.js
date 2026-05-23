@@ -310,8 +310,8 @@ function updateSwapRateDisplay(){
   const time=fxLastUpdated?fxLastUpdated.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'fallback';
   const el=document.getElementById('swapRate');if(!el)return;
   el.innerHTML=swapFlipped
-    ?`1 EURC ≈ ${(1/FX).toFixed(4)} USDC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`
-    :`1 USDC ≈ ${FX.toFixed(4)} EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● live ${time}</span>`;
+    ?`1 EURC ≈ ${(1/FX).toFixed(4)} USDC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.65rem;">● live ${time}</span>`
+    :`1 USDC ≈ ${FX.toFixed(4)} EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.65rem;">● live ${time}</span>`;
 }
 
 // ═══════════════════════════════════════════
@@ -464,18 +464,18 @@ function showSeedPhrase(mnemonic, privateKey, address){
       </div>
 
       <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
-        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
+        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
       </div>
 
       ${mnemonic ? `
       <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
           ${mnemonic.split(' ').map((word,i)=>`
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);">
-              <span style="color:var(--text3);font-size:.5rem;">${i+1}.</span> ${word}
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);">
+              <span style="color:var(--text3);font-size:.65rem;">${i+1}.</span> ${word}
             </div>
           `).join('')}
         </div>
@@ -483,8 +483,8 @@ function showSeedPhrase(mnemonic, privateKey, address){
       ` : ''}
 
       <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:20px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
       </div>
 
       <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:.7rem;color:var(--success);line-height:1.6;">
@@ -497,7 +497,7 @@ function showSeedPhrase(mnemonic, privateKey, address){
 
       <button id="seedContinueBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✓ I've Saved My Keys — Continue</button>
 
-      <div style="text-align:center;font-size:.65rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
+      <div style="text-align:center;font-size:.72rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
     </div>
   `;
   document.body.appendChild(modal);
@@ -1050,12 +1050,12 @@ function showReceipt(){
             <div style="width:30px;height:30px;background:#8b5cf6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#ede9fe;box-shadow:0 0 12px rgba(139,92,246,.5);">N</div>
             <div>
               <div style="font-size:.75rem;font-weight:700;color:#ede9fe;letter-spacing:.08em;">NAN WALLET</div>
-              <div style="font-size:.55rem;color:#a78bfa;letter-spacing:.12em;">ARC TESTNET</div>
+              <div style="font-size:.65rem;color:#a78bfa;letter-spacing:.12em;">ARC TESTNET</div>
             </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:.6rem;color:#a78bfa;font-family:monospace;">RECEIPT</div>
-            <div style="font-size:.55rem;color:#6b5fa0;font-family:monospace;">${now}</div>
+            <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;">RECEIPT</div>
+            <div style="font-size:.65rem;color:#6b5fa0;font-family:monospace;">${now}</div>
           </div>
         </div>
 
@@ -1072,20 +1072,20 @@ function showReceipt(){
         <!-- Details -->
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
-            <span style="font-size:.68rem;color:#a78bfa;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#a78bfa;border-radius:50%;display:inline-block;box-shadow:0 0 4px #a78bfa;"></span>Arc Testnet</span>
+            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#a78bfa;border-radius:50%;display:inline-block;box-shadow:0 0 4px #a78bfa;"></span>Arc Testnet</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
-            <span style="font-size:.68rem;color:#34d399;font-family:monospace;">● Confirmed</span>
+            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
+            <span style="font-size:.72rem;color:#34d399;font-family:monospace;">● Confirmed</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
-            <span style="font-size:.68rem;color:#ede9fe;font-family:monospace;">~0.009 USDC</span>
+            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
+            <span style="font-size:.72rem;color:#ede9fe;font-family:monospace;">~0.009 USDC</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.65rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            <a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.6rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>
+            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
+            <a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>
           </div>
         </div>
 
@@ -1094,13 +1094,13 @@ function showReceipt(){
 
         <!-- Powered by -->
         <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:.55rem;color:#6b5fa0;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
+          <div style="font-size:.65rem;color:#6b5fa0;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
-            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">Circle USDC</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Circle USDC</span>
             <span style="color:#6b5fa0;">·</span>
-            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">Arc Network</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Arc Network</span>
             <span style="color:#6b5fa0;">·</span>
-            <span style="font-size:.65rem;color:#a78bfa;font-weight:600;">NAN Wallet</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">NAN Wallet</span>
           </div>
         </div>
 
@@ -1263,7 +1263,7 @@ function _applyQuote(q){
   const feeStr=q.fees?.length?' · Fee: '+q.fees.map(f=>f.amount+' '+f.token).join(', '):'';
   const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const el=document.getElementById('swapRate');
-  if(el)el.innerHTML=`1 ${q.tokenIn} ≈ ${parseFloat(q.rate).toFixed(4)} ${q.tokenOut}${feeStr} &nbsp;·&nbsp; <span style="color:var(--success);font-size:.55rem;">● App Kit ${t}</span>`;
+  if(el)el.innerHTML=`1 ${q.tokenIn} ≈ ${parseFloat(q.rate).toFixed(4)} ${q.tokenOut}${feeStr} &nbsp;·&nbsp; <span style="color:var(--success);font-size:.65rem;">● App Kit ${t}</span>`;
 }
 function flipSwap(){
   swapFlipped=!swapFlipped;
@@ -1398,7 +1398,7 @@ async function doBridge(){
     const messageBytes=receipt.logs?.[0]?.data||'';
 
     statusCard.style.display='block';
-    statusContent.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;line-height:2;color:var(--text2);">
+    statusContent.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;line-height:2;color:var(--text2);">
       <div>✅ Step 1: USDC burned on Arc</div>
       <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
       <div id="mintStatus" style="display:none;"></div>
@@ -1601,7 +1601,7 @@ function renderHistory(){
   if(sw) sw.textContent=m.totalSwaps||txHistory.filter(t=>t.source==='swap').length||0;
   if(sb) sb.textContent=m.totalBridges||txHistory.filter(t=>t.source==='cctp').length||0;
   const list=document.getElementById('txList');
-  if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.65rem;color:var(--text3);">Send or swap to get started.</span></div></div>';return;}
+  if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.72rem;color:var(--text3);">Send or swap to get started.</span></div></div>';return;}
   list.innerHTML=txHistory.map(tx=>{
     const isSim=tx.hash?.startsWith('sim-');
     let icon='↑',cls='out',label='',amt='';
@@ -1610,7 +1610,7 @@ function renderHistory(){
     if(tx.type==='swap'){icon='⇄';cls='swap';label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken;amt='Swap';}
     if(tx.type==='stake'){icon='◈';cls='stake';label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Stake';}
     if(tx.type==='bridge'){icon='⬡';cls='bridge';label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
-    const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.5rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.5rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.5rem;">⚗sim</span>':'';
+    const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
     const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
       `${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a> ${srcBadge}`;
@@ -1698,7 +1698,7 @@ function renderAgentMsgs(){
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
   const chips=["What's my balance?","How much staked?","Rewards?","Send USDC","Swap USDC → EURC","Bridge via CCTP","Stake USDC"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.62rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
+  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -1898,16 +1898,16 @@ async function refreshGatewayBalance(){
       if(chains){
         const entries=Object.entries(data.balances||{}).filter(([_,v])=>parseFloat(v)>0);
         chains.innerHTML=entries.length===0
-          ?'<div style="font-size:.65rem;color:var(--text3);text-align:center;">No Gateway balance yet — bridge USDC to create one</div>'
-          :entries.map(([chain,amount])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(139,92,246,.06);border-radius:6px;"><span style="font-size:.65rem;color:var(--text2);">${chain.replace(/_/g,' ')}</span><span style="font-size:.65rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span></div>`).join('');
+          ?'<div style="font-size:.72rem;color:var(--text3);text-align:center;">No Gateway balance yet — bridge USDC to create one</div>'
+          :entries.map(([chain,amount])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(139,92,246,.06);border-radius:6px;"><span style="font-size:.72rem;color:var(--text2);">${chain.replace(/_/g,' ')}</span><span style="font-size:.72rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span></div>`).join('');
       }
     }else{
       if(display) display.textContent='—';
-      if(chains) chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">'+(data.error||'Gateway unavailable — bridge USDC to get started')+'</div>';
+      if(chains) chains.innerHTML='<div style="font-size:.72rem;color:var(--text3);text-align:center;">'+(data.error||'Gateway unavailable — bridge USDC to get started')+'</div>';
     }
   }catch(e){
     if(display) display.textContent='—';
-    if(chains) chains.innerHTML='<div style="font-size:.65rem;color:var(--text3);text-align:center;">Gateway unavailable — bridge USDC to get started</div>';
+    if(chains) chains.innerHTML='<div style="font-size:.72rem;color:var(--text3);text-align:center;">Gateway unavailable — bridge USDC to get started</div>';
     console.log('[gateway]',e.message);
   }
 }
@@ -2303,9 +2303,9 @@ function renderMyArcNames(){
     <div class="arcname-row">
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
-        <div style="font-size:.6rem;color:var(--text3);">Expires ${n.expires}</div>
+        <div style="font-size:.65rem;color:var(--text3);">Expires ${n.expires}</div>
       </div>
-      <span style="font-size:.6rem;padding:3px 8px;border-radius:4px;background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">Active</span>
+      <span style="font-size:.65rem;padding:3px 8px;border-radius:4px;background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">Active</span>
     </div>
   `).join('');
 }
@@ -2317,7 +2317,7 @@ function renderArcDirectory(){
     <div class="arcname-row" style="cursor:pointer;" onclick="prefillSend('${n.owner}')">
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;color:var(--accent3);">${n.name}.arc</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">${short(n.owner)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);">${short(n.owner)}</div>
       </div>
       <button class="send-sm">Send</button>
     </div>
@@ -2387,7 +2387,7 @@ function calcNgnConvert(){
 function flipNgnConvert(){
   ngnFlipped=!ngnFlipped;
   const el=document.getElementById('ngnFromToken');
-  el.innerHTML=ngnFlipped?(ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC ▾':'<span class="tok-dot eurc-dot"></span>EURC ▾'):'₦ NGN <span style="font-size:.6rem;color:var(--text3);margin-left:2px;">▾</span>';
+  el.innerHTML=ngnFlipped?(ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC ▾':'<span class="tok-dot eurc-dot"></span>EURC ▾'):'₦ NGN <span style="font-size:.65rem;color:var(--text3);margin-left:2px;">▾</span>';
   document.getElementById('ngnConvertFrom').value='';
   document.getElementById('ngnConvertTo').value='';
   document.getElementById('ngnConvertBtn').textContent=ngnFlipped?ngnToToken+' → NGN':'NGN → '+ngnToToken;
@@ -2395,7 +2395,7 @@ function flipNgnConvert(){
 function toggleNgnToToken(){
   ngnToToken=ngnToToken==='USDC'?'EURC':'USDC';
   const el=document.getElementById('ngnToToken');
-  el.innerHTML=ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.6rem;color:var(--text3);">▾</span>':'<span class="tok-dot eurc-dot"></span>EURC <span style="font-size:.6rem;color:var(--text3);">▾</span>';
+  el.innerHTML=ngnToToken==='USDC'?'<span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.65rem;color:var(--text3);">▾</span>':'<span class="tok-dot eurc-dot"></span>EURC <span style="font-size:.65rem;color:var(--text3);">▾</span>';
   document.getElementById('ngnRateDisplay').textContent='₦'+(ngnToToken==='USDC'?NGN_USDC_RATE:NGN_EURC_RATE)+' = 1 '+ngnToToken;
   document.getElementById('ngnToBalLabel').textContent='Bal: '+(ngnToToken==='USDC'?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2))+' '+ngnToToken;
   document.getElementById('ngnConvertBtn').textContent='Convert NGN → '+ngnToToken;
