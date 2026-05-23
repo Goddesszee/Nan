@@ -310,7 +310,7 @@ a{color:var(--accent3);text-decoration:none;}
 a:hover{color:var(--text);}
 
 /* ── Toast ── */
-#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:10px 22px;font-size:.85rem;font-weight:600;z-index:9999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:10px 20px;font-size:.82rem;font-weight:600;max-width:88%;text-align:center;line-height:1.4;word-break:break-word;z-index:9999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:320px;width:calc(100% - 32px);text-align:center;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.45);}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #toast.success{border-color:rgba(52,211,153,.35);color:var(--success);}
 #toast.error{border-color:rgba(248,113,113,.35);color:var(--danger);}
