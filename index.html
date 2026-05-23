@@ -35,6 +35,7 @@
       <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
       <div class="net-pill" id="netPill">Arc Testnet</div>
       <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
+      <button id="landConnectBtn" style="display:none;" onclick="showWalletPicker()">Connect</button>
       <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
     </div>
   </div>
@@ -288,6 +289,7 @@
           <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
             <span>Amount</span>
             <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
+            <span id="sendAvailable" style="display:none;"></span>
           </div>
           <div class="amt-row">
             <div class="field" style="margin-bottom:0;flex:1;">
@@ -338,6 +340,10 @@
 
   <!-- ══ EARN PAGE ══ -->
   <div class="page" id="page-lend">
+    <div style="margin-bottom:14px;">
+      <div class="page-title" style="margin-bottom:1px;">Earn</div>
+      <div class="page-sub" style="margin-bottom:0;">Supply USDC · Earn 4.80% APY · Withdraw anytime</div>
+    </div>
     <!-- APY Hero -->
     <div class="earn-apy-hero">
       <div class="earn-apy-label">Supply APY</div>
@@ -567,7 +573,10 @@
     </div>
     <div class="card" id="bridgeStatusCard" style="display:none;">
       <div class="card-title"><div class="cticon">⟳</div>Bridge Status</div>
-      <div id="bridgeStatusContent"></div>
+      <div id="bridgeStatusContent">
+        <div id="attestStatus" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
+        <div id="mintStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
+      </div>
     </div>
   </div>
 
