@@ -99,7 +99,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .home-asset-row:last-child{border-bottom:none;}
 .home-asset-left{display:flex;align-items:center;gap:10px;}
 .home-asset-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
-.home-asset-name{font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.home-asset-name{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:2px;}
 .home-asset-sub{font-size:.72rem;color:var(--text3);}
 .home-asset-val{font-size:.88rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;text-align:right;}
 .home-asset-change{font-size:.65rem;color:var(--success);text-align:right;}
@@ -266,7 +266,7 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .dir-item:last-child{border-bottom:none;}
 .dir-av{width:28px;height:28px;border-radius:8px;background:var(--accent);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#ede9fe;}
 .dir-info{flex:1;min-width:0;}
-.dir-handle{font-size:.74rem;font-weight:600;margin-bottom:2px;}
+.dir-handle{font-size:.75rem;font-weight:600;margin-bottom:2px;}
 .dir-addr{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);}
 
 /* ── Tx History ── */
@@ -420,7 +420,7 @@ a:hover{color:var(--text);}
 
   /* Page title */
   .page-title{font-size:1.2rem!important;}
-  .page-sub{font-size:.68rem!important;margin-bottom:10px!important;}
+  .page-sub{font-size:.72rem!important;margin-bottom:10px!important;}
 
   /* Naira tabs */
   .stab{font-size:.65rem!important;padding:7px 4px!important;}
