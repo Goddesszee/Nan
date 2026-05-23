@@ -1,7 +1,15 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/landing.html" }
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    }
   ],
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 30
+    }
+  },
   "crons": [
     {
       "path": "/api/orders?cron=1",
