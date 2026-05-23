@@ -518,3 +518,38 @@ a:hover{color:var(--text);}
 [data-theme="light"] .wallet-modal{background:#ffffff;border-color:rgba(109,40,217,.2);}
 [data-theme="light"] .wallet-opt{background:#ffffff;border-color:rgba(109,40,217,.12);}
 [data-theme="light"] .wallet-opt:hover{background:#f5f3ff;border-color:rgba(109,40,217,.25);}
+
+/* Light mode page backgrounds */
+[data-theme="light"] .page-land,
+[data-theme="light"] .page,
+[data-theme="light"] #app-root{background:var(--bg);}
+[data-theme="light"] #app-root{box-shadow:0 0 80px rgba(109,40,217,.12);}
+
+/* Landing page specific light mode */
+[data-theme="light"] #emailLoginBox{background:rgba(109,40,217,.06);border-color:rgba(109,40,217,.2);}
+[data-theme="light"] #page-land{background:var(--bg);}
+[data-theme="light"] #page-land *{--card:rgba(109,40,217,0.05);}
+
+/* Fix wallet buttons on landing in light mode */
+[data-theme="light"] #page-land button[style*="rgba(255,255,255,0.03)"]{
+  background:rgba(109,40,217,.05)!important;
+  border-color:rgba(109,40,217,.15)!important;
+}
+[data-theme="light"] #page-land button[style*="background:rgba(255,255,255"]{
+  background:rgba(109,40,217,.05)!important;
+}
+
+/* Trust pills on landing */
+[data-theme="light"] #page-land span[style*="rgba(255,255,255,.04)"]{
+  background:rgba(109,40,217,.06)!important;
+  border-color:rgba(109,40,217,.15)!important;
+  color:#4c1d95!important;
+}
+
+/* Send page card background */
+[data-theme="light"] #sendCard,
+[data-theme="light"] #confirmCard{background:#ffffff;}
+
+/* Divider lines */
+[data-theme="light"] .wallet-divider::before,
+[data-theme="light"] .wallet-divider::after{background:rgba(109,40,217,.15);}
