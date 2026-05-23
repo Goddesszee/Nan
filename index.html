@@ -534,50 +534,90 @@
   <!-- ══ BRIDGE PAGE ══ -->
   <div class="page" id="page-bridge">
     <div class="page-title">Bridge</div>
-    <div class="page-sub">Send USDC to another blockchain instantly</div>
-    <div class="card" id="gatewayCard" style="background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(96,165,250,.06));border:1px solid rgba(139,92,246,.2);">
+    <div class="page-sub">Move USDC across chains instantly</div>
+
+    <!-- Gateway — PRIMARY option -->
+    <div class="card" id="gatewayCard" style="background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(139,92,246,.06));border:1px solid rgba(52,211,153,.25);margin-bottom:10px;">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:6px;"><div class="cticon">⚡</div>Circle Gateway — Unified Balance</div>
-        <button onclick="refreshGatewayBalance()" style="background:none;border:none;color:var(--accent3);font-size:.78rem;cursor:pointer;">Refresh ↻</button>
+        <div style="display:flex;align-items:center;gap:6px;"><div class="cticon">⚡</div>Circle Gateway <span style="font-size:.65rem;background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3);border-radius:100px;padding:2px 8px;font-weight:700;">Recommended</span></div>
+        <button onclick="refreshGatewayBalance()" style="background:none;border:none;color:var(--accent3);font-size:.78rem;cursor:pointer;">↻</button>
       </div>
-      <div style="font-size:.82rem;color:var(--text2);margin-bottom:10px;">Your USDC balance across all chains</div>
-      <div id="gatewayBalanceDisplay" style="text-align:center;padding:10px;">
-        <div style="font-size:1.6rem;font-weight:700;color:var(--accent3);" id="gatewayTotal">—</div>
-        <div style="font-size:.82rem;color:var(--text3);">Total unified USDC</div>
+
+      <!-- Why Gateway -->
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.12);border-radius:9px;">
+          <span style="font-size:.9rem;">⚡</span>
+          <span style="font-size:.78rem;color:var(--text2);">Instant transfers — under 500ms</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.12);border-radius:9px;">
+          <span style="font-size:.9rem;">💵</span>
+          <span style="font-size:.78rem;color:var(--text2);">No gas on destination — receiver pays nothing</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.12);border-radius:9px;">
+          <span style="font-size:.9rem;">🔗</span>
+          <span style="font-size:.78rem;color:var(--text2);">One tap — fully automatic, no manual steps</span>
+        </div>
       </div>
-      <div id="gatewayChains" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;"></div>
-      <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
-        <input id="gatewayDepositAmt" type="number" min="1" placeholder="Amount USDC" style="flex:1;padding:8px 12px;border-radius:8px;"/>
-        <button onclick="depositToGateway()" style="padding:8px 14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;border-radius:8px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;">⚡ Deposit</button>
+
+      <!-- Unified balance -->
+      <div style="text-align:center;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.15);border-radius:12px;margin-bottom:12px;">
+        <div style="font-size:.72rem;color:var(--text3);margin-bottom:4px;">Your unified USDC balance</div>
+        <div style="font-size:1.6rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="gatewayTotal">—</div>
+        <div style="font-size:.72rem;color:var(--text3);">across all chains</div>
+      </div>
+
+      <div id="gatewayChains" style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;"></div>
+
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="gatewayDepositAmt" type="number" min="1" placeholder="Amount USDC" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.88rem;"/>
+        <button onclick="depositToGateway()" style="padding:10px 16px;background:linear-gradient(135deg,#34d399,#059669);border:none;border-radius:10px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(52,211,153,.3);">⚡ Send via Gateway</button>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title"><div class="cticon">⬡</div>Cross-Chain Transfer</div>
-      <div class="field"><div class="flbl">From Chain</div><div class="chain-badge" style="text-align:left;">Arc Testnet &nbsp;<span style="color:var(--accent3);">●</span></div></div>
-      <div style="text-align:center;font-size:1.2rem;color:var(--accent3);margin:6px 0;">↓</div>
-      <div class="field"><div class="flbl">To Chain</div>
-        <select id="bridgeDestChain" style="margin-bottom:0;">
-          <option value="ETH-SEPOLIA">Ethereum Sepolia</option>
-          <option value="AVAX-FUJI">Avalanche Fuji</option>
-          <option value="BASE-SEPOLIA">Base Sepolia</option>
-          <option value="ARB-SEPOLIA">Arbitrum Sepolia</option>
-          <option value="OP-SEPOLIA">OP Sepolia</option>
-          <option value="POLYGON-AMOY">Polygon Amoy</option>
-        </select>
-      </div>
-      <div class="field"><div class="flbl">Destination Address</div><input id="bridgeDestAddr" type="text" placeholder="0x... address on destination chain"/></div>
-      <div class="field"><div class="flbl">Amount (USDC)</div>
-        <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setBridgeMax()">MAX</button></div>
-      </div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">CCTP burn + mint (2 txns)</span><span>~0.009 USDC</span></div>
-      <div class="info-banner" style="margin-bottom:8px;">⚠️ After burning, call <strong>receiveMessage</strong> on destination chain to complete the mint.</div>
-      <button class="btn" id="bridgeBtn" onclick="doBridge()">Bridge USDC via CCTP</button>
+
+    <!-- CCTP — Advanced option -->
+    <div style="margin-bottom:8px;">
+      <button onclick="toggleCCTP()" id="cctpToggleBtn" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:.82rem;cursor:pointer;">
+        <span style="display:flex;align-items:center;gap:7px;"><span>⬡</span> CCTP Manual Bridge <span style="font-size:.65rem;background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25);border-radius:100px;padding:2px 8px;">Advanced</span></span>
+        <span id="cctpArrow">▾</span>
+      </button>
     </div>
-    <div class="card" id="bridgeStatusCard" style="display:none;">
-      <div class="card-title"><div class="cticon">⟳</div>Bridge Status</div>
-      <div id="bridgeStatusContent">
-        <div id="attestStatus" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
-        <div id="mintStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
+
+    <div id="cctpPanel" style="display:none;">
+      <!-- Warning -->
+      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+        <div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:4px;">⚠️ Requires gas on destination chain</div>
+        <div style="font-size:.75rem;color:var(--text3);line-height:1.6;">The receiver needs ETH/AVAX/MATIC to complete the mint on the destination chain. Use Circle Gateway above for a seamless experience.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="cticon">⬡</div>Cross-Chain Transfer (CCTP)</div>
+        <div class="field"><div class="flbl">From Chain</div><div class="chain-badge" style="text-align:left;">Arc Testnet &nbsp;<span style="color:var(--accent3);">●</span></div></div>
+        <div style="text-align:center;font-size:1.2rem;color:var(--accent3);margin:6px 0;">↓</div>
+        <div class="field"><div class="flbl">To Chain</div>
+          <select id="bridgeDestChain" style="margin-bottom:0;">
+            <option value="ETH-SEPOLIA">Ethereum Sepolia</option>
+            <option value="AVAX-FUJI">Avalanche Fuji</option>
+            <option value="BASE-SEPOLIA">Base Sepolia</option>
+            <option value="ARB-SEPOLIA">Arbitrum Sepolia</option>
+            <option value="OP-SEPOLIA">OP Sepolia</option>
+            <option value="POLYGON-AMOY">Polygon Amoy</option>
+          </select>
+        </div>
+        <div class="field"><div class="flbl">Destination Address</div><input id="bridgeDestAddr" type="text" placeholder="0x... address on destination chain"/></div>
+        <div class="field"><div class="flbl">Amount (USDC)</div>
+          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setBridgeMax()">MAX</button></div>
+        </div>
+        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">CCTP burn + mint (2 txns)</span><span>~0.009 USDC</span></div>
+        <div class="info-banner" style="margin-bottom:8px;">⚠️ After burning, receiver must call <strong>receiveMessage</strong> on destination with their own gas.</div>
+        <button class="btn btn-outline" id="bridgeBtn" onclick="doBridge()">Bridge via CCTP</button>
+      </div>
+
+      <div class="card" id="bridgeStatusCard" style="display:none;">
+        <div class="card-title"><div class="cticon">⟳</div>Bridge Status</div>
+        <div id="bridgeStatusContent">
+          <div id="attestStatus" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
+          <div id="mintStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
+        </div>
       </div>
     </div>
   </div>
