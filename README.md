@@ -23,3 +23,5 @@ The simplest way to send, swap, lend, borrow and bridge USDC & EURC on Arc Testn
 - Supabase
 
 Built by [@zarafatoluu](https://x.com/zarafatoluu)
+
+<!-- deploy trigger -->
