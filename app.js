@@ -1668,6 +1668,211 @@ function copyAddr(){
 // ═══════════════════════════════════════════
 // AI AGENT (Claude-powered)
 // ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+// NAN ORDER ENGINE — Limit Orders + Scheduled Sends + Standing Orders
+// ═══════════════════════════════════════════
+let nanOrders = []; // {id, type, status, ...}
+let orderEngineRunning = false;
+
+function genOrderId(){return 'ord_'+Date.now().toString(36);}
+
+// Save orders to localStorage
+function saveOrders(){try{localStorage.setItem('nan_orders',JSON.stringify(nanOrders));}catch{}}
+function loadOrders(){try{const s=localStorage.getItem('nan_orders');if(s)nanOrders=JSON.parse(s).filter(o=>o.status==='pending');}catch{}}
+
+// Start the order monitoring loop
+function startOrderEngine(){
+  if(orderEngineRunning)return;
+  orderEngineRunning=true;
+  loadOrders();
+  setInterval(async()=>{
+    if(!nanOrders.length)return;
+    for(const order of nanOrders){
+      if(order.status!=='pending')continue;
+      try{
+        if(order.type==='limit'){await checkLimitOrder(order);}
+        else if(order.type==='scheduled'){await checkScheduledOrder(order);}
+        else if(order.type==='standing'){await checkStandingOrder(order);}
+      }catch(e){console.log('Order check error:',e);}
+    }
+    nanOrders=nanOrders.filter(o=>o.status==='pending');
+    saveOrders();
+  },15000); // Check every 15 seconds
+}
+
+async function checkLimitOrder(order){
+  await fetchLiveFX();
+  const rate = order.sellToken==='USDC' ? FX : 1/FX;
+  const targetMet = order.condition==='gte' ? rate>=order.targetRate : rate<=order.targetRate;
+  if(!targetMet)return;
+  order.status='executing';
+  toast(`🎯 Limit order triggered! ${order.amount} ${order.sellToken} → ${order.buyToken} at ${rate.toFixed(4)}`,'success',6000);
+  // Navigate to swap and auto-execute
+  if(order.sellToken==='USDC'&&swapFlipped){flipSwap();}
+  else if(order.sellToken==='EURC'&&!swapFlipped){flipSwap();}
+  document.getElementById('swapFrom').value=order.amount;
+  calcSwap();
+  setTimeout(async()=>{
+    try{
+      await doSwap();
+      order.status='done';
+      addAgentMsg(`✅ Limit order executed! Swapped ${order.amount} ${order.sellToken} → ${order.buyToken} at rate ${rate.toFixed(4)}`);
+    }catch{order.status='pending';}
+  },1000);
+}
+
+async function checkScheduledOrder(order){
+  const now=Date.now();
+  if(now<order.executeAt)return;
+  order.status='executing';
+  toast(`⏰ Scheduled send executing — ${order.amount} ${order.token} to ${order.to.slice(0,8)}…`,'info',5000);
+  try{
+    document.getElementById('recipInput').value=order.to;
+    document.getElementById('amtInput').value=order.amount;
+    sendToken=order.token||'USDC';
+    document.getElementById('sendTokenLabel').textContent=sendToken;
+    validateSend();
+    await doSend();
+    order.status='done';
+    addAgentMsg(`✅ Scheduled send complete! Sent ${order.amount} ${order.token} to ${order.to.slice(0,8)}…`);
+    // If recurring, reschedule
+    if(order.recurring&&order.interval){
+      const newOrder={...order,id:genOrderId(),status:'pending',executeAt:now+order.interval};
+      nanOrders.push(newOrder);
+      saveOrders();
+    }
+  }catch{order.status='pending';order.executeAt=now+60000;}// Retry in 1 min
+}
+
+async function checkStandingOrder(order){
+  const now=Date.now();
+  if(now<order.nextRun)return;
+  order.status='executing';
+  toast(`📅 Standing order — ${order.amount} ${order.token} to ${order.to.slice(0,8)}…`,'info',5000);
+  try{
+    document.getElementById('recipInput').value=order.to;
+    document.getElementById('amtInput').value=order.amount;
+    sendToken=order.token||'USDC';
+    document.getElementById('sendTokenLabel').textContent=sendToken;
+    validateSend();
+    await doSend();
+    order.status='pending';
+    order.nextRun=now+order.interval;
+    order.runCount=(order.runCount||0)+1;
+    saveOrders();
+    addAgentMsg(`✅ Standing order ran! Sent ${order.amount} ${order.token} to ${order.to.slice(0,8)}… (run #${order.runCount})`);
+  }catch{order.status='pending';order.nextRun=now+300000;}// Retry in 5 min
+}
+
+function addAgentMsg(text){
+  agentMsgs.push({role:'assistant',content:text});
+  if(agentOpen)renderAgentMsgs();
+}
+
+// Parse natural language order commands
+function parseOrderCommand(msg){
+  const m=msg.toLowerCase();
+  
+  // LIMIT ORDER: "sell 50 USDC for EURC when rate hits 0.95" / "when 1 USDC = 0.93 EURC swap 100"
+  const limitMatch=m.match(/(?:sell|swap|convert)\s+(\d+(?:\.\d+)?)\s+(usdc|eurc)\s+(?:for|to)\s+(usdc|eurc)\s+(?:when|if|at)\s+(?:rate\s+)?(?:hits?|reaches?|=|equals?)\s*(\d+(?:\.\d+)?)/i)
+    || m.match(/when\s+(?:1\s+)?(usdc|eurc)\s*[=]\s*(\d+(?:\.\d+)?)\s*(usdc|eurc).*?(?:sell|swap|convert)\s+(\d+(?:\.\d+)?)/i);
+  if(limitMatch){
+    const amount=parseFloat(limitMatch[1]||limitMatch[4]);
+    const sellToken=(limitMatch[2]||limitMatch[1]||'USDC').toUpperCase();
+    const buyToken=(limitMatch[3]||limitMatch[3]||'EURC').toUpperCase();
+    const targetRate=parseFloat(limitMatch[4]||limitMatch[2]);
+    const currentRate=sellToken==='USDC'?FX:1/FX;
+    const condition=targetRate>=currentRate?'gte':'lte';
+    return{type:'limit',amount,sellToken,buyToken,targetRate,condition,currentRate};
+  }
+
+  // SCHEDULED SEND: "send 20 USDC to 0x... on friday" / "send 10 USDC to 0x... in 2 hours"
+  const schedMatch=m.match(/send\s+(\d+(?:\.\d+)?)\s+(usdc|eurc)\s+to\s+(0x[a-f0-9]+|\S+\.arc)\s+(?:on\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday|in\s+\d+\s+(?:hour|minute|day)s?)/i);
+  if(schedMatch){
+    const amount=parseFloat(schedMatch[1]);
+    const token=schedMatch[2].toUpperCase();
+    const to=schedMatch[3];
+    const when=schedMatch[4];
+    const executeAt=parseWhen(when);
+    return{type:'scheduled',amount,token,to,executeAt,when};
+  }
+
+  // STANDING ORDER: "send 20 USDC to 0x... every friday" / "every month send 100 USDC to 0x..."
+  const standMatch=m.match(/(?:send\s+(\d+(?:\.\d+)?)\s+(usdc|eurc)\s+to\s+(0x[a-f0-9]+|\S+\.arc)\s+every\s+(day|week|month|monday|tuesday|wednesday|thursday|friday|saturday|sunday))|(?:every\s+(\w+)\s+send\s+(\d+(?:\.\d+)?)\s+(usdc|eurc)\s+to\s+(0x[a-f0-9]+|\S+\.arc))/i);
+  if(standMatch){
+    const amount=parseFloat(standMatch[1]||standMatch[6]);
+    const token=(standMatch[2]||standMatch[7]||'USDC').toUpperCase();
+    const to=standMatch[3]||standMatch[8];
+    const freq=standMatch[4]||standMatch[5]||'week';
+    const interval=parseInterval(freq);
+    const nextRun=parseNextOccurrence(freq);
+    return{type:'standing',amount,token,to,interval,nextRun,freq};
+  }
+
+  return null;
+}
+
+function parseWhen(when){
+  const now=Date.now();
+  const w=when.toLowerCase();
+  if(w.includes('hour')){const h=parseInt(w.match(/\d+/)[0]);return now+h*3600000;}
+  if(w.includes('minute')){const mn=parseInt(w.match(/\d+/)[0]);return now+mn*60000;}
+  if(w.includes('day')&&!w.includes('monday')&&!w.includes('wednesday')&&!w.includes('friday')&&!w.includes('saturday')&&!w.includes('sunday')){const d=parseInt(w.match(/\d+/)[0]);return now+d*86400000;}
+  // Day of week
+  const days={sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6};
+  for(const [day,idx] of Object.entries(days)){
+    if(w.includes(day)){
+      const d=new Date();const target=idx;
+      let diff=target-d.getDay();
+      if(diff<=0)diff+=7;
+      return now+diff*86400000;
+    }
+  }
+  return now+3600000;// Default 1 hour
+}
+
+function parseInterval(freq){
+  const f=freq.toLowerCase();
+  if(f==='day')return 86400000;
+  if(f==='week'||['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(f))return 604800000;
+  if(f==='month')return 2592000000;
+  return 604800000;
+}
+
+function parseNextOccurrence(freq){
+  return parseWhen(freq);
+}
+
+function createOrder(orderData){
+  const order={...orderData,id:genOrderId(),status:'pending',createdAt:Date.now()};
+  nanOrders.push(order);
+  saveOrders();
+  return order;
+}
+
+function cancelOrder(id){
+  const order=nanOrders.find(o=>o.id===id);
+  if(order){order.status='cancelled';saveOrders();nanOrders=nanOrders.filter(o=>o.status==='pending');}
+}
+
+function listOrders(){
+  return nanOrders.filter(o=>o.status==='pending');
+}
+
+function formatOrderSummary(order){
+  if(order.type==='limit'){
+    return `🎯 Limit: Sell ${order.amount} ${order.sellToken}→${order.buyToken} when rate ${order.condition==='gte'?'≥':'≤'} ${order.targetRate} (now: ${order.currentRate?.toFixed(4)||'?'})`;
+  }
+  if(order.type==='scheduled'){
+    return `⏰ Scheduled: Send ${order.amount} ${order.token} to ${order.to?.slice(0,10)}… on ${new Date(order.executeAt).toLocaleString()}`;
+  }
+  if(order.type==='standing'){
+    return `📅 Standing: Send ${order.amount} ${order.token} to ${order.to?.slice(0,10)}… every ${order.freq} (next: ${new Date(order.nextRun).toLocaleString()})`;
+  }
+  return '';
+}
+
 let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything — crypto questions, DeFi, staking, CCTP bridging, or your live wallet. Try \"send 10 USDC\" and I'll set it up!"}];
 let agentOpen=false;
 
@@ -1702,7 +1907,7 @@ function renderAgentMsgs(){
 }
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
-  const chips=["What's my balance?","How much staked?","Rewards?","Send USDC","Swap USDC → EURC","Bridge via CCTP","Stake USDC"];
+  const chips=["What's my balance?","Sell USDC when rate hits","Send 20 USDC on Friday","My pending orders","Cancel all orders","Swap USDC → EURC","Bridge via CCTP"];
   document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
@@ -1763,17 +1968,25 @@ NAN WALLET FEATURES:
 RECENT TRANSACTIONS:
 ${txHistory.slice(0,5).map(t=>`${t.type} ${t.amount} ${t.token||''} - ${new Date(t.ts).toLocaleDateString()}`).join('\n')||'None yet'}
 
+PENDING ORDERS:
+${listOrders().length>0?listOrders().map(o=>formatOrderSummary(o)).join('\n'):'No pending orders'}
+
 RULES:
 - Use REAL wallet numbers above — never fabricate
-- Keep replies under 80 words, friendly and enthusiastic
+- Keep replies under 80 words, friendly and enthusiastic  
 - NEVER show raw JSON, code, or ACTION tags in your text
 - If user wants to DO something, add <ACTION> AFTER your text reply:
-  send:    <ACTION>{"action":"send","amount":1,"token":"USDC","to":"0x..."}</ACTION>
-  swap:    <ACTION>{"action":"swap","amount":1,"from":"USDC","to":"EURC"}</ACTION>
-  lend:    <ACTION>{"action":"navigate","tab":"lend"}</ACTION>
-  bridge:  <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
-  name:    <ACTION>{"action":"navigate","tab":"arcname"}</ACTION>
-  history: <ACTION>{"action":"navigate","tab":"history"}</ACTION>
+  send:     <ACTION>{"action":"send","amount":1,"token":"USDC","to":"0x..."}</ACTION>
+  swap:     <ACTION>{"action":"swap","amount":1,"from":"USDC","to":"EURC"}</ACTION>
+  limit:    <ACTION>{"action":"limit","amount":50,"sellToken":"USDC","buyToken":"EURC","targetRate":0.95,"condition":"gte"}</ACTION>
+  schedule: <ACTION>{"action":"schedule","amount":20,"token":"USDC","to":"0x...","when":"friday"}</ACTION>
+  standing: <ACTION>{"action":"standing","amount":100,"token":"USDC","to":"0x...","freq":"monthly"}</ACTION>
+  cancel:   <ACTION>{"action":"cancel_all"}</ACTION>
+  list:     <ACTION>{"action":"list_orders"}</ACTION>
+  lend:     <ACTION>{"action":"navigate","tab":"lend"}</ACTION>
+  bridge:   <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
+  name:     <ACTION>{"action":"navigate","tab":"arcname"}</ACTION>
+  history:  <ACTION>{"action":"navigate","tab":"history"}</ACTION>
 - ACTION block is invisible to user — never mention it`;
 
   try{
@@ -1800,19 +2013,45 @@ RULES:
 }
 
 function executeAgentAction(action){
-  agentOpen=false;
-  document.getElementById('agentPanel').style.display='none';
   switch(action.action){
     case 'send':
+      agentOpen=false;document.getElementById('agentPanel').style.display='none';
       goPage('send');
       setTimeout(()=>{document.getElementById('recipInput').value=action.to||'';document.getElementById('amtInput').value=action.amount||'';sendToken=action.token||'USDC';document.getElementById('sendTokenLabel').textContent=sendToken;validateSend();},200);break;
     case 'swap':
+      agentOpen=false;document.getElementById('agentPanel').style.display='none';
       goPage('swap');setTimeout(()=>{document.getElementById('swapFrom').value=action.amount||'';calcSwap();},200);break;
-    case 'lend':
-      goPage('lend');break;
     case 'navigate':
+      agentOpen=false;document.getElementById('agentPanel').style.display='none';
       goPage(action.tab);break;
+    case 'limit':{
+      const order=createOrder({type:'limit',amount:action.amount,sellToken:action.sellToken||'USDC',buyToken:action.buyToken||'EURC',targetRate:action.targetRate,condition:action.condition||'gte',currentRate:FX});
+      addAgentMsg(`🎯 Limit order set! I'll sell ${action.amount} ${action.sellToken||'USDC'} → ${action.buyToken||'EURC'} when rate ${action.condition==='gte'?'reaches':'drops to'} ${action.targetRate}. Current rate: ${FX.toFixed(4)}. Order ID: ${order.id}`);
+      break;}
+    case 'schedule':{
+      const executeAt=parseWhen(action.when||'1 hour');
+      const order=createOrder({type:'scheduled',amount:action.amount,token:action.token||'USDC',to:action.to,executeAt,when:action.when});
+      addAgentMsg(`⏰ Scheduled! Will send ${action.amount} ${action.token||'USDC'} to ${(action.to||'').slice(0,10)}… on ${new Date(executeAt).toLocaleString()}. Order ID: ${order.id}`);
+      break;}
+    case 'standing':{
+      const interval=parseInterval(action.freq||'week');
+      const nextRun=parseNextOccurrence(action.freq||'week');
+      const order=createOrder({type:'standing',amount:action.amount,token:action.token||'USDC',to:action.to,interval,nextRun,freq:action.freq||'week'});
+      addAgentMsg(`📅 Standing order created! Will send ${action.amount} ${action.token||'USDC'} to ${(action.to||'').slice(0,10)}… every ${action.freq||'week'}. Next run: ${new Date(nextRun).toLocaleString()}. Order ID: ${order.id}`);
+      break;}
+    case 'cancel_all':{
+      const count=nanOrders.length;
+      nanOrders=[];saveOrders();
+      addAgentMsg(`🗑️ Cancelled all ${count} pending order${count!==1?'s':''}. Your queue is clear!`);
+      break;}
+    case 'list_orders':{
+      const orders=listOrders();
+      if(!orders.length){addAgentMsg('📋 No pending orders. Your queue is empty!');}
+      else{addAgentMsg('📋 Your pending orders:\n\n'+orders.map((o,i)=>`${i+1}. ${formatOrderSummary(o)}`).join('\n'));}
+      renderAgentMsgs();scrollAgentBottom();
+      break;}
   }
+  renderAgentMsgs();scrollAgentBottom();
 }
 
 // ═══════════════════════════════════════════
