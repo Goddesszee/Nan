@@ -2,10 +2,10 @@
   "name": "nan-app",
   "version": "1.0.0",
   "type": "module",
-  "main": "server/index.js",
+  "main": "_server/index.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "node --env-file=.env server/index.js",
+    "start": "node _server/index.js",
+    "dev": "node --env-file=.env _server/index.js",
     "build": "echo 'no build needed'"
   },
   "dependencies": {
