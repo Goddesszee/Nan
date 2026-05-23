@@ -452,6 +452,13 @@
       </div>
       <div class="more-item-arrow">›</div>
     </div>
+    <div class="more-item" onclick="goPage('bulk')">
+      <div class="more-item-left">
+        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">📤</div>
+        <div><div class="more-item-title">Bulk Pay</div><div class="more-item-sub">Send to multiple wallets at once</div></div>
+      </div>
+      <div class="more-item-arrow">›</div>
+    </div>
     <div class="more-item" onclick="goPage('history')">
       <div class="more-item-left">
         <div class="more-item-icon" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2);">🕐</div>
@@ -714,6 +721,85 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
       <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / USDC</div><div style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;">₦1,620</div></div>
       <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / EURC</div><div style="font-size:1rem;font-weight:700;color:#60a5fa;font-family:'JetBrains Mono',monospace;">₦1,765</div></div>
+    </div>
+  </div>
+
+  <!-- ══ BULK PAY PAGE ══ -->
+  <div class="page" id="page-bulk">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div>
+        <div class="page-title">Bulk Pay</div>
+        <div class="page-sub">Send to multiple wallets at once</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="clearBulkRecipients()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--danger);font-size:.72rem;padding:5px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Token selector -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button id="bulk-usdc" onclick="setBulkToken('USDC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;">USDC</button>
+      <button id="bulk-eurc" onclick="setBulkToken('EURC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:var(--surface);border:1px solid var(--border);color:var(--text3);">EURC</button>
+    </div>
+
+    <!-- Quick amount selector -->
+    <div style="margin-bottom:12px;">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Default amount per recipient</div>
+      <div style="display:flex;gap:5px;">
+        <button onclick="setBulkDefaultAmt(10)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">10</button>
+        <button onclick="setBulkDefaultAmt(20)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">20</button>
+        <button onclick="setBulkDefaultAmt(50)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">50</button>
+        <button onclick="setBulkDefaultAmt(100)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">100</button>
+        <input id="bulkDefaultAmt" type="number" placeholder="Custom" style="flex:1.5;padding:8px;border-radius:8px;font-size:.82rem;text-align:center;" oninput="updateBulkAmounts()"/>
+      </div>
+    </div>
+
+    <!-- Recipients list -->
+    <div id="bulkRecipientsList" style="margin-bottom:10px;display:flex;flex-direction:column;gap:6px;"></div>
+
+    <!-- Add recipient row -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <input id="bulkAddrInput" type="text" placeholder="Wallet address or .arc name" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.82rem;font-family:'JetBrains Mono',monospace;" onkeydown="if(event.key==='Enter')addBulkRecipient()"/>
+      <button onclick="addBulkRecipient()" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:1.2rem;padding:10px 14px;cursor:pointer;font-weight:700;">+</button>
+    </div>
+
+    <!-- CSV import -->
+    <div onclick="document.getElementById('bulkCsvInput').click()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:rgba(139,92,246,.04);border:1px dashed rgba(139,92,246,.22);border-radius:10px;margin-bottom:12px;cursor:pointer;">
+      <span style="font-size:1rem;">📋</span>
+      <span style="font-size:.82rem;color:var(--text3);">Import from CSV <span style="font-size:.72rem;color:var(--text3);opacity:.6;">(address, amount per line)</span></span>
+    </div>
+    <input id="bulkCsvInput" type="file" accept=".csv,.txt" style="display:none;" onchange="importBulkCSV(event)"/>
+
+    <!-- Summary -->
+    <div id="bulkSummary" style="display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.78rem;color:var(--text3);">Recipients</span>
+        <span style="font-size:.88rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;" id="bulkRecipCount">0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.78rem;color:var(--text3);">Total amount</span>
+        <span style="font-size:.88rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="bulkTotalAmt">0.00 USDC</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.78rem;color:var(--text3);">Your balance</span>
+        <span style="font-size:.88rem;font-weight:600;font-family:'JetBrains Mono',monospace;" id="bulkBalAmt">0.00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:.78rem;color:var(--text3);">Gas (est.)</span>
+        <span style="font-size:.82rem;color:var(--success);font-family:'JetBrains Mono',monospace;" id="bulkGasAmt">~0.00 USDC</span>
+      </div>
+    </div>
+
+    <!-- Send button -->
+    <button class="btn" id="bulkSendBtn" onclick="doBulkSend()" disabled style="margin-bottom:8px;">Select recipients to send</button>
+
+    <!-- Progress -->
+    <div id="bulkProgress" style="display:none;padding:12px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;margin-bottom:8px;">
+      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;" id="bulkProgressTitle">Sending...</div>
+      <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;overflow:hidden;margin-bottom:8px;">
+        <div id="bulkProgressBar" style="height:100%;background:linear-gradient(90deg,#8b5cf6,#7c3aed);border-radius:100px;width:0%;transition:width .5s;"></div>
+      </div>
+      <div id="bulkProgressList" style="display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto;"></div>
     </div>
   </div>
 
