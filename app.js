@@ -1349,6 +1349,15 @@ function initSwapUI(){
 // BRIDGE — CCTP
 // ═══════════════════════════════════════════
 function setBridgeMax(){document.getElementById('bridgeAmt').value=Math.max(0,parseFloat(usdcBal)-GAS_USDC*2).toFixed(6);}
+
+function toggleCCTP(){
+  const panel = document.getElementById('cctpPanel');
+  const arrow = document.getElementById('cctpArrow');
+  const btn = document.getElementById('cctpToggleBtn');
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▾' : '▴';
+}
 async function doBridge(){
   const destChain=document.getElementById('bridgeDestChain').value;
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
