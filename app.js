@@ -370,6 +370,8 @@ async function _doConnect(detectedWp, walletType){
     else toast((err?.message||'Connection failed').slice(0,120),'error');
   }finally{
     if(btn){btn.innerHTML='🔗 Connect Wallet';btn.disabled=false;}
+  const landBtn2=document.getElementById('landConnectBtn');
+  if(landBtn2)landBtn2.style.display='none';
   }
 }
 
