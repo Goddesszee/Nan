@@ -1669,6 +1669,240 @@ function copyAddr(){
 // AI AGENT (Claude-powered)
 // ═══════════════════════════════════════════
 
+
+// ═══════════════════════════════════════════
+// BULK PAY ENGINE
+// ═══════════════════════════════════════════
+let bulkRecipients = []; // [{addr, amount, name, status}]
+let bulkToken = 'USDC';
+let bulkDefaultAmt = 10;
+
+function setBulkToken(token){
+  bulkToken = token;
+  document.getElementById('bulk-usdc').style.background = token==='USDC'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--surface)';
+  document.getElementById('bulk-usdc').style.border = token==='USDC'?'none':'1px solid var(--border)';
+  document.getElementById('bulk-usdc').style.color = token==='USDC'?'#ede9fe':'var(--text3)';
+  document.getElementById('bulk-eurc').style.background = token==='EURC'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--surface)';
+  document.getElementById('bulk-eurc').style.border = token==='EURC'?'none':'1px solid var(--border)';
+  document.getElementById('bulk-eurc').style.color = token==='EURC'?'#ede9fe':'var(--text3)';
+  updateBulkSummary();
+}
+
+function setBulkDefaultAmt(amt){
+  bulkDefaultAmt = amt;
+  document.getElementById('bulkDefaultAmt').value = '';
+  bulkRecipients.forEach(r => r.amount = amt);
+  renderBulkRecipients();
+  updateBulkSummary();
+}
+
+function updateBulkAmounts(){
+  const val = parseFloat(document.getElementById('bulkDefaultAmt').value);
+  if(!val || val <= 0) return;
+  bulkDefaultAmt = val;
+  bulkRecipients.forEach(r => r.amount = val);
+  renderBulkRecipients();
+  updateBulkSummary();
+}
+
+async function addBulkRecipient(){
+  const input = document.getElementById('bulkAddrInput');
+  const raw = input.value.trim();
+  if(!raw){ toast('Enter a wallet address or .arc name','error'); return; }
+
+  // Check for duplicate
+  if(bulkRecipients.find(r => r.addr === raw || r.name === raw)){
+    toast('Already in the list','error'); return;
+  }
+
+  let addr = raw;
+  let name = '';
+
+  // Resolve .arc name
+  if(raw.endsWith('.arc')){
+    name = raw;
+    const resolved = await resolveArcName(raw);
+    if(!resolved){ toast('Could not resolve ' + raw,'error'); return; }
+    addr = resolved;
+  } else if(!raw.startsWith('0x') || raw.length < 10){
+    toast('Enter a valid 0x address or .arc name','error'); return;
+  }
+
+  bulkRecipients.push({ addr, name, amount: bulkDefaultAmt, status: 'pending' });
+  input.value = '';
+  renderBulkRecipients();
+  updateBulkSummary();
+}
+
+function removeBulkRecipient(i){
+  bulkRecipients.splice(i, 1);
+  renderBulkRecipients();
+  updateBulkSummary();
+}
+
+function updateBulkAmt(i, val){
+  bulkRecipients[i].amount = parseFloat(val) || 0;
+  updateBulkSummary();
+}
+
+function renderBulkRecipients(){
+  const el = document.getElementById('bulkRecipientsList');
+  if(!el) return;
+  if(!bulkRecipients.length){
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:.82rem;">No recipients yet — add a wallet address or .arc name above</div>';
+    return;
+  }
+  el.innerHTML = bulkRecipients.map((r,i) => `
+    <div style="display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--surface);border:1px solid var(--border);border-radius:11px;">
+      <div style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--accent3);flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;min-width:0;">
+        ${r.name ? `<div style="font-size:.78rem;font-weight:600;color:var(--accent3);">${r.name}</div>` : ''}
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.addr.slice(0,10)}…${r.addr.slice(-6)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+        <input type="number" value="${r.amount}" min="0.01" step="0.01"
+          onchange="updateBulkAmt(${i}, this.value)"
+          style="width:64px;padding:5px 7px;border-radius:7px;font-size:.82rem;text-align:right;font-family:'JetBrains Mono',monospace;"/>
+        <span style="font-size:.7rem;color:var(--text3);">${bulkToken}</span>
+        <button onclick="removeBulkRecipient(${i})" style="width:24px;height:24px;border-radius:6px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--danger);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>
+      </div>
+      ${r.status==='done'?'<span style="color:var(--success);font-size:.8rem;">✓</span>':r.status==='failed'?'<span style="color:var(--danger);font-size:.8rem;">✗</span>':''}
+    </div>
+  `).join('');
+}
+
+function updateBulkSummary(){
+  const count = bulkRecipients.length;
+  const total = bulkRecipients.reduce((s,r) => s+r.amount, 0);
+  const gas = count * 0.009;
+  const bal = bulkToken==='USDC' ? parseFloat(usdcBal||0) : parseFloat(eurcBal||0);
+
+  const summary = document.getElementById('bulkSummary');
+  const sendBtn = document.getElementById('bulkSendBtn');
+  if(!summary || !sendBtn) return;
+
+  if(count > 0){
+    summary.style.display = 'block';
+    document.getElementById('bulkRecipCount').textContent = count + ' wallet' + (count!==1?'s':'');
+    document.getElementById('bulkTotalAmt').textContent = total.toFixed(2) + ' ' + bulkToken;
+    document.getElementById('bulkBalAmt').textContent = bal.toFixed(2) + ' ' + bulkToken;
+    document.getElementById('bulkBalAmt').style.color = bal >= total+gas ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('bulkGasAmt').textContent = '~' + gas.toFixed(3) + ' USDC';
+    const canSend = count > 0 && bal >= total+gas;
+    sendBtn.disabled = !canSend;
+    sendBtn.textContent = canSend
+      ? `Send ${bulkToken} to ${count} wallet${count!==1?'s':''} →`
+      : bal < total+gas ? 'Insufficient balance' : 'Add recipients';
+  } else {
+    summary.style.display = 'none';
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Add recipients to send';
+  }
+}
+
+async function importBulkCSV(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const text = await file.text();
+  const lines = text.trim().split('\n');
+  let added = 0, skipped = 0;
+  for(const line of lines){
+    const parts = line.split(/[,\t]/);
+    const addr = parts[0]?.trim();
+    const amt = parseFloat(parts[1]?.trim()) || bulkDefaultAmt;
+    if(!addr) continue;
+    if(bulkRecipients.find(r => r.addr === addr || r.name === addr)){ skipped++; continue; }
+    let resolvedAddr = addr;
+    let name = '';
+    if(addr.endsWith('.arc')){
+      name = addr;
+      const res = await resolveArcName(addr);
+      if(!res){ skipped++; continue; }
+      resolvedAddr = res;
+    } else if(!addr.startsWith('0x')){ skipped++; continue; }
+    bulkRecipients.push({ addr: resolvedAddr, name, amount: amt, status: 'pending' });
+    added++;
+  }
+  renderBulkRecipients();
+  updateBulkSummary();
+  toast(`Imported ${added} recipient${added!==1?'s':''}${skipped?' ('+skipped+' skipped)':''}`, 'success', 3000);
+  event.target.value = '';
+}
+
+function clearBulkRecipients(){
+  if(!bulkRecipients.length) return;
+  if(confirm('Clear all ' + bulkRecipients.length + ' recipients?')){
+    bulkRecipients = [];
+    renderBulkRecipients();
+    updateBulkSummary();
+  }
+}
+
+async function doBulkSend(){
+  if(!bulkRecipients.length) return;
+  const btn = document.getElementById('bulkSendBtn');
+  const progress = document.getElementById('bulkProgress');
+  const progressTitle = document.getElementById('bulkProgressTitle');
+  const progressBar = document.getElementById('bulkProgressBar');
+  const progressList = document.getElementById('bulkProgressList');
+
+  btn.disabled = true;
+  progress.style.display = 'block';
+
+  let done = 0;
+  const total = bulkRecipients.length;
+  progressList.innerHTML = '';
+
+  for(let i = 0; i < bulkRecipients.length; i++){
+    const r = bulkRecipients[i];
+    progressTitle.textContent = `Sending ${i+1} of ${total}...`;
+    progressBar.style.width = (i/total*100) + '%';
+
+    // Add progress item
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.72rem;';
+    item.innerHTML = `<span style="color:var(--text3);font-family:'JetBrains Mono',monospace;">${r.name||r.addr.slice(0,12)}…</span><span id="bulk-status-${i}" style="color:var(--text3);">⏳</span>`;
+    progressList.appendChild(item);
+
+    try {
+      // Set up send form values
+      document.getElementById('recipInput').value = r.addr;
+      document.getElementById('amtInput').value = r.amount;
+      sendToken = bulkToken;
+      document.getElementById('sendTokenLabel').textContent = bulkToken;
+      validateSend();
+      await new Promise(res => setTimeout(res, 300));
+      await doSend();
+      r.status = 'done';
+      document.getElementById('bulk-status-'+i).textContent = '✓';
+      document.getElementById('bulk-status-'+i).style.color = 'var(--success)';
+      done++;
+    } catch(e) {
+      r.status = 'failed';
+      document.getElementById('bulk-status-'+i).textContent = '✗';
+      document.getElementById('bulk-status-'+i).style.color = 'var(--danger)';
+    }
+
+    progressBar.style.width = ((i+1)/total*100) + '%';
+    await new Promise(res => setTimeout(res, 800));
+  }
+
+  progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
+  progressBar.style.width = '100%';
+  progressBar.style.background = done===total ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#f87171,#ef4444)';
+  renderBulkRecipients();
+  toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
+
+  // Remove successful sends
+  bulkRecipients = bulkRecipients.filter(r => r.status !== 'done');
+  setTimeout(() => {
+    renderBulkRecipients();
+    updateBulkSummary();
+    btn.disabled = false;
+    if(!bulkRecipients.length) progress.style.display = 'none';
+  }, 3000);
+}
+
 // ═══════════════════════════════════════════
 // NAN ORDER ENGINE — Limit Orders + Scheduled Sends + Standing Orders
 // ═══════════════════════════════════════════
