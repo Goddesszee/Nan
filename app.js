@@ -2629,15 +2629,19 @@ async function doBorrow(){
     // Step 1: Register collateral first (required by NANLendingPool)
     if(!isCircleWallet&&signer){
       try{
-        const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-        const collateralAtomic=Math.floor(lendPositions.supplied*1_000_000).toString();
-        toast('Registering collateral…','info',3000);
-        const colTx=await lendContract.addCollateral(collateralAtomic,arcGasOpts());
-        await colTx.wait(1);
-      }catch(ce){
-        // If addCollateral fails, collateral may already be registered — continue
-        console.log('addCollateral note:',ce.message);
-      }
+        const lc2=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+        // Get actual on-chain position to know how much to register as collateral
+        const pos=await lc2.getPosition(userAddr);
+        const onChainSupplied=Number(pos[0]);
+        const onChainCollateral=Number(pos[2]||0);
+        const toRegister=onChainSupplied-onChainCollateral;
+        if(toRegister>0){
+          toast('Registering your collateral…','info',3000);
+          const colTx=await lc2.addCollateral(toRegister.toString(),arcGasOpts());
+          await colTx.wait(1);
+          toast('Collateral registered!','success',2000);
+        }
+      }catch(ce){console.log('addCollateral:',ce.message);}
     }
     if(isCircleWallet&&circleWalletId){
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
