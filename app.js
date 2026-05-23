@@ -246,6 +246,8 @@ function updateTopBar(connected){
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
     btn.onclick=null;
+    const discBtn=document.getElementById('disconnectTopBtn');
+    if(discBtn)discBtn.style.display='block';
     // Hide the landing connect button completely
     if(landBtn) landBtn.style.display='none';
   }else{
@@ -756,6 +758,8 @@ function disconnect(){
   landPage.style.zIndex='10';
   landPage.classList.add('active');
   document.getElementById('connectTopBtn').style.display='none';
+  const _disc=document.getElementById('disconnectTopBtn');
+  if(_disc)_disc.style.display='none';
   document.getElementById('wrongNetBanner').classList.remove('show');
   document.getElementById('onboardChecklist').style.display='none';
   document.getElementById('devBadge').style.display='none';
