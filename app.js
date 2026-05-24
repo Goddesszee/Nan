@@ -3448,6 +3448,9 @@ function deletePR(){
       document.getElementById('payNowToken').textContent=dl.tok||'USDC';
       const amtInput=document.getElementById('payNowAmtInput');
       if(amtInput)amtInput.style.display=dl.amt?'none':'block';
+      document.getElementById('payNowAddrDisplay').textContent=dl.to||'';
+      const qrBox=document.getElementById('payNowQR');
+      if(qrBox){qrBox.innerHTML='';try{new QRCode(qrBox,{text:dl.to||'',width:120,height:120,colorDark:'#1e1040',colorLight:'#ffffff'});}catch{}}
       goPage('pay-now');
       if(dl.lbl)toast('💸 Pay: '+dl.lbl,'info',5000);
       window._prDeepLink=null;
