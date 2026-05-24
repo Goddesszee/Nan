@@ -1,6 +1,6 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/landing.html" }
+    { "source": "/", "destination": "/index.html" }
   ],
   "crons": [
     {
