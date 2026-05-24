@@ -1085,6 +1085,16 @@
   </div>
 </div>
 
+<!-- ══ Toast ══ -->
+<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
+<style>
+#toast.show{opacity:1!important;}
+#toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
+#toast.error{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);color:#f87171;}
+#toast.info{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa;}
+#toast.warning{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;}
+</style>
+
 <!-- ══ Scripts ══ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
