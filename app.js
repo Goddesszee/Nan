@@ -2681,24 +2681,27 @@ async function doBorrow(){
       if(needed>0n){
         // Check wallet balance for collateral
         const walletBal=await usdcC.balanceOf(userAddr);
+        console.log('Collateral needed:',ethers.formatUnits(needed,6),'Wallet bal:',ethers.formatUnits(walletBal,6));
         if(walletBal<needed){
-          toast('Need '+ethers.formatUnits(needed,6)+' USDC in wallet to register collateral','error',5000);
+          toast('Need '+ethers.formatUnits(needed,6)+' USDC in wallet to use as collateral. Get free tokens first!','error',6000);
           if(btn){btn.innerHTML='Borrow USDC';btn.disabled=false;}
           return;
         }
-        // Approve
-        const allowance=await usdcC.allowance(userAddr,LENDING_CONTRACT);
-        if(allowance<needed){
-          toast('Approving collateral…','info',3000);
-          const appTx=await usdcC.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-          await appTx.wait(1);
-        }
-        // Add collateral
-        toast('Adding collateral ('+ethers.formatUnits(needed,6)+' USDC)…','info',3000);
+        // Approve - use MaxUint256 for unlimited approval
+        toast('Step 1: Approving USDC for collateral…','info',3000);
+        const appTx=await usdcC.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await appTx.wait(1);
+        console.log('Approved! Now adding collateral:',needed.toString());
+        // Add collateral - this transfers USDC from wallet to contract
+        toast('Step 2: Adding '+ethers.formatUnits(needed,6)+' USDC as collateral…','info',4000);
         const colTx=await lc.addCollateral(needed.toString(),arcGasOpts());
-        await colTx.wait(1);
+        const receipt=await colTx.wait(1);
+        console.log('addCollateral receipt:',receipt.status);
+        if(receipt.status===0) throw new Error('addCollateral transaction failed');
         toast('Collateral added! Borrowing now…','success',2000);
-        await new Promise(r=>setTimeout(r,1000));
+        await new Promise(r=>setTimeout(r,1500));
+      } else {
+        console.log('No additional collateral needed, proceeding to borrow');
       }
     }
 
