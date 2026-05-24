@@ -1862,26 +1862,43 @@ async function doBulkSend(){
   const total = bulkRecipients.length;
   progressList.innerHTML = '';
 
+  const tokenAddr = bulkToken === 'USDC' ? USDC_ADDR : EURC_ADDR;
+  const decimals = bulkToken === 'USDC' ? USDC_DECIMALS : EURC_DECIMALS;
+
   for(let i = 0; i < bulkRecipients.length; i++){
     const r = bulkRecipients[i];
     progressTitle.textContent = `Sending ${i+1} of ${total}...`;
     progressBar.style.width = (i/total*100) + '%';
 
-    // Add progress item
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.72rem;';
     item.innerHTML = `<span style="color:var(--text3);font-family:'JetBrains Mono',monospace;">${r.name||r.addr.slice(0,12)}…</span><span id="bulk-status-${i}" style="color:var(--text3);">⏳</span>`;
     progressList.appendChild(item);
 
     try {
-      // Set up send form values
-      document.getElementById('recipInput').value = r.addr;
-      document.getElementById('amtInput').value = r.amount;
-      sendToken = bulkToken;
-      document.getElementById('sendTokenLabel').textContent = bulkToken;
-      validateSend();
-      await new Promise(res => setTimeout(res, 300));
-      await doSend();
+      if(isCircleWallet && circleWalletId){
+        const res = await fetch('/api/circle-wallets', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            action: 'transfer',
+            walletId: circleWalletId,
+            walletAddress: circleWalletAddress,
+            destinationAddress: r.addr,
+            amount: r.amount.toString(),
+            tokenSymbol: bulkToken,
+          }),
+        });
+        const data = await res.json();
+        if(!data.success) throw new Error(data.error || 'Transfer failed');
+        addTx({hash:data.txHash||data.transactionId,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:!!data.txHash,source:'circle'});
+      } else if(signer){
+        const c = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
+        const tx = await c.transfer(r.addr, ethers.parseUnits(r.amount.toFixed(decimals), decimals), arcGasOpts());
+        await tx.wait(1);
+        addTx({hash:tx.hash,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:true,source:'metamask'});
+      } else {
+        throw new Error('No wallet connected');
+      }
       r.status = 'done';
       document.getElementById('bulk-status-'+i).textContent = '✓';
       document.getElementById('bulk-status-'+i).style.color = 'var(--success)';
@@ -1890,19 +1907,20 @@ async function doBulkSend(){
       r.status = 'failed';
       document.getElementById('bulk-status-'+i).textContent = '✗';
       document.getElementById('bulk-status-'+i).style.color = 'var(--danger)';
+      console.error('Bulk send error for', r.addr, e.message);
     }
 
     progressBar.style.width = ((i+1)/total*100) + '%';
-    await new Promise(res => setTimeout(res, 800));
+    await new Promise(res => setTimeout(res, 500));
   }
 
+  await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
   progressBar.style.width = '100%';
   progressBar.style.background = done===total ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#f87171,#ef4444)';
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
-  // Remove successful sends
   bulkRecipients = bulkRecipients.filter(r => r.status !== 'done');
   setTimeout(() => {
     renderBulkRecipients();
