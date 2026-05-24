@@ -3306,12 +3306,15 @@ function createPaymentRequest(){
   const label=document.getElementById('prLabel').value.trim();
   const amt=parseFloat(document.getElementById('prAmount').value)||null;
   const note=document.getElementById('prNote').value.trim();
+  const email=document.getElementById('prEmail')?.value.trim()||otpEmail||'';
   if(!label){toast('Enter a label','error');return;}
   if(!userAddr){toast('Connect wallet first','error');return;}
-  const pr={id:genPRId(),to:userAddr,token:currentPRToken,amount:amt,label,note,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
+  const pr={id:genPRId(),to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
   paymentRequests.unshift(pr);
   savePaymentRequests();
-  toast('✓ Payment request created!','success',3000);
+  const link=buildPRLink(pr);
+  navigator.clipboard.writeText(link).catch(()=>{});
+  toast('✓ Created! Link copied — share it to get paid','success',4000);
   viewPaymentRequest(pr.id);
 }
 function viewPaymentRequest(id){
