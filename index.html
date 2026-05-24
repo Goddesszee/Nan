@@ -989,8 +989,18 @@
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
     </div>
+    <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;text-align:center;font-family:'JetBrains Mono',monospace;">SEND USDC TO THIS ADDRESS ON ARC TESTNET</div>
+      <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
+      <div style="font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace;">or pay with NAN wallet</div>
+      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
+    </div>
     <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">💸 Pay Now via NAN</button>
-    <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied — paste in any wallet','success',3000))" style="width:100%;padding:11px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:12px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;margin-bottom:8px;">📋 Copy Address — Pay from any wallet</button>
     <div style="text-align:center;font-size:.72rem;color:var(--text3);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
   </div>
 
