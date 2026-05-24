@@ -24,7 +24,7 @@ const HISTORY_ABI = [
   'function record(string txType, string token, string amount, string toAddr, string label, bytes32 txHash) external',
   'function getHistory(address wallet) view returns (tuple(uint256 ts, string txType, string token, string amount, string toAddr, string label, bytes32 txHash)[])',
   'function getCount(address wallet) view returns (uint256)',
-]; // TODO: deploy NANPaymentRequests
+];
 
 // CCTP — Circle Cross-Chain Transfer Protocol
 const ARC_CCTP_DOMAIN = 26; const CCTP_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA'; // Arc Testnet TokenMessengerV2 (official)
