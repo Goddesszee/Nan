@@ -469,7 +469,7 @@ async function verifyOTP(){
   btn.innerHTML='Verify →';btn.disabled=false;
 }
 
-// ── Show seed phrase modal to new users ──
+
 
 
 
