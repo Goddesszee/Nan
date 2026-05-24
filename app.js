@@ -2702,7 +2702,10 @@ async function doBorrow(){
 
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-      // Just borrow directly - supply() already registers collateral in this contract
+      const usdcForBorrow=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+      toast('Approving borrow…','info',3000);
+      const approveBorrowTx=await usdcForBorrow.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
+      await approveBorrowTx.wait(1);
       toast('Confirming borrow…','info',3000);
       const tx=await lendContract.borrow(amtParsed,arcGasOpts());
       await tx.wait(1);
