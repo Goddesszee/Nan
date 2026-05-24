@@ -3231,6 +3231,25 @@ let activePRId=null;
 
 function loadPaymentRequests(){
   try{paymentRequests=JSON.parse(localStorage.getItem('nan_payreqs')||'[]');}catch{paymentRequests=[];}
+  checkPendingPaymentRequests();
+}
+async function checkPendingPaymentRequests(){
+  if(!userAddr)return;
+  const pending=paymentRequests.filter(p=>p.status==='pending'&&p.to===userAddr);
+  if(!pending.length)return;
+  const readProvider=getArcProvider();
+  const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,readProvider);
+  const currentBal=await usdc.balanceOf(userAddr);
+  const current=parseFloat(ethers.formatUnits(currentBal,6));
+  for(const pr of pending){
+    if(pr.expiresAt&&Date.now()>pr.expiresAt){pr.status='expired';continue;}
+    if(pr.amount&&current>=parseFloat(pr.amount)){
+      pr.status='paid';pr.paidAt=Date.now();
+      toast('✓ Payment received for: '+pr.label,'success',5000);
+    }
+  }
+  savePaymentRequests();
+  renderPaymentRequests();
 }
 function savePaymentRequests(){
   localStorage.setItem('nan_payreqs',JSON.stringify(paymentRequests));
