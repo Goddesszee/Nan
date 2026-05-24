@@ -969,7 +969,31 @@
     </div>
   </div>
 
-  <!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
+  <!-- ══ PAY REQUEST PAGE (for payer) ══ -->
+  <div class="page" id="page-pay-now" style="flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
+      <div class="page-title" style="margin-bottom:0;">Pay Request</div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(109,40,217,.05));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;" id="payNowAmt">—</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:4px;" id="payNowLabel">—</div>
+      <div style="font-size:.78rem;color:var(--text3);" id="payNowNote"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Pay to</span><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text);" id="payNowTo">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Token</span><span style="font-size:.78rem;font-weight:700;color:var(--accent3);" id="payNowToken">USDC</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:.78rem;color:var(--text3);">Network</span><span style="font-size:.78rem;color:var(--success);">● Arc Testnet</span></div>
+    </div>
+    <div id="payNowAmtInput" style="display:none;margin-bottom:12px;">
+      <div class="flbl">Enter amount</div>
+      <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
+    </div>
+    <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">💸 Pay Now</button>
+    <div style="text-align:center;font-size:.72rem;color:var(--text3);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
+  </div>
+
+<!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
   <div class="page" id="page-payreq-new" style="flex-direction:column;">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
