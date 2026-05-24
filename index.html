@@ -133,6 +133,15 @@
     .circle-grid{grid-template-columns:1fr;}.tok-grid{grid-template-columns:1fr;}
   }
 </style>
+<script>
+  function launchApp() {
+    sessionStorage.setItem('nan_visited_landing', '1');
+    window.location.href = '/app.html';
+  }
+</script>
+<script>
+  sessionStorage.setItem('nan_from_landing', '1');
+</script>
 </head>
 <body>
 
@@ -154,7 +163,7 @@
     <div class="nav-right">
       <div class="net-pill"><span class="pulse-dot"></span>Arc Testnet</div>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
-      <a class="launch-btn" href="/app.html">Launch App →</a>
+      <a class="launch-btn" href="#" onclick="launchApp()" onclick="">Launch App →</a>
     </div>
   </div>
 </nav>
@@ -166,7 +175,7 @@
     <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
     <p class="hero-sub">Nan is the simplest way to send, swap, lend, borrow, and bridge USDC and EURC on Arc — Circle's stablecoin-native blockchain. Non-custodial. For everyone, everywhere.</p>
     <div class="hero-btns">
-      <a class="btn-primary" href="/app.html">Launch App →</a>
+      <a class="btn-primary" href="#" onclick="launchApp()">Launch App →</a>
       <a class="btn-secondary" href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Get Free Tokens</a>
     </div>
   </div>
@@ -324,7 +333,7 @@
   <div class="cta-section reveal">
     <h2>Ready to try <span class="accent">Nan</span>?</h2>
     <p>Connect your wallet or sign in with email and experience stablecoin finance on Arc.</p>
-    <a class="btn-primary" href="/app.html">Launch App →</a>
+    <a class="btn-primary" href="#" onclick="launchApp()">Launch App →</a>
   </div>
 
 </main>
@@ -344,7 +353,7 @@
     <span class="footer-name">Nan</span>
   </div>
   <div class="footer-links">
-    <a href="/app.html">App</a>
+    <a href="#" onclick="launchApp()">App</a>
     <a href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Faucet</a>
     <a href="https://testnet.arcscan.app" target="_blank" rel="noopener noreferrer">Explorer</a>
     <a href="https://docs.arc.network" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -379,3 +388,7 @@
 </script>
 </body>
 </html>
+  
+ 
+ 
+
