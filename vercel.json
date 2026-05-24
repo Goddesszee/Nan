@@ -4,5 +4,11 @@
       "source": "/",
       "destination": "/landing.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/agent?action=tick",
+      "schedule": "* * * * *"
+    }
   ]
 }
