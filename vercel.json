@@ -1,8 +1,8 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/landing.html"
+      "src": "/",
+      "dest": "/landing.html"
     }
   ],
   "crons": [
