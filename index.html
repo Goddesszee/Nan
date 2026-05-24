@@ -512,6 +512,13 @@
       </div>
       <div class="more-item-arrow">›</div>
     </div>
+    <div class="more-item" onclick="goPage('payreq')">
+      <div class="more-item-left">
+        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">🧾</div>
+        <div><div class="more-item-title">Payment Requests</div><div class="more-item-sub">Create & share invoices instantly</div></div>
+      </div>
+      <div class="more-item-arrow">›</div>
+    </div>
 
   </div>
 
@@ -930,8 +937,77 @@
     <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
   </div>
 
-  <div id="toast"></div>
-</div><!-- end app-root -->
+  <!-- ══ PAYMENT REQUESTS PAGE ══ -->
+  <div class="page" id="page-payreq">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div>
+        <div class="page-title">Payment Requests</div>
+        <div class="page-sub">Create invoices · Share links · Get paid</div>
+      </div>
+      <button onclick="goPage('payreq-new')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.82rem;padding:8px 14px;cursor:pointer;">+ New</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="prStatTotal">0</div>
+        <div style="font-size:.68rem;color:var(--text3);">Total</div>
+      </div>
+      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;" id="prStatPaid">0</div>
+        <div style="font-size:.68rem;color:var(--text3);">Paid</div>
+      </div>
+      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--warning);font-family:'JetBrains Mono',monospace;" id="prStatPending">0</div>
+        <div style="font-size:.68rem;color:var(--text3);">Pending</div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="payreqList" style="display:flex;flex-direction:column;"></div>
+    </div>
+  </div>
+
+  <!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
+  <div class="page" id="page-payreq-new" style="flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
+      <div>
+        <div class="page-title" style="margin-bottom:0;">New Request</div>
+        <div style="font-size:.75rem;color:var(--text3);">Fill in details · Share the link</div>
+      </div>
+    </div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;gap:0;">
+      <div class="field">
+        <div class="flbl">Currency</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="topt active" id="pr-usdc" onclick="setPRToken('USDC',this)" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;"><span style="font-size:1rem;">💵</span><span>USDC</span></button>
+          <button class="topt" id="pr-eurc" onclick="setPRToken('EURC',this)" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;"><span style="font-size:1rem;">💶</span><span>EURC</span></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;"><span>Amount</span><span style="font-size:.72rem;color:var(--text3);">Leave blank to let payer choose</span></div>
+        <div class="amt-row">
+          <div class="field" style="margin-bottom:0;flex:1;"><input id="prAmount" type="number" min="0.01" step="0.01" placeholder="0.00 (optional)" oninput="updatePRPreview()"/></div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text3);padding:0 8px;" id="prTokenLabel">USDC</span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flbl">Label <span style="color:var(--text3);font-weight:400;">(required)</span></div>
+        <input id="prLabel" type="text" placeholder="e.g. Freelance design · Invoice #001 · Rent April" oninput="updatePRPreview()" maxlength="80"/>
+      </div>
+      <div class="field">
+        <div class="flbl">Note <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
+        <input id="prNote" type="text" placeholder="Add extra details for the payer" maxlength="160"/>
+      </div>
+      <div class="field">
+        <div class="flbl">Expires</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;" id="prExpiryGrid">
+          <button class="topt active" onclick="setPRExpiry(0,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">Never</button>
+          <button class="topt" onclick="setPRExpiry(24,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">24h</button>
+          <button class="topt" onclick="setPRExpiry(168,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">7 days</button>
+          <button class="topt" onclick="setPRExpiry(720,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">30 days</button>
+        </div>
+      </div>
+      <div id="prPreviewWrap" style="display:none;margin-bottom:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;">Preview</div>
 
 <!-- ══ WALLET PICKER MODAL ══ -->
 <div class="wallet-modal-overlay" id="walletModalOverlay" onclick="hideWalletPicker(event)">
