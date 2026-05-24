@@ -989,7 +989,8 @@
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
     </div>
-    <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">💸 Pay Now</button>
+    <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">💸 Pay Now via NAN</button>
+    <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied — paste in any wallet','success',3000))" style="width:100%;padding:11px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:12px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;margin-bottom:8px;">📋 Copy Address — Pay from any wallet</button>
     <div style="text-align:center;font-size:.72rem;color:var(--text3);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
   </div>
 
