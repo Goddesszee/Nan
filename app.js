@@ -3385,6 +3385,41 @@ function markPRAsPaid(){
   document.getElementById('prMarkPaidBtn').style.display='none';
   toast('✓ Marked as paid!','success',2500);
 }
+function doPayNow(){
+  const to=document.getElementById('payNowTo').textContent;
+  const token=document.getElementById('payNowToken').textContent;
+  const fixedAmt=document.getElementById('payNowAmt').textContent;
+  const customAmt=document.getElementById('payNowCustomAmt').value;
+  const amt=fixedAmt==='Open amount'?parseFloat(customAmt):parseFloat(fixedAmt);
+  if(!amt||amt<=0){toast('Enter an amount','error');return;}
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  goPage('send');
+  setTimeout(()=>{
+    document.getElementById('recipInput').value=to;
+    document.getElementById('amtInput').value=amt.toFixed(2);
+    sendToken=token||'USDC';
+    document.getElementById('sendTokenLabel').textContent=sendToken;
+    onRecipInput();
+    validateSend();
+    toast('Fill in the send form to complete payment','info',4000);
+  },300);
+}
+
+async function sendPaymentNotification(pr){
+  if(!pr.creatorEmail)return;
+  try{
+    await fetch('/api/otp',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'notify',
+        email:pr.creatorEmail,
+        subject:'✓ Payment received — '+pr.label,
+        message:'You received '+(pr.amount||'a')+ ' '+pr.token+' for "'+pr.label+'" on NAN Wallet.\n\nCheck your wallet at nanarc.xyz'
+      })
+    });
+  }catch(e){console.log('Notify error:',e);}
+}
+
 function deletePR(){
   if(!confirm('Delete this payment request?'))return;
   paymentRequests=paymentRequests.filter(p=>p.id!==activePRId);
