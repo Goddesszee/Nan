@@ -2612,18 +2612,14 @@ async function refreshLendPosition(){
     const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,readProvider);
     const pos=await lendContract.getPosition(userAddr);
     // Log all position values to console for debugging
-    const p0=parseFloat(ethers.formatUnits(pos[0],6));
-    const p1=parseFloat(ethers.formatUnits(pos[1],6));
-    const p2=parseFloat(ethers.formatUnits(pos[2],6));
-    const p3=pos[3]?parseFloat(ethers.formatUnits(pos[3],6)):0;
-    const p4=pos[4]?parseFloat(ethers.formatUnits(pos[4],6)):0;
-    const p5=pos[5]?parseFloat(ethers.formatUnits(pos[5],6)):0;
-    console.log('Position values:',{p0,p1,p2,p3,p4,p5});
-    // supplied is likely the largest value matching our known deposit
-    // Try pos[0]=supplied, pos[3]=borrowed, pos[4]=interest (common DeFi layout)
-    lendPositions.supplied=p0;
-    lendPositions.borrowed=p3||p2;
-    lendPositions.interest=p4||p1;
+    // Correct index mapping confirmed from contract:
+    // pos[0]=supplied, pos[1]=supplyInterest, pos[2]=borrowed
+    // pos[3]=borrowInterest, pos[4]=collateral, pos[5]=healthFactor
+    lendPositions.supplied=parseFloat(ethers.formatUnits(pos[0],6));
+    lendPositions.interest=parseFloat(ethers.formatUnits(pos[1],6));
+    lendPositions.borrowed=parseFloat(ethers.formatUnits(pos[2],6));
+    lendPositions.collateral=parseFloat(ethers.formatUnits(pos[4],6));
+    console.log('Position:',lendPositions);
     updateLendPositions();
   }catch(e){console.log('Lend position fetch error:',e.message);}
 }
@@ -2650,7 +2646,10 @@ async function doBorrow(){
   // Refresh position first to get latest on-chain data
   await refreshLendPosition();
   if(lendPositions.supplied===0){toast('Supply USDC first before borrowing','error',4000);return;}
-  const maxBorrow=Math.max(0,lendPositions.supplied*0.75-lendPositions.borrowed);
+  // maxBorrow = 75% of collateral - already borrowed
+  // If no collateral yet, use supplied as potential collateral
+  const effectiveCollateral=lendPositions.collateral||lendPositions.supplied;
+  const maxBorrow=Math.max(0,effectiveCollateral*0.75-lendPositions.borrowed);
   if(amt>maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;}
 
   const btn=document.getElementById('borrowBtn');
@@ -2659,6 +2658,45 @@ async function doBorrow(){
   try{
     const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
     const amtAtomic=Math.floor(amt*1_000_000).toString();
+
+    if(!isCircleWallet&&signer){
+      // collateral is separate from supply — need to approve + addCollateral
+      const usdcC=new ethers.Contract(USDC_ADDR,[
+        'function approve(address,uint256) returns (bool)',
+        'function allowance(address,address) view returns (uint256)',
+        'function balanceOf(address) view returns (uint256)'
+      ],signer);
+      
+      // Check how much we still need to add as collateral
+      const lc=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
+      const pos=await lc.getPosition(userAddr);
+      const suppliedAtomic=BigInt(pos[0].toString());
+      const collateralAtomic=BigInt(pos[4].toString());
+      const needed=suppliedAtomic-collateralAtomic;
+      
+      if(needed>0n){
+        // Check wallet balance for collateral
+        const walletBal=await usdcC.balanceOf(userAddr);
+        if(walletBal<needed){
+          toast('Need '+ethers.formatUnits(needed,6)+' USDC in wallet to register collateral','error',5000);
+          if(btn){btn.innerHTML='Borrow USDC';btn.disabled=false;}
+          return;
+        }
+        // Approve
+        const allowance=await usdcC.allowance(userAddr,LENDING_CONTRACT);
+        if(allowance<needed){
+          toast('Approving collateral…','info',3000);
+          const appTx=await usdcC.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+          await appTx.wait(1);
+        }
+        // Add collateral
+        toast('Adding collateral ('+ethers.formatUnits(needed,6)+' USDC)…','info',3000);
+        const colTx=await lc.addCollateral(needed.toString(),arcGasOpts());
+        await colTx.wait(1);
+        toast('Collateral added! Borrowing now…','success',2000);
+        await new Promise(r=>setTimeout(r,1000));
+      }
+    }
 
     if(isCircleWallet&&circleWalletId){
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
