@@ -2335,7 +2335,13 @@ function toggleAgent(){
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  Object.assign(btn.style,{bottom:'80px',right:'16px',top:'auto',transform:'none'});
+  if(window.innerWidth>1040){
+    btn.style.right='calc(50% - 520px)';
+    btn.style.bottom='120px';
+  }else{
+    btn.style.right='0px';
+    btn.style.bottom='90px';
+  }
 }
 window.addEventListener('resize',resizeAIPanel);
 
