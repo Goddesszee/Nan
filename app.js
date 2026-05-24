@@ -2645,62 +2645,85 @@ function updateBorrowPreview(){
 }
 async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
-  if(!amt||amt<=0){toast('Enter an amount','error');return;}
-  if(lendPositions.supplied===0){toast('Supply USDC as collateral first before borrowing','error',4000);return;}
-  const maxBorrow=lendPositions.supplied*0.75-lendPositions.borrowed;
-  if(maxBorrow<=0){toast('No borrowing capacity — repay existing loan first','error',4000);return;}
+  if(!amt||amt<=0){toast('Enter an amount to borrow','error');return;}
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  if(lendPositions.supplied===0){toast('Supply USDC first before borrowing','error',4000);return;}
+  const maxBorrow=Math.max(0,lendPositions.supplied*0.75-lendPositions.borrowed);
   if(amt>maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;}
-  const btn=document.querySelector('#lp-borrow button');
-  btn.innerHTML='<span class="spinner"></span>Borrowing…';btn.disabled=true;
+
+  const btn=document.getElementById('borrowBtn');
+  if(btn){btn.innerHTML='<span class="spinner"></span>Processing…';btn.disabled=true;}
+
   try{
+    const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
     const amtAtomic=Math.floor(amt*1_000_000).toString();
-    // Step 1: Register collateral first (required by NANLendingPool)
-    if(!isCircleWallet&&signer){
-      try{
-        const lc2=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-        // Get actual on-chain position to know how much to register as collateral
-        const pos=await lc2.getPosition(userAddr);
-        const onChainSupplied=Number(pos[0]);
-        // Try pos[2] as collateral (most common), fall back to 0 if same as supplied
-        const onChainCollateral=Number(pos[2]||0);
-        const toRegister=onChainCollateral<onChainSupplied ? onChainSupplied-onChainCollateral : 0;
-        console.log('Collateral check: supplied=',onChainSupplied,'collateral=',onChainCollateral,'toRegister=',toRegister);
-        if(toRegister>0){
-          toast('Registering your collateral…','info',3000);
-          const colTx=await lc2.addCollateral(toRegister.toString(),arcGasOpts());
-          await colTx.wait(1);
-          toast('Collateral registered!','success',2000);
-        }
-      }catch(ce){console.log('addCollateral:',ce.message);}
-    }
+
     if(isCircleWallet&&circleWalletId){
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
-      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on-chain!','success',5000);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
-      setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
+      toast('✓ Borrowed '+amt.toFixed(2)+' USDC!','success',5000);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      setTimeout(()=>{refreshBalances();refreshLendPosition();},6000);
+
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-      const tx=await lendContract.borrow(ethers.parseUnits(amt.toFixed(6),6),arcGasOpts());
+      const usdcContract=new ethers.Contract(USDC_ADDR,[
+        'function approve(address,uint256) returns (bool)',
+        'function allowance(address,address) view returns (uint256)'
+      ],signer);
+
+      // Step 1: Try borrow directly first
+      toast('Step 1/3 — Approving…','info',3000);
+      const allowance=await usdcContract.allowance(userAddr,LENDING_CONTRACT);
+      if(allowance<amtParsed){
+        const appTx=await usdcContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await appTx.wait(1);
+      }
+
+      // Step 2: Try addCollateral with supplied amount
+      toast('Step 2/3 — Registering collateral…','info',3000);
+      try{
+        const suppliedAtomic=Math.floor(lendPositions.supplied*1_000_000).toString();
+        const colTx=await lendContract.addCollateral(suppliedAtomic,arcGasOpts());
+        await colTx.wait(1);
+        toast('Collateral registered!','success',2000);
+      }catch(ce){
+        // addCollateral might fail if already registered — that's OK
+        console.log('addCollateral (expected if already done):', ce.message);
+      }
+
+      // Step 3: Borrow
+      toast('Step 3/3 — Borrowing…','info',3000);
+      const tx=await lendContract.borrow(amtParsed,arcGasOpts());
       await tx.wait(1);
       toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
-      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
-      await refreshBalances();await refreshLendPosition();
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      await refreshBalances();
+      await refreshLendPosition();
+
     }else{throw new Error('No wallet connected');}
-  }catch(err){const _em = err.reason||err.message||'';
-    if(_em.includes('LTV')||_em.includes('ltv')||_em.includes('estimateGas')||_em.includes('Exceeds')){
-      const _mb = Math.max(0,(lendPositions.supplied*0.75)-lendPositions.borrowed).toFixed(2);
-      toast('Max borrow is '+_mb+' USDC — you need more collateral to borrow more','error',6000);
-    } else if(_em.includes('insufficient')||_em.includes('balance')){
-      toast('Not enough USDC in the pool right now','error',5000);
-    } else {
-      toast('Borrow failed — try a smaller amount','error',5000);
-    }}
-  document.getElementById('borrowAmt').value='';
-  btn.innerHTML='Borrow USDC';btn.disabled=false;
+
+  }catch(err){
+    const msg=err.reason||err.message||'';
+    console.error('Borrow error:',msg);
+    if(msg.includes('LTV')||msg.includes('ltv')||msg.includes('collateral')||msg.includes('estimateGas')||msg.includes('Exceeds')){
+      const maxB=Math.max(0,lendPositions.supplied*0.75-lendPositions.borrowed).toFixed(2);
+      toast('Cannot borrow — max is '+maxB+' USDC. Try a smaller amount.','error',6000);
+    }else if(msg.includes('insufficient')||msg.includes('liquidity')){
+      toast('Not enough liquidity in the pool right now','error',5000);
+    }else if(msg.includes('user rejected')||msg.includes('denied')){
+      toast('Transaction cancelled','error',3000);
+    }else{
+      toast('Borrow failed — '+msg.slice(0,60),'error',6000);
+    }
+  }finally{
+    if(btn){btn.innerHTML='Borrow USDC';btn.disabled=false;}
+  }
 }
+
 async function doRepay(){
   const amt=parseFloat(document.getElementById('repayAmt').value);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
