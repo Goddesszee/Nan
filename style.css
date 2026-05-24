@@ -543,3 +543,140 @@ a:hover{color:var(--text);}
 [data-theme="light"] .chain-badge{background:#ffffff!important;border-color:rgba(109,40,217,.15)!important;}
 [data-theme="light"] .price-opt{background:#ffffff!important;border-color:rgba(109,40,217,.15)!important;}
 [data-theme="light"] .price-opt.active{background:rgba(109,40,217,.09)!important;border-color:#7c3aed!important;}
+
+/* ══ MOBILE IMPROVEMENTS ══ */
+/* AI Chat panel - full mobile friendly */
+#agentPanel {
+  border-radius: 0 !important;
+  max-width: 480px !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(100%) !important;
+  transition: transform .35s cubic-bezier(.32,1,.23,1) !important;
+}
+#agentPanel.open {
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+/* Larger tap targets on mobile */
+@media(max-width:480px){
+  /* AI button always visible and accessible */
+  #aiBtn {
+    bottom: 84px !important;
+    right: 16px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Agent panel full screen on mobile */
+  #agentPanel {
+    left: 0 !important;
+    transform: translateY(100%) !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+  }
+  #agentPanel.open {
+    transform: translateY(0) !important;
+  }
+
+  /* Agent messages better spacing */
+  #agentMessages {
+    padding: 12px !important;
+    gap: 8px !important;
+    bottom: 72px !important;
+  }
+
+  /* Agent input bar */
+  #agentInput {
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Voice button bigger tap target */
+  #voiceBtn {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 14px !important;
+    font-size: 1.2rem !important;
+  }
+
+  /* Better nav tap targets */
+  .nav-btn {
+    min-height: 52px !important;
+    padding: 8px 4px !important;
+  }
+
+  /* Wallet options bigger tap targets */
+  .wallet-opt {
+    min-height: 56px !important;
+    padding: 12px 14px !important;
+  }
+
+  /* Home action buttons bigger */
+  .home-action {
+    min-height: 72px !important;
+    padding: 14px 8px !important;
+  }
+
+  /* Better scroll feel */
+  .page {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Confirm buttons stack on small screens */
+  .conf-btns {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  /* Price grid 2 col on mobile */
+  .price-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* More items full width */
+  .more-item {
+    min-height: 60px !important;
+  }
+
+  /* Swap input bigger on mobile */
+  .swap-input {
+    font-size: 1.6rem !important;
+  }
+
+  /* QR layout stack on small screens */
+  .qr-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+
+  /* Page title adjust */
+  .page-title {
+    font-size: 1.3rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* Type selector 2 col on very small */
+  .type-sel {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Stat grid spacing */
+  .lend-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+/* Very small phones (SE, small Androids) */
+@media(max-width:360px){
+  .home-bal-num { font-size: 2rem !important; }
+  .home-actions-top { grid-template-columns: repeat(3,1fr) !important; gap: 5px !important; }
+  .home-action-label { font-size: .6rem !important; }
+  .nav-btn span { font-size: .58rem !important; }
+  .bottom-nav { height: 64px !important; }
+  .page { bottom: 64px !important; }
+  #aiBtn { bottom: 76px !important; }
+}
