@@ -2647,6 +2647,8 @@ async function doBorrow(){
   const amt=parseFloat(document.getElementById('borrowAmt').value);
   if(!amt||amt<=0){toast('Enter an amount to borrow','error');return;}
   if(!userAddr){toast('Connect wallet first','error');return;}
+  // Refresh position first to get latest on-chain data
+  await refreshLendPosition();
   if(lendPositions.supplied===0){toast('Supply USDC first before borrowing','error',4000);return;}
   const maxBorrow=Math.max(0,lendPositions.supplied*0.75-lendPositions.borrowed);
   if(amt>maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;}
