@@ -1737,8 +1737,11 @@ async function addBulkRecipient(){
     toast('Enter a valid 0x address or .arc name','error'); return;
   }
 
-  bulkRecipients.push({ addr, name, amount: bulkDefaultAmt, status: 'pending' });
+  const nameInput = document.getElementById('bulkNameInput');
+  const displayName = nameInput.value.trim() || name || '';
+  bulkRecipients.push({ addr, name: displayName || name, amount: bulkDefaultAmt, status: 'pending' });
   input.value = '';
+  nameInput.value = '';
   renderBulkRecipients();
   updateBulkSummary();
 }
@@ -1847,6 +1850,128 @@ function clearBulkRecipients(){
   }
 }
 
+// ── Payroll Groups ──
+function savePayrollGroup(){
+  if(!bulkRecipients.length){ toast('Add recipients first','error'); return; }
+  const name = prompt('Name this payroll group (e.g. Engineering Team, October Payroll):');
+  if(!name) return;
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  groups[name] = bulkRecipients.map(r=>({addr:r.addr,name:r.name,amount:r.amount}));
+  localStorage.setItem('nan_payroll_groups', JSON.stringify(groups));
+  renderPayrollGroups();
+  toast('✓ Group "'+name+'" saved!','success',3000);
+}
+
+function loadPayrollGroup(){
+  const sel = document.getElementById('payrollGroupSelect');
+  const name = sel.value;
+  if(!name) return;
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const group = groups[name];
+  if(!group) return;
+  bulkRecipients = group.map(r=>({...r, status:'pending'}));
+  renderBulkRecipients();
+  updateBulkSummary();
+  toast('✓ Loaded "'+name+'" — '+group.length+' recipients','success',3000);
+}
+
+function renderPayrollGroups(){
+  const sel = document.getElementById('payrollGroupSelect');
+  if(!sel) return;
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const keys = Object.keys(groups);
+  sel.innerHTML = '<option value="">— Select saved group —</option>'
+    + keys.map(k=>`<option value="${k}">${k} (${groups[k].length} people)</option>`).join('');
+}
+
+function schedulePayroll(){
+  if(!bulkRecipients.length){ toast('Add recipients first','error'); return; }
+  const total = bulkRecipients.reduce((s,r)=>s+r.amount,0);
+  if(!confirm(`Schedule monthly payroll?\n\n${bulkRecipients.length} recipients · ${total.toFixed(2)} ${bulkToken} total\n\nWill run on the 1st of each month.`)) return;
+  const nextRun = getNext1st();
+  bulkRecipients.forEach(r=>{
+    createOrder({
+      type:'standing',
+      amount:r.amount,
+      token:bulkToken,
+      to:r.addr,
+      interval:2592000000,
+      nextRun,
+      freq:'month',
+      label:r.name||r.addr.slice(0,10),
+    });
+  });
+  toast('✓ Monthly payroll scheduled for '+new Date(nextRun).toLocaleDateString()+' — '+bulkRecipients.length+' recipients','success',6000);
+}
+
+function getNext1st(){
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth()+1, 1, 9, 0, 0);
+  return next.getTime();
+}
+
+let lastPayrollTxs = [];
+
+function downloadPayrollReceipt(){
+  if(!lastPayrollTxs.length){ toast('Run payroll first to generate a receipt','info',3000); return; }
+  const now = new Date().toLocaleString();
+  const total = lastPayrollTxs.reduce((s,r)=>s+r.amount,0);
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 120 + lastPayrollTxs.length * 44 + 80;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const bg = ctx.createLinearGradient(0,0,600,canvas.height);
+  bg.addColorStop(0,'#07081a'); bg.addColorStop(1,'#0e1030');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,600,canvas.height);
+  ctx.strokeStyle = 'rgba(139,92,246,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(10,10,580,canvas.height-20,16); ctx.stroke();
+
+  // Header
+  ctx.fillStyle = '#ede9fe'; ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'left'; ctx.fillText('NAN Payroll Receipt', 28, 48);
+  ctx.fillStyle = '#a78bfa'; ctx.font = '12px monospace';
+  ctx.fillText(now, 28, 68);
+  ctx.fillStyle = '#6b5fa0'; ctx.font = '11px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText(lastPayrollTxs.length+' recipients · '+total.toFixed(2)+' '+bulkToken+' total', 572, 68);
+
+  // Divider
+  ctx.strokeStyle = 'rgba(139,92,246,0.2)'; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(28,82); ctx.lineTo(572,82); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Rows
+  lastPayrollTxs.forEach((r,i)=>{
+    const y = 110 + i*44;
+    ctx.fillStyle = i%2===0?'rgba(139,92,246,0.04)':'transparent';
+    ctx.fillRect(18, y-16, 564, 40);
+    ctx.fillStyle = '#ede9fe'; ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(r.name||r.addr.slice(0,16)+'…', 28, y+4);
+    ctx.fillStyle = '#6b5fa0'; ctx.font = '10px monospace';
+    ctx.fillText(r.addr.slice(0,18)+'…', 28, y+18);
+    ctx.fillStyle = r.status==='done'?'#34d399':'#f87171';
+    ctx.font = 'bold 13px monospace'; ctx.textAlign = 'right';
+    ctx.fillText(r.amount.toFixed(2)+' '+bulkToken, 572, y+4);
+    ctx.fillStyle = r.status==='done'?'#34d399':'#f87171';
+    ctx.font = '10px monospace';
+    ctx.fillText(r.status==='done'?'✓ Sent':'✗ Failed', 572, y+18);
+  });
+
+  // Footer
+  const fy = canvas.height - 30;
+  ctx.fillStyle = 'rgba(139,92,246,0.15)'; ctx.fillRect(0,fy-14,600,44);
+  ctx.fillStyle = '#a78bfa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('NAN Wallet · Powered by Circle USDC · Arc Testnet', 300, fy+8);
+
+  const link = document.createElement('a');
+  link.download = 'nan-payroll-'+Date.now()+'.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  toast('✓ Payroll receipt downloaded!','success',3000);
+}
+
 async function doBulkSend(){
   if(!bulkRecipients.length) return;
   const btn = document.getElementById('bulkSendBtn');
@@ -1921,6 +2046,7 @@ async function doBulkSend(){
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
+  lastPayrollTxs = [...bulkRecipients];
   bulkRecipients = bulkRecipients.filter(r => r.status !== 'done');
   setTimeout(() => {
     renderBulkRecipients();
