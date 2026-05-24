@@ -3258,7 +3258,7 @@ function genPRId(){
   return 'pr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 }
 function buildPRLink(pr){
-  const base=window.location.origin+window.location.pathname;
+  const base=window.location.origin+'/pay.html';
   const p=new URLSearchParams({pay:pr.id,to:pr.to,amt:pr.amount||'',tok:pr.token,lbl:pr.label,note:pr.note||''});
   return base+'?'+p.toString();
 }
