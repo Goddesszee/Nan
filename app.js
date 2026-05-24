@@ -18,7 +18,13 @@ const PERMIT2_ADDR  = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
 const FXESCROW_ADDR = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8';
 const LENDING_CONTRACT  = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce'; // NANLendingPool deployed
 const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
-const PAYREQ_CONTRACT   = '0x1940232f42D4e2083785bC869FbAD8dd43133817'; // TODO: deploy NANPaymentRequests
+const PAYREQ_CONTRACT   = '0x1940232f42D4e2083785bC869FbAD8dd43133817';
+const HISTORY_CONTRACT  = '0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
+const HISTORY_ABI = [
+  'function record(string txType, string token, string amount, string toAddr, string label, bytes32 txHash) external',
+  'function getHistory(address wallet) view returns (tuple(uint256 ts, string txType, string token, string amount, string toAddr, string label, bytes32 txHash)[])',
+  'function getCount(address wallet) view returns (uint256)',
+]; // TODO: deploy NANPaymentRequests
 
 // CCTP — Circle Cross-Chain Transfer Protocol
 const ARC_CCTP_DOMAIN = 26; const CCTP_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA'; // Arc Testnet TokenMessengerV2 (official)
@@ -743,6 +749,7 @@ async function onConnected(isEmail=false, isDev=false){
   showBalSkeleton();
   await refreshBalances();
   loadTxHistory();arcNames=JSON.parse(localStorage.getItem('nan_arcnames_'+userAddr)||'[]');
+  setTimeout(()=>loadOnChainHistory(),2000);
   renderQR(userAddr);
   renderHistory();
   renderArcDirectory();
@@ -1611,12 +1618,67 @@ function prefillSend(addr){
 // ═══════════════════════════════════════════
 // HISTORY
 // ═══════════════════════════════════════════
-function addTx(tx){txHistory.unshift(tx);saveTxHistory();renderHistory();}
+function addTx(tx){
+  txHistory.unshift(tx);
+  saveTxHistory();
+  renderHistory();
+  // Record on-chain in background — don't block UI
+  _recordTxOnChain(tx).catch(e=>console.log('History record skipped:',e.message));
+}
+
+async function _recordTxOnChain(tx){
+  if(!userAddr) return;
+  try{
+    const hashBytes = tx.hash&&tx.hash.length===66
+      ? tx.hash
+      : ethers.zeroPadValue('0x01',32);
+    if(isCircleWallet&&circleWalletId){
+      await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:HISTORY_CONTRACT,
+          functionSignature:'record(string,string,string,string,string,bytes32)',
+          params:[tx.type||'out',tx.token||'USDC',tx.amount||'0',tx.to||'',tx.toRaw||'',hashBytes]
+        })});
+    }else if(signer){
+      const c=new ethers.Contract(HISTORY_CONTRACT,HISTORY_ABI,signer);
+      const t=await c.record(tx.type||'out',tx.token||'USDC',tx.amount||'0',tx.to||'',tx.toRaw||'',hashBytes,arcGasOpts());
+      await t.wait(1);
+    }
+  }catch(e){console.log('On-chain history error:',e.message);}
+}
 function clearHistory(){
   if(!txHistory.length){toast('Nothing to clear','info',2000);return;}
   if(!confirm('Clear all history?'))return;
   txHistory=[];localStorage.removeItem('arcTx_'+userAddr);renderHistory();toast('Cleared','info',2000);
 }
+async function loadOnChainHistory(){
+  if(!userAddr) return;
+  try{
+    const readProvider=getArcProvider();
+    const c=new ethers.Contract(HISTORY_CONTRACT,HISTORY_ABI,readProvider);
+    const records=await c.getHistory(userAddr);
+    if(!records.length) return;
+    // Merge on-chain records with local — on-chain wins
+    const onChain=records.map(r=>({
+      hash: r.txHash,
+      to: r.toAddr,
+      toRaw: r.label,
+      amount: r.amount,
+      type: r.txType,
+      token: r.token,
+      ts: Number(r.ts)*1000,
+      confirmed: true,
+      source: 'onchain',
+    }));
+    // Merge: keep local ones not yet on-chain
+    const onChainHashes=new Set(onChain.map(r=>r.hash));
+    const localOnly=txHistory.filter(t=>!onChainHashes.has(t.hash));
+    txHistory=[...onChain,...localOnly].sort((a,b)=>b.ts-a.ts);
+    saveTxHistory();
+    renderHistory();
+  }catch(e){console.log('On-chain history load error:',e.message);}
+}
+
 function renderHistory(){
   // Update stats
   const m=getMetrics();
