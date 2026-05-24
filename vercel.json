@@ -1,5 +1,8 @@
 {
-  "redirects": [{ "source": "/", "destination": "/landing.html", "permanent": false }],
+  "redirects": [
+    { "source": "/", "destination": "/landing.html", "permanent": false },
+    { "source": "/index.html", "destination": "/landing.html", "permanent": false }
+  ],
   "crons": [
     {
       "path": "/api/agent?action=tick",
