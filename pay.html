@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#07081a"/>
+<title>NAN — Pay Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(139,92,246,.25);border-radius:20px;padding:20px;margin-bottom:12px;}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:8px;}
+.btn-primary{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#ede9fe;}
+.btn-outline{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:#a78bfa;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.label{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.step{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:6px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#a78bfa;flex-shrink:0;}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.divider-line{flex:1;height:1px;background:rgba(139,92,246,.15);}
+.divider-text{font-size:.7rem;color:#6b7280;font-family:'JetBrains Mono',monospace;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;}
+#toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
+</style>
+</head>
+<body>
+<div style="width:100%;max-width:420px;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;color:#ede9fe;font-size:1rem;">N</div>
+    <div>
+      <div style="font-size:1rem;font-weight:700;color:#ede9fe;">NAN Payment Request</div>
+      <div style="font-size:.72rem;color:#6b7280;">Arc Testnet · Circle USDC</div>
+    </div>
+  </div>
+
+  <!-- Amount hero -->
+  <div style="background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(109,40,217,.08));border:1px solid rgba(139,92,246,.35);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
+    <div style="font-size:2.4rem;font-weight:700;color:#a78bfa;font-family:'JetBrains Mono',monospace;margin-bottom:6px;" id="dispAmt">—</div>
+    <div style="font-size:1rem;font-weight:600;color:#ede9fe;margin-bottom:4px;" id="dispLabel">Loading...</div>
+    <div style="font-size:.78rem;color:#6b7280;" id="dispNote"></div>
+  </div>
+
+  <!-- Address + QR -->
+  <div class="card">
+    <div class="label">Send payment to this address</div>
+    <div style="display:flex;justify-content:center;margin:12px 0;" id="qrBox"></div>
+    <div class="mono" style="font-size:.68rem;color:#a78bfa;word-break:break-all;text-align:center;background:rgba(139,92,246,.08);padding:10px;border-radius:8px;margin-bottom:10px;" id="dispAddr">—</div>
+    <button class="btn btn-primary" onclick="copyAddr()">📋 Copy Address</button>
+  </div>
+
+  <!-- Network info -->
+  <div class="card">
+    <div class="label" style="margin-bottom:10px;">How to pay from any wallet</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div style="font-size:.82rem;color:#d1d5db;">Open MetaMask, Trust Wallet, Coinbase or any EVM wallet</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div style="font-size:.82rem;color:#d1d5db;">Add <strong style="color:#a78bfa;">Arc Testnet</strong> — Chain ID: <strong style="color:#a78bfa;">5042002</strong>, RPC: <strong style="color:#a78bfa;">https://rpc.testnet.arc.network</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div style="font-size:.82rem;color:#d1d5db;">Send <strong style="color:#a78bfa;" id="stepAmt">the amount</strong> of <strong style="color:#a78bfa;">USDC</strong> to the address above</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div style="font-size:.82rem;color:#d1d5db;">USDC contract: <span class="mono" style="color:#a78bfa;font-size:.7rem;">0x3600000000000000000000000000000000000000</span></div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">already have NAN wallet?</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- NAN wallet button -->
+  <a id="nanLink" href="https://nanarc.xyz" style="text-decoration:none;">
+    <button class="btn btn-outline">⚡ Pay instantly via NAN Wallet</button>
+  </a>
+
+  <div style="text-align:center;font-size:.68rem;color:#374151;margin-top:12px;">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const to = params.get('to') || '';
+const amt = params.get('amt') || '';
+const tok = params.get('tok') || 'USDC';
+const lbl = params.get('lbl') || 'Payment Request';
+const note = params.get('note') || '';
+
+// Fill UI
+document.getElementById('dispLabel').textContent = lbl;
+document.getElementById('dispNote').textContent = note;
+document.getElementById('dispAmt').textContent = amt ? parseFloat(amt).toFixed(2) + ' ' + tok : 'Open Amount · ' + tok;
+document.getElementById('dispAddr').textContent = to;
+document.getElementById('stepAmt').textContent = amt ? parseFloat(amt).toFixed(2) + ' ' + tok : 'the requested';
+
+// QR code
+if(to){
+  try{
+    new QRCode(document.getElementById('qrBox'), {
+      text: to,
+      width: 140,
+      height: 140,
+      colorDark: '#8b5cf6',
+      colorLight: '#07081a',
+    });
+  }catch(e){}
+}
+
+// NAN deep link
+const nanUrl = 'https://nanarc.xyz?pay=' + (params.get('pay')||'') + '&to=' + encodeURIComponent(to) + '&amt=' + encodeURIComponent(amt) + '&tok=' + encodeURIComponent(tok) + '&lbl=' + encodeURIComponent(lbl) + '&note=' + encodeURIComponent(note);
+document.getElementById('nanLink').href = nanUrl;
+
+function copyAddr(){
+  navigator.clipboard.writeText(to).then(()=>{
+    const t = document.getElementById('toast');
+    t.textContent = '✓ Address copied!';
+    t.className = 'show success';
+    setTimeout(()=>t.className='', 2500);
+  });
+}
+</script>
+</body>
+</html>
