@@ -1727,18 +1727,6 @@ async function resolveArcName(name){
   }catch{ return null; }
 }
 
-async function resolveArcName(name){
-  const n = name.toLowerCase().replace('.arc','');
-  const found = arcNames.find(a => a.name === n);
-  if(found) return found.owner;
-  try{
-    const readProvider = getArcProvider();
-    const c = new ethers.Contract(NAME_REGISTRY, NAME_ABI, readProvider);
-    const addr = await c.resolve(n);
-    return addr === '0x0000000000000000000000000000000000000000' ? null : addr;
-  }catch{ return null; }
-}
-
 async function addBulkRecipient(){
   const input = document.getElementById('bulkAddrInput');
   const raw = input.value.trim();
