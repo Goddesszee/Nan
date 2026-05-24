@@ -2497,10 +2497,16 @@ function updateBorrowMax(){
 function initLendUI(){
   // Update max borrow display
   const maxBorrow = lendPositions ? Math.max(0, (lendPositions.supplied*0.75) - lendPositions.borrowed) : 0;
+  const onChainCol = lendPositions.collateral||0;
+  const maxBorrowDisplay = Math.max(0, onChainCol*0.75 - lendPositions.borrowed);
   const maxEl = document.getElementById('borrowMaxDisplay');
-  if(maxEl) maxEl.textContent = maxBorrow > 0 ? maxBorrow.toFixed(2)+' USDC' : lendPositions&&lendPositions.supplied>0 ? 'Limit reached' : 'Supply USDC first';
+  if(maxEl){
+    if(onChainCol===0) maxEl.textContent = 'Supply USDC to enable borrowing';
+    else if(maxBorrowDisplay<=0) maxEl.textContent = 'Limit reached';
+    else maxEl.textContent = maxBorrowDisplay.toFixed(2)+' USDC';
+  }
   const maxEl2 = document.getElementById('borrowMaxHint');
-  if(maxEl2) maxEl2.textContent = maxBorrow > 0 ? 'MAX: '+maxBorrow.toFixed(2)+' USDC' : '';
+  if(maxEl2) maxEl2.textContent = maxBorrowDisplay > 0 ? 'MAX: '+maxBorrowDisplay.toFixed(2)+' USDC' : '';
   const hintEl = document.getElementById('borrowMaxHint');
   if(hintEl) hintEl.textContent = maxBorrow > 0 ? 'Max: '+maxBorrow.toFixed(2)+' USDC' : '';
   updateLendPositions();
@@ -2662,13 +2668,18 @@ async function doBorrow(){
   if(!userAddr){toast('Connect wallet first','error');return;}
   // Refresh position first to get latest on-chain data
   await refreshLendPosition();
-  if(lendPositions.supplied===0){toast('Supply USDC first before borrowing','error',4000);return;}
-  // maxBorrow = 75% of wallet USDC balance (as potential collateral) - already borrowed
-  const walletUsdcBal = parseFloat(usdcBal||0);
-  const currentCollateral = lendPositions.collateral||0;
-  const totalCollateral = currentCollateral + walletUsdcBal;
-  const maxBorrow = Math.max(0, totalCollateral*0.75 - lendPositions.borrowed);
-  if(amt > maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC (need more USDC in wallet as collateral)','error',4000);return;}
+  if(lendPositions.supplied===0&&(lendPositions.collateral||0)===0){
+    toast('Supply USDC first before borrowing','error',4000);return;
+  }
+  // Use on-chain collateral as ground truth (from getPosition pos[4])
+  const onChainCollateral = lendPositions.collateral||0;
+  const maxBorrow = Math.max(0, onChainCollateral*0.75 - lendPositions.borrowed);
+  if(onChainCollateral===0){
+    toast('No collateral registered — supply USDC first, it will auto-register as collateral','error',5000);return;
+  }
+  if(amt > maxBorrow){
+    toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;
+  }
 
   const btn=document.getElementById('borrowBtn');
   if(btn){btn.innerHTML='<span class="spinner"></span>Processing…';btn.disabled=true;}
