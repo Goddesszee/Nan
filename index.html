@@ -994,6 +994,40 @@
     <div style="text-align:center;font-size:.72rem;color:var(--text3);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
   </div>
 
+<!-- ══ PAYMENT REQUEST VIEW PAGE ══ -->
+  <div class="page" id="page-payreq-view" style="flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
+      <div>
+        <div class="page-title" style="margin-bottom:0;" id="prViewTitle">Request</div>
+        <div style="font-size:.75rem;font-weight:600;" id="prViewStatus">⏳ Pending</div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(109,40,217,.05));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;" id="prViewAmt">—</div>
+      <div style="font-size:.88rem;font-weight:600;color:var(--text);" id="prViewLabel2">—</div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Your address</span><span style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);" id="prViewFrom">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Created</span><span style="font-size:.78rem;color:var(--text3);" id="prViewDate">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;" id="prViewNoteRow"><span style="font-size:.78rem;color:var(--text3);">Note</span><span style="font-size:.78rem;color:var(--text);" id="prViewNote">—</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:.78rem;color:var(--text3);">Expires</span><span style="font-size:.78rem;color:var(--text3);" id="prViewExpiry">Never</span></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">SHAREABLE LINK</div>
+      <div style="font-size:.72rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;" id="prViewLink"></div>
+      <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="copyPRLink()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
+        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">↗ Share</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
+      <button onclick="deletePR()" style="padding:10px 14px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.82rem;cursor:pointer;">🗑</button>
+    </div>
+  </div>
+
 <!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
   <div class="page" id="page-payreq-new" style="flex-direction:column;">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
