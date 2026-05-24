@@ -9,7 +9,7 @@ The simplest way to send, swap, lend, borrow and bridge USDC & EURC on Arc Testn
 - Swap via Circle StableFX
 - Lend & Borrow (4.80% APY)
 - Bridge via Circle CCTP
-- Arc Name Service (.arc names)
+- Arc Name Service (.arc names).
 - AI Assistant powered by Groq
 - Email login via Circle Programmable Wallets
 - Voice-enabled AI
