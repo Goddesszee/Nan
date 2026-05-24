@@ -2590,8 +2590,25 @@ async function doSupply(){
       await approveTx.wait(1);
       const tx=await lendContract.supply(amtParsed,arcGasOpts());
       await tx.wait(1);
-      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc Testnet!','success',5000);
-      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
+      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
+      addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Supply',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
+      
+      // Auto-register as collateral so user can borrow immediately
+      try{
+        // Need fresh approval for addCollateral (separate transfer)
+        const tokenContract2=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
+        const colAmtParsed=ethers.parseUnits(amt.toFixed(6),6);
+        btn.innerHTML='<span class="spinner"></span>Registering collateral…';
+        const approveTx2=await tokenContract2.approve(LENDING_CONTRACT,colAmtParsed,arcGasOpts());
+        await approveTx2.wait(1);
+        const colTx=await lendContract.addCollateral(colAmtParsed,arcGasOpts());
+        await colTx.wait(1);
+        toast('✓ '+amt.toFixed(2)+' '+lendAsset+' supplied & registered as collateral! You can now borrow up to '+(amt*0.75).toFixed(2)+' USDC','success',6000);
+      }catch(colErr){
+        console.log('addCollateral after supply:',colErr.message);
+        toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! (Go to Borrow to register collateral)','success',5000);
+      }
+      
       await refreshBalances();
       await refreshLendPosition();
     } else {
@@ -2660,50 +2677,7 @@ async function doBorrow(){
     const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
     const amtAtomic=Math.floor(amt*1_000_000).toString();
 
-    if(!isCircleWallet&&signer){
-      // collateral is separate from supply — need to approve + addCollateral
-      const usdcC=new ethers.Contract(USDC_ADDR,[
-        'function approve(address,uint256) returns (bool)',
-        'function allowance(address,address) view returns (uint256)',
-        'function balanceOf(address) view returns (uint256)'
-      ],signer);
-      
-      // Check how much we still need to add as collateral
-      const lc=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-      const pos=await lc.getPosition(userAddr);
-      const suppliedAtomic=BigInt(pos[0].toString());
-      const collateralAtomic=BigInt(pos[4].toString());
-      // Calculate collateral needed for this specific borrow (borrow/0.75 = collateral needed)
-      const borrowAtomic=BigInt(amtAtomic);
-      const requiredCollateral=borrowAtomic*100n/75n; // 75% LTV means collateral = borrow * 100/75
-      const needed=requiredCollateral>collateralAtomic ? requiredCollateral-collateralAtomic : 0n;
-      
-      if(needed>0n){
-        // Check wallet balance for collateral
-        const walletBal=await usdcC.balanceOf(userAddr);
-        console.log('Collateral needed:',ethers.formatUnits(needed,6),'Wallet bal:',ethers.formatUnits(walletBal,6));
-        if(walletBal<needed){
-          toast('Need '+ethers.formatUnits(needed,6)+' USDC in wallet to use as collateral. Get free tokens first!','error',6000);
-          if(btn){btn.innerHTML='Borrow USDC';btn.disabled=false;}
-          return;
-        }
-        // Approve - use MaxUint256 for unlimited approval
-        toast('Step 1: Approving USDC for collateral…','info',3000);
-        const appTx=await usdcC.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
-        console.log('Approved! Now adding collateral:',needed.toString());
-        // Add collateral - this transfers USDC from wallet to contract
-        toast('Step 2: Adding '+ethers.formatUnits(needed,6)+' USDC as collateral…','info',4000);
-        const colTx=await lc.addCollateral(needed.toString(),arcGasOpts());
-        const receipt=await colTx.wait(1);
-        console.log('addCollateral receipt:',receipt.status);
-        if(receipt.status===0) throw new Error('addCollateral transaction failed');
-        toast('Collateral added! Borrowing now…','success',2000);
-        await new Promise(r=>setTimeout(r,1500));
-      } else {
-        console.log('No additional collateral needed, proceeding to borrow');
-      }
-    }
+    // Collateral is registered during supply — just borrow directly
 
     if(isCircleWallet&&circleWalletId){
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
