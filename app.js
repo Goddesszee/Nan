@@ -2764,21 +2764,7 @@ async function doSupply(){
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Supply',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       
-      // Auto-register as collateral so user can borrow immediately
-      try{
-        // Need fresh approval for addCollateral (separate transfer)
-        const tokenContract2=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-        const colAmtParsed=ethers.parseUnits(amt.toFixed(6),6);
-        btn.innerHTML='<span class="spinner"></span>Registering collateral…';
-        const approveTx2=await tokenContract2.approve(LENDING_CONTRACT,colAmtParsed,arcGasOpts());
-        await approveTx2.wait(1);
-        const colTx=await lendContract.addCollateral(colAmtParsed,arcGasOpts());
-        await colTx.wait(1);
-        toast('✓ '+amt.toFixed(2)+' '+lendAsset+' supplied & registered as collateral! You can now borrow up to '+(amt*0.75).toFixed(2)+' USDC','success',6000);
-      }catch(colErr){
-        console.log('addCollateral after supply:',colErr.message);
-        toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! (Go to Borrow to register collateral)','success',5000);
-      }
+      fix: remove redundant addCollateral call — new contract handles it in supply()
       
       await refreshBalances();
       await refreshLendPosition();
