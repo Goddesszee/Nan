@@ -18,6 +18,7 @@ const PERMIT2_ADDR  = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
 const FXESCROW_ADDR = '0x867650F5eAe8df91445971f14d89fd84F0C9a9f8';
 const LENDING_CONTRACT  = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce'; // NANLendingPool deployed
 const NAME_REGISTRY     = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry deployed
+const PAYREQ_CONTRACT   = '0x0000000000000000000000000000000000000000'; // TODO: deploy NANPaymentRequests
 
 // CCTP — Circle Cross-Chain Transfer Protocol
 const ARC_CCTP_DOMAIN = 26; const CCTP_TOKEN_MESSENGER = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA'; // Arc Testnet TokenMessengerV2 (official)
@@ -117,6 +118,15 @@ const NAME_ABI = [
   'function getAllNames() view returns (string[])',
   'function isAvailable(string) view returns (bool)',
   'function totalNames() view returns (uint256)',
+];
+const PAYREQ_ABI = [
+  'function createRequest(address token, uint256 amount, string label, string note, uint256 expiresAt) external returns (uint256 id)',
+  'function pay(uint256 id, uint256 amount) external',
+  'function cancelRequest(uint256 id) external',
+  'function getRequest(uint256 id) view returns (uint256,address,address,uint256,string,string,uint256,uint8,address,uint256,uint256)',
+  'function getCreatorRequests(address creator) view returns (uint256[])',
+  'event RequestCreated(uint256 indexed id, address indexed creator, address token, uint256 amount, string label, uint256 expiresAt)',
+  'event RequestPaid(uint256 indexed id, address indexed payer, uint256 amount, uint256 timestamp)',
 ];
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -3259,7 +3269,8 @@ function genPRId(){
 }
 function buildPRLink(pr){
   const base=window.location.origin+'/pay.html';
-  const p=new URLSearchParams({pay:pr.id,to:pr.to,amt:pr.amount||'',tok:pr.token,lbl:pr.label,note:pr.note||''});
+  const id=pr.onChainId||pr.id;
+  const p=new URLSearchParams({pay:id,to:pr.to,amt:pr.amount||'',tok:pr.token,lbl:pr.label,note:pr.note||''});
   return base+'?'+p.toString();
 }
 function setPRToken(token,el){
@@ -3302,20 +3313,53 @@ function initNewPRForm(){
   document.getElementById('prPreviewWrap').style.display='none';
   document.getElementById('prCreateBtn').disabled=true;
 }
-function createPaymentRequest(){
+async function createPaymentRequest(){
   const label=document.getElementById('prLabel').value.trim();
   const amt=parseFloat(document.getElementById('prAmount').value)||null;
   const note=document.getElementById('prNote').value.trim();
   const email=document.getElementById('prEmail')?.value.trim()||otpEmail||'';
   if(!label){toast('Enter a label','error');return;}
   if(!userAddr){toast('Connect wallet first','error');return;}
-  const pr={id:genPRId(),to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
-  paymentRequests.unshift(pr);
-  savePaymentRequests();
-  const link=buildPRLink(pr);
-  navigator.clipboard.writeText(link).catch(()=>{});
-  toast('✓ Created! Link copied — share it to get paid','success',4000);
-  viewPaymentRequest(pr.id);
+  const btn=document.getElementById('prCreateBtn');
+  btn.innerHTML='<span class="spinner"></span>Creating on-chain…';btn.disabled=true;
+  try{
+    const tokenAddr=currentPRToken==='USDC'?USDC_ADDR:EURC_ADDR;
+    const amtAtomic=amt?ethers.parseUnits(amt.toFixed(6),6):0n;
+    const expiresAt=currentPRExpiry>0?Math.floor(Date.now()/1000)+currentPRExpiry*3600:0;
+    let onChainId=null;
+    if(isCircleWallet&&circleWalletId){
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:PAYREQ_CONTRACT,
+          functionSignature:'createRequest(address,uint256,string,string,uint256)',
+          params:[tokenAddr,amtAtomic.toString(),label,note||'',expiresAt.toString()]})});
+      const d=await r.json();
+      if(!d.success)throw new Error(d.error||'Create failed');
+      await waitForCircleTx(d.transactionId,'createRequest');
+      // Read ID from chain
+      const readProvider=getArcProvider();
+      const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,readProvider);
+      const ids=await c.getCreatorRequests(userAddr);
+      onChainId=ids[ids.length-1].toString();
+    }else if(signer){
+      const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
+      const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
+      const receipt=await tx.wait(1);
+      const event=receipt.logs.find(l=>l.fragment?.name==='RequestCreated');
+      onChainId=event?.args?.id?.toString();
+    }else{throw new Error('No wallet connected');}
+    // Store locally with on-chain ID as reference
+    const pr={id:'onchain_'+onChainId,onChainId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
+    paymentRequests.unshift(pr);
+    savePaymentRequests();
+    const link=buildPRLink(pr);
+    navigator.clipboard.writeText(link).catch(()=>{});
+    toast('✓ Created on-chain! Link copied — share it to get paid','success',4000);
+    viewPaymentRequest(pr.id);
+  }catch(err){
+    toast('Create failed: '+err.message.slice(0,100),'error',5000);
+    btn.innerHTML='Create & Share Link';btn.disabled=false;
+  }
 }
 function viewPaymentRequest(id){
   const pr=paymentRequests.find(p=>p.id===id);
@@ -3388,7 +3432,7 @@ function markPRAsPaid(){
   document.getElementById('prMarkPaidBtn').style.display='none';
   toast('✓ Marked as paid!','success',2500);
 }
-function doPayNow(){
+async function doPayNow(){
   const to=document.getElementById('payNowTo').textContent;
   const token=document.getElementById('payNowToken').textContent;
   const fixedAmt=document.getElementById('payNowAmt').textContent;
@@ -3396,16 +3440,46 @@ function doPayNow(){
   const amt=fixedAmt==='Open amount'?parseFloat(customAmt):parseFloat(fixedAmt);
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
   if(!userAddr){toast('Connect wallet first','error');return;}
-  goPage('send');
-  setTimeout(()=>{
-    document.getElementById('recipInput').value=to;
-    document.getElementById('amtInput').value=amt.toFixed(2);
-    sendToken=token||'USDC';
-    document.getElementById('sendTokenLabel').textContent=sendToken;
-    onRecipInput();
-    validateSend();
-    toast('Fill in the send form to complete payment','info',4000);
-  },300);
+  const params=new URLSearchParams(window.location.search);
+  const prId=params.get('pay');
+  if(!prId){toast('Invalid payment request','error');return;}
+  const btn=document.getElementById('payNowBtn');
+  btn.innerHTML='<span class="spinner"></span>Approving…';btn.disabled=true;
+  try{
+    const tokenAddr=token==='USDC'?USDC_ADDR:EURC_ADDR;
+    const decimals=token==='USDC'?USDC_DECIMALS:EURC_DECIMALS;
+    const amtParsed=ethers.parseUnits(amt.toFixed(decimals),decimals);
+    const amtAtomic=amtParsed.toString();
+    if(isCircleWallet&&circleWalletId){
+      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
+          functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,amtAtomic]})});
+      const appD=await appR.json();
+      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      btn.innerHTML='<span class="spinner"></span>Paying…';
+      await waitForCircleTx(appD.transactionId,'approve');
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:PAYREQ_CONTRACT,
+          functionSignature:'pay(uint256,uint256)',params:[prId,amtAtomic]})});
+      const d=await r.json();
+      if(!d.success)throw new Error(d.error||'Payment failed');
+      toast('✓ Payment confirmed on-chain!','success',5000);
+    }else if(signer){
+      const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
+      const appTx=await tokenContract.approve(PAYREQ_CONTRACT,amtParsed,arcGasOpts());
+      btn.innerHTML='<span class="spinner"></span>Paying…';
+      await appTx.wait(1);
+      const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
+      const tx=await c.pay(prId,amtParsed,arcGasOpts());
+      await tx.wait(1);
+      toast('✓ Payment confirmed on-chain!','success',5000);
+    }else{throw new Error('No wallet connected');}
+    addTx({hash:'onchain',to,toRaw:'Payment Request #'+prId,amount:amt.toFixed(6),type:'out',token,ts:Date.now(),confirmed:true,source:'payreq'});
+    await refreshBalances();
+  }catch(err){
+    toast('Payment failed: '+err.message.slice(0,100),'error',5000);
+    btn.innerHTML='⚡ Pay instantly via NAN';btn.disabled=false;
+  }
 }
 
 async function sendPaymentNotification(pr){
