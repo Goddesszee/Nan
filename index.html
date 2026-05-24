@@ -1026,6 +1026,10 @@
         <input id="prNote" type="text" placeholder="Add extra details for the payer" maxlength="160"/>
       </div>
       <div class="field">
+        <div class="flbl">Notify me when paid <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
+        <input id="prEmail" type="email" placeholder="your@email.com — get an email when paid"/>
+      </div>
+      <div class="field">
         <div class="flbl">Expires</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;" id="prExpiryGrid">
           <button class="topt active" onclick="setPRExpiry(0,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">Never</button>
