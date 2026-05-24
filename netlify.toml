@@ -1,0 +1,29 @@
+[build]
+  publish = "."
+  command = "echo 'no build needed'"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Serve landing page at root
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# App route
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+# API functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Cron job for agent tick
+[functions]
+  directory = "api"
+  node_bundler = "esbuild"
