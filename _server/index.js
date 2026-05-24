@@ -3,11 +3,18 @@
  * Handles: Circle Wallets API, OTP email auth, faucet proxy, Claude AI chat
  */
 
-const express = require('express');
-const cors = require('cors');
-const crypto = require('crypto');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import crypto from 'crypto';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
 
 const app = express();
 app.use(cors());
@@ -30,14 +37,14 @@ const SMTP_PASS        = process.env.SMTP_PASS        || '';
 const PORT             = parseInt(process.env.PORT    || '3000');
 
 // Arc Testnet config
-const ARC_CHAIN_ID   = 'ARB-SEPOLIA'; // Circle SDK chain identifier for Arc Testnet
-const ARC_BLOCKCHAIN = 'ARB-SEPOLIA'; // Update to 'ARC-TESTNET' when Circle adds official support
+const ARC_CHAIN_ID   = 'ARB-SEPOLIA';
+const ARC_BLOCKCHAIN = 'ARB-SEPOLIA';
 
 // ─────────────────────────────────────────────
 // Helper: Circle API proxy
 // ─────────────────────────────────────────────
-async function circleRequest(method, path, body, userToken) {
-  const fetch = require('node-fetch');
+async function circleRequest(method, apiPath, body, userToken) {
+  const { default: fetch } = await import('node-fetch');
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${CIRCLE_API_KEY}`,
@@ -46,7 +53,7 @@ async function circleRequest(method, path, body, userToken) {
     headers['X-User-Token'] = userToken;
   }
 
-  const url = `${CIRCLE_BASE_URL}${path}`;
+  const url = `${CIRCLE_BASE_URL}${apiPath}`;
   const options = { method, headers };
   if (body && method !== 'GET') {
     options.body = JSON.stringify(body);
@@ -61,7 +68,6 @@ async function circleRequest(method, path, body, userToken) {
 // Helper: Send OTP email
 // ─────────────────────────────────────────────
 async function sendOTPEmail(email, otp) {
-  // If no SMTP configured, log to console (dev mode)
   if (!SMTP_USER || !SMTP_PASS) {
     console.log(`\n📧 OTP for ${email}: ${otp}\n`);
     return { success: true, dev: true };
@@ -101,7 +107,6 @@ async function sendOTPEmail(email, otp) {
 // Helper: Create or retrieve Circle user + wallet
 // ─────────────────────────────────────────────
 async function getOrCreateCircleWallet(email) {
-  // Check if user already exists
   if (userStore.has(email)) {
     const existing = userStore.get(email);
     console.log(`Returning existing wallet for ${email}:`, existing.walletAddress);
@@ -109,7 +114,6 @@ async function getOrCreateCircleWallet(email) {
   }
 
   if (!CIRCLE_API_KEY) {
-    // Dev mode: generate deterministic mock wallet
     const hash = crypto.createHash('sha256').update(email).digest('hex');
     const mockAddress = '0x' + hash.slice(0, 40);
     const userData = {
@@ -125,10 +129,9 @@ async function getOrCreateCircleWallet(email) {
     return userData;
   }
 
-  // Step 1: Create Circle user
   const idempotencyKey = crypto.randomUUID();
   const userRes = await circleRequest('POST', '/users', { idempotencyKey });
-  
+
   if (userRes.status !== 201 && userRes.status !== 200) {
     throw new Error(`Circle user creation failed: ${JSON.stringify(userRes.data)}`);
   }
@@ -136,12 +139,10 @@ async function getOrCreateCircleWallet(email) {
   const circleUserId = userRes.data?.data?.id;
   if (!circleUserId) throw new Error('No user ID returned from Circle');
 
-  // Step 2: Get user token
   const tokenRes = await circleRequest('POST', `/users/token`, { userId: circleUserId });
   const userToken = tokenRes.data?.data?.userToken;
   if (!userToken) throw new Error('No user token returned from Circle');
 
-  // Step 3: Create wallet
   const walletRes = await circleRequest('POST', '/user/wallets', {
     idempotencyKey: crypto.randomUUID(),
     blockchains: ['ARC-TESTNET'],
@@ -175,7 +176,7 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     version: '1.0.0',
     circle: !!CIRCLE_API_KEY,
-    claude: !!CLAUDE_API_KEY,
+    groq: !!GROQ_API_KEY,
     smtp: !!SMTP_USER,
     time: new Date().toISOString(),
   });
@@ -189,12 +190,11 @@ app.post('/api/otp', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Valid email required' });
   }
 
-  // Send OTP
   if (action === 'send') {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore.set(email, {
       otp: code,
-      expires: Date.now() + 10 * 60 * 1000, // 10 min
+      expires: Date.now() + 10 * 60 * 1000,
       attempts: 0,
     });
 
@@ -211,7 +211,6 @@ app.post('/api/otp', async (req, res) => {
     }
   }
 
-  // Verify OTP
   if (action === 'verify') {
     const record = otpStore.get(email);
     if (!record) return res.status(400).json({ success: false, error: 'No code found — request a new one' });
@@ -228,7 +227,6 @@ app.post('/api/otp', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Wrong code — ' + (5 - record.attempts) + ' attempts left' });
     }
 
-    // OTP valid — create or retrieve wallet
     otpStore.delete(email);
     try {
       const userData = await getOrCreateCircleWallet(email);
@@ -254,7 +252,6 @@ app.post('/api/circle', async (req, res) => {
   const { path: apiPath, body, method = 'GET', userToken } = req.body;
 
   if (!CIRCLE_API_KEY) {
-    // Dev mode stub responses
     if (apiPath && apiPath.includes('balances')) {
       return res.json({
         data: {
@@ -279,17 +276,13 @@ app.post('/api/circle', async (req, res) => {
   }
 });
 
-// ── Circle Wallet Balances (convenience endpoint) ──
+// ── Circle Wallet Balances ──
 app.get('/api/balances/:walletId', async (req, res) => {
   const { walletId } = req.params;
   const userToken = walletTokens.get(req.query.address) || req.headers['x-user-token'];
 
   if (!CIRCLE_API_KEY) {
-    return res.json({
-      usdc: '100.00',
-      eurc: '50.00',
-      dev: true,
-    });
+    return res.json({ usdc: '100.00', eurc: '50.00', dev: true });
   }
 
   try {
@@ -303,7 +296,7 @@ app.get('/api/balances/:walletId', async (req, res) => {
   }
 });
 
-// ── Circle Transaction via Wallets API ──
+// ── Circle Transfer ──
 app.post('/api/transfer', async (req, res) => {
   const { walletId, destinationAddress, amount, tokenSymbol, userToken } = req.body;
 
@@ -347,7 +340,7 @@ app.post('/api/transfer', async (req, res) => {
   }
 });
 
-// ── Transaction Status Polling ──
+// ── Transaction Status ──
 app.get('/api/transaction/:txId', async (req, res) => {
   const { txId } = req.params;
   const userToken = req.headers['x-user-token'];
@@ -369,9 +362,8 @@ app.post('/api/faucet', async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: 'address required' });
 
-  const fetch = require('node-fetch');
+  const { default: fetch } = await import('node-fetch');
   try {
-    // Try Circle's faucet API
     const faucetRes = await fetch('https://faucet.circle.com/api/faucet', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -388,30 +380,22 @@ app.post('/api/faucet', async (req, res) => {
       return res.json({ success: true, data });
     }
 
-    // Fallback response
-    return res.json({
-      success: false,
-      error: 'Faucet unavailable — visit faucet.circle.com directly',
-    });
+    return res.json({ success: false, error: 'Faucet unavailable — visit faucet.circle.com directly' });
   } catch (err) {
-    return res.json({
-      success: false,
-      error: 'Faucet request failed — visit faucet.circle.com directly',
-    });
+    return res.json({ success: false, error: 'Faucet request failed — visit faucet.circle.com directly' });
   }
 });
 
 // ── Groq AI Chat ──
 app.post('/api/chat', async (req, res) => {
   const { system, messages } = req.body;
-  const fetch = require('node-fetch');
+  const { default: fetch } = await import('node-fetch');
 
   if (!GROQ_API_KEY) {
-    // Dev mode: smart static responses
     const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
     let reply = "I'm NAN AI ✦ — running in dev mode. Add GROQ_API_KEY to enable real AI responses.";
     if (lastMsg.includes('balance')) reply = "Your balance info is shown in the wallet card above.";
-    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send tokens, use the Send tab. Enter a wallet address or Twitter/Discord handle, pick an amount, and confirm. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
+    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send tokens, use the Send tab. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
     if (lastMsg.includes('stake')) reply = "You can stake USDC to earn 5.20% APY. <ACTION>{\"action\":\"navigate\",\"tab\":\"stake\"}</ACTION>";
     if (lastMsg.includes('swap')) reply = "Swap between USDC and EURC at live exchange rates. <ACTION>{\"action\":\"navigate\",\"tab\":\"swap\"}</ACTION>";
     if (lastMsg.includes('bridge')) reply = "Bridge USDC cross-chain via Circle CCTP. <ACTION>{\"action\":\"navigate\",\"tab\":\"bridge\"}</ACTION>";
@@ -419,7 +403,6 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    // Build messages array with system prompt included
     const groqMessages = [
       { role: 'system', content: system || 'You are NAN AI, a helpful wallet assistant.' },
       ...(messages || []),
@@ -432,7 +415,7 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', // free, fast, smart
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 512,
         temperature: 0.7,
         messages: groqMessages,
@@ -450,7 +433,7 @@ app.post('/api/chat', async (req, res) => {
 
 // ── Serve frontend ──
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // ── Start ──
