@@ -470,110 +470,11 @@ async function verifyOTP(){
 }
 
 // ── Show seed phrase modal to new users ──
-function showSeedPhrase(mnemonic, privateKey, address){
-  const modal = document.createElement('div');
-  modal.id='seedPhraseModal';
-  modal.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;`;
-  modal.innerHTML=`
-    <div style="background:var(--bg);border:2px solid rgba(251,191,36,.4);border-radius:16px;padding:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;">
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">Save Your Wallet Keys</div>
-        <div style="font-size:.75rem;color:var(--danger);font-weight:600;">⚠️ Save these NOW — you won't see them again</div>
-      </div>
 
-      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Wallet Address (public — share freely)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);word-break:break-all;line-height:1.6;">${address}</div>
-        <a href="https://testnet.arcscan.app/address/${address}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--accent3);display:block;margin-top:6px;">View on Arc Explorer ↗</a>
-      </div>
 
-      ${mnemonic ? `
-      <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Seed Phrase (NEVER share — gives full access)</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-          ${mnemonic.split(' ').map((word,i)=>`
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);">
-              <span style="color:var(--text3);font-size:.65rem;">${i+1}.</span> ${word}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-      ` : ''}
 
-      <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px;margin-bottom:20px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--danger);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Private Key (NEVER share)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);word-break:break-all;line-height:1.6;">${privateKey}</div>
-      </div>
 
-      <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:.7rem;color:var(--success);line-height:1.6;">
-        ✓ Your keys are stored ONLY in this browser<br/>
-        ✓ NAN's server never sees your private key<br/>
-        ✓ You are the only person who controls this wallet
-      </div>
 
-      <button id="seedCopyBtn" style="width:100%;padding:13px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:10px;">📋 Copy Private Key to Clipboard</button>
-
-      <button id="seedContinueBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✓ I've Saved My Keys — Continue</button>
-
-      <div style="text-align:center;font-size:.72rem;color:var(--text3);margin-top:10px;font-family:'JetBrains Mono',monospace;">Get free USDC at faucet.circle.com after closing</div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Attach events AFTER appending to avoid quote escaping issues
-  document.getElementById('seedCopyBtn').addEventListener('click', function(){
-    const text='NAN Wallet Backup\n\nAddress: '+address+'\nPrivate Key: '+privateKey+'\n\nNEVER share your private key!';
-    navigator.clipboard.writeText(text).then(()=>{
-      this.innerHTML='✅ Copied! Now click Continue below';
-      this.style.background='rgba(52,211,153,.15)';
-      this.style.border='1px solid rgba(52,211,153,.4)';
-      this.style.color='#34d399';
-      toast('✓ Keys copied to clipboard — save somewhere safe!','success',5000);
-    }).catch(()=>{
-      this.innerHTML='✅ Screenshot this screen to save';
-      toast('Tip: Screenshot this page to save your keys','warning',5000);
-    });
-  });
-
-  document.getElementById('seedContinueBtn').addEventListener('click', function(){
-    modal.remove();
-    toast('✓ Welcome to NAN! Get free USDC at faucet.circle.com 🎉','success',8000);
-  });
-}
-
-function copySeedBackup(privateKey, address){
-  const text = `NAN Wallet Backup\n\nAddress: ${address}\nPrivate Key: ${privateKey}\n\nIMPORTANT: Never share your private key with anyone.`;
-  navigator.clipboard.writeText(text).then(()=>{
-    toast('✓ Wallet backup copied to clipboard — save it somewhere safe!','success',6000);
-    // Show visual confirmation on the copy button
-    const copyBtn=document.getElementById('seedCopyBtn');
-    if(copyBtn){
-      copyBtn.innerHTML='✅ Copied! Now click Continue below';
-      copyBtn.style.background='rgba(52,211,153,.15)';
-      copyBtn.style.borderColor='rgba(52,211,153,.4)';
-      copyBtn.style.color='var(--success)';
-      // Enable continue button
-      const contBtn=document.getElementById('seedContinueBtn');
-      if(contBtn){
-        contBtn.disabled=false;
-        contBtn.style.opacity='1';
-        contBtn.style.cursor='pointer';
-      }
-    }
-  }).catch(()=>{
-    // Fallback if clipboard fails
-    toast('✓ Key ready — screenshot this screen to save it','warning',6000);
-    const contBtn=document.getElementById('seedContinueBtn');
-    if(contBtn){contBtn.disabled=false;contBtn.style.opacity='1';contBtn.style.cursor='pointer';}
-  });
-}
-
-function closeSeedModal(){
-  const modal=document.getElementById('seedPhraseModal');
-  if(modal) modal.remove();
-  toast('✓ Welcome to NAN! Get free USDC at faucet.circle.com 🎉','success',8000);
-}
 
 // ═══════════════════════════════════════════
 // VOICE — Speech Recognition + Synthesis
