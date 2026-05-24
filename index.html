@@ -1,25 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<script></script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="theme-color" content="#07081a"/>
-<title>NAN — Weave. Connect. Build.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nan — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="style.css"/>
+<style>
+  :root,[data-theme="dark"]{
+    --violet:#8b5cf6;--violet-dark:#7c3aed;--violet-light:#a78bfa;
+    --violet-border:rgba(139,92,246,0.22);--violet-border-strong:rgba(139,92,246,0.55);
+    --bg:#07081a;--surface:#0e1030;--surface2:#131640;
+    --text:#ede9fe;--muted:#c4b5fd;--faint:rgba(139,92,246,0.06);
+    --success:#34d399;--gold:#fbbf24;--danger:#f87171;
+    --nav-bg:rgba(7,8,26,.95);--grid-line:rgba(139,92,246,.04);
+  }
+  [data-theme="light"]{
+    --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#6d28d9;
+    --violet-border:rgba(109,40,217,0.2);--violet-border-strong:rgba(109,40,217,0.45);
+    --bg:#f5f3ff;--surface:#ffffff;--surface2:#ede9fe;
+    --text:#1e1040;--muted:#4c1d95;--faint:rgba(109,40,217,0.06);
+    --success:#059669;--gold:#d97706;--danger:#dc2626;
+    --nav-bg:rgba(245,243,255,.95);--grid-line:rgba(109,40,217,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,border-color .3s,color .3s;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+  nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--violet-border);padding:0 28px;height:62px;display:flex;align-items:center;}
+  .nav-inner{max-width:100%;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
+  .brand-logo{width:34px;height:34px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(139,92,246,.45);flex-shrink:0;}
+  .brand-logo svg{width:18px;height:18px;display:block;}
+  .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--violet-light);border:1px solid var(--violet-border);padding:5px 13px;border-radius:100px;background:var(--faint);display:flex;align-items:center;gap:6px;}
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+  .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text);}
+  .launch-btn{background:var(--violet);color:#ede9fe;border:none;border-radius:8px;padding:9px 20px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.04em;transition:all .18s;box-shadow:0 0 14px rgba(139,92,246,.4);}
+  .launch-btn:hover{background:var(--violet-dark);transform:translateY(-1px);}
+
+  main{position:relative;z-index:1;max-width:100%;margin:0 auto;padding:0 28px;}
+
+  .hero{text-align:center;padding:104px 24px 76px;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--faint);border:1px solid var(--violet-border);border-radius:6px;padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
+  .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
+  .hero h1 .accent{color:var(--violet-light);}
+  .hero-sub{font-size:1.05rem;color:var(--muted);line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
+  .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
+  .btn-primary{background:var(--violet);color:#ede9fe;border:none;border-radius:8px;padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.03em;box-shadow:0 0 22px rgba(139,92,246,.45);transition:all .18s;display:inline-block;}
+  .btn-primary:hover{background:var(--violet-dark);transform:translateY(-2px);}
+  .btn-secondary{background:transparent;border:2px solid var(--violet-border-strong);border-radius:8px;padding:14px 34px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;transition:all .18s;display:inline-block;}
+  .btn-secondary:hover{border-color:var(--violet);background:var(--faint);}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:72px 0;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
+  .stat{background:var(--surface);padding:32px 20px;text-align:center;}
+  .stat-num{font-size:2.4rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-1.5px;font-family:'JetBrains Mono',monospace;}
+  .stat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
+
+  .section{padding:72px 0;}
+  .section-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
+  .section-title{font-size:2rem;font-weight:700;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;color:var(--text);}
+  .section-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:44px;}
+
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
+  .feat-card{background:var(--surface);padding:32px;transition:background .2s;}
+  .feat-card:hover{background:var(--surface2);}
+  .feat-icon{width:42px;height:42px;border-radius:10px;background:var(--faint);border:1px solid var(--violet-border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .feat-icon svg{width:18px;height:18px;stroke:var(--violet-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .feat-title{font-size:.97rem;font-weight:700;margin-bottom:8px;color:var(--text);}
+  .feat-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
+  .feat-badge{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--success);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:4px;padding:2px 7px;letter-spacing:.08em;}
+
+  .how-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
+  .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
+  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--violet-border);}
+  .step:last-child{border-bottom:none;padding-bottom:0;}
+  .step:first-child{padding-top:0;}
+  .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(139,92,246,.35);}
+  .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
+  .step-desc{font-size:.81rem;color:var(--muted);line-height:1.68;}
+  .step-desc strong{color:var(--text);}
+  .wallets-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--faint);border:1px solid var(--violet-border);border-radius:100px;padding:4px 11px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);}
+
+  .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:12px;overflow:hidden;}
+  .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
+  .tok-card:hover{background:var(--surface2);}
+  .tok-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+  .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
+  .tok-desc{font-size:.72rem;color:var(--muted);}
+  .tok-meta{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:4px;}
+  .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
+
+  .circle-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
+  .circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;}
+  .circle-item{background:var(--faint);border:1px solid var(--violet-border);border-radius:10px;padding:18px 20px;}
+  .circle-item-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:7px;}
+  .circle-item-desc{font-size:.75rem;color:var(--muted);line-height:1.6;}
+
+  .cta-section{background:var(--surface);border:1px solid var(--violet-border);border-top:2px solid var(--violet);border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;position:relative;overflow:hidden;}
+  .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(139,92,246,.12) 0%,transparent 65%);pointer-events:none;}
+  .cta-section h2{font-size:2.3rem;font-weight:700;letter-spacing:-.7px;margin-bottom:14px;position:relative;color:var(--text);}
+  .cta-section h2 .accent{color:var(--violet-light);}
+  .cta-section p{font-size:.95rem;color:var(--muted);margin-bottom:36px;position:relative;line-height:1.7;}
+
+  footer{border-top:1px solid var(--violet-border);padding:44px 28px;text-align:center;position:relative;z-index:1;max-width:100%;margin:0 auto;}
+  .footer-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;}
+  .footer-logo{width:26px;height:26px;border-radius:6px;background:var(--violet);display:flex;align-items:center;justify-content:center;}
+  .footer-logo svg{width:14px;height:14px;display:block;}
+  .footer-name{font-size:.88rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
+  .footer-links{display:flex;gap:28px;justify-content:center;margin-bottom:22px;flex-wrap:wrap;}
+  .footer-links a{font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .18s;font-weight:500;}
+  .footer-links a:hover{color:var(--violet-light);}
+  .footer-divider{height:1px;background:var(--violet-border);margin-bottom:22px;}
+  .footer-note{font-size:.67rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;opacity:.7;}
+
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  @media(max-width:900px){.hero h1{font-size:3.2rem;}.feat-grid{grid-template-columns:1fr;}}
+  @media(max-width:640px){
+    nav{padding:0 16px;height:54px;}.hero{padding:56px 12px 44px;}.hero h1{font-size:2.4rem;letter-spacing:-1.5px;}
+    .btn-primary,.btn-secondary{padding:12px 26px;font-size:.86rem;}.stats{grid-template-columns:1fr;margin:40px 0;}
+    main{padding:0 16px;}.how-section{padding:26px 20px;margin:36px 0;}.cta-section{padding:40px 20px;margin:36px 0;}
+    .section{padding:40px 0;}.section-title{font-size:1.55rem;}.net-pill{display:none;}
+    .circle-grid{grid-template-columns:1fr;}.tok-grid{grid-template-columns:1fr;}
+  }
+</style>
 </head>
 <body>
-<div id="app-root">
 
-  <!-- ══ TOP BAR ══ -->
-  <div id="globalTopBar">
-    <div class="brand">
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#">
       <div class="brand-logo">
         <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
@@ -30,1164 +149,236 @@
           <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
         </svg>
       </div>
-      <div class="brand-name">NAN</div>
+      <span class="brand-name">Nan</span>
+    </a>
+    <div class="nav-right">
+      <div class="net-pill"><span class="pulse-dot"></span>Arc Testnet</div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+      <a class="launch-btn" href="/app.html" onclick="">Launch App →</a>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="devBadge" class="dev-badge" style="display:none;"></span>
-      <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
-      <div class="net-pill" id="netPill">Arc Testnet</div>
-      <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
-      <button id="landConnectBtn" style="display:none;" onclick="showWalletPicker()">Connect</button>
-      <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
+  </div>
+</nav>
+
+<main>
+
+  <div class="hero">
+    <div class="hero-badge"><span class="pulse-dot"></span>Now live on Arc Testnet</div>
+    <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
+    <p class="hero-sub">Nan is the simplest way to send, swap, lend, borrow, and bridge USDC and EURC on Arc — Circle's stablecoin-native blockchain. Non-custodial. For everyone, everywhere.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="/app.html">Launch App →</a>
+      <a class="btn-secondary" href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Get Free Tokens</a>
     </div>
   </div>
 
-  <!-- ══ BOTTOM NAV — 4 tabs ══ -->
-  <nav class="bottom-nav" id="bottomNav">
-    <div class="nav-items">
-      <button class="nav-btn active" id="nav-home" onclick="goPage('home')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-        Home
-      </button>
-      <button class="nav-btn" id="nav-send" onclick="goPage('send')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
-        Send
-      </button>
-      <button class="nav-btn" id="nav-earn" onclick="goPage('earn')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-        Earn
-      </button>
-      <button class="nav-btn" id="nav-more" onclick="goPage('more')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
-        More
-      </button>
-    </div>
-  </nav>
-
-  <!-- ══ LANDING PAGE ══ -->
-  <div class="page page-land active" id="page-land" style="background:var(--bg);">
-    <div style="padding:22px 16px 18px;">
-
-      <!-- Hero -->
-      <div style="text-align:center;margin-bottom:24px;">
-        <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:3px 10px;font-size:.72rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
-          <span style="width:5px;height:5px;border-radius:50%;background:var(--accent3);display:inline-block;animation:pulse 2s infinite;"></span>
-          Arc Testnet · Live
-        </div>
-        <div style="font-size:1.65rem;font-weight:700;color:var(--text);letter-spacing:-.6px;line-height:1.15;margin-bottom:8px;">Your wallet.<br/><span style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Reimagined.</span></div>
-        <div style="font-size:.85rem;color:var(--text3);line-height:1.7;">Send USDC globally.<br/>Gas paid in dollars.</div>
-      </div>
-
-      <!-- Email card -->
-      <div id="emailLoginBox" style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.22);border-radius:18px;padding:18px;margin-bottom:16px;">
-        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#ede9fe;margin-bottom:12px;box-shadow:0 4px 12px rgba(139,92,246,.35);">✦</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:3px;">Free wallet — instant</div>
-        <div style="font-size:.78rem;color:var(--text3);margin-bottom:14px;">Just your email. No extension needed.</div>
-        <div id="otpStepIndicator" style="display:flex;align-items:center;gap:5px;margin-bottom:12px;">
-          <div id="stepDot1" style="width:22px;height:4px;border-radius:2px;background:#8b5cf6;transition:all .3s;"></div>
-          <div id="stepDot2" style="width:8px;height:4px;border-radius:2px;background:rgba(139,92,246,.2);transition:all .3s;"></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
-        </div>
-        <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;padding:10px 13px;font-size:.88rem;border-radius:10px;margin-bottom:9px;"/>
-        <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:11px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;padding:12px;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.35);">Send Code →</button>
-        <div id="otpBox" style="display:none;animation:up .25s ease both;margin-top:12px;">
-          <div style="display:flex;align-items:center;gap:8px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:11px;padding:10px 12px;margin-bottom:10px;">
-            <div style="width:26px;height:26px;border-radius:7px;background:rgba(52,211,153,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">✉</div>
-            <div><div style="font-size:.88rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:.75rem;color:var(--text3);">Enter the 6-digit code below</div></div>
-          </div>
-          <div style="display:flex;gap:7px;">
-            <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'JetBrains Mono',monospace;"/>
-            <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.88rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.35);">Verify →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Divider -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">
-        <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);">or connect wallet</div>
-        <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-      </div>
-
-      <!-- Wallet grid -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;">
-        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🦊</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">MetaMask</div><div style="font-size:.7rem;color:var(--text3);">Browser ext</div></div>
-        </button>
-        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🔗</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">WalletConnect</div><div style="font-size:.7rem;color:var(--text3);">Mobile QR</div></div>
-        </button>
-        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🔵</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">Coinbase</div><div style="font-size:.7rem;color:var(--text3);">Wallet</div></div>
-        </button>
-        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">⭕</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">Circle</div><div style="font-size:.7rem;color:var(--text3);">Programmable</div></div>
-        </button>
-      </div>
-
-      <!-- Footer -->
-      <div style="text-align:center;padding-bottom:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);margin-bottom:8px;">🔒 Your keys · Your funds · Always</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>Circle USDC</span>
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>Arc Network</span>
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>CCTP V2</span>
-        </div>
-      </div>
-
-    </div>
+  <div class="stats reveal">
+    <div class="stat"><div class="stat-num">4.80%</div><div class="stat-lbl">Lending APY</div></div>
+    <div class="stat"><div class="stat-num">~0.009</div><div class="stat-lbl">Gas per tx (USDC)</div></div>
+    <div class="stat"><div class="stat-num">&lt;1s</div><div class="stat-lbl">Transaction finality</div></div>
   </div>
 
-  <!-- ══ HOME PAGE ══ -->
-  <div class="page" id="page-home">
-    <div id="homeGreet" class="home-greeting">Good morning,</div>
-    <div id="homeGreetName" class="home-name">Welcome ✦</div>
-
-    <!-- Balance card -->
-    <div class="home-bal-card">
-      <div class="home-bal-lbl">Total Balance</div>
-      <div class="home-bal-num" id="skel-bal">$<span id="homeBalAmt">—</span></div>
-      <div class="home-bal-ngn" id="homeBalNgn">≈ ₦0 NGN</div>
-      <div class="home-tok-row">
-        <div class="tok"><span class="tok-dot usdc-dot"></span><span id="homeUsdcBal">0.00 USDC</span></div>
-        <div class="tok"><span class="tok-dot eurc-dot"></span><span id="homeEurcBal">0.00 EURC</span></div>
-      </div>
-    </div>
-
-    <!-- 3 quick actions -->
-    <div class="home-actions-top">
-      <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)">
-        <div class="home-action-icon">↑</div>
-        <div class="home-action-label">Send</div>
-      </div>
-      <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)">
-        <div class="home-action-icon">↓</div>
-        <div class="home-action-label">Receive</div>
-      </div>
-      <div class="home-action" onclick="goPage('swap')">
-        <div class="home-action-icon">⇄</div>
-        <div class="home-action-label">Swap</div>
-      </div>
-    </div>
-
-    <!-- Naira wide button -->
-    <div class="naira-wide-btn" onclick="goPage('naira')">
-      <div class="naira-wide-icon">₦</div>
-      <div class="naira-wide-text">
-        <div class="naira-wide-title">Naira — NGN &nbsp;<span style="font-size:.72rem;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 8px;font-weight:700;">Coming Soon</span></div>
-        <div class="naira-wide-sub">Deposit · Withdraw · Convert NGN</div>
-      </div>
-      <div class="naira-wide-arrow">›</div>
-    </div>
-
-    <!-- Assets -->
-    <div class="home-section-title">Your Assets</div>
-    <div class="home-asset-row">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.2);">💵</div>
-        <div><div class="home-asset-name">USDC</div><div class="home-asset-sub">USD Coin · Arc</div></div>
-      </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetUsdc">0.00</div>
-        <div class="home-asset-change" id="homeAssetUsdcSub" style="color:var(--text3);">Arc Testnet</div>
-      </div>
-    </div>
-    <div class="home-asset-row">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.2);">💶</div>
-        <div><div class="home-asset-name">EURC</div><div class="home-asset-sub">Euro Coin · Arc</div></div>
-      </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetEurc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetEurcSub" style="color:var(--text3);">Arc Testnet</div>
-      </div>
-    </div>
-    <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);font-weight:700;color:var(--accent3);">₦</div>
-        <div><div class="home-asset-name">Naira</div><div class="home-asset-sub">NGN · Coming Soon</div></div>
-      </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetNgn">₦0.00</div>
-        <div class="home-asset-change neutral" style="color:var(--gold);font-size:.72rem;">Coming Soon</div>
-      </div>
-    </div>
-
-    <!-- Wallet address (hidden, kept for JS compatibility) -->
-    <div style="display:none;">
-      <div id="walInit" class="wal-dot">N</div>
-      <div id="walAddr" class="wal-addr">Connect wallet</div>
-    </div>
-  </div>
-
-  <!-- ══ SEND PAGE ══ -->
-  <div class="page" id="page-send" style="flex-direction:column;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div>
-        <div class="page-title" style="margin-bottom:2px;">Send</div>
-        <div style="font-size:.78rem;color:var(--text3);">USDC &amp; EURC · Gas paid in USDC</div>
-      </div>
-      <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Explorer ↗</a>
-      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
-    </div>
-    <div id="onboardChecklist" style="display:none;"></div>
-    <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
-    <div class="rpc-error" id="rpcError" style="display:none;">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
-    <div class="tx-polling" id="txPolling" style="display:none;">
-      <span class="spinner" style="border-top-color:var(--accent3);"></span>
-      <span id="txPollingMsg">Confirming transaction on-chain…</span>
-    </div>
-
-    <!-- Slim balance strip -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(17,14,54,.9));border:1px solid rgba(139,92,246,.35);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
-      <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.38);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
-        <div style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:.82rem;color:rgba(196,181,253,.5);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(196,181,253,.45);margin-top:3px;" id="balUsd">≈ $0.00 USD</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-        <div style="display:flex;gap:5px;">
-          <div class="tok"><span class="tok-dot usdc-dot"></span><span id="usdcBal2">0.00</span></div>
-          <div class="tok"><span class="tok-dot eurc-dot"></span><span id="eurcBal2">0.00</span></div>
+  <div class="section reveal">
+    <div class="section-tag">Features</div>
+    <div class="section-title">Everything in one place</div>
+    <p class="section-sub">Send, swap, lend, borrow, bridge and name your wallet — all on Arc Testnet with USDC gas fees.</p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="3"/><polyline points="7 8 12 3 17 8"/></svg>
         </div>
-        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
+        <div class="feat-title">Send &amp; Receive</div>
+        <div class="feat-desc">Send USDC/EURC to any wallet address on Arc Testnet. Transactions confirm in under 1 second with USDC gas fees.</div>
+        <span class="feat-badge">LIVE ON-CHAIN</span>
       </div>
-    </div>
-    <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.82rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.82rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
-    <div id="walletSourceBadge" style="display:none;"></div>
-
-    <!-- Hidden elements needed by JS -->
-    <div style="display:none;"></div>
-
-    <!-- Send / Receive card -->
-    <div class="card" id="sendCard" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
-      <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:14px;">
-        <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')" style="border-radius:8px;">↑ Send</button>
-        <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')" style="border-radius:8px;">↓ Receive</button>
-      </div>
-      <div id="tab-send" style="display:flex;flex-direction:column;flex:1;">
-        <div class="field">
-          <div class="flbl">Send To</div>
-          <div style="display:flex;gap:5px;margin-bottom:8px;">
-            <button class="topt active" id="topt-address" onclick="setType('address',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.78rem;"><span>💳</span><span>Wallet</span></button>
-            <button class="topt" id="topt-arcname" onclick="setType('arcname',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.78rem;"><span>◎</span><span>Arc Name</span></button>
-          </div>
-          <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
-          <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
-        <div class="field">
-          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Amount</span>
-            <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
-            <span id="sendAvailable" style="display:none;"></span>
-          </div>
-          <div class="amt-row">
-            <div class="field" style="margin-bottom:0;flex:1;">
-              <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="validateSend()"/>
-            </div>
-            <button class="max-btn" onclick="setMax()">MAX</button>
-          </div>
+        <div class="feat-title">Swap via StableFX</div>
+        <div class="feat-desc">Exchange USDC and EURC using Arc's built-in StableFX engine — live FX rates, instant on-chain settlement.</div>
+        <span class="feat-badge">LIVE FX RATES</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
-        <button class="btn" id="sendBtn" disabled onclick="showConfirm()" style="margin-top:auto;">Send</button>
+        <div class="feat-title">Lend &amp; Borrow</div>
+        <div class="feat-desc">Supply USDC to earn 4.80% APY or borrow against collateral. Powered by Band Protocol price oracle on Arc.</div>
+        <span class="feat-badge">BAND ORACLE</span>
       </div>
-      <div id="tab-recv" style="display:none;flex-direction:column;justify-content:center;">
-        <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
-        <button class="btn btn-outline" style="margin-top:12px;" onclick="copyAddr()">Copy My Address</button>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16"/><path d="M4 8h16"/><path d="M4 12h8"/><circle cx="18" cy="16" r="4"/><path d="M18 14v4M16 16h4"/></svg>
+        </div>
+        <div class="feat-title">Bridge via CCTP</div>
+        <div class="feat-desc">Move USDC from Arc to Ethereum, Base, Arbitrum and more via Circle CCTP. Burn on Arc, mint natively — no wrapped tokens.</div>
+        <span class="feat-badge">CIRCLE CCTP</span>
       </div>
-    </div>
-
-    <!-- Confirm -->
-    <div class="confirm-wrap" id="confirmCard">
-      <div class="confirm-title">⚡ Confirm Transaction</div>
-      <div class="confirm-sub">Real on-chain transfer — cannot be undone.</div>
-      <div class="conf-rows">
-        <div class="conf-row"><span class="conf-lbl">Sending</span><span class="conf-val big" id="confAmt">—</span></div>
-        <div class="conf-row"><span class="conf-lbl">To</span><span class="conf-val" id="confTo">—</span></div>
-        <div class="conf-row"><span class="conf-lbl">Via</span><span class="conf-val" id="confVia">—</span></div>
-        <div class="conf-row"><span class="conf-lbl">Gas paid in</span><span class="conf-val" style="color:var(--success);">USDC (Paymaster)</span></div>
-        <div class="conf-row"><span class="conf-lbl">Network fee</span><span class="conf-val warn" id="confFee">~0.009 USDC</span></div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 2-8 3v1h16v-1c0-1-3-3-8-3z"/></svg>
+        </div>
+        <div class="feat-title">Arc Name Service</div>
+        <div class="feat-desc">Register your .arc name from 2 USDC/year. Send and receive by name instead of address — your identity on Arc.</div>
+        <span class="feat-badge">FROM 2 USDC</span>
       </div>
-      <div class="conf-btns">
-        <button class="btn btn-outline" onclick="cancelConfirm()">Cancel</button>
-        <button class="btn" onclick="doSend()" id="confirmSendBtn">✓ Confirm &amp; Send</button>
-      </div>
-    </div>
-
-    <!-- Success -->
-    <div class="success-wrap" id="successCard">
-      <div class="success-circle">✓</div>
-      <div class="success-title">Transaction Sent!</div>
-      <div class="success-sub" id="successMsg">Submitted to Arc Testnet.</div>
-      <div class="success-hash" id="successHash"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
-        <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="openExplorer()">View on Explorer ↗</button>
-        <button class="btn" style="width:auto;padding:9px 18px;" onclick="showReceipt()">🧾 Receipt</button>
-        <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="resetSend()">Send another</button>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="feat-title">NAN AI Assistant</div>
+        <div class="feat-desc">Ask anything about your wallet, balances, lending or bridging. NAN AI reads your live on-chain data and can set up transactions for you.</div>
+        <span class="feat-badge">AI POWERED</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ EARN PAGE ══ -->
-  <div class="page" id="page-lend">
-    <div style="margin-bottom:14px;">
-      <div class="page-title" style="margin-bottom:1px;">Earn</div>
-      <div class="page-sub" style="margin-bottom:0;">Supply USDC to earn interest · Borrow against your balance</div>
-    </div>
-    <!-- APY Hero -->
-    <div class="earn-apy-hero">
-      <div class="earn-apy-label">Supply APY</div>
-      <div class="earn-apy-num">4.80%</div>
-      <div class="earn-apy-sub">Withdraw anytime · No lockup · Powered by Arc</div>
-    </div>
-    
-    <!-- Stats -->
-    <div class="lend-stat-grid">
-      <div class="lend-stat"><div class="ls-label">Supply APY</div><div class="ls-value" style="color:var(--success);">4.80%</div></div>
-      <div class="lend-stat"><div class="ls-label">Borrow APR</div><div class="ls-value" style="color:var(--warning);">7.20%</div></div>
-      <div class="lend-stat"><div class="ls-label">Total Supplied</div><div class="ls-value" id="totalSupplied">—</div></div>
-      <div class="lend-stat"><div class="ls-label">Utilization</div><div class="ls-value" id="utilizationRate">—</div></div>
-    </div>
-    <!-- Positions -->
-    <div class="position-card">
-      <div class="card-title" style="margin-bottom:8px;"><div class="cticon">📊</div>Your Positions</div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Supplied USDC</span><span style="color:var(--success);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="suppliedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Borrowed USDC</span><span style="color:var(--danger);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="borrowedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Accrued Interest</span><span style="color:var(--gold);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="accruedInterest">0.000000 USDC</span></div>
-      <div class="position-row" style="border-bottom:none;"><span style="color:var(--text3);font-size:.82rem;">Health Factor</span><span style="color:var(--success);font-weight:700;font-size:.82rem;" id="healthFactor">—</span></div>
-    </div>
-    <!-- Tabs -->
-    <div class="card">
-      <div class="send-tabs" style="margin-bottom:9px;">
-        <button class="stab active" onclick="setLendTab('supply',this)">Supply</button>
-        <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
-        <button class="stab" onclick="setLendTab('repay',this)">Repay</button>
-        <button class="stab" onclick="setLendTab('withdraw',this)">Withdraw</button>
+  <!-- Circle Integration Section -->
+  <div class="circle-section reveal">
+    <div class="section-tag">Powered by Circle</div>
+    <div class="section-title">Built on Circle's full stack</div>
+    <p class="section-sub" style="margin-bottom:0;">NAN integrates deeply with Circle's developer platform and Arc Testnet.</p>
+    <div class="circle-grid">
+      <div class="circle-item">
+        <div class="circle-item-title">🔐 Non-Custodial Email Wallet</div>
+        <div class="circle-item-desc">Email login creates a real wallet in your browser. Only you hold the private keys and seed phrase — NAN never sees them.</div>
       </div>
-      <div class="stake-panel active" id="lp-supply">
-        <div class="field"><div class="flbl">Asset</div>
-          <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-            <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
-            <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
-          </div>
-        </div>
-        <div class="field"><div class="flbl">Amount</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setSupplyMax()">MAX</button></div>
-        </div>
-        <div class="gas-row"><span class="gas-icon">📈</span><span style="flex:1;">Estimated APY</span><span style="color:var(--success);">4.80%</span></div>
-        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC</span></div>
-        <button class="btn" onclick="doSupply()">Supply USDC</button>
+      <div class="circle-item">
+        <div class="circle-item-title">💵 USDC &amp; EURC on Arc</div>
+        <div class="circle-item-desc">Full support for both Circle stablecoins. USDC is Arc's native gas token — pay fees in stable dollars, not volatile crypto.</div>
       </div>
-      <div class="stake-panel" id="lp-borrow">
-
-        <!-- What is borrowing — simple explanation -->
-        <div style="background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-          <div style="font-size:.82rem;font-weight:700;color:#60a5fa;margin-bottom:4px;">💡 How borrowing works</div>
-          <div style="font-size:.78rem;color:var(--text3);line-height:1.65;">Keep USDC in your wallet → borrow up to 75% of it at 7.20% APR → your wallet USDC is locked as collateral until you repay. Separately, supply USDC to earn 4.80% APY.</div>
-        </div>
-
-        <!-- Asset selector -->
-        <div class="field"><div class="flbl">What to borrow</div>
-          <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-            <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
-            <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
-          </div>
-        </div>
-
-        <!-- Max borrow indicator -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:11px;margin-bottom:10px;">
-          <div>
-            <div style="font-size:.72rem;color:var(--text3);margin-bottom:2px;">Available to borrow</div>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="borrowMaxDisplay">—</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:.72rem;color:var(--text3);margin-bottom:2px;">Interest rate</div>
-            <div style="font-size:1rem;font-weight:700;color:var(--warning);">7.20% APR</div>
-          </div>
-        </div>
-
-        <!-- Amount input -->
-        <div class="field">
-          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Amount to borrow</span>
-            <span id="borrowMaxHint" style="font-size:.72rem;color:var(--accent3);font-weight:600;"></span>
-          </div>
-          <div class="amt-row">
-            <div class="field" style="margin-bottom:0;">
-              <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="updateBorrowPreview()"/>
-            </div>
-            <button class="max-btn" onclick="setBorrowMax()">MAX</button>
-          </div>
-        </div>
-
-        <!-- Interest preview -->
-        <div id="borrowPreview" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 12px;margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:.78rem;color:var(--text3);">You'll receive</span>
-            <span style="font-size:.82rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;" id="borrowReceiveAmt">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;">
-            <span style="font-size:.78rem;color:var(--text3);">Interest per day</span>
-            <span style="font-size:.78rem;color:var(--warning);font-family:'JetBrains Mono',monospace;" id="borrowDailyInterest">—</span>
-          </div>
-        </div>
-
-        <div class="gas-row" style="margin-bottom:10px;"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span>~0.009 USDC</span></div>
-        <button class="btn" onclick="doBorrow()" id="borrowBtn">Borrow USDC</button>
+      <div class="circle-item">
+        <div class="circle-item-title">⛓ Circle CCTP v2</div>
+        <div class="circle-item-desc">Cross-Chain Transfer Protocol burns USDC on Arc and mints it natively on 5+ chains — no wrapped tokens, 1:1 always.</div>
       </div>
-      <div class="stake-panel" id="lp-repay">
-        <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--danger);" id="repayDisplay">0.00 USDC</div><div style="font-size:.82rem;color:var(--text3);">Outstanding debt</div></div>
-        <div class="field"><div class="flbl">Amount to Repay</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setRepayMax()">MAX</button></div>
-        </div>
-        <button class="btn btn-outline" onclick="doRepay()">Repay Debt</button>
+      <div class="circle-item">
+        <div class="circle-item-title">📊 Band Protocol Oracle</div>
+        <div class="circle-item-desc">Live USDC/USD price feeds on Arc via Band Protocol oracle at <code style="font-size:.7rem;">0x8c06...d68</code> — powering lending rates.</div>
       </div>
-      <div class="stake-panel" id="lp-withdraw">
-        <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--success);" id="withdrawDisplay">0.00 USDC</div><div style="font-size:.82rem;color:var(--text3);">Available to withdraw</div></div>
-        <div class="field"><div class="flbl">Amount to Withdraw</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setWithdrawMax()">MAX</button></div>
-        </div>
-        <button class="btn btn-green" onclick="doWithdraw()">Withdraw + Interest</button>
+      <div class="circle-item">
+        <div class="circle-item-title">⚡ StableFX Engine</div>
+        <div class="circle-item-desc">Arc's built-in stablecoin FX engine with RFQ execution and on-chain settlement — used for USDC↔EURC swaps.</div>
+      </div>
+      <div class="circle-item">
+        <div class="circle-item-title">🏗 Arc Testnet</div>
+        <div class="circle-item-desc">Sub-second finality, USDC gas fees, EVM compatibility, opt-in privacy — backed by BlackRock, Visa, Goldman Sachs.</div>
       </div>
     </div>
   </div>
 
-  <!-- ══ MORE PAGE ══ -->
-  <div class="page" id="page-more">
-    <div class="page-title">More</div>
-    <div class="page-sub">All features in one place</div>
-    <div class="more-item" onclick="goPage('swap')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.2);">⇄</div>
-        <div><div class="more-item-title">Swap</div><div class="more-item-sub">USDC ↔ EURC at live FX rates</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('bridge')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.2);">⬡</div>
-        <div><div class="more-item-title">Bridge</div><div class="more-item-sub">Send USDC cross-chain via CCTP</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('naira')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">₦</div>
-        <div><div class="more-item-title">Naira &nbsp;<span style="font-size:.72rem;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 8px;font-weight:700;">Coming Soon</span></div><div class="more-item-sub">Deposit · Withdraw · Convert NGN</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('arcname')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);">◎</div>
-        <div><div class="more-item-title">.arc Name</div><div class="more-item-sub">Register your identity on Arc</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('bulk')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">📤</div>
-        <div><div class="more-item-title">Payroll</div><div class="more-item-sub">Pay your team in USDC · Scheduled · Receipts</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('history')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2);">🕐</div>
-        <div><div class="more-item-title">Activity</div><div class="more-item-sub">Your on-chain transaction history</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="toggleAgent()">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);">✦</div>
-        <div><div class="more-item-title">NAN AI</div><div class="more-item-sub">Ask anything about your wallet</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('payreq')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">🧾</div>
-        <div><div class="more-item-title">Payment Requests</div><div class="more-item-sub">Create & share invoices instantly</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-
-  </div>
-
-  <!-- ══ SWAP PAGE ══ -->
-  <div class="page" id="page-swap" style="flex-direction:column;">
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div>
-        <div class="page-title" style="margin-bottom:2px;">Swap</div>
-        <div style="font-size:.82rem;color:var(--text3);">Live FX · 0.1% fee · Gas in USDC</div>
-      </div>
-      <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.82rem;padding:6px 10px;cursor:pointer;font-family:'JetBrains Mono',monospace;">↻ Rate</button>
-    </div>
-    <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
-
-    <!-- Swap box -->
-    <div class="swap-box-wrap" style="margin-bottom:12px;">
-      <div class="swap-inner top">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Pay</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Bal: <span id="swapFromBal" style="color:var(--text2);">0.00</span> <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:4px;color:var(--accent3);font-size:.72rem;padding:1px 5px;cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="fromToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;" onclick="flipSwap()">
-            <span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.72rem;color:var(--text3);margin-left:2px;">▾</span>
-          </div>
-          <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;font-size:1.8rem;"/>
-        </div>
-        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;position:relative;height:30px;margin:0 -4px;">
-        <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
-        <button onclick="flipSwap()" style="position:relative;width:36px;height:36px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;">⇅</button>
-      </div>
-      <div class="swap-inner bottom">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Receive</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Bal: <span id="swapToBal" style="color:var(--text2);">0.00</span></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="toToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(96,165,250,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--text);white-space:nowrap;">
-            <span class="tok-dot eurc-dot"></span>EURC
-          </div>
-          <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.8rem;opacity:.5;"/>
-        </div>
-        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
-      </div>
-    </div>
-
-    <!-- Rate row -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:12px;margin-bottom:12px;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.72rem;">● live</span></span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">⛽ ~0.009 · 0.1%</span>
-    </div>
-
-    <button class="btn" id="swapBtn" onclick="doSwap()" style="margin-top:auto;">Swap USDC ↔ EURC</button>
-  </div>
-
-  <!-- ══ BRIDGE PAGE ══ -->
-  <div class="page" id="page-bridge">
-    <div class="page-title">Bridge</div>
-    <div class="page-sub">Send USDC to any blockchain — fast &amp; easy</div>
-
-    <!-- Option 1: Gateway — instant, no gas needed -->
-    <div class="card" style="background:linear-gradient(135deg,rgba(52,211,153,.07),rgba(139,92,246,.04));border:1px solid rgba(52,211,153,.25);margin-bottom:10px;">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="cticon">⚡</div>
-          <span>Instant Bridge</span>
-          <span style="font-size:.65rem;background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3);border-radius:100px;padding:2px 8px;font-weight:700;">Recommended</span>
-        </div>
-        <button onclick="refreshGatewayBalance()" style="background:none;border:none;color:var(--accent3);font-size:.78rem;cursor:pointer;">↻</button>
-      </div>
-      <p style="font-size:.82rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">Powered by Circle Gateway. Send USDC across chains in under a second — receiver needs no gas, no setup, nothing.</p>
-
-      <!-- Unified balance -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.15);border-radius:12px;margin-bottom:12px;">
+  <div class="how-section reveal">
+    <div class="section-tag">How it works</div>
+    <div class="section-title">Get started in minutes</div>
+    <p class="section-sub" style="margin-bottom:0;margin-top:8px;">No crypto experience needed. Three steps and you're live.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
         <div>
-          <div style="font-size:.72rem;color:var(--text3);margin-bottom:2px;">Your unified USDC</div>
-          <div style="font-size:1.3rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="gatewayTotal">—</div>
-        </div>
-        <div id="gatewayChains" style="font-size:.72rem;color:var(--text3);text-align:right;"></div>
-      </div>
-
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input id="gatewayDepositAmt" type="number" min="1" placeholder="Amount USDC" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.88rem;"/>
-        <button onclick="depositToGateway()" style="padding:11px 16px;background:linear-gradient(135deg,#34d399,#059669);border:none;border-radius:11px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(52,211,153,.3);">⚡ Send</button>
-      </div>
-    </div>
-
-    <!-- Option 2: CCTP V2 — standard bridge -->
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-title"><div class="cticon">⬡</div>Cross-Chain Bridge (CCTP V2)</div>
-      <p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;line-height:1.6;">Send USDC to any supported chain. USDC is burned on Arc and minted natively on the destination — no wrapped tokens, always real USDC.</p>
-
-      <!-- How it works — simple steps -->
-      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:9px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">1</div>
-          <div style="font-size:.82rem;color:var(--text2);">Your USDC is burned on Arc Testnet</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:9px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">2</div>
-          <div style="font-size:.82rem;color:var(--text2);">Circle confirms the transfer (~20 seconds)</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:9px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">3</div>
-          <div style="font-size:.82rem;color:var(--text2);">Real USDC minted on destination chain ✓</div>
+          <div class="step-title">Sign in with email or connect wallet</div>
+          <div class="step-desc">Enter your email for a secure browser wallet, or connect MetaMask, WalletConnect, Coinbase, Rabby or Circle wallet. NAN supports all EVM-compatible wallets on Arc Testnet.</div>
         </div>
       </div>
-
-      <div class="field"><div class="flbl">From</div>
-        <div class="chain-badge" style="text-align:left;font-size:.82rem;">Arc Testnet &nbsp;<span style="color:var(--accent3);">●</span></div>
-      </div>
-      <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
-      <div class="field"><div class="flbl">To Chain</div>
-        <select id="bridgeDestChain" style="margin-bottom:0;">
-          <option value="ETH-SEPOLIA">Ethereum Sepolia</option>
-          <option value="AVAX-FUJI">Avalanche Fuji</option>
-          <option value="BASE-SEPOLIA">Base Sepolia</option>
-          <option value="ARB-SEPOLIA">Arbitrum Sepolia</option>
-          <option value="OP-SEPOLIA">OP Sepolia</option>
-          <option value="POLYGON-AMOY">Polygon Amoy</option>
-        </select>
-      </div>
-      <div class="field"><div class="flbl">Recipient Address</div>
-        <input id="bridgeDestAddr" type="text" placeholder="0x... wallet address on destination"/>
-      </div>
-      <div class="field"><div class="flbl">Amount (USDC)</div>
-        <div class="amt-row">
-          <div class="field" style="margin-bottom:0;">
-            <input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/>
-          </div>
-          <button class="max-btn" onclick="setBridgeMax()">MAX</button>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Get free testnet tokens</div>
+          <div class="step-desc">Visit <strong>faucet.circle.com</strong>, select Arc Testnet, paste your address and claim free USDC &amp; EURC. USDC is also Arc's native gas token.</div>
         </div>
       </div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span>~0.009 USDC</span></div>
-      <button class="btn" id="bridgeBtn" onclick="doBridge()" style="margin-top:4px;">Bridge USDC via CCTP V2</button>
-    </div>
-
-    <!-- Status card -->
-    <div class="card" id="bridgeStatusCard" style="display:none;">
-      <div class="card-title"><div class="cticon">⟳</div>Bridge Status</div>
-      <div id="bridgeStatusContent">
-        <div id="attestStatus" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
-        <div id="mintStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text2);line-height:2;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ ARC NAME PAGE ══ -->
-  <div class="page" id="page-arcname">
-    <div class="page-title" style="display:flex;align-items:center;gap:8px;">
-      <svg width="22" height="22" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg>
-      Arc Name
-    </div>
-    <div class="page-sub">Register your .arc name — your identity on Arc Testnet</div>
-    <div class="card" style="padding:11px 13px;">
-      <div class="flbl">Search a name</div>
-      <div style="display:flex;gap:7px;"><input id="arcNameSearch" type="text" placeholder="yourname.arc" style="flex:1;" oninput="checkArcName()"/><button class="max-btn" style="margin-bottom:0;" onclick="checkArcName()">Check</button></div>
-      <div id="arcNameResult" style="display:none;margin-top:7px;padding:7px 9px;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:.82rem;"></div>
-    </div>
-    <div class="arcname-card" id="myNamesCard">
-      <div class="card-title" style="margin-bottom:8px;"><div class="cticon">◎</div>Your .arc Names</div>
-      <div id="myArcNamesList"><div class="empty"><div class="empty-icon" style="font-size:1.2rem;">◎</div><div class="empty-text">No names registered yet.</div></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><div class="cticon">+</div>Register Name</div>
-      <div class="field"><div class="flbl">Name</div>
-        <div style="display:flex;align-items:center;gap:0;">
-          <input id="arcNameInput" type="text" placeholder="yourname" style="border-radius:var(--radius-sm) 0 0 var(--radius-sm);border-right:none;"/>
-          <div style="background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--accent3);white-space:nowrap;">.arc</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Explore the full DeFi stack</div>
+          <div class="step-desc">Send USDC to any address, swap to EURC via StableFX, lend for 4.80% APY (Band oracle powered), bridge cross-chain via CCTP, or register your .arc name from 2 USDC.</div>
         </div>
       </div>
-      <div class="field"><div class="flbl">Duration</div>
-        <div class="price-grid">
-          <div class="price-opt active" onclick="setArcNameDuration(1,2,this)"><div class="po-dur">1 year</div><div class="po-price">2 USDC</div></div>
-          <div class="price-opt" onclick="setArcNameDuration(2,3,this)"><div class="po-dur">2 years</div><div class="po-price">3 USDC</div></div>
-          <div class="price-opt" onclick="setArcNameDuration(5,8,this)"><div class="po-dur">5 years</div><div class="po-price">8 USDC</div></div>
+    </div>
+  </div>
+
+  <div class="section reveal">
+    <div class="section-tag">Tokens</div>
+    <div class="section-title">Supported stablecoins</div>
+    <p class="section-sub">NAN supports the leading Circle stablecoins on Arc Testnet.</p>
+    <div class="tok-grid">
+      <div class="tok-card">
+        <div class="tok-dot" style="background:#2775ca;box-shadow:0 0 8px rgba(39,117,202,.4);"></div>
+        <div>
+          <div class="tok-name">USDC</div>
+          <div class="tok-desc">USD Coin — issued by Circle</div>
+          <div class="tok-meta">6 decimals · native gas token on Arc</div>
         </div>
+        <div class="tok-bal">Live ✓</div>
       </div>
-      <div class="gas-row"><span class="gas-icon">💵</span><span style="flex:1;">Registration fee</span><span id="arcNameFeeDisplay" style="color:var(--success);">2 USDC</span></div>
-      <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC</span></div>
-      <button class="btn" onclick="registerArcName()">Register .arc Name</button>
-    </div>
-    <div class="card">
-      <div class="card-title"><div class="cticon">👥</div>Directory</div>
-      <div id="arcNameDirectory"><div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No names registered yet. Be the first!</div></div></div>
-    </div>
-  </div>
-
-  <!-- ══ NAIRA PAGE ══ -->
-  <div class="page" id="page-naira">
-    <div class="page-title" style="display:flex;align-items:center;gap:8px;">
-      <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#ede9fe;flex-shrink:0;">₦</div>
-      Naira
-    </div>
-    <div class="page-sub">Deposit · Withdraw · Convert NGN ↔ USDC/EURC</div>
-    <div class="bal-card" style="margin-bottom:12px;">
-      <div class="bal-head"><div class="bal-lbl">Naira Balance</div><div class="bal-badge">● NGN · Nigeria</div></div>
-      <div class="bal-num"><span id="ngnBal">0.00</span> <span style="font-size:.88rem;color:var(--text3);">NGN</span></div>
-      <div class="bal-usd" id="ngnUsd">≈ $0.00 USDC · Rate: ₦1,620 / USDC</div>
-    </div>
-    <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:12px;">
-      <button class="stab active" id="ntab-deposit" onclick="setNairaTab('deposit')" style="border-radius:8px;">↓ Deposit</button>
-      <button class="stab" id="ntab-withdraw" onclick="setNairaTab('withdraw')" style="border-radius:8px;">🏦 Withdraw</button>
-      <button class="stab" id="ntab-convert" onclick="setNairaTab('convert')" style="border-radius:8px;">⇄ Convert</button>
-    </div>
-    <div id="npanel-deposit" class="card">
-      <div class="card-title"><div class="cticon">↓</div>Deposit Naira</div>
-      <!-- Virtual Account Box -->
-<div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:14px;padding:16px;margin-bottom:14px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <div style="font-size:.78rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;">YOUR VIRTUAL ACCOUNT</div>
-    <div style="display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--success);font-family:'JetBrains Mono',monospace;"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse 2s infinite;"></span>Active</div>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:9px;">
-      <span style="font-size:.78rem;color:var(--text3);">Bank</span>
-      <span style="font-size:.82rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;">Providus Bank</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:9px;">
-      <span style="font-size:.78rem;color:var(--text3);">Account Number</span>
-      <div style="display:flex;align-items:center;gap:7px;">
-        <span style="font-size:.88rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="ngnVirtualAcct">9901234567</span>
-        <button onclick="navigator.clipboard.writeText('9901234567');toast('Account number copied!','success',2000)" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:5px;color:var(--accent3);font-size:.7rem;padding:2px 7px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Copy</button>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:9px;">
-      <span style="font-size:.78rem;color:var(--text3);">Account Name</span>
-      <span style="font-size:.82rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;">NAN / YOUR NAME</span>
-    </div>
-  </div>
-</div>
-
-<!-- How to deposit -->
-<div style="font-size:.78rem;font-weight:700;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;">How to deposit</div>
-<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
-  <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">1</div>
-    <div style="font-size:.82rem;color:var(--text2);">Transfer NGN to the Providus account above from any Nigerian bank</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">2</div>
-    <div style="font-size:.82rem;color:var(--text2);">Your NGN balance updates automatically within 30 seconds</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent3);flex-shrink:0;">3</div>
-    <div style="font-size:.82rem;color:var(--text2);">Convert to USDC instantly on the Convert tab</div>
-  </div>
-</div>
-
-<!-- Simulate deposit for demo -->
-<div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:13px;margin-bottom:4px;">
-  <div style="font-size:.78rem;color:var(--text3);margin-bottom:9px;">Simulate an incoming NGN transfer</div>
-  <div style="display:flex;gap:7px;">
-    <input id="ngnSimAmt" type="number" placeholder="Amount in NGN" style="flex:1;padding:9px 12px;border-radius:9px;font-size:.88rem;"/>
-    <button onclick="simulateNgnDeposit()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:9px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.88rem;padding:9px 14px;cursor:pointer;white-space:nowrap;">+ Deposit</button>
-  </div>
-</div>
-    </div>
-    <div id="npanel-withdraw" class="card" style="display:none;">
-      <div class="card-title"><div class="cticon">🏦</div>Withdraw to Bank</div>
-      <div class="field"><div class="flbl">Amount (NGN)</div>
-        <div class="amt-row"><div class="field" style="margin-bottom:0;position:relative;">
-          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.88rem;color:var(--text3);font-family:'JetBrains Mono',monospace;z-index:1;">₦</span>
-          <input id="ngnWithdrawAmt" type="number" placeholder="0.00" style="padding-left:24px;" oninput="calcNgnWithdraw()"/>
-        </div><button class="max-btn">MAX</button></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
-      </div>
-      <div class="field"><div class="flbl">Bank</div>
-        <select id="ngnBankName"><option value="">Select bank</option><option>Access Bank</option><option>GTBank</option><option>First Bank</option><option>Zenith Bank</option><option>UBA</option><option>Kuda Bank</option><option>OPay</option><option>PalmPay</option><option>Stanbic IBTC</option><option>Fidelity Bank</option></select>
-      </div>
-      <div class="field"><div class="flbl">Account Number</div><input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/></div>
-      <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok"><span id="ngnAcctNameTxt"></span></div>
-      <div class="gas-row"><span class="gas-icon">₦</span><span style="flex:1;">Withdrawal fee</span><span>₦100 flat</span></div>
-      <button class="btn btn-outline" onclick="doNgnWithdraw()">Withdraw to Bank</button>
-    </div>
-    <div id="npanel-convert" class="card" style="display:none;">
-      <div class="card-title"><div class="cticon">⇄</div>Convert</div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(139,92,246,0.18);border-radius:var(--radius);padding:4px;margin-bottom:10px;">
-        <div style="background:var(--surface);border-radius:14px 14px 4px 4px;padding:14px 16px 10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Pay</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);" id="ngnFromBal">Bal: ₦0.00</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div id="ngnFromToken" onclick="flipNgnConvert()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;">₦ NGN <span style="font-size:.72rem;color:var(--text3);margin-left:2px;">▾</span></div>
-            <input class="swap-input" id="ngnConvertFrom" type="number" placeholder="0.00" oninput="calcNgnConvert()" style="flex:1;text-align:right;font-size:1.6rem;"/>
-          </div>
+      <div class="tok-card">
+        <div class="tok-dot" style="background:#1a9fff;box-shadow:0 0 8px rgba(26,159,255,.4);"></div>
+        <div>
+          <div class="tok-name">EURC</div>
+          <div class="tok-desc">Euro Coin — issued by Circle</div>
+          <div class="tok-meta">6 decimals · ERC-20 on Arc</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:center;position:relative;height:28px;margin:0 -4px;">
-          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
-          <button onclick="flipNgnConvert()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">⇅</button>
-        </div>
-        <div style="background:var(--surface);border-radius:4px 4px 14px 14px;padding:10px 16px 14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Receive</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);" id="ngnToBalLabel">Bal: 0.00 USDC</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div id="ngnToToken" onclick="toggleNgnToToken()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--accent3);white-space:nowrap;cursor:pointer;"><span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.72rem;color:var(--text3);margin-left:2px;">▾</span></div>
-            <input class="swap-input" id="ngnConvertTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.6rem;opacity:.65;"/>
-          </div>
-        </div>
+        <div class="tok-bal">Live ✓</div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px;margin-bottom:10px;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);" id="ngnRateDisplay">₦1,620 = 1 USDC</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Fee: 0.5%</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
-        <button class="ibtn" style="padding:8px;text-align:center;" onclick="document.getElementById('ngnConvertFrom').value=10000;calcNgnConvert()">₦10,000</button>
-        <button class="ibtn" style="padding:8px;text-align:center;" onclick="document.getElementById('ngnConvertFrom').value=50000;calcNgnConvert()">₦50,000</button>
-      </div>
-      <button class="btn" onclick="doNgnConvert()" id="ngnConvertBtn">Convert NGN → USDC</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
-      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / USDC</div><div style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;">₦1,620</div></div>
-      <div class="card" style="padding:12px;margin-bottom:0;"><div class="bal-lbl" style="margin-bottom:4px;">NGN / EURC</div><div style="font-size:1rem;font-weight:700;color:#60a5fa;font-family:'JetBrains Mono',monospace;">₦1,765</div></div>
     </div>
   </div>
 
-  <!-- ══ BULK PAY PAGE ══ -->
-  <div class="page" id="page-bulk">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <div>
-        <div class="page-title">Payroll</div>
-        <div class="page-sub">Pay your team · USDC · Scheduled runs · Receipts</div>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <button onclick="clearBulkRecipients()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--danger);font-size:.72rem;padding:5px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Clear</button>
-      </div>
-    </div>
-
-    <!-- Payroll group + token selector -->
-    <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:.82rem;font-family:'Space Grotesk',sans-serif;">
-        <option value="">— Select saved group —</option>
-      </select>
-      <button onclick="savePayrollGroup()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:.78rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;font-weight:600;">Save Group</button>
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button id="bulk-usdc" onclick="setBulkToken('USDC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;">USDC</button>
-      <button id="bulk-eurc" onclick="setBulkToken('EURC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:var(--surface);border:1px solid var(--border);color:var(--text3);">EURC</button>
-    </div>
-
-    <!-- Quick amount selector -->
-    <div style="margin-bottom:12px;">
-      <div style="font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Default amount per recipient</div>
-      <div style="display:flex;gap:5px;">
-        <button onclick="setBulkDefaultAmt(10)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">10</button>
-        <button onclick="setBulkDefaultAmt(20)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">20</button>
-        <button onclick="setBulkDefaultAmt(50)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">50</button>
-        <button onclick="setBulkDefaultAmt(100)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">100</button>
-        <input id="bulkDefaultAmt" type="number" placeholder="Custom" style="flex:1.5;padding:8px;border-radius:8px;font-size:.82rem;text-align:center;" oninput="updateBulkAmounts()"/>
-      </div>
-    </div>
-
-    <!-- Recipients list -->
-    <div id="bulkRecipientsList" style="margin-bottom:10px;display:flex;flex-direction:column;gap:6px;"></div>
-
-    <!-- Add recipient row -->
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
-      <input id="bulkNameInput" type="text" placeholder="Name or role (e.g. Chidi · Lead Dev)" style="width:100%;padding:10px 12px;border-radius:10px;font-size:.82rem;font-family:'Space Grotesk',sans-serif;"/>
-      <div style="display:flex;gap:6px;">
-        <input id="bulkAddrInput" type="text" placeholder="Wallet address or .arc name" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.82rem;font-family:'JetBrains Mono',monospace;" onkeydown="if(event.key==='Enter')addBulkRecipient()"/>
-        <button onclick="addBulkRecipient()" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:1.2rem;padding:10px 14px;cursor:pointer;font-weight:700;">+</button>
-      </div>
-    </div>
-
-    <!-- CSV import -->
-    <div onclick="document.getElementById('bulkCsvInput').click()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:rgba(139,92,246,.04);border:1px dashed rgba(139,92,246,.22);border-radius:10px;margin-bottom:12px;cursor:pointer;">
-      <span style="font-size:1rem;">📋</span>
-      <span style="font-size:.82rem;color:var(--text3);">Import from CSV <span style="font-size:.72rem;color:var(--text3);opacity:.6;">(address, amount per line)</span></span>
-    </div>
-    <input id="bulkCsvInput" type="file" accept=".csv,.txt" style="display:none;" onchange="importBulkCSV(event)"/>
-
-    <!-- Summary -->
-    <div id="bulkSummary" style="display:none;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:.78rem;color:var(--text3);">Recipients</span>
-        <span style="font-size:.88rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;" id="bulkRecipCount">0</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:.78rem;color:var(--text3);">Total amount</span>
-        <span style="font-size:.88rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="bulkTotalAmt">0.00 USDC</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:.78rem;color:var(--text3);">Your balance</span>
-        <span style="font-size:.88rem;font-weight:600;font-family:'JetBrains Mono',monospace;" id="bulkBalAmt">0.00</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:.78rem;color:var(--text3);">Gas (est.)</span>
-        <span style="font-size:.82rem;color:var(--success);font-family:'JetBrains Mono',monospace;" id="bulkGasAmt">~0.00 USDC</span>
-      </div>
-    </div>
-
-    <!-- Payroll actions -->
-    <button class="btn" id="bulkSendBtn" onclick="doBulkSend()" disabled style="margin-bottom:8px;">Run Payroll</button>
-    <div style="display:flex;gap:6px;margin-bottom:8px;">
-      <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
-      <button onclick="downloadPayrollReceipt()" style="flex:1;padding:10px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">🧾 Last Receipt</button>
-    </div>
-
-    <!-- Progress -->
-    <div id="bulkProgress" style="display:none;padding:12px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;margin-bottom:8px;">
-      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;" id="bulkProgressTitle">Sending...</div>
-      <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;overflow:hidden;margin-bottom:8px;">
-        <div id="bulkProgressBar" style="height:100%;background:linear-gradient(90deg,#8b5cf6,#7c3aed);border-radius:100px;width:0%;transition:width .5s;"></div>
-      </div>
-      <div id="bulkProgressList" style="display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto;"></div>
-    </div>
+  <div class="cta-section reveal">
+    <h2>Ready to try <span class="accent">Nan</span>?</h2>
+    <p>Connect your wallet or sign in with email and experience stablecoin finance on Arc.</p>
+    <a class="btn-primary" href="/app.html">Launch App →</a>
   </div>
 
-  <!-- ══ HISTORY PAGE ══ -->
-  <div class="page" id="page-history">
-    <div class="history-header">
-      <div><div class="page-title">Activity</div><div class="page-sub">Your on-chain transactions</div></div>
-      <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
+</main>
+
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">
+      <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
+        <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
+        <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
+        <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
+      </svg>
     </div>
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-title" style="font-size:.88rem;margin-bottom:10px;">📊 Your NAN Activity</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="statsGrid">
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSends">0</div><div style="font-size:.72rem;color:var(--text3);">Sends</div></div>
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSwaps">0</div><div style="font-size:.72rem;color:var(--text3);">Swaps</div></div>
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statBridges">0</div><div style="font-size:.72rem;color:var(--text3);">Bridges</div></div>
-      </div>
-    </div>
-    <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
+    <span class="footer-name">Nan</span>
   </div>
-
-  <!-- ══ PAYMENT REQUESTS PAGE ══ -->
-  <div class="page" id="page-payreq">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <div>
-        <div class="page-title">Payment Requests</div>
-        <div class="page-sub">Create invoices · Share links · Get paid</div>
-      </div>
-      <button onclick="goPage('payreq-new')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.82rem;padding:8px 14px;cursor:pointer;">+ New</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
-      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
-        <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="prStatTotal">0</div>
-        <div style="font-size:.68rem;color:var(--text3);">Total</div>
-      </div>
-      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
-        <div style="font-size:1.1rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;" id="prStatPaid">0</div>
-        <div style="font-size:.68rem;color:var(--text3);">Paid</div>
-      </div>
-      <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
-        <div style="font-size:1.1rem;font-weight:700;color:var(--warning);font-family:'JetBrains Mono',monospace;" id="prStatPending">0</div>
-        <div style="font-size:.68rem;color:var(--text3);">Pending</div>
-      </div>
-    </div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div id="payreqList" style="display:flex;flex-direction:column;"></div>
-    </div>
+  <div class="footer-links">
+    <a href="/app.html">App</a>
+    <a href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Faucet</a>
+    <a href="https://testnet.arcscan.app" target="_blank" rel="noopener noreferrer">Explorer</a>
+    <a href="https://docs.arc.network" target="_blank" rel="noopener noreferrer">Docs</a>
+    <a href="https://github.com/Goddesszee/Nan" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://x.com/nan_arc?s=21" target="_blank" rel="noopener noreferrer">𝕏 @zarafatoluu</a>
   </div>
+  <div class="footer-divider"></div>
+  <div class="footer-note">Built on Arc Testnet · Powered by Circle · Built by Goddesszee</div>
+</footer>
 
-  <!-- ══ PAY REQUEST PAGE (for payer) ══ -->
-  <div class="page" id="page-pay-now" style="flex-direction:column;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#ede9fe;">N</div>
-      <div class="page-title" style="margin-bottom:0;">NAN Payment Request</div>
-    </div>
-    <div style="background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(109,40,217,.05));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;" id="payNowAmt">—</div>
-      <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:4px;" id="payNowLabel">—</div>
-      <div style="font-size:.78rem;color:var(--text3);" id="payNowNote"></div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Pay to</span><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text);" id="payNowTo">—</span></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Token</span><span style="font-size:.78rem;font-weight:700;color:var(--accent3);" id="payNowToken">USDC</span></div>
-      <div style="display:flex;justify-content:space-between;"><span style="font-size:.78rem;color:var(--text3);">Network</span><span style="font-size:.78rem;color:var(--success);">● Arc Testnet</span></div>
-    </div>
-    <div id="payNowAmtInput" style="display:none;margin-bottom:12px;">
-      <div class="flbl">Enter amount</div>
-      <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
-    </div>
-    <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;text-align:center;font-family:'JetBrains Mono',monospace;">SEND USDC TO THIS ADDRESS ON ARC TESTNET</div>
-      <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-      <div style="font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace;">or pay with NAN wallet</div>
-      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-    </div>
-    <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
-      <div style="font-size:.72rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-bottom:10px;">STEP 1 — SCAN OR COPY ADDRESS</div>
-      <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
-    </div>
-    <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:12px;margin-bottom:12px;">
-      <div style="font-size:.72rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:8px;">STEP 2 — SEND FROM YOUR WALLET</div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text2);"><span>1.</span> Open MetaMask, Trust Wallet, or any wallet</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text2);"><span>2.</span> Switch to <strong style="color:var(--accent3);">Arc Testnet</strong> (Chain ID: 5042002)</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text2);"><span>3.</span> Send <strong style="color:var(--accent3);" id="payNowAmtStep">the amount</strong> of USDC to the address above</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-      <div style="font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace;">already have NAN wallet?</div>
-      <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-    </div>
-    <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">⚡ Pay instantly via NAN</button>
-    <div style="text-align:center;font-size:.72rem;color:var(--text3);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
-  </div>
-
-<!-- ══ PAYMENT REQUEST VIEW PAGE ══ -->
-  <div class="page" id="page-payreq-view" style="flex-direction:column;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
-      <div>
-        <div class="page-title" style="margin-bottom:0;" id="prViewTitle">Request</div>
-        <div style="font-size:.75rem;font-weight:600;" id="prViewStatus">⏳ Pending</div>
-      </div>
-    </div>
-    <div style="background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(109,40,217,.05));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;" id="prViewAmt">—</div>
-      <div style="font-size:.88rem;font-weight:600;color:var(--text);" id="prViewLabel2">—</div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Your address</span><span style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);" id="prViewFrom">—</span></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:.78rem;color:var(--text3);">Created</span><span style="font-size:.78rem;color:var(--text3);" id="prViewDate">—</span></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;" id="prViewNoteRow"><span style="font-size:.78rem;color:var(--text3);">Note</span><span style="font-size:.78rem;color:var(--text);" id="prViewNote">—</span></div>
-      <div style="display:flex;justify-content:space-between;"><span style="font-size:.78rem;color:var(--text3);">Expires</span><span style="font-size:.78rem;color:var(--text3);" id="prViewExpiry">Never</span></div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">SHAREABLE LINK</div>
-      <div style="font-size:.72rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;" id="prViewLink"></div>
-      <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="copyPRLink()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
-        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">↗ Share</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
-      <button onclick="deletePR()" style="padding:10px 14px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.82rem;cursor:pointer;">🗑</button>
-    </div>
-  </div>
-
-<!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
-  <div class="page" id="page-payreq-new" style="flex-direction:column;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button onclick="goPage('payreq')" style="width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
-      <div>
-        <div class="page-title" style="margin-bottom:0;">New Request</div>
-        <div style="font-size:.75rem;color:var(--text3);">Fill in details · Share the link</div>
-      </div>
-    </div>
-    <div class="card" style="flex:1;display:flex;flex-direction:column;gap:0;">
-      <div class="field">
-        <div class="flbl">Currency</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          <button class="topt active" id="pr-usdc" onclick="setPRToken('USDC',this)" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;"><span style="font-size:1rem;">💵</span><span>USDC</span></button>
-          <button class="topt" id="pr-eurc" onclick="setPRToken('EURC',this)" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;"><span style="font-size:1rem;">💶</span><span>EURC</span></button>
-        </div>
-      </div>
-      <div class="field">
-        <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;"><span>Amount</span><span style="font-size:.72rem;color:var(--text3);">Leave blank to let payer choose</span></div>
-        <div class="amt-row">
-          <div class="field" style="margin-bottom:0;flex:1;"><input id="prAmount" type="number" min="0.01" step="0.01" placeholder="0.00 (optional)" oninput="updatePRPreview()"/></div>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text3);padding:0 8px;" id="prTokenLabel">USDC</span>
-        </div>
-      </div>
-      <div class="field">
-        <div class="flbl">Label <span style="color:var(--text3);font-weight:400;">(required)</span></div>
-        <input id="prLabel" type="text" placeholder="e.g. Freelance design · Invoice #001 · Rent April" oninput="updatePRPreview()" maxlength="80"/>
-      </div>
-      <div class="field">
-        <div class="flbl">Note <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
-        <input id="prNote" type="text" placeholder="Add extra details for the payer" maxlength="160"/>
-      </div>
-      <div class="field">
-        <div class="flbl">Notify me when paid <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
-        <input id="prEmail" type="email" placeholder="your@email.com — get an email when paid"/>
-      </div>
-      <div class="field">
-        <div class="flbl">Expires</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;" id="prExpiryGrid">
-          <button class="topt active" onclick="setPRExpiry(0,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">Never</button>
-          <button class="topt" onclick="setPRExpiry(24,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">24h</button>
-          <button class="topt" onclick="setPRExpiry(168,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">7 days</button>
-          <button class="topt" onclick="setPRExpiry(720,this)" style="font-size:.75rem;padding:8px 4px;text-align:center;">30 days</button>
-        </div>
-      </div>
-      <div id="prPreviewWrap" style="display:none;margin-bottom:12px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;">Preview</div>
-        <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:14px;">
-          <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;" id="prPreviewAmt">—</div>
-          <div style="font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:6px;" id="prPreviewLabel">—</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">To: <span id="prPreviewAddr">—</span></div>
-        </div>
-      </div>
-      <button class="btn" id="prCreateBtn" onclick="createPaymentRequest()" disabled>Create & Share Link</button>
-    </div>
-  </div>
-
-<!-- ══ WALLET PICKER MODAL ══ -->
-<div class="wallet-modal-overlay" id="walletModalOverlay" onclick="hideWalletPicker(event)">
-  <div class="wallet-modal">
-    <div class="wallet-modal-title">Connect Wallet</div>
-    <div class="wallet-modal-sub">Choose your preferred wallet to connect to Arc Testnet</div>
-    <div class="wallet-logos-row">
-      <div class="wallet-logo-icon" style="background:#f6851b;" onclick="connectSpecific('metamask')" title="MetaMask">🦊</div>
-      <div class="wallet-logo-icon" style="background:#3b99fc;" onclick="connectSpecific('walletconnect')" title="WalletConnect">🔗</div>
-      <div class="wallet-logo-icon" style="background:#1652f0;" onclick="connectSpecific('coinbase')" title="Coinbase Wallet">🔵</div>
-      <div class="wallet-logo-icon" style="background:#e94f37;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
-      <div class="wallet-logo-icon" style="background:#8b5cf6;" onclick="connectSpecific('circle')" title="Circle Wallet">⭕</div>
-    </div>
-    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()" style="border:1.5px solid rgba(139,92,246,.5);background:rgba(139,92,246,.06);margin-bottom:10px;">
-      <div class="wallet-opt-icon" style="background:rgba(139,92,246,.15);">⚡</div>
-      <div><div class="wallet-opt-name">Email — instant wallet</div><div class="wallet-opt-desc">Fastest · No extension · Free</div></div>
-      <span class="wallet-opt-badge" style="background:rgba(139,92,246,.15);color:var(--accent3);border:1px solid rgba(139,92,246,.3);">Recommended</span>
-    </div>
-    <div class="wallet-opt" onclick="connectSpecific('metamask')"><div class="wallet-opt-icon" style="background:#f6851b20;">🦊</div><div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div><span class="wallet-opt-badge" style="background:rgba(139,92,246,.1);color:var(--accent3);border:1px solid rgba(139,92,246,.2);">Popular</span></div>
-    <div class="wallet-opt" onclick="connectSpecific('walletconnect')"><div class="wallet-opt-icon" style="background:#3b99fc20;">🔗</div><div><div class="wallet-opt-name">WalletConnect</div><div class="wallet-opt-desc">Scan QR with mobile wallet</div></div></div>
-    <div class="wallet-opt" onclick="connectSpecific('coinbase')"><div class="wallet-opt-icon" style="background:#1652f020;">🔵</div><div><div class="wallet-opt-name">Coinbase Wallet</div><div class="wallet-opt-desc">Mobile & browser extension</div></div></div>
-    <div class="wallet-opt" onclick="connectSpecific('circle')"><div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">⭕</div><div><div class="wallet-opt-name">Circle Programmable Wallet</div><div class="wallet-opt-desc">Embedded wallet via Circle</div></div><span class="wallet-opt-badge" style="background:rgba(52,211,153,.08);color:var(--success);border:1px solid rgba(52,211,153,.2);">New</span></div>
-    <div class="wallet-divider"><span>or sign in with email</span></div>
-    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()"><div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">✉</div><div><div class="wallet-opt-name">Email Login</div><div class="wallet-opt-desc">Creates a secure wallet in your browser</div></div></div>
-  </div>
-</div>
-
-<!-- ══ AI Button ══ -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:120px;right:calc(50% - 520px);z-index:9999;width:48px;height:48px;border-radius:12px 0 0 12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:-4px 4px 20px rgba(139,92,246,.45);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;">
-  <span>✦</span>
-  <span style="font-size:.68rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
-</button>
-
-<!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);">
-  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
-    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
-    <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
-        <div style="font-size:.82rem;color:var(--text3);margin-top:2px;">Live wallet data · Groq AI powered</div>
-      </div>
-      <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;">✕</button>
-    </div>
-  </div>
-  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
-    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
-      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:.82rem;font-family:'Space Grotesk',sans-serif;outline:none;"/>
-      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
-    </div>
-    <div id="voiceStatus" style="display:none;text-align:center;font-size:.82rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
-    <div style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:6px;">Powered by Groq · Live on-chain data · 🎤 Voice enabled</div>
-  </div>
-</div>
-
-<!-- ══ Toast ══ -->
-<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
-<style>
-#toast.show{opacity:1!important;}
-#toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
-#toast.error{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);color:#f87171;}
-#toast.info{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa;}
-#toast.warning{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;}
-</style>
-
-<!-- ══ Scripts ══ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="app.js"></script>
-<script src="ui.js"></script>
-<script src="agent-integration.js"></script>
+<script>
+  function toggleTheme(){
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('nan_landing_theme', next);
+    document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
+  }
+  (function(){
+    const saved = localStorage.getItem('nan_landing_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeToggle').textContent = saved === 'dark' ? '🌙' : '☀️';
+  })();
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+    });
+  },{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
+  reveals.forEach(el => io.observe(el));
+</script>
 </body>
 </html>
+  
+ 
+ 
