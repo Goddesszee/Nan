@@ -24,8 +24,7 @@ The simplest way to send, swap, lend, borrow and bridge USDC & EURC on Arc Testn
 
 Built by [@zarafatoluu](https://x.com/zarafatoluu)
 
-<!-- deploy trigger -->
 
-<!-- deploy 1779559459 -->
 
-<!-- fresh deploy 1779559882 -->
+
+<!-- deploy trigger 1779650772 -->
