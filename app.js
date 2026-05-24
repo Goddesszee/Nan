@@ -2764,7 +2764,7 @@ async function doSupply(){
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Supply',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       
-      fix: remove redundant addCollateral call — new contract handles it in supply()
+      fix: remove  addCollateral call — new contract handles it in supply()
       
       await refreshBalances();
       await refreshLendPosition();
