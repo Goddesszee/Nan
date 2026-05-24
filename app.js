@@ -2646,11 +2646,12 @@ async function doBorrow(){
   // Refresh position first to get latest on-chain data
   await refreshLendPosition();
   if(lendPositions.supplied===0){toast('Supply USDC first before borrowing','error',4000);return;}
-  // maxBorrow = 75% of collateral - already borrowed
-  // If no collateral yet, use supplied as potential collateral
-  const effectiveCollateral=lendPositions.collateral||lendPositions.supplied;
-  const maxBorrow=Math.max(0,effectiveCollateral*0.75-lendPositions.borrowed);
-  if(amt>maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC','error',4000);return;}
+  // maxBorrow = 75% of wallet USDC balance (as potential collateral) - already borrowed
+  const walletUsdcBal = parseFloat(usdcBal||0);
+  const currentCollateral = lendPositions.collateral||0;
+  const totalCollateral = currentCollateral + walletUsdcBal;
+  const maxBorrow = Math.max(0, totalCollateral*0.75 - lendPositions.borrowed);
+  if(amt > maxBorrow){toast('Max you can borrow: '+maxBorrow.toFixed(2)+' USDC (need more USDC in wallet as collateral)','error',4000);return;}
 
   const btn=document.getElementById('borrowBtn');
   if(btn){btn.innerHTML='<span class="spinner"></span>Processing…';btn.disabled=true;}
@@ -2672,7 +2673,10 @@ async function doBorrow(){
       const pos=await lc.getPosition(userAddr);
       const suppliedAtomic=BigInt(pos[0].toString());
       const collateralAtomic=BigInt(pos[4].toString());
-      const needed=suppliedAtomic-collateralAtomic;
+      // Calculate collateral needed for this specific borrow (borrow/0.75 = collateral needed)
+      const borrowAtomic=BigInt(amtAtomic);
+      const requiredCollateral=borrowAtomic*100n/75n; // 75% LTV means collateral = borrow * 100/75
+      const needed=requiredCollateral>collateralAtomic ? requiredCollateral-collateralAtomic : 0n;
       
       if(needed>0n){
         // Check wallet balance for collateral
