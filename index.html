@@ -1055,21 +1055,24 @@
 </div>
 
 <!-- ══ AI Button ══ -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:90px;right:16px;z-index:9999;width:44px;height:44px;border-radius:13px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa;font-size:.9rem;cursor:pointer;box-shadow:0 2px 12px rgba(139,92,246,.25);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:90px;right:16px;z-index:9999;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.45);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;">
   <span>✦</span>
-  <span style="font-size:.72rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
+  <span style="font-size:.68rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:12px;bottom:12px;right:100px;width:340px;background:var(--bg);border:1px solid rgba(139,92,246,.3);border-radius:16px;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;box-shadow:0 8px 40px rgba(139,92,246,.2);">
-  <div style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
-    <div>
-      <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
-      <div style="font-size:.82rem;color:var(--text3);margin-top:3px;">Live wallet data · Groq AI powered</div>
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);">
+  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
+    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
+    <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
+        <div style="font-size:.82rem;color:var(--text3);margin-top:2px;">Live wallet data · Groq AI powered</div>
+      </div>
+      <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;">✕</button>
     </div>
-    <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;">✕</button>
   </div>
-  <div id="agentMessages" style="position:absolute;top:68px;bottom:120px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
+  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
