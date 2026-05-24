@@ -174,6 +174,7 @@ function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(t
 let _tt;
 function toast(msg,type='info',ms=4000){
   const el=document.getElementById('toast');
+  if(!el)return;
   el.textContent=msg;el.className='show '+type;
   clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
 }
