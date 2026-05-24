@@ -737,6 +737,7 @@ async function onConnected(isEmail=false, isDev=false){
   renderArcDirectory();
   initLendUI();
   document.getElementById('aiBtn').style.display='flex';
+  startOrderEngine();
   renderAgentMsgs();renderAgentChips();
 
   if(!isEmail&&wp?.on){
@@ -1712,6 +1713,30 @@ function updateBulkAmounts(){
   bulkRecipients.forEach(r => r.amount = val);
   renderBulkRecipients();
   updateBulkSummary();
+}
+
+async function resolveArcName(name){
+  const n = name.toLowerCase().replace('.arc','');
+  const found = arcNames.find(a => a.name === n);
+  if(found) return found.owner;
+  try{
+    const readProvider = getArcProvider();
+    const c = new ethers.Contract(NAME_REGISTRY, NAME_ABI, readProvider);
+    const addr = await c.resolve(n);
+    return addr === '0x0000000000000000000000000000000000000000' ? null : addr;
+  }catch{ return null; }
+}
+
+async function resolveArcName(name){
+  const n = name.toLowerCase().replace('.arc','');
+  const found = arcNames.find(a => a.name === n);
+  if(found) return found.owner;
+  try{
+    const readProvider = getArcProvider();
+    const c = new ethers.Contract(NAME_REGISTRY, NAME_ABI, readProvider);
+    const addr = await c.resolve(n);
+    return addr === '0x0000000000000000000000000000000000000000' ? null : addr;
+  }catch{ return null; }
 }
 
 async function addBulkRecipient(){
@@ -3129,6 +3154,14 @@ async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
 const NGN_USDC_RATE=1620,NGN_EURC_RATE=1765;
 let ngnFlipped=false,ngnToToken='USDC';
 
+function simulateNgnDeposit(){
+  const amt = parseFloat(document.getElementById('ngnSimAmt').value)||0;
+  if(!amt){ toast('Enter an amount','error'); return; }
+  const cur = parseFloat(document.getElementById('ngnBal').textContent)||0;
+  document.getElementById('ngnBal').textContent = (cur+amt).toLocaleString();
+  toast('₦'+amt.toLocaleString()+' deposited (simulated)','success',3000);
+}
+
 function setNairaTab(tab){
   ['deposit','withdraw','convert'].forEach(t=>{
     document.getElementById('npanel-'+t).style.display=t===tab?'block':'none';
@@ -3200,6 +3233,7 @@ window.addEventListener('load',()=>{
       if(onArcNetwork||isCircleWallet){await refreshBalances();}
     }
   },10000);
+  if(userAddr) startOrderEngine();
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden&&userAddr)refreshBalances();
   });
