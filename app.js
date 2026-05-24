@@ -3430,22 +3430,23 @@ function deletePR(){
 (function handlePRDeepLink(){
   const params=new URLSearchParams(window.location.search);
   if(!params.has('pay'))return;
-  const to=params.get('to'),amt=params.get('amt'),tok=params.get('tok')||'USDC',lbl=params.get('lbl')||'';
-  window._prDeepLink={to,amt,tok,lbl};
+  const to=params.get('to'),amt=params.get('amt'),tok=params.get('tok')||'USDC',lbl=params.get('lbl')||'',note=params.get('note')||'';
+  window._prDeepLink={to,amt,tok,lbl,note};
   const orig=window.onConnected;
   window.onConnected=async function(isEmail,isDev){
     await orig(isEmail,isDev);
     const dl=window._prDeepLink;
     if(!dl)return;
     setTimeout(()=>{
-      goPage('send');
-      document.getElementById('recipInput').value=dl.to||'';
-      document.getElementById('amtInput').value=dl.amt||'';
-      sendToken=dl.tok||'USDC';
-      document.getElementById('sendTokenLabel').textContent=sendToken;
-      if(dl.to)onRecipInput();
-      validateSend();
-      if(dl.lbl)toast('Paying: '+dl.lbl,'info',5000);
+      document.getElementById('payNowAmt').textContent=dl.amt?parseFloat(dl.amt).toFixed(2)+' '+dl.tok:'Open amount';
+      document.getElementById('payNowLabel').textContent=dl.lbl||'Payment Request';
+      document.getElementById('payNowNote').textContent=dl.note||'';
+      document.getElementById('payNowTo').textContent=dl.to||'';
+      document.getElementById('payNowToken').textContent=dl.tok||'USDC';
+      const amtInput=document.getElementById('payNowAmtInput');
+      if(amtInput)amtInput.style.display=dl.amt?'none':'block';
+      goPage('pay-now');
+      if(dl.lbl)toast('💸 Pay: '+dl.lbl,'info',5000);
       window._prDeepLink=null;
     },600);
   };
