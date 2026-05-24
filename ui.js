@@ -58,6 +58,8 @@ function goPage(name) {
   if (name === 'swap') refreshBalances();
   if (name === 'bulk') { renderBulkRecipients(); updateBulkSummary(); }
   if (name === 'home') updateHomeScreen();
+  if (name === 'payreq') renderPaymentRequests();
+  if (name === 'payreq-new') initNewPRForm();
 }
 
 // ── Show page (called internally by app.js) ──
