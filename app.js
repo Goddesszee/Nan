@@ -2672,33 +2672,8 @@ async function doBorrow(){
 
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-      const usdcContract=new ethers.Contract(USDC_ADDR,[
-        'function approve(address,uint256) returns (bool)',
-        'function allowance(address,address) view returns (uint256)'
-      ],signer);
-
-      // Step 1: Try borrow directly first
-      toast('Step 1/3 — Approving…','info',3000);
-      const allowance=await usdcContract.allowance(userAddr,LENDING_CONTRACT);
-      if(allowance<amtParsed){
-        const appTx=await usdcContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
-      }
-
-      // Step 2: Try addCollateral with supplied amount
-      toast('Step 2/3 — Registering collateral…','info',3000);
-      try{
-        const suppliedAtomic=Math.floor(lendPositions.supplied*1_000_000).toString();
-        const colTx=await lendContract.addCollateral(suppliedAtomic,arcGasOpts());
-        await colTx.wait(1);
-        toast('Collateral registered!','success',2000);
-      }catch(ce){
-        // addCollateral might fail if already registered — that's OK
-        console.log('addCollateral (expected if already done):', ce.message);
-      }
-
-      // Step 3: Borrow
-      toast('Step 3/3 — Borrowing…','info',3000);
+      // Just borrow directly - supply() already registers collateral in this contract
+      toast('Confirming borrow…','info',3000);
       const tx=await lendContract.borrow(amtParsed,arcGasOpts());
       await tx.wait(1);
       toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
