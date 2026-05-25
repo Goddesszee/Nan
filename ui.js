@@ -51,6 +51,18 @@ function goPage(name) {
   const navBtn = document.getElementById(navId);
   if (navBtn) navBtn.classList.add('active');
 
+  // Sync desktop sidebar
+  const desktopNavMap = {
+    home: 'dnav-home', send: 'dnav-send', earn: 'dnav-earn',
+    lend: 'dnav-earn', swap: 'dnav-swap', bridge: 'dnav-bridge',
+    more: 'dnav-more', arcname: 'dnav-more', bulk: 'dnav-more',
+    naira: 'dnav-more', history: 'dnav-more',
+  };
+  document.querySelectorAll('#desktopNav .dnav-btn').forEach(b => b.classList.remove('active'));
+  const dnavId = desktopNavMap[name] || 'dnav-more';
+  const dnavBtn = document.getElementById(dnavId);
+  if (dnavBtn) dnavBtn.classList.add('active');
+
   // Trigger page-specific init
   if (name === 'earn' || name === 'lend') initLendUI();
   if (name === 'history') renderHistory();
@@ -119,3 +131,15 @@ window.onConnected = async function (isEmail, isDev) {
   if (homeNav) homeNav.classList.add('active');
   updateHomeScreen();
 };
+
+// ── Desktop nav visibility ──
+function updateDesktopNav() {
+  const isDesktop = window.innerWidth >= 769;
+  const dNav = document.getElementById('desktopNav');
+  if (dNav) dNav.style.display = isDesktop ? 'flex' : 'none';
+}
+
+window.addEventListener('resize', updateDesktopNav);
+document.addEventListener('DOMContentLoaded', updateDesktopNav);
+// Also run immediately in case DOM is already loaded
+updateDesktopNav();

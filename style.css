@@ -681,3 +681,200 @@ a:hover{color:var(--text);}
   .page { bottom: 64px !important; }
   #aiBtn { bottom: 76px !important; }
 }
+
+/* ══ TABLET (481px – 768px) ══ */
+@media(min-width:481px) and (max-width:768px){
+  #app-root{
+    max-width:560px;
+    border-radius:24px;
+    top:50%;
+    transform:translate(-50%,-50%);
+    height:min(820px,95dvh);
+    position:fixed;
+  }
+  .page{padding:18px 20px 24px;}
+  .home-bal-num{font-size:3rem;}
+  .card{padding:22px;}
+}
+
+/* ══ DESKTOP (769px+) ══ */
+@media(min-width:769px){
+  html,body{overflow:auto;height:100%;min-height:100dvh;}
+
+  /* Full-page centered layout */
+  #app-root{
+    position:relative;
+    left:auto;
+    top:auto;
+    transform:none;
+    width:100%;
+    max-width:100%;
+    height:auto;
+    min-height:100dvh;
+    overflow:visible;
+    box-shadow:none;
+    display:flex;
+    flex-direction:column;
+  }
+  #app-root::before,#app-root::after{display:none;}
+
+  /* Top bar spans full width on desktop */
+  #globalTopBar{
+    position:fixed;
+    left:0;right:0;
+    padding:14px 40px;
+    max-width:100%;
+  }
+
+  /* Sidebar nav replaces bottom nav on desktop */
+  .bottom-nav{
+    display:none !important;
+  }
+
+  /* Desktop sidebar */
+  #desktopNav{
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0;left:0;
+    width:220px;
+    height:100vh;
+    background:var(--topbar-bg);
+    border-right:1px solid var(--border);
+    padding:80px 12px 24px;
+    gap:4px;
+    z-index:50;
+    backdrop-filter:blur(24px);
+  }
+  #desktopNav .dnav-btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 16px;
+    border-radius:14px;
+    border:none;
+    background:transparent;
+    color:var(--text3);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:.9rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s;
+    text-align:left;
+    width:100%;
+    letter-spacing:.01em;
+  }
+  #desktopNav .dnav-btn .dni{font-size:1.2rem;width:24px;text-align:center;flex-shrink:0;}
+  #desktopNav .dnav-btn:hover{background:rgba(139,92,246,.08);color:var(--accent3);}
+  #desktopNav .dnav-btn.active{background:rgba(139,92,246,.14);color:var(--accent3);border:1px solid rgba(139,92,246,.22);}
+  #desktopNav .dnav-divider{height:1px;background:var(--border);margin:8px 4px;}
+
+  /* Main content area */
+  .page{
+    position:fixed;
+    top:0;left:220px;right:0;bottom:0;
+    max-width:none;
+    padding:88px 40px 40px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    display:none;
+  }
+  .page.active{display:block;}
+
+  /* Content constrained width for readability */
+  .page > *{max-width:720px;}
+
+  /* Two-column layout for main content on wide screens */
+  .page-inner-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    max-width:900px;
+  }
+
+  /* Cards bigger on desktop */
+  .card{padding:24px;border-radius:20px;}
+  .card-title{font-size:.78rem;margin-bottom:16px;}
+
+  /* Home page */
+  .home-bal-num{font-size:3.5rem;}
+  .home-bal-card{padding:28px;margin-bottom:16px;}
+  .home-actions-top{grid-template-columns:repeat(5,1fr);gap:10px;}
+  .home-action{padding:18px 10px;border-radius:18px;}
+  .home-action-icon{font-size:1.6rem;margin-bottom:6px;}
+  .home-action-label{font-size:.72rem;}
+
+  /* Inputs bigger on desktop */
+  input,select{font-size:.9rem;padding:12px 16px;}
+  .flbl{font-size:.72rem;margin-bottom:8px;}
+
+  /* Buttons */
+  .btn{padding:16px;font-size:.95rem;border-radius:16px;}
+  .big-btn{padding:16px;font-size:1rem;}
+  .max-btn{padding:10px 14px;font-size:.78rem;}
+
+  /* Page title */
+  .page-title{font-size:2rem;margin-bottom:6px;}
+  .page-sub{font-size:.92rem;margin-bottom:18px;}
+
+  /* More page grid on desktop */
+  #page-more .more-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .more-item{padding:18px 20px;border-radius:18px;}
+  .more-item-icon{width:42px;height:42px;font-size:1.3rem;}
+  .more-item-title{font-size:1rem;}
+
+  /* AI button position on desktop */
+  #aiBtn{
+    bottom:32px !important;
+    right:32px !important;
+    width:54px !important;
+    height:54px !important;
+    border-radius:16px !important;
+  }
+
+  /* Agent panel on desktop */
+  #agentPanel{
+    left:auto !important;
+    right:0 !important;
+    bottom:0 !important;
+    top:0 !important;
+    width:400px !important;
+    max-width:400px !important;
+    border-radius:0 !important;
+    border-left:1px solid var(--border) !important;
+    transform:translateX(100%) !important;
+    transition:transform .3s cubic-bezier(.32,1,.23,1) !important;
+  }
+  #agentPanel.open{
+    transform:translateX(0) !important;
+  }
+
+  /* Gas row */
+  .gas-row{font-size:.78rem;padding:12px 16px;}
+
+  /* Wallet modal centered on desktop */
+  .wallet-modal-overlay{align-items:center !important;}
+  .wallet-modal{border-radius:24px !important;max-width:440px !important;}
+
+  /* Toast above bottom */
+  #toast{bottom:40px !important;}
+
+  /* Scrollbar for desktop */
+  .page::-webkit-scrollbar{display:block;width:4px;}
+  .page::-webkit-scrollbar-track{background:transparent;}
+  .page::-webkit-scrollbar-thumb{background:rgba(139,92,246,.25);border-radius:4px;}
+  .page::-webkit-scrollbar-thumb:hover{background:rgba(139,92,246,.45);}
+}
+
+/* ══ WIDE DESKTOP (1200px+) ══ */
+@media(min-width:1200px){
+  #desktopNav{width:240px;}
+  .page{left:240px;padding:88px 56px 56px;}
+  .page > *{max-width:800px;}
+  .home-actions-top{grid-template-columns:repeat(5,1fr);}
+  .home-bal-num{font-size:4rem;}
+}

@@ -73,6 +73,35 @@
     </div>
   </nav>
 
+  <!-- ══ DESKTOP SIDEBAR NAV ══ -->
+  <nav id="desktopNav" style="display:none;">
+    <button class="dnav-btn active" id="dnav-home" onclick="goPage('home')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      Home
+    </button>
+    <button class="dnav-btn" id="dnav-send" onclick="goPage('send')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+      Send
+    </button>
+    <button class="dnav-btn" id="dnav-earn" onclick="goPage('earn')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+      Earn
+    </button>
+    <div class="dnav-divider"></div>
+    <button class="dnav-btn" id="dnav-swap" onclick="goPage('swap')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+      Swap
+    </button>
+    <button class="dnav-btn" id="dnav-bridge" onclick="goPage('bridge')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg></span>
+      Bridge
+    </button>
+    <button class="dnav-btn" id="dnav-more" onclick="goPage('more')">
+      <span class="dni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      More
+    </button>
+  </nav>
+
   <!-- ══ LANDING PAGE ══ -->
   <div class="page page-land active" id="page-land" style="background:var(--bg);">
     <div style="padding:22px 16px 18px;">
