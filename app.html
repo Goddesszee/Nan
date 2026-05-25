@@ -798,24 +798,11 @@
         <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
       </div>
       <div class="field"><div class="flbl">Bank</div>
-        <div id="bankDropWrap" style="position:relative;">
-          <div id="bankDropBtn" onclick="toggleBankDrop()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;">
-            <span id="bankDropLabel" style="color:var(--text3);">Select bank</span><span style="color:var(--text3);">▾</span>
-          </div>
-          <div id="bankDropList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;overflow-y:auto;max-height:220px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
-            <div onclick="pickBank('Access Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Access Bank</div>
-            <div onclick="pickBank('GTBank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">GTBank</div>
-            <div onclick="pickBank('First Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">First Bank</div>
-            <div onclick="pickBank('Zenith Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Zenith Bank</div>
-            <div onclick="pickBank('UBA')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">UBA</div>
-            <div onclick="pickBank('Kuda Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Kuda Bank</div>
-            <div onclick="pickBank('OPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">OPay</div>
-            <div onclick="pickBank('PalmPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">PalmPay</div>
-            <div onclick="pickBank('Stanbic IBTC')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Stanbic IBTC</div>
-            <div onclick="pickBank('Fidelity Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);">Fidelity Bank</div>
-          </div>
-        </div>
         <input type="hidden" id="ngnBankName" value=""/>
+        <button type="button" id="bankPickerBtn" onclick="openBankPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
+          <span id="bankPickerLabel" style="color:var(--text3);">Select bank</span>
+          <span style="color:var(--accent3);font-size:.8rem;">▾</span>
+        </button>
       </div>
       <div class="field"><div class="flbl">Account Number</div><input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/></div>
       <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok"><span id="ngnAcctNameTxt"></span></div>
@@ -1221,37 +1208,15 @@
 <script src="app.js"></script>
 <script src="ui.js"></script>
 
-<script>
+<!-- ══ BANK PICKER MODAL ══ -->
+<div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
+<div id="bankPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:75vh;overflow-y:auto;">
+  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
+  <div id="bankPickerOptions"></div>
+  <div style="height:16px;"></div>
+</div>
 
-function toggleBankDrop(){
-  const list=document.getElementById('bankDropList');
-  closeAllDrops('bankDropList');
-  list.style.display=list.style.display==='none'?'block':'none';
-}
-function pickBank(name){
-  document.getElementById('ngnBankName').value=name;
-  document.getElementById('bankDropLabel').textContent=name;
-  document.getElementById('bankDropLabel').style.color='var(--text)';
-  document.getElementById('bankDropList').style.display='none';
-}
-function closeAllDrops(except){
-  ['bankDropList'].forEach(id=>{
-    if(id!==except){
-      const el=document.getElementById(id);
-      if(el) el.style.display='none';
-    }
-  });
-}
-document.addEventListener('click',function(e){
-  ['bankDropWrap'].forEach(id=>{
-    const wrap=document.getElementById(id);
-    if(wrap&&!wrap.contains(e.target)){
-      const list=wrap.querySelector('[id$="DropList"]');
-      if(list) list.style.display='none';
-    }
-  });
-});
-</script>
 <!-- ══ CHAIN PICKER MODAL ══ -->
 <div id="chainPickerOverlay" onclick="closeChainPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
 <div id="chainPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;">
@@ -1262,37 +1227,66 @@ document.addEventListener('click',function(e){
 </div>
 
 <script>
+/* ── Chain picker ── */
 const CHAIN_OPTIONS = [
-  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia',  icon:'⟠'},
-  {val:'AVAX-FUJI',    label:'Avalanche Fuji',     icon:'🔺'},
-  {val:'BASE-SEPOLIA', label:'Base Sepolia',        icon:'🔵'},
-  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',    icon:'🔷'},
-  {val:'OP-SEPOLIA',   label:'OP Sepolia',          icon:'🔴'},
-  {val:'POLYGON-AMOY', label:'Polygon Amoy',        icon:'🟣'},
+  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia', icon:'⟠'},
+  {val:'AVAX-FUJI',    label:'Avalanche Fuji',   icon:'🔺'},
+  {val:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵'},
+  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷'},
+  {val:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴'},
+  {val:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣'},
+];
+const BANK_OPTIONS = [
+  'Access Bank','GTBank','First Bank','Zenith Bank','UBA',
+  'Kuda Bank','OPay','PalmPay','Stanbic IBTC','Fidelity Bank',
+  'Sterling Bank','Wema Bank','Polaris Bank','Jaiz Bank','Moniepoint'
 ];
 
+function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
+
 function openChainPicker(){
-  const current = document.getElementById('bridgeDestChain').value;
-  const opts = document.getElementById('chainPickerOptions');
-  opts.innerHTML = CHAIN_OPTIONS.map(c=>`
-    <div onclick="pickChain('${c.val}','${c.label}')" style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;${c.val===current?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='${c.val===current?'rgba(139,92,246,.12)':'transparent'}'">
+  const cur = document.getElementById('bridgeDestChain').value;
+  document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
       <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
       <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${c.label}</span>
-      ${c.val===current?'<span style="color:var(--accent3);font-size:1rem;">✓</span>':''}
+      ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
     </div>`).join('');
   document.getElementById('chainPickerOverlay').style.display='block';
   document.getElementById('chainPickerSheet').style.display='block';
 }
-
 function closeChainPicker(){
   document.getElementById('chainPickerOverlay').style.display='none';
   document.getElementById('chainPickerSheet').style.display='none';
 }
-
-function pickChain(val, label){
-  document.getElementById('bridgeDestChain').value = val;
-  document.getElementById('chainPickerLabel').textContent = label;
+function pickChain(val,label){
+  document.getElementById('bridgeDestChain').value=val;
+  document.getElementById('chainPickerLabel').textContent=label;
+  document.getElementById('chainPickerLabel').style.color='var(--text)';
   closeChainPicker();
+}
+
+/* ── Bank picker ── */
+function openBankPicker(){
+  const cur = document.getElementById('ngnBankName').value;
+  document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
+      <span style="font-size:1.3rem;">🏦</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${b}</span>
+      ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('bankPickerOverlay').style.display='block';
+  document.getElementById('bankPickerSheet').style.display='block';
+}
+function closeBankPicker(){
+  document.getElementById('bankPickerOverlay').style.display='none';
+  document.getElementById('bankPickerSheet').style.display='none';
+}
+function pickBank(name){
+  document.getElementById('ngnBankName').value=name;
+  document.getElementById('bankPickerLabel').textContent=name;
+  document.getElementById('bankPickerLabel').style.color='var(--text)';
+  closeBankPicker();
 }
 </script>
 </body>
