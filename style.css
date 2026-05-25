@@ -703,13 +703,13 @@ a:hover{color:var(--text);}
 
   /* App root fills screen */
   #app-root{
-    position:fixed;top:0;left:0;right:0;bottom:0;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
     width:100%;max-width:100%;
     height:100vh;
-    overflow:hidden;
+    overflow:visible;
     box-shadow:none;
     transform:none;
-    left:auto;
   }
   #app-root::before,#app-root::after{display:none;}
 
@@ -762,7 +762,7 @@ a:hover{color:var(--text);}
   #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
   #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 4px;}
 
-  /* ── Content area: truly centered like Relay ── */
+  /* ── Content area: centered in space right of sidebar ── */
   .page{
     position:fixed !important;
     top:0 !important;
@@ -774,25 +774,24 @@ a:hover{color:var(--text);}
     display:none !important;
     overflow-y:auto !important;
     overflow-x:hidden !important;
-    padding:0 !important;
+    /* Use flex to truly center the content column */
+    flex-direction:column !important;
+    align-items:center !important;
+    padding:48px 20px 60px !important;
     animation:none !important;
   }
   .page.active{
-    display:block !important;
+    display:flex !important;
   }
-  /* Relay-style: all direct children centered in a column */
+  /* Content column — fixed width, centered */
   .page > *{
     width:100% !important;
-    max-width:460px !important;
-    margin-left:auto !important;
-    margin-right:auto !important;
+    max-width:480px !important;
+    flex-shrink:0 !important;
     box-sizing:border-box !important;
-    /* Do NOT set display here — let each element use its natural display (grid, flex, block) */
   }
-  /* Top padding on first element */
-  .page > *:first-child{ margin-top:48px !important; }
-  /* Bottom padding on last element */
-  .page > *:last-child{ margin-bottom:48px !important; }
+  /* Gap between children */
+  .page > * + *{ margin-top:0 !important; }
 
   /* Cards */
   .card{padding:22px;border-radius:18px;}
