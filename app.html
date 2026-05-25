@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-  if (!sessionStorage.getItem('nan_visited_landing')) {
-    window.location.replace('/landing.html');
+  // Allow direct access to /app - only redirect if explicitly no landing visit
+  // Use localStorage so it persists across page loads on mobile
+  var _visited = localStorage.getItem('nan_visited_landing') || sessionStorage.getItem('nan_visited_landing');
+  if (!_visited && !window.location.search.includes('direct')) {
+    // Set a flag so we don't loop
+    localStorage.setItem('nan_visited_landing', '1');
+    window.location.replace('/');
   }
 </script>
 
@@ -1195,3 +1200,4 @@
 
 </body>
 </html>
+
