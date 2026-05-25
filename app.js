@@ -2549,7 +2549,7 @@ function executeAgentAction(action){
 // ═══════════════════════════════════════════
 // WALLET PICKER
 // ═══════════════════════════════════════════
-function showWalletPicker(){
+function showWalletPicker(){document.body.classList.add('modal-open');
   document.getElementById('walletModalOverlay').classList.add('show');
 }
 function hideWalletPicker(e){
