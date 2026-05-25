@@ -22,199 +22,26 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
-<style>
-  #app-root .page { display: none !important; }
-  #app-root .page.active { display: flex !important; }
-  .wallet-modal-overlay { z-index: 99999 !important; }
-  #agentPanel { z-index: 99998 !important; }
-  #aiBtn { z-index: 99997 !important; }
-  #toast { z-index: 99999 !important; }
-  body.modal-open { overflow: hidden !important; }
-</style>
+<!-- ══ Google Analytics 4 ══ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+  // Custom NAN events
+  function trackEvent(action, params){
+    if(typeof gtag !== 'undefined') gtag('event', action, params || {});
+  }
+</script>
 </head>
 <body>
-
-<!-- ══ DESKTOP SIDEBAR (hidden on mobile via CSS) ══ -->
-<aside id="nan-sidebar" style="display:none;">
-
-  <div style="display:flex;align-items:center;gap:10px;padding:20px 18px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:36px;height:36px;border-radius:10px;background:var(--violet);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.45);flex-shrink:0;">
-      <svg width="18" height="18" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
-        <circle cx="50" cy="52" r="5" fill="#ede9fe"/>
-        <line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-      </svg>
-    </div>
-    <div>
-      <div style="font-size:1rem;font-weight:700;letter-spacing:.1em;color:var(--text);">NAN</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--violet3);letter-spacing:.1em;" id="sidebarNet">Arc Testnet</div>
-    </div>
-  </div>
-
-  <nav style="padding:10px;flex:1;overflow-y:auto;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;padding:12px 10px 6px;">Main</div>
-    <a onclick="goPage('home')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-home" class="snav-item">
-      <span>⌂</span> Home
-    </a>
-    <a onclick="goPage('send')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-send" class="snav-item">
-      <span>↑</span> Send
-    </a>
-    <a onclick="goPage('earn')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-earn" class="snav-item">
-      <span>$</span> Earn
-    </a>
-    <a onclick="goPage('history')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-history" class="snav-item">
-      <span>◷</span> History
-    </a>
-    <div style="height:1px;background:var(--border);margin:8px 10px;"></div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;padding:6px 10px 6px;">DeFi</div>
-    <a onclick="goPage('swap')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-swap" class="snav-item">
-      <span>⇄</span> Swap
-    </a>
-    <a onclick="goPage('bridge')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-bridge" class="snav-item">
-      <span>⇌</span> Bridge
-    </a>
-    <a onclick="goPage('more')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;text-decoration:none;transition:all .18s;" id="snav-more" class="snav-item">
-      <span>◎</span> More
-    </a>
-  </nav>
-
-  <div style="padding:12px;border-top:1px solid var(--border);">
-    <div id="sidebarWallet" style="background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .18s;">
-      <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--violet2),var(--violet));display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0;">0x</div>
-      <div>
-        <div id="sidebarAddr" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">Not connected</div>
-        <div id="sidebarStatus" style="font-size:.6rem;color:var(--text3);display:flex;align-items:center;gap:4px;">○ Disconnected</div>
-      </div>
-    </div>
-  </div>
-</aside>
-
-<!-- ══ DESKTOP TOPBAR (hidden on mobile) ══ -->
-<div id="nan-topbar" style="display:none;">
-  <div id="topbarTitle" style="font-size:.9rem;font-weight:700;color:var(--text);letter-spacing:.02em;">Dashboard</div>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet3);border:1px solid var(--border2);padding:5px 12px;border-radius:100px;background:var(--faint);display:flex;align-items:center;gap:6px;">
-      <span style="width:5px;height:5px;border-radius:50%;background:var(--violet3);box-shadow:0 0 5px var(--violet3);animation:dot-pulse 2s ease infinite;display:inline-block;"></span>
-      Arc Testnet Live
-    </div>
-    <div id="topbarBalance" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:8px;">$0.00</div>
-  </div>
-</div>
-
-<!-- ══ DESKTOP DASHBOARD (shown on home page only) ══ -->
-<div id="nan-dashboard" style="display:none;padding:24px;">
-
-  <!-- Stat row -->
-  <div class="desktop-stat-row">
-    <div class="dsk-stat">
-      <div class="dsk-stat-label">Total Balance</div>
-      <div class="dsk-stat-value" id="dskTotalBal">$0.00</div>
-      <div class="dsk-stat-sub" id="dskBalSub">Connect wallet to start</div>
-      <div class="dsk-stat-badge badge-up">✦ Arc Testnet</div>
-    </div>
-    <div class="dsk-stat">
-      <div class="dsk-stat-label">Lending APY</div>
-      <div class="dsk-stat-value" style="color:var(--success);">4.80%</div>
-      <div class="dsk-stat-sub">USDC · NANLendingPool</div>
-      <div class="dsk-stat-badge badge-up">▲ Band Oracle</div>
-    </div>
-    <div class="dsk-stat">
-      <div class="dsk-stat-label">Gas Cost</div>
-      <div class="dsk-stat-value">~0.009</div>
-      <div class="dsk-stat-sub">USDC per transaction</div>
-      <div class="dsk-stat-badge badge-vio">✦ Paid in USDC</div>
-    </div>
-  </div>
-
-  <!-- Balance + Earn -->
-  <div class="desktop-two-col">
-    <div>
-      <!-- Balance card -->
-      <div class="dsk-balance">
-        <div class="dsk-bal-label">TOTAL BALANCE</div>
-        <div class="dsk-bal-amount" id="dskBalAmount">$0.00</div>
-        <div class="dsk-bal-sub" id="dskBalSubCard">Connect your wallet to get started</div>
-        <div class="dsk-bal-tokens">
-          <div class="dsk-bal-token"><div class="dsk-bal-token-name">USDC</div><div class="dsk-bal-token-amt" id="dskUsdc">0.00</div></div>
-          <div class="dsk-bal-token"><div class="dsk-bal-token-name">EURC</div><div class="dsk-bal-token-amt" id="dskEurc">0.00</div></div>
-        </div>
-      </div>
-      <!-- Quick actions -->
-      <div class="dsk-actions">
-        <div class="dsk-action" onclick="goPage('send')"><div class="dsk-action-icon">↑</div><div class="dsk-action-label">Send</div></div>
-        <div class="dsk-action" onclick="showReceive()"><div class="dsk-action-icon">↓</div><div class="dsk-action-label">Receive</div></div>
-        <div class="dsk-action" onclick="goPage('swap')"><div class="dsk-action-icon">⇄</div><div class="dsk-action-label">Swap</div></div>
-        <div class="dsk-action" onclick="goPage('bridge')"><div class="dsk-action-icon">⇌</div><div class="dsk-action-label">Bridge</div></div>
-      </div>
-    </div>
-
-    <!-- Earn panel -->
-    <div class="dsk-card">
-      <div class="dsk-card-title">Earn <span class="dsk-badge">LIVE RATES</span></div>
-      <div class="dsk-earn-item" onclick="goPage('earn')">
-        <div class="dsk-earn-left">
-          <div class="dsk-earn-dot" style="background:#2775ca;box-shadow:0 0 6px rgba(39,117,202,.5);"></div>
-          <div><div class="dsk-earn-name">Lend USDC</div><div class="dsk-earn-sub">NANLendingPool · On-chain</div></div>
-        </div>
-        <div class="dsk-earn-apy">4.80%</div>
-      </div>
-      <div class="dsk-earn-item" onclick="goPage('earn')">
-        <div class="dsk-earn-left">
-          <div class="dsk-earn-dot" style="background:#1a9fff;box-shadow:0 0 6px rgba(26,159,255,.5);"></div>
-          <div><div class="dsk-earn-name">Lend EURC</div><div class="dsk-earn-sub">NANLendingPool · On-chain</div></div>
-        </div>
-        <div class="dsk-earn-apy">3.90%</div>
-      </div>
-      <div class="dsk-earn-item" onclick="goPage('names')">
-        <div class="dsk-earn-left">
-          <div class="dsk-earn-dot" style="background:var(--violet);box-shadow:0 0 6px rgba(139,92,246,.5);"></div>
-          <div><div class="dsk-earn-name">Register .arc Name</div><div class="dsk-earn-sub">From 2 USDC · On-chain</div></div>
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet3);">2 USDC</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tx History + Market -->
-  <div class="desktop-bottom-row">
-    <div class="dsk-card">
-      <div class="dsk-card-title">Recent Transactions <span class="dsk-badge" onclick="goPage('history')" style="cursor:pointer;color:var(--violet3);">VIEW ALL →</span></div>
-      <div class="dsk-tx-list" id="dskTxList">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);text-align:center;padding:24px 0;">Connect wallet to see transactions</div>
-      </div>
-    </div>
-
-    <div class="dsk-card">
-      <div class="dsk-card-title">Market <span class="dsk-badge">LIVE</span></div>
-      <div class="dsk-market-row">
-        <div class="dsk-market-left"><div class="dsk-market-dot" style="background:#2775ca;"></div><div><div class="dsk-market-name">USDC</div><div class="dsk-market-pair">USD Coin · Circle</div></div></div>
-        <div><div class="dsk-market-price">$1.0001</div><div class="dsk-market-chg dsk-chg-up">▲ +0.01%</div></div>
-      </div>
-      <div class="dsk-market-row">
-        <div class="dsk-market-left"><div class="dsk-market-dot" style="background:#1a9fff;"></div><div><div class="dsk-market-name">EURC</div><div class="dsk-market-pair">Euro Coin · Circle</div></div></div>
-        <div><div class="dsk-market-price" id="dskEurRate">$1.08</div><div class="dsk-market-chg dsk-chg-up">▲ +0.12%</div></div>
-      </div>
-      <div class="dsk-market-row">
-        <div class="dsk-market-left"><div class="dsk-market-dot" style="background:var(--violet);"></div><div><div class="dsk-market-name">USDC/EURC</div><div class="dsk-market-pair">StableFX Rate</div></div></div>
-        <div><div class="dsk-market-price" id="dskFxRate">—</div><div class="dsk-market-chg dsk-chg-dn">Live rate</div></div>
-      </div>
-      <div class="dsk-market-row">
-        <div class="dsk-market-left"><div class="dsk-market-dot" style="background:var(--gold);"></div><div><div class="dsk-market-name">ETH</div><div class="dsk-market-pair">Ethereum</div></div></div>
-        <div><div class="dsk-market-price" id="dskEthPrice">—</div><div class="dsk-market-chg" id="dskEthChg">Loading…</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="app-root">
 
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo">
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()">
         <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
           <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
@@ -238,95 +65,195 @@
 
   <!-- ══ BOTTOM NAV — 4 tabs ══ -->
   <nav class="bottom-nav" id="bottomNav">
-    <div class="nav-items">
+    <div class="nav-pill-wrap">
       <button class="nav-btn active" id="nav-home" onclick="goPage('home')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
         Home
       </button>
-      <button class="nav-btn" id="nav-send" onclick="goPage('send')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+      <button class="nav-btn nav-send-hl" id="nav-send" onclick="goPage('send')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
         Send
       </button>
       <button class="nav-btn" id="nav-earn" onclick="goPage('earn')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
         Earn
       </button>
+      <button class="nav-btn" id="nav-history" onclick="goPage('history')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        History
+      </button>
       <button class="nav-btn" id="nav-more" onclick="goPage('more')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></span>
         More
       </button>
     </div>
   </nav>
 
-  <!-- ══ LANDING PAGE ══ -->
-  <div class="page page-land active" id="page-land" style="background:var(--bg);">
-    <div style="padding:22px 16px 18px;">
+  <!-- ══ DESKTOP SIDEBAR NAV ══ -->
+  <nav id="desktopNav" style="display:none;">
+    <div class="dnav-logo-row">
+      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="cursor:pointer;"><svg width="18" height="18" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <span class="dnav-brand">NAN</span>
+    </div>
+    <button class="dnav-btn active" id="dnav-home" onclick="goPage('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="dnav-btn dnav-send" id="dnav-send" onclick="goPage('send')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      Send
+    </button>
+    <button class="dnav-btn" id="dnav-earn" onclick="goPage('earn')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Earn
+    </button>
+    <button class="dnav-btn" id="dnav-history" onclick="goPage('history')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+    <div class="dnav-divider"></div>
+    <button class="dnav-btn" id="dnav-swap" onclick="goPage('swap')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Swap
+    </button>
+    <button class="dnav-btn" id="dnav-bridge" onclick="goPage('bridge')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>
+      Bridge
+    </button>
+    <button class="dnav-btn" id="dnav-more" onclick="goPage('more')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      More
+    </button>
+  </nav>
 
-      <!-- Hero -->
-      <div style="text-align:center;margin-bottom:24px;">
-        <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:3px 10px;font-size:.72rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
-          <span style="width:5px;height:5px;border-radius:50%;background:var(--accent3);display:inline-block;animation:pulse 2s infinite;"></span>
+  <!-- ══ LANDING PAGE ══ -->
+  <div class="page page-land active" id="page-land" style="background:var(--bg);display:none;flex-direction:column;overflow-y:auto;">
+    <div style="min-height:100%;display:flex;flex-direction:column;padding:16px 20px 16px;box-sizing:border-box;">
+
+      <!-- Logo -->
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:10px;">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(139,92,246,.5),inset 0 1px 0 rgba(255,255,255,.12);">
+          <svg width="20" height="20" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#ede9fe"/><circle cx="50" cy="20" r="6" fill="#ede9fe"/><circle cx="50" cy="52" r="6" fill="#ede9fe"/><line x1="28" y1="36" x2="44" y2="22" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/></svg>
+        </div>
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:.06em;color:var(--text);">NAN</div>
+      </div>
+
+      <!-- Live badge -->
+      <div style="text-align:center;margin-bottom:10px;">
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:100px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#34d399;">
+          <span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;display:inline-block;animation:pulse 2s infinite;"></span>
           Arc Testnet · Live
         </div>
-        <div style="font-size:1.65rem;font-weight:700;color:var(--text);letter-spacing:-.6px;line-height:1.15;margin-bottom:8px;">Your wallet.<br/><span style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Reimagined.</span></div>
-        <div style="font-size:.85rem;color:var(--text3);line-height:1.7;">Send USDC globally.<br/>Gas paid in dollars.</div>
+      </div>
+
+      <!-- Headline -->
+      <div style="text-align:center;margin-bottom:10px;">
+        <div style="font-size:1.75rem;font-weight:800;letter-spacing:-.05em;line-height:1.08;margin-bottom:6px;">Weave.<br/><span style="color:transparent;background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;">Connect. Build.</span></div>
+        <div style="font-size:.78rem;color:var(--text3);line-height:1.6;">Send USDC globally · Gas paid in dollars</div>
+      </div>
+
+      <!-- Feature pills -->
+      <div style="display:flex;gap:5px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:100px;padding:4px 10px;font-size:.58rem;font-weight:600;color:var(--text2);">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Instant
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:100px;padding:4px 10px;font-size:.58rem;font-weight:600;color:var(--text2);">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Non-custodial
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:100px;padding:4px 10px;font-size:.58rem;font-weight:600;color:var(--text2);">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>Cross-chain
+        </div>
       </div>
 
       <!-- Email card -->
-      <div id="emailLoginBox" style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.22);border-radius:18px;padding:18px;margin-bottom:16px;">
-        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#ede9fe;margin-bottom:12px;box-shadow:0 4px 12px rgba(139,92,246,.35);">✦</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:3px;">Free wallet — instant</div>
-        <div style="font-size:.78rem;color:var(--text3);margin-bottom:14px;">Just your email. No extension needed.</div>
-        <div id="otpStepIndicator" style="display:flex;align-items:center;gap:5px;margin-bottom:12px;">
-          <div id="stepDot1" style="width:22px;height:4px;border-radius:2px;background:#8b5cf6;transition:all .3s;"></div>
-          <div id="stepDot2" style="width:8px;height:4px;border-radius:2px;background:rgba(139,92,246,.2);transition:all .3s;"></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
+      <div id="emailLoginBox" style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.18);border-radius:18px;padding:13px;margin-bottom:10px;position:relative;overflow:hidden;flex-shrink:0;">
+        <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);pointer-events:none;"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ede9fe" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div style="font-size:.88rem;font-weight:700;color:var(--text);">Get started free</div>
+            <div style="font-size:.68rem;color:var(--text3);">Just your email · Ready in seconds</div>
+          </div>
         </div>
-        <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;padding:10px 13px;font-size:.88rem;border-radius:10px;margin-bottom:9px;"/>
-        <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:11px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;padding:12px;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.35);">Send Code →</button>
-        <div id="otpBox" style="display:none;animation:up .25s ease both;margin-top:12px;">
-          <div style="display:flex;align-items:center;gap:8px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:11px;padding:10px 12px;margin-bottom:10px;">
-            <div style="width:26px;height:26px;border-radius:7px;background:rgba(52,211,153,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">✉</div>
-            <div><div style="font-size:.88rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:.75rem;color:var(--text3);">Enter the 6-digit code below</div></div>
+        <div id="otpStepIndicator" style="display:flex;align-items:center;gap:5px;margin-bottom:10px;">
+          <div id="stepDot1" style="width:20px;height:3px;border-radius:2px;background:#8b5cf6;transition:all .3s;"></div>
+          <div id="stepDot2" style="width:8px;height:3px;border-radius:2px;background:rgba(139,92,246,.2);transition:all .3s;"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
+        </div>
+        <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;padding:10px 13px;font-size:.88rem;border-radius:11px;margin-bottom:9px;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.22);color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;"/>
+        <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;padding:12px;cursor:pointer;box-shadow:0 4px 18px rgba(139,92,246,.38);display:flex;align-items:center;justify-content:center;gap:8px;">
+          Continue with Email
+          <span style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </button>
+        <div id="otpBox" style="display:none;animation:up .25s ease both;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:10px;padding:9px 12px;margin-bottom:9px;">
+            <div style="width:24px;height:24px;border-radius:7px;background:rgba(52,211,153,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div><div style="font-size:.85rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:.72rem;color:var(--text3);">Enter the 6-digit code</div></div>
           </div>
           <div style="display:flex;gap:7px;">
             <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'JetBrains Mono',monospace;"/>
-            <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.88rem;padding:11px 16px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 14px rgba(139,92,246,.35);">Verify →</button>
+            <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;padding:11px 14px;cursor:pointer;">Verify →</button>
           </div>
         </div>
       </div>
 
       <!-- Divider -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">
-        <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);">or connect wallet</div>
-        <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+        <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">or connect wallet</div>
+        <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
       </div>
 
-      <!-- Wallet grid -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;">
-        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🦊</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">MetaMask</div><div style="font-size:.7rem;color:var(--text3);">Browser ext</div></div>
+      <!-- Wallet list with real logos -->
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+
+        <!-- MetaMask -->
+        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+          <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#f97316;">M</div>
+          <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">MetaMask</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Browser extension</div></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.3;"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🔗</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">WalletConnect</div><div style="font-size:.7rem;color:var(--text3);">Mobile QR</div></div>
+
+        <!-- WalletConnect -->
+        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+          <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(59,153,252,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#3b99fc;">W</div>
+          <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">WalletConnect</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Scan QR with mobile</div></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.3;"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">🔵</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">Coinbase</div><div style="font-size:.7rem;color:var(--text3);">Wallet</div></div>
+
+        <!-- Coinbase -->
+        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+          <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(22,82,240,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#1652f0;">C</div>
+          <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">Coinbase Wallet</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Self-custody wallet</div></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.3;"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;">
-          <span style="font-size:1.2rem;">⭕</span><div style="text-align:left;"><div style="font-size:.82rem;font-weight:700;">Circle</div><div style="font-size:.7rem;color:var(--text3);">Programmable</div></div>
+
+        <!-- Circle -->
+        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+          <img src="https://images.ctfassets.net/9sy2a0egs6zh/2XNmxaHEJqxvvBUJqFDobm/8e15b07e2d1ce8d03c3b9fa59ca70cf8/circle-logo.png" width="28" height="28" style="border-radius:8px;flex-shrink:0;background:#fff;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,.3);align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">Circle Wallet</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Programmable account</div></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.3;"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+
       </div>
 
-      <!-- Footer -->
-      <div style="text-align:center;padding-bottom:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);margin-bottom:8px;">🔒 Your keys · Your funds · Always</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>Circle USDC</span>
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>Arc Network</span>
-          <span style="font-size:.68rem;color:rgba(196,181,253,.3);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;"><span style="width:4px;height:4px;border-radius:50%;background:rgba(139,92,246,.4);display:inline-block;"></span>CCTP V2</span>
-        </div>
+      <!-- Trust bar -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:auto;padding-top:8px;">
+        <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(139,92,246,.35);display:inline-block;"></span>Circle USDC</div>
+        <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(139,92,246,.35);display:inline-block;"></span>Arc Network</div>
+        <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(139,92,246,.35);display:inline-block;"></span>CCTP V2</div>
       </div>
 
     </div>
@@ -341,7 +268,13 @@
     <div class="home-bal-card">
       <div class="home-bal-lbl">Total Balance</div>
       <div class="home-bal-num" id="skel-bal">$<span id="homeBalAmt">—</span></div>
-      <div class="home-bal-ngn" id="homeBalNgn">≈ ₦0 NGN</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;margin-bottom:10px;">
+        <div class="home-bal-ngn" id="homeBalNgn" style="margin-bottom:0;">≈ ₦0 NGN</div>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:.56rem;color:#34d399;font-weight:600;">
+          <span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>
+          Arc Testnet
+        </div>
+      </div>
       <div class="home-tok-row">
         <div class="tok"><span class="tok-dot usdc-dot"></span><span id="homeUsdcBal">0.00 USDC</span></div>
         <div class="tok"><span class="tok-dot eurc-dot"></span><span id="homeEurcBal">0.00 EURC</span></div>
@@ -351,15 +284,21 @@
     <!-- 3 quick actions -->
     <div class="home-actions-top">
       <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)">
-        <div class="home-action-icon">↑</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </div>
         <div class="home-action-label">Send</div>
       </div>
       <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)">
-        <div class="home-action-icon">↓</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
         <div class="home-action-label">Receive</div>
       </div>
       <div class="home-action" onclick="goPage('swap')">
-        <div class="home-action-icon">⇄</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
         <div class="home-action-label">Swap</div>
       </div>
     </div>
@@ -378,32 +317,32 @@
     <div class="home-section-title">Your Assets</div>
     <div class="home-asset-row">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.2);">💵</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">U</div>
         <div><div class="home-asset-name">USDC</div><div class="home-asset-sub">USD Coin · Arc</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetUsdc">0.00</div>
-        <div class="home-asset-change" id="homeAssetUsdcSub" style="color:var(--text3);">Arc Testnet</div>
+        <div class="home-asset-change neutral" id="homeAssetUsdcSub">Arc Testnet</div>
       </div>
     </div>
     <div class="home-asset-row">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.2);">💶</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);">E</div>
         <div><div class="home-asset-name">EURC</div><div class="home-asset-sub">Euro Coin · Arc</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetEurc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetEurcSub" style="color:var(--text3);">Arc Testnet</div>
+        <div class="home-asset-change neutral" id="homeAssetEurcSub">Arc Testnet</div>
       </div>
     </div>
     <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);font-weight:700;color:var(--accent3);">₦</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,rgba(251,191,36,.3),rgba(251,191,36,.15));color:var(--gold);font-size:.9rem;">₦</div>
         <div><div class="home-asset-name">Naira</div><div class="home-asset-sub">NGN · Coming Soon</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetNgn">₦0.00</div>
-        <div class="home-asset-change neutral" style="color:var(--gold);font-size:.72rem;">Coming Soon</div>
+        <div class="home-asset-change neutral" style="color:var(--gold);">Coming Soon</div>
       </div>
     </div>
 
@@ -415,7 +354,7 @@
   </div>
 
   <!-- ══ SEND PAGE ══ -->
-  <div class="page" id="page-send" style="flex-direction:column;">
+  <div class="page" id="page-send">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <div>
         <div class="page-title" style="margin-bottom:2px;">Send</div>
@@ -485,9 +424,44 @@
         <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
         <button class="btn" id="sendBtn" disabled onclick="showConfirm()" style="margin-top:auto;">Send</button>
       </div>
-      <div id="tab-recv" style="display:none;flex-direction:column;justify-content:center;">
-        <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
-        <button class="btn btn-outline" style="margin-top:12px;" onclick="copyAddr()">Copy My Address</button>
+      <div id="tab-recv" style="display:none;flex-direction:column;align-items:center;">
+
+        <!-- Network badge -->
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);display:inline-block;"></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);">Arc Testnet</span>
+        </div>
+
+        <!-- QR centered with glow -->
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none;"></div>
+          <div style="background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(139,92,246,.2);" id="qrBox"></div>
+        </div>
+
+        <!-- Address box -->
+        <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Your Wallet Address</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);word-break:break-all;line-height:1.6;" id="recvAddr">Connect wallet to see your address</div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;">
+          <button class="btn" onclick="copyAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="btn btn-outline" onclick="shareAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+        </div>
+
+        <!-- Info note -->
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:12px;width:100%;">
+          <span style="font-size:.85rem;flex-shrink:0;">💡</span>
+          <span style="font-size:.72rem;color:var(--text3);line-height:1.5;">Only send <strong style="color:var(--text2);">USDC or EURC</strong> on <strong style="color:var(--text2);">Arc Testnet</strong> to this address. Sending other tokens may result in permanent loss.</span>
+        </div>
+
       </div>
     </div>
 
@@ -524,31 +498,62 @@
 
   <!-- ══ EARN PAGE ══ -->
   <div class="page" id="page-lend">
-    <div style="margin-bottom:14px;">
-      <div class="page-title" style="margin-bottom:1px;">Earn</div>
-      <div class="page-sub" style="margin-bottom:0;">Supply USDC to earn interest · Borrow against your balance</div>
+
+    <!-- Header -->
+    <div style="margin-bottom:20px;">
+      <div class="page-title" style="margin-bottom:3px;">Earn</div>
+      <div style="font-size:.82rem;color:var(--text3);">Supply USDC · Earn interest · Borrow against your balance</div>
     </div>
-    <!-- APY Hero -->
-    <div class="earn-apy-hero">
-      <div class="earn-apy-label">Supply APY</div>
-      <div class="earn-apy-num">4.80%</div>
-      <div class="earn-apy-sub">Withdraw anytime · No lockup · Powered by Arc</div>
+
+    <!-- APY + Stats row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <!-- APY hero card -->
+      <div style="background:linear-gradient(145deg,#0d2a1f,#0a1f18);border:1px solid rgba(52,211,153,.25);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:rgba(52,211,153,.6);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;">Supply APY</div>
+        <div style="font-size:2.4rem;font-weight:800;color:var(--success);letter-spacing:-1px;line-height:1;">4.80%</div>
+        <div style="font-size:.68rem;color:rgba(52,211,153,.5);margin-top:8px;font-family:'JetBrains Mono',monospace;">No lockup · Powered by Arc</div>
+      </div>
+      <!-- Stats stacked -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--text3);">Borrow APR</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--warning);">7.20%</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--text3);">Total Supplied</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--text);" id="totalSupplied">—</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--text3);">Utilization</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--accent3);" id="utilizationRate">—</span>
+        </div>
+      </div>
     </div>
-    
-    <!-- Stats -->
-    <div class="lend-stat-grid">
-      <div class="lend-stat"><div class="ls-label">Supply APY</div><div class="ls-value" style="color:var(--success);">4.80%</div></div>
-      <div class="lend-stat"><div class="ls-label">Borrow APR</div><div class="ls-value" style="color:var(--warning);">7.20%</div></div>
-      <div class="lend-stat"><div class="ls-label">Total Supplied</div><div class="ls-value" id="totalSupplied">—</div></div>
-      <div class="lend-stat"><div class="ls-label">Utilization</div><div class="ls-value" id="utilizationRate">—</div></div>
-    </div>
-    <!-- Positions -->
-    <div class="position-card">
-      <div class="card-title" style="margin-bottom:8px;"><div class="cticon">📊</div>Your Positions</div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Supplied USDC</span><span style="color:var(--success);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="suppliedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Borrowed USDC</span><span style="color:var(--danger);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="borrowedAmt">0.00 USDC</span></div>
-      <div class="position-row"><span style="color:var(--text3);font-size:.82rem;">Accrued Interest</span><span style="color:var(--gold);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem;" id="accruedInterest">0.000000 USDC</span></div>
-      <div class="position-row" style="border-bottom:none;"><span style="color:var(--text3);font-size:.82rem;">Health Factor</span><span style="color:var(--success);font-weight:700;font-size:.82rem;" id="healthFactor">—</span></div>
+
+    <!-- Your Positions -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+      <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
+        <div style="width:18px;height:18px;border-radius:5px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;">📊</div>
+        Your Positions
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.12);border-radius:12px;padding:12px;">
+          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Supplied</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--success);" id="suppliedAmt">0.00 USDC</div>
+        </div>
+        <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.12);border-radius:12px;padding:12px;">
+          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Borrowed</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--danger);" id="borrowedAmt">0.00 USDC</div>
+        </div>
+        <div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.12);border-radius:12px;padding:12px;">
+          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Accrued Interest</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--gold);" id="accruedInterest">0.000000</div>
+        </div>
+        <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.12);border-radius:12px;padding:12px;">
+          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Health Factor</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--success);" id="healthFactor">—</div>
+        </div>
+      </div>
     </div>
     <!-- Tabs -->
     <div class="card">
@@ -648,69 +653,114 @@
 
   <!-- ══ MORE PAGE ══ -->
   <div class="page" id="page-more">
-    <div class="page-title">More</div>
-    <div class="page-sub">All features in one place</div>
-    <div class="more-item" onclick="goPage('swap')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.2);">⇄</div>
-        <div><div class="more-item-title">Swap</div><div class="more-item-sub">USDC ↔ EURC at live FX rates</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
+
+    <div style="margin-bottom:22px;">
+      <div class="page-title" style="margin-bottom:3px;">More</div>
+      <div style="font-size:.82rem;color:var(--text3);">Tools &amp; features</div>
     </div>
-    <div class="more-item" onclick="goPage('bridge')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.2);">⬡</div>
-        <div><div class="more-item-title">Bridge</div><div class="more-item-sub">Send USDC cross-chain via CCTP</div></div>
+
+    <!-- Quick Access 2×2 grid -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding:0 2px;">Quick Access</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+
+      <div onclick="goPage('payreq')" style="background:rgba(255,255,255,.04);border:1px solid rgba(251,191,36,.2);border-radius:18px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.background='rgba(251,191,36,.06)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(255,255,255,.04)';this.style.transform='translateY(0)'">
+        <span style="position:absolute;top:14px;right:14px;color:var(--text3);font-size:.9rem;">›</span>
+        <div style="width:38px;height:38px;border-radius:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:3px;">Pay Requests</div>
+        <div style="font-size:.7rem;color:var(--text3);line-height:1.4;">Create &amp; share invoices instantly</div>
       </div>
-      <div class="more-item-arrow">›</div>
+
+      <div onclick="goPage('bridge')" style="background:rgba(255,255,255,.04);border:1px solid rgba(167,139,250,.2);border-radius:18px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.background='rgba(167,139,250,.06)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(255,255,255,.04)';this.style.transform='translateY(0)'">
+        <span style="position:absolute;top:14px;right:14px;color:var(--text3);font-size:.9rem;">›</span>
+        <div style="width:38px;height:38px;border-radius:12px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>
+        </div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:3px;">Bridge</div>
+        <div style="font-size:.7rem;color:var(--text3);line-height:1.4;">Cross-chain USDC via CCTP</div>
+      </div>
+
+      <div onclick="goPage('naira')" style="background:rgba(255,255,255,.04);border:1px solid rgba(52,211,153,.2);border-radius:18px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.background='rgba(52,211,153,.06)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(255,255,255,.04)';this.style.transform='translateY(0)'">
+        <span style="position:absolute;top:14px;right:14px;color:var(--text3);font-size:.9rem;">›</span>
+        <div style="width:38px;height:38px;border-radius:12px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;">Naira <span style="font-size:.58rem;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 7px;font-weight:700;">Soon</span></div>
+        <div style="font-size:.7rem;color:var(--text3);line-height:1.4;">Deposit · Withdraw · Convert</div>
+      </div>
+
+      <div onclick="goPage('bulk')" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.25);border-radius:18px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.background='rgba(139,92,246,.1)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(139,92,246,.06)';this.style.transform='translateY(0)'">
+        <span style="position:absolute;top:14px;right:14px;color:var(--accent3);font-size:.9rem;">›</span>
+        <div style="width:38px;height:38px;border-radius:12px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        </div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:3px;">Payroll</div>
+        <div style="font-size:.7rem;color:var(--text3);line-height:1.4;">Pay your team in USDC · Bulk</div>
+      </div>
+
     </div>
-    <div class="more-item" onclick="goPage('naira')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">₦</div>
-        <div><div class="more-item-title">Naira &nbsp;<span style="font-size:.72rem;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 8px;font-weight:700;">Coming Soon</span></div><div class="more-item-sub">Deposit · Withdraw · Convert NGN</div></div>
+
+    <!-- More Tools list -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding:0 2px;">More Tools</div>
+    <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px;">
+
+      <div onclick="goPage('swap')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(139,92,246,.08);transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
+        <div style="width:36px;height:36px;border-radius:11px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text);">Swap</div>
+          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">USDC ↔ EURC at live FX rates</div>
+        </div>
+        <span style="color:var(--text3);font-size:1rem;">›</span>
       </div>
-      <div class="more-item-arrow">›</div>
+
+      <div onclick="goPage('arcname')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(139,92,246,.08);transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
+        <div style="width:36px;height:36px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text);">.arc Name</div>
+          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">Register your identity on Arc</div>
+        </div>
+        <span style="color:var(--text3);font-size:1rem;">›</span>
+      </div>
+
+      <div id="nanAiMoreBtn" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(139,92,246,.08);transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
+        <div style="width:36px;height:36px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text);">NAN AI</div>
+          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">Ask anything about your wallet</div>
+        </div>
+        <span style="color:var(--text3);font-size:1rem;">›</span>
+      </div>
+
+      <div onclick="goPage('history')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
+        <div style="width:36px;height:36px;border-radius:11px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text);">Activity</div>
+          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">Your on-chain transaction history</div>
+        </div>
+        <span style="color:var(--text3);font-size:1rem;">›</span>
+      </div>
+
     </div>
-    <div class="more-item" onclick="goPage('arcname')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);">◎</div>
-        <div><div class="more-item-title">.arc Name</div><div class="more-item-sub">Register your identity on Arc</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('bulk')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">📤</div>
-        <div><div class="more-item-title">Payroll</div><div class="more-item-sub">Pay your team in USDC · Scheduled · Receipts</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('history')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2);">🕐</div>
-        <div><div class="more-item-title">Activity</div><div class="more-item-sub">Your on-chain transaction history</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="toggleAgent()">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);">✦</div>
-        <div><div class="more-item-title">NAN AI</div><div class="more-item-sub">Ask anything about your wallet</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
-    </div>
-    <div class="more-item" onclick="goPage('payreq')">
-      <div class="more-item-left">
-        <div class="more-item-icon" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);">🧾</div>
-        <div><div class="more-item-title">Payment Requests</div><div class="more-item-sub">Create & share invoices instantly</div></div>
-      </div>
-      <div class="more-item-arrow">›</div>
+
+    <!-- Version footer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;">
+      <span style="font-size:.72rem;color:var(--text3);">NAN Wallet · Arc Testnet</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);">v1.0.0 ✦</span>
     </div>
 
   </div>
 
   <!-- ══ SWAP PAGE ══ -->
-  <div class="page" id="page-swap" style="flex-direction:column;">
+  <div class="page" id="page-swap">
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div>
@@ -802,20 +852,11 @@
       </div>
       <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
       <div class="field"><div class="flbl">To Chain</div>
-        <div id="chainDropWrap" style="position:relative;">
-          <div id="chainDropBtn" onclick="toggleChainDrop()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;">
-            <span id="chainDropLabel">Ethereum Sepolia</span><span>▾</span>
-          </div>
-          <div id="chainDropList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);">
-            <div onclick="pickChain('ETH-SEPOLIA','Ethereum Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Ethereum Sepolia</div>
-            <div onclick="pickChain('AVAX-FUJI','Avalanche Fuji')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Avalanche Fuji</div>
-            <div onclick="pickChain('BASE-SEPOLIA','Base Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Base Sepolia</div>
-            <div onclick="pickChain('ARB-SEPOLIA','Arbitrum Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Arbitrum Sepolia</div>
-            <div onclick="pickChain('OP-SEPOLIA','OP Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">OP Sepolia</div>
-            <div onclick="pickChain('POLYGON-AMOY','Polygon Amoy')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);">Polygon Amoy</div>
-          </div>
-        </div>
         <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
+        <button type="button" id="chainPickerBtn" onclick="openChainPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
+          <span id="chainPickerLabel">Ethereum Sepolia</span>
+          <span style="color:var(--accent3);font-size:.8rem;">▾</span>
+        </button>
       </div>
       <div class="field"><div class="flbl">Recipient Address</div>
         <input id="bridgeDestAddr" type="text" placeholder="0x... wallet address on destination"/>
@@ -963,24 +1004,11 @@
         <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
       </div>
       <div class="field"><div class="flbl">Bank</div>
-        <div id="bankDropWrap" style="position:relative;">
-          <div id="bankDropBtn" onclick="toggleBankDrop()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;">
-            <span id="bankDropLabel" style="color:var(--text3);">Select bank</span><span style="color:var(--text3);">▾</span>
-          </div>
-          <div id="bankDropList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;overflow-y:auto;max-height:220px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
-            <div onclick="pickBank('Access Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Access Bank</div>
-            <div onclick="pickBank('GTBank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">GTBank</div>
-            <div onclick="pickBank('First Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">First Bank</div>
-            <div onclick="pickBank('Zenith Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Zenith Bank</div>
-            <div onclick="pickBank('UBA')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">UBA</div>
-            <div onclick="pickBank('Kuda Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Kuda Bank</div>
-            <div onclick="pickBank('OPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">OPay</div>
-            <div onclick="pickBank('PalmPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">PalmPay</div>
-            <div onclick="pickBank('Stanbic IBTC')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Stanbic IBTC</div>
-            <div onclick="pickBank('Fidelity Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);">Fidelity Bank</div>
-          </div>
-        </div>
         <input type="hidden" id="ngnBankName" value=""/>
+        <button type="button" id="bankPickerBtn" onclick="openBankPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
+          <span id="bankPickerLabel" style="color:var(--text3);">Select bank</span>
+          <span style="color:var(--accent3);font-size:.8rem;">▾</span>
+        </button>
       </div>
       <div class="field"><div class="flbl">Account Number</div><input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/></div>
       <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok"><span id="ngnAcctNameTxt"></span></div>
@@ -1188,7 +1216,12 @@
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
     </div>
-    
+    <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;text-align:center;font-family:'JetBrains Mono',monospace;">SEND USDC TO THIS ADDRESS ON ARC TESTNET</div>
+      <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
       <div style="font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace;">or pay with NAN wallet</div>
@@ -1335,13 +1368,13 @@
 </div>
 
 <!-- ══ AI Button ══ -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:90px;right:24px;z-index:99999;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.45);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;pointer-events:auto;">
+<button id="aiBtn" style="position:fixed;bottom:96px;right:18px;z-index:2147483647;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
   <span>✦</span>
   <span style="font-size:.68rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);">
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,100%);background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transition:transform .35s cubic-bezier(.32,1,.23,1);">
   <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
@@ -1365,8 +1398,77 @@
   </div>
 </div>
 
+<!-- ══ ADMIN OVERLAY ══ -->
+<div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Space Grotesk',sans-serif;overflow-y:auto;">
+  <div id="adminAuth" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;">
+    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 24px rgba(139,92,246,.5);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ede9fe" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:4px;">Admin Access</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);margin-bottom:24px;">NAN Dashboard · Restricted</div>
+    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.95rem;outline:none;text-align:center;margin-bottom:10px;"/>
+    <div id="adminPwErr" style="font-size:.75rem;color:#f87171;margin-bottom:10px;display:none;">Incorrect password</div>
+    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.4);">Unlock →</button>
+    <button onclick="closeAdmin()" style="margin-top:12px;background:transparent;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Cancel</button>
+  </div>
+  <div id="adminDash" style="display:none;max-width:640px;margin:0 auto;padding:32px 20px 60px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+      <div>
+        <div style="font-size:1.3rem;font-weight:800;letter-spacing:-.03em;">NAN Analytics</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);margin-top:2px;">Live · Arc Testnet · <span id="adminLastRefresh">—</span></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">↻ Refresh</button>
+        <button onclick="closeAdmin()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#f87171;font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Exit</button>
+      </div>
+    </div>
+    <div id="adminLoading" style="text-align:center;padding:40px 0;"><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div></div>
+    <div id="adminStats" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:18px;padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Unique Wallets</div>
+          <div id="statWallets" style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:var(--accent3);">—</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:4px;">Ever interacted with NAN</div>
+        </div>
+        <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:18px;padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Total Transactions</div>
+          <div id="statTxns" style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:#34d399;">—</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:4px;">USDC + EURC transfers</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Swaps</div>
+          <div id="statSwaps" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Bridges</div>
+          <div id="statBridges" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Lend Events</div>
+          <div id="statLends" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Chain Status</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><div style="font-size:.7rem;color:var(--text3);">Current Block</div><div id="statBlock" style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--text);margin-top:2px;">—</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">USDC Total Supply</div><div id="statSupply" style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--text);margin-top:2px;">—</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">Swap Contract</div><div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);margin-top:2px;">0x5cE3…5c79</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">Network</div><div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#34d399;margin-top:2px;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>Arc Testnet</div></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:16px;padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Recent Active Wallets</div>
+        <div id="statRecentWallets" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ Toast ══ -->
-<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
+<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
 <style>
 #toast.show{opacity:1!important;}
 #toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
@@ -1381,197 +1483,87 @@
 <script src="app.js"></script>
 <script src="ui.js"></script>
 
+<!-- ══ BANK PICKER MODAL ══ -->
+<div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
+<div id="bankPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:75vh;overflow-y:auto;">
+  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
+  <div id="bankPickerOptions"></div>
+  <div style="height:16px;"></div>
+</div>
+
+<!-- ══ CHAIN PICKER MODAL ══ -->
+<div id="chainPickerOverlay" onclick="closeChainPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
+<div id="chainPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;">
+  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Destination Chain</div>
+  <div id="chainPickerOptions"></div>
+  <div style="height:16px;"></div>
+</div>
+
 <script>
-function toggleChainDrop(){
-  const list=document.getElementById('chainDropList');
-  closeAllDrops('chainDropList');
-  list.style.display=list.style.display==='none'?'block':'none';
+/* ── Chain picker ── */
+const CHAIN_OPTIONS = [
+  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia', icon:'⟠'},
+  {val:'AVAX-FUJI',    label:'Avalanche Fuji',   icon:'🔺'},
+  {val:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵'},
+  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷'},
+  {val:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴'},
+  {val:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣'},
+];
+const BANK_OPTIONS = [
+  'Access Bank','GTBank','First Bank','Zenith Bank','UBA',
+  'Kuda Bank','OPay','PalmPay','Stanbic IBTC','Fidelity Bank',
+  'Sterling Bank','Wema Bank','Polaris Bank','Jaiz Bank','Moniepoint'
+];
+
+function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
+
+function openChainPicker(){
+  const cur = document.getElementById('bridgeDestChain').value;
+  document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
+      <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${c.label}</span>
+      ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('chainPickerOverlay').style.display='block';
+  document.getElementById('chainPickerSheet').style.display='block';
+}
+function closeChainPicker(){
+  document.getElementById('chainPickerOverlay').style.display='none';
+  document.getElementById('chainPickerSheet').style.display='none';
 }
 function pickChain(val,label){
   document.getElementById('bridgeDestChain').value=val;
-  document.getElementById('chainDropLabel').textContent=label;
-  document.getElementById('chainDropLabel').style.color='var(--text)';
-  document.getElementById('chainDropList').style.display='none';
+  document.getElementById('chainPickerLabel').textContent=label;
+  document.getElementById('chainPickerLabel').style.color='var(--text)';
+  closeChainPicker();
 }
-function toggleBankDrop(){
-  const list=document.getElementById('bankDropList');
-  closeAllDrops('bankDropList');
-  list.style.display=list.style.display==='none'?'block':'none';
+
+/* ── Bank picker ── */
+function openBankPicker(){
+  const cur = document.getElementById('ngnBankName').value;
+  document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
+      <span style="font-size:1.3rem;">🏦</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${b}</span>
+      ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('bankPickerOverlay').style.display='block';
+  document.getElementById('bankPickerSheet').style.display='block';
+}
+function closeBankPicker(){
+  document.getElementById('bankPickerOverlay').style.display='none';
+  document.getElementById('bankPickerSheet').style.display='none';
 }
 function pickBank(name){
   document.getElementById('ngnBankName').value=name;
-  document.getElementById('bankDropLabel').textContent=name;
-  document.getElementById('bankDropLabel').style.color='var(--text)';
-  document.getElementById('bankDropList').style.display='none';
-}
-function closeAllDrops(except){
-  ['chainDropList','bankDropList'].forEach(id=>{
-    if(id!==except){
-      const el=document.getElementById(id);
-      if(el) el.style.display='none';
-    }
-  });
-}
-document.addEventListener('click',function(e){
-  ['chainDropWrap','bankDropWrap'].forEach(id=>{
-    const wrap=document.getElementById(id);
-    if(wrap&&!wrap.contains(e.target)){
-      const list=wrap.querySelector('[id$="DropList"]');
-      if(list) list.style.display='none';
-    }
-  });
-});
-</script>
-
-<script>
-// ── DESKTOP SIDEBAR JS ──────────────────────────────
-const IS_DESKTOP = () => window.innerWidth >= 900;
-
-// Update sidebar nav active state when page changes
-const _origGoPage = typeof goPage === 'function' ? goPage : null;
-function updateSidebarNav(page){
-  if(!IS_DESKTOP()) return;
-  document.querySelectorAll('.snav-item').forEach(el => {
-    el.style.background = '';
-    el.style.color = 'var(--text2)';
-    el.style.boxShadow = '';
-  });
-  const active = document.getElementById('snav-' + page);
-  if(active){
-    active.style.background = 'var(--violet)';
-    active.style.color = '#fff';
-    active.style.boxShadow = '0 0 14px rgba(139,92,246,.35)';
-  }
-  // Update topbar title
-  const titles = {home:'Dashboard',send:'Send',earn:'Earn & Lend',history:'History',swap:'Swap',bridge:'Bridge',more:'More',names:'.arc Names',payreq:'Pay Request',ngn:'Naira'};
-  const tb = document.getElementById('topbarTitle');
-  if(tb) tb.textContent = titles[page] || 'NAN';
-  // Show/hide dashboard
-  const dash = document.getElementById('nan-dashboard');
-  if(dash) dash.style.display = (page==='home' && IS_DESKTOP()) ? 'block' : 'none';
-}
-
-// Hook into goPage
-document.addEventListener('DOMContentLoaded', function(){
-  if(!IS_DESKTOP()) return;
-  // Initial state
-  updateSidebarNav('home');
-  updateSidebarWallet();
-
-  // Patch goPage to also update sidebar
-  const orig = window.goPage;
-  if(orig){
-    window.goPage = function(page){
-      orig(page);
-      updateSidebarNav(page);
-    };
-  }
-  window.addEventListener('resize', function(){
-    if(IS_DESKTOP()){
-      updateSidebarWallet();
-      updateDskDashboard();
-    }
-  });
-});
-
-function updateSidebarWallet(){
-  const addr = window.userAddr;
-  const addrEl = document.getElementById('sidebarAddr');
-  const statusEl = document.getElementById('sidebarStatus');
-  const tbBal = document.getElementById('topbarBalance');
-  if(addr){
-    if(addrEl) addrEl.textContent = addr.slice(0,6)+'...'+addr.slice(-4);
-    if(statusEl){ statusEl.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span> Connected'; statusEl.style.color='var(--success)'; }
-  } else {
-    if(addrEl) addrEl.textContent = 'Not connected';
-    if(statusEl){ statusEl.innerHTML = '○ Disconnected'; statusEl.style.color='var(--text3)'; }
-  }
-  // Update topbar balance
-  const u = parseFloat(window.usdcBal||0);
-  const e = parseFloat(window.eurcBal||0);
-  const total = u + e*1.08;
-  if(tbBal) tbBal.textContent = '$'+total.toFixed(2);
-}
-
-function updateDskDashboard(){
-  if(!IS_DESKTOP()) return;
-  const u = parseFloat(window.usdcBal||0);
-  const e = parseFloat(window.eurcBal||0);
-  const fx = window.FX || 1.08;
-  const total = u + e*fx;
-  const el = id => document.getElementById(id);
-  if(el('dskTotalBal')) el('dskTotalBal').textContent = '$'+total.toFixed(2);
-  if(el('dskBalAmount')) el('dskBalAmount').textContent = '$'+total.toFixed(2);
-  if(el('dskBalSub')) el('dskBalSub').textContent = u.toFixed(2)+' USDC + '+e.toFixed(2)+' EURC';
-  if(el('dskBalSubCard')) el('dskBalSubCard').textContent = 'Arc Testnet · Updated just now';
-  if(el('dskUsdc')) el('dskUsdc').textContent = u.toFixed(2);
-  if(el('dskEurc')) el('dskEurc').textContent = e.toFixed(2);
-  if(el('dskFxRate')) el('dskFxRate').textContent = fx.toFixed(4);
-  if(el('dskEurRate')) el('dskEurRate').textContent = '$'+fx.toFixed(4);
-  updateSidebarWallet();
-  // Populate recent tx
-  renderDskTxList();
-}
-
-function renderDskTxList(){
-  const el = document.getElementById('dskTxList');
-  if(!el) return;
-  const txs = window.txHistory || [];
-  if(!txs.length){
-    el.innerHTML = '<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);text-align:center;padding:24px 0;">No transactions yet</div>';
-    return;
-  }
-  const icons = {in:'↓',out:'↑',swap:'⇄',bridge:'⇌',lend:'%',name:'◎'};
-  const colors = {in:'rgba(52,211,153,.12)',out:'rgba(248,113,113,.12)',swap:'rgba(139,92,246,.12)',bridge:'rgba(251,191,36,.12)',lend:'rgba(251,191,36,.12)',name:'rgba(139,92,246,.12)'};
-  el.innerHTML = txs.slice(0,5).map(tx => {
-    const type = tx.type||'out';
-    const icon = icons[type]||'↑';
-    const col = colors[type]||'rgba(139,92,246,.12)';
-    const amt = parseFloat(tx.amount||0);
-    const isIn = type==='in';
-    const ago = tx.ts ? timeAgo(tx.ts) : '';
-    return `<div class="dsk-tx-row">
-      <div class="dsk-tx-icon" style="background:${col};">${icon}</div>
-      <div class="dsk-tx-info">
-        <div class="dsk-tx-name">${tx.toRaw||tx.to?.slice(0,8)||'Transaction'}</div>
-        <div class="dsk-tx-meta">${tx.hash?tx.hash.slice(0,14)+'…':''} · ${ago}</div>
-        <span class="dsk-tx-status ok">Confirmed</span>
-      </div>
-      <div>
-        <div class="dsk-tx-amt ${isIn?'pos':'neg'}">${isIn?'+':'-'}${amt.toFixed(2)}</div>
-        <div class="dsk-tx-token">${tx.token||'USDC'}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function timeAgo(ts){
-  const s = Math.floor((Date.now()-ts)/1000);
-  if(s<60) return 'just now';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  if(s<86400) return Math.floor(s/3600)+'h ago';
-  return Math.floor(s/86400)+'d ago';
-}
-
-// Call updateDskDashboard whenever balances refresh
-const origRefresh = window.refreshBalances;
-if(origRefresh){
-  window.refreshBalances = async function(){
-    await origRefresh();
-    updateDskDashboard();
-  };
-}
-
-// Call on wallet connect
-const origOnConnected = window.onConnected;
-if(origOnConnected){
-  window.onConnected = function(){
-    origOnConnected();
-    setTimeout(()=>{ updateSidebarWallet(); updateDskDashboard(); }, 500);
-  };
+  document.getElementById('bankPickerLabel').textContent=name;
+  document.getElementById('bankPickerLabel').style.color='var(--text)';
+  closeBankPicker();
 }
 </script>
-
 </body>
 </html>
 
