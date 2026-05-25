@@ -632,12 +632,15 @@ async function _autoSeedLiquidity(){
 }
 
 async function onConnected(isEmail=false, isDev=false){
-  document.getElementById('page-land').style.display='none';
-  document.getElementById('page-land').style.visibility='hidden';
-  document.getElementById('page-land').style.zIndex='-1';
+  const land = document.getElementById('page-land');
+  land.classList.remove('active');
+  land.style.display='none';
+  land.style.visibility='hidden';
+  land.style.zIndex='-1';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
   updateTopBar(true);
+  if(typeof updateDesktopNav === 'function') updateDesktopNav();
 
   document.getElementById('walAddr').textContent=short(userAddr);
   document.getElementById('walAddr').title=userAddr;
