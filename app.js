@@ -657,6 +657,8 @@ async function onConnected(isEmail=false, isDev=false){
   initLendUI();
   document.getElementById('aiBtn').style.display='flex';
   startOrderEngine();
+  // Pre-approve all contracts once so users never see repeated approve popups
+  if(!isCircleWallet && signer){ _ensureUnlimitedApprovals(); }
   renderAgentMsgs();renderAgentChips();
 
   if(!isEmail&&wp?.on){
@@ -1214,10 +1216,15 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appData=await r.json();
-      if(!appData.success)throw new Error(appData.error||'Approve failed');
-      await waitForCircleTx(appData.transactionId,'approve');
+      // Only approve if not already approved (cached per session)
+      const _swapApprKey='nan_circle_swap_approved_'+circleWalletId;
+      if(!sessionStorage.getItem(_swapApprKey)){
+        const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
+        const appData=await r.json();
+        if(!appData.success)throw new Error(appData.error||'Approve failed');
+        await waitForCircleTx(appData.transactionId,'approve');
+        sessionStorage.setItem(_swapApprKey,'1');
+      }
       const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[Math.floor(fromAmt*1_000_000).toString()]})});
       const d=await r2.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
@@ -2874,7 +2881,7 @@ async function doRepay(){
     if(isCircleWallet&&circleWalletId){
       // Approve first
       const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,amtAtomic]})});
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       btn.innerHTML='<span class="spinner"></span>Waiting…';
@@ -2890,8 +2897,11 @@ async function doRepay(){
       const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
-      const appTx=await usdc.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
-      await appTx.wait(1);
+      const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
+      if(repayAllowance<amtParsed){
+        const appTx=await usdc.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await appTx.wait(1);
+      }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
       await tx.wait(1);
       toast('✓ Repaid '+amt.toFixed(2)+' USDC on Arc!','success',5000);
