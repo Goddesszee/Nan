@@ -1658,6 +1658,16 @@ function copyAddr(){
   }).catch(()=>toast('Could not copy','error'));
 }
 
+function shareAddr(){
+  if(!userAddr)return;
+  if(navigator.share){
+    navigator.share({title:'My NAN Wallet Address',text:userAddr})
+      .catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(userAddr).then(()=>toast('Address copied to clipboard!','success',2000));
+  }
+}
+
 // ═══════════════════════════════════════════
 // AI AGENT (Claude-powered)
 // ═══════════════════════════════════════════

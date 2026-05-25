@@ -337,9 +337,44 @@
         <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
         <button class="btn" id="sendBtn" disabled onclick="showConfirm()" style="margin-top:auto;">Send</button>
       </div>
-      <div id="tab-recv" style="display:none;flex-direction:column;justify-content:center;">
-        <div class="qr-wrap"><div class="qr-frame" id="qrBox"></div><div class="recv-addr" id="recvAddr">Connect wallet to see your address</div></div>
-        <button class="btn btn-outline" style="margin-top:12px;" onclick="copyAddr()">Copy My Address</button>
+      <div id="tab-recv" style="display:none;flex-direction:column;align-items:center;">
+
+        <!-- Network badge -->
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);display:inline-block;"></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);">Arc Testnet</span>
+        </div>
+
+        <!-- QR centered with glow -->
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none;"></div>
+          <div style="background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(139,92,246,.2);" id="qrBox"></div>
+        </div>
+
+        <!-- Address box -->
+        <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Your Wallet Address</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);word-break:break-all;line-height:1.6;" id="recvAddr">Connect wallet to see your address</div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;">
+          <button class="btn" onclick="copyAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="btn btn-outline" onclick="shareAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+        </div>
+
+        <!-- Info note -->
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:12px;width:100%;">
+          <span style="font-size:.85rem;flex-shrink:0;">💡</span>
+          <span style="font-size:.72rem;color:var(--text3);line-height:1.5;">Only send <strong style="color:var(--text2);">USDC or EURC</strong> on <strong style="color:var(--text2);">Arc Testnet</strong> to this address. Sending other tokens may result in permanent loss.</span>
+        </div>
+
       </div>
     </div>
 
