@@ -2311,7 +2311,7 @@ function resizeAIPanel(){
   if(!btn)return;
   if(window.innerWidth>1040){
     btn.style.right='16px';
-btn.style.bottom='84px';
+btn.style.bottom='160px';
     btn.style.bottom='120px';
   }else{
     btn.style.right='0px';
