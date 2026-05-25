@@ -128,10 +128,10 @@
 
   <!-- ══ LANDING PAGE ══ -->
   <div class="page page-land active" id="page-land" style="background:var(--bg);display:none;flex-direction:column;overflow-y:auto;">
-    <div style="min-height:100%;display:flex;flex-direction:column;padding:28px 20px 24px;box-sizing:border-box;">
+    <div style="min-height:100%;display:flex;flex-direction:column;padding:16px 20px 16px;box-sizing:border-box;">
 
       <!-- Logo -->
-      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:10px;">
         <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(139,92,246,.5),inset 0 1px 0 rgba(255,255,255,.12);">
           <svg width="20" height="20" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#ede9fe"/><circle cx="50" cy="20" r="6" fill="#ede9fe"/><circle cx="50" cy="52" r="6" fill="#ede9fe"/><line x1="28" y1="36" x2="44" y2="22" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/></svg>
         </div>
@@ -139,7 +139,7 @@
       </div>
 
       <!-- Live badge -->
-      <div style="text-align:center;margin-bottom:14px;">
+      <div style="text-align:center;margin-bottom:10px;">
         <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:100px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#34d399;">
           <span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;display:inline-block;animation:pulse 2s infinite;"></span>
           Arc Testnet · Live
@@ -147,13 +147,13 @@
       </div>
 
       <!-- Headline -->
-      <div style="text-align:center;margin-bottom:14px;">
-        <div style="font-size:1.9rem;font-weight:800;letter-spacing:-.05em;line-height:1.1;margin-bottom:8px;">Weave.<br/><span style="color:transparent;background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;">Connect. Build.</span></div>
+      <div style="text-align:center;margin-bottom:10px;">
+        <div style="font-size:1.75rem;font-weight:800;letter-spacing:-.05em;line-height:1.08;margin-bottom:6px;">Weave.<br/><span style="color:transparent;background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;">Connect. Build.</span></div>
         <div style="font-size:.78rem;color:var(--text3);line-height:1.6;">Send USDC globally · Gas paid in dollars</div>
       </div>
 
       <!-- Feature pills -->
-      <div style="display:flex;gap:5px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;">
+      <div style="display:flex;gap:5px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:100px;padding:4px 10px;font-size:.58rem;font-weight:600;color:var(--text2);">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Instant
         </div>
@@ -166,7 +166,7 @@
       </div>
 
       <!-- Email card -->
-      <div id="emailLoginBox" style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.18);border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;flex-shrink:0;">
+      <div id="emailLoginBox" style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.18);border-radius:18px;padding:13px;margin-bottom:10px;position:relative;overflow:hidden;flex-shrink:0;">
         <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);pointer-events:none;"></div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -204,17 +204,17 @@
       </div>
 
       <!-- Divider -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
         <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">or connect wallet</div>
         <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
       </div>
 
       <!-- Wallet list with real logos -->
-      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
 
         <!-- MetaMask -->
-        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+        <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
           <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
           <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#f97316;">M</div>
           <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">MetaMask</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Browser extension</div></div>
@@ -222,7 +222,7 @@
         </button>
 
         <!-- WalletConnect -->
-        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+        <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
           <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
           <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(59,153,252,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#3b99fc;">W</div>
           <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">WalletConnect</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Scan QR with mobile</div></div>
@@ -230,7 +230,7 @@
         </button>
 
         <!-- Coinbase -->
-        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+        <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
           <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
           <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(22,82,240,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem;font-weight:700;color:#1652f0;">C</div>
           <div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">Coinbase Wallet</div><div style="font-size:.6rem;color:var(--text3);margin-top:1px;">Self-custody wallet</div></div>
@@ -238,7 +238,7 @@
         </button>
 
         <!-- Circle -->
-        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
+        <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(139,92,246,.1);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .18s;width:100%;text-align:left;">
           <img src="https://images.ctfassets.net/9sy2a0egs6zh/2XNmxaHEJqxvvBUJqFDobm/8e15b07e2d1ce8d03c3b9fa59ca70cf8/circle-logo.png" width="28" height="28" style="border-radius:8px;flex-shrink:0;background:#fff;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
           <div style="display:none;width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,.3);align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
