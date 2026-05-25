@@ -820,22 +820,19 @@ a:hover{color:var(--text);}
     position:fixed;
     top:0;left:220px;right:0;bottom:0;
     max-width:none;
-    padding:32px 40px 40px;
+    padding:36px 0 40px;
     overflow-y:auto;
     overflow-x:hidden;
     display:none;
   }
   .page.active{display:block;}
 
-  /* Content constrained width for readability */
-  .page > *{max-width:720px;}
-
-  /* Two-column layout for main content on wide screens */
-  .page-inner-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-    max-width:900px;
+  /* All direct children centered with max width */
+  .page > *{
+    max-width:640px;
+    margin-left:auto;
+    margin-right:auto;
+    display:block;
   }
 
   /* Cards bigger on desktop */
@@ -919,7 +916,9 @@ a:hover{color:var(--text);}
 /* ══ WIDE DESKTOP (1200px+) ══ */
 @media(min-width:1200px){
   #desktopNav{width:240px;}
-  .page{left:240px;padding:32px 56px 56px;}
+  #desktopNav{width:240px;}
+  .page{left:240px;padding:36px 24px 56px;}
+  .page > *{max-width:680px;}
   .page > *{max-width:800px;}
   .home-actions-top{grid-template-columns:repeat(5,1fr);}
   .home-bal-num{font-size:4rem;}
