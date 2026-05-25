@@ -699,52 +699,38 @@ a:hover{color:var(--text);}
 
 /* ══ DESKTOP (769px+) ══ */
 @media(min-width:769px){
-  html,body{overflow:auto;height:100%;min-height:100dvh;}
+  html,body{overflow:hidden;height:100%;background:var(--bg);}
 
-  /* Full-page centered layout */
+  /* App root fills screen */
   #app-root{
-    position:relative;
-    left:auto;
-    top:auto;
-    transform:none;
-    width:100%;
-    max-width:100%;
-    height:auto;
-    min-height:100dvh;
-    overflow:visible;
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    width:100%;max-width:100%;
+    height:100vh;
+    overflow:hidden;
     box-shadow:none;
-    display:flex;
-    flex-direction:column;
+    transform:none;
+    left:auto;
   }
   #app-root::before,#app-root::after{display:none;}
 
-  /* Top bar hidden on desktop — sidebar has logo + brand */
-  #globalTopBar{
-    display:none;
-  }
+  /* Hide mobile top bar & bottom nav */
+  #globalTopBar{display:none !important;}
+  .bottom-nav{display:none !important;}
 
-  /* Sidebar nav replaces bottom nav on desktop */
-  .bottom-nav{
-    display:none !important;
-  }
-
-  /* Desktop sidebar */
+  /* ── Sidebar ── */
   #desktopNav{
-    display:flex;
+    display:flex !important;
     flex-direction:column;
     position:fixed;
     top:0;left:0;
-    width:220px;
-    height:100vh;
+    width:220px;height:100vh;
     background:rgba(7,8,26,0.98);
     border-right:1px solid var(--border);
     padding:20px 12px 24px;
     gap:2px;
-    z-index:50;
+    z-index:100;
     backdrop-filter:blur(24px);
   }
-
-  /* Logo row */
   #desktopNav .dnav-logo-row{
     display:flex;align-items:center;gap:10px;
     padding:6px 10px 20px;
@@ -753,189 +739,113 @@ a:hover{color:var(--text);}
     width:34px;height:34px;border-radius:10px;
     background:linear-gradient(135deg,#8b5cf6,#7c3aed);
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 2px 14px rgba(139,92,246,.45);
-    flex-shrink:0;
+    box-shadow:0 2px 14px rgba(139,92,246,.45);flex-shrink:0;
   }
   #desktopNav .dnav-brand{
     font-family:'Space Grotesk',sans-serif;
-    font-size:1.05rem;font-weight:700;
-    letter-spacing:.06em;color:var(--text);
+    font-size:1.05rem;font-weight:700;letter-spacing:.06em;color:var(--text);
   }
-
-  /* Nav buttons */
   #desktopNav .dnav-btn{
-    display:flex;
-    align-items:center;
-    gap:11px;
-    padding:11px 14px;
-    border-radius:12px;
-    border:1px solid transparent;
-    background:transparent;
-    color:var(--text3);
-    font-family:'Space Grotesk',sans-serif;
-    font-size:.88rem;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .18s ease;
-    text-align:left;
-    width:100%;
-    letter-spacing:.01em;
+    display:flex;align-items:center;gap:11px;
+    padding:11px 14px;border-radius:12px;
+    border:1px solid transparent;background:transparent;
+    color:var(--text3);font-family:'Space Grotesk',sans-serif;
+    font-size:.88rem;font-weight:600;cursor:pointer;
+    transition:all .18s ease;text-align:left;width:100%;
   }
-  #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.7;transition:opacity .18s;}
-  #desktopNav .dnav-btn:hover{
-    background:rgba(139,92,246,.07);
-    color:var(--text2);
-    border-color:rgba(139,92,246,.12);
-  }
+  #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.6;transition:opacity .18s;}
+  #desktopNav .dnav-btn:hover{background:rgba(139,92,246,.07);color:var(--text2);border-color:rgba(139,92,246,.12);}
   #desktopNav .dnav-btn:hover svg{opacity:1;}
-  #desktopNav .dnav-btn.active{
-    background:rgba(139,92,246,.14);
-    color:var(--accent3);
-    border-color:rgba(139,92,246,.25);
-    box-shadow:inset 0 1px 0 rgba(139,92,246,.1);
-  }
+  #desktopNav .dnav-btn.active{background:rgba(139,92,246,.14);color:var(--accent3);border-color:rgba(139,92,246,.25);}
   #desktopNav .dnav-btn.active svg{opacity:1;}
-
-  /* Send — subtle accent highlight */
-  #desktopNav .dnav-btn.dnav-send{
-    background:rgba(139,92,246,.1);
-    color:var(--accent3);
-    border-color:rgba(139,92,246,.2);
-  }
+  #desktopNav .dnav-btn.dnav-send{background:rgba(139,92,246,.1);color:var(--accent3);border-color:rgba(139,92,246,.2);}
   #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
-  #desktopNav .dnav-btn.dnav-send:hover{
-    background:rgba(139,92,246,.18);
-    border-color:rgba(139,92,246,.35);
-  }
+  #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 4px;}
 
-  /* Divider */
-  #desktopNav .dnav-divider{
-    height:1px;
-    background:var(--border);
-    margin:10px 4px;
-  }
-
-  /* Main content area — centered like Relay */
+  /* ── Content area: centered column like Relay ── */
   .page{
-    position:fixed;
-    top:0;left:220px;right:0;bottom:0;
-    max-width:none;
-    padding:0;
-    overflow-y:auto;
-    overflow-x:hidden;
-    display:none;
-    /* Flex center everything */
-    flex-direction:column;
-    align-items:center;
-  }
-  .page.active{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-  }
-
-  /* Inner content wrapper — centered column, max readable width */
-  .page > *{
-    width:100%;
-    max-width:560px;
-    flex-shrink:0;
-  }
-
-  /* First child gets top padding */
-  .page > *:first-child{
-    margin-top:36px;
-  }
-
-  /* Last child gets bottom padding */
-  .page > *:last-child{
-    margin-bottom:40px;
-  }
-
-  /* Cards bigger on desktop */
-  .card{padding:24px;border-radius:20px;}
-  .card-title{font-size:.78rem;margin-bottom:16px;}
-
-  /* Home page */
-  .home-bal-num{font-size:3.5rem;}
-  .home-bal-card{padding:28px;margin-bottom:16px;}
-  .home-actions-top{grid-template-columns:repeat(5,1fr);gap:10px;}
-  .home-action{padding:18px 10px;border-radius:18px;}
-  .home-action-icon{font-size:1.6rem;margin-bottom:6px;}
-  .home-action-label{font-size:.72rem;}
-
-  /* Inputs bigger on desktop */
-  input,select{font-size:.9rem;padding:12px 16px;}
-  .flbl{font-size:.72rem;margin-bottom:8px;}
-
-  /* Buttons */
-  .btn{padding:16px;font-size:.95rem;border-radius:16px;}
-  .big-btn{padding:16px;font-size:1rem;}
-  .max-btn{padding:10px 14px;font-size:.78rem;}
-
-  /* Page title */
-  .page-title{font-size:2rem;margin-bottom:6px;}
-  .page-sub{font-size:.92rem;margin-bottom:18px;}
-
-  /* More page grid on desktop */
-  #page-more .more-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-  .more-item{padding:18px 20px;border-radius:18px;}
-  .more-item-icon{width:42px;height:42px;font-size:1.3rem;}
-  .more-item-title{font-size:1rem;}
-
-  /* AI button position on desktop */
-  #aiBtn{
-    bottom:32px !important;
-    right:32px !important;
-    width:54px !important;
-    height:54px !important;
-    border-radius:16px !important;
-  }
-
-  /* Agent panel on desktop */
-  #agentPanel{
-    left:auto !important;
+    position:fixed !important;
+    top:0 !important;
+    left:220px !important;
     right:0 !important;
     bottom:0 !important;
-    top:0 !important;
-    width:400px !important;
-    max-width:400px !important;
-    border-radius:0 !important;
-    border-left:1px solid var(--border) !important;
-    transform:translateX(100%) !important;
-    transition:transform .3s cubic-bezier(.32,1,.23,1) !important;
+    width:auto !important;
+    max-width:none !important;
+    /* Flex center the content card */
+    display:none !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    padding:40px 16px 60px !important;
+    animation:none !important;
   }
-  #agentPanel.open{
-    transform:translateX(0) !important;
+  .page.active{
+    display:flex !important;
   }
 
-  /* Gas row */
-  .gas-row{font-size:.78rem;padding:12px 16px;}
+  /* Content column — compact, centered, like Relay's card */
+  .page > *{
+    width:100% !important;
+    max-width:480px !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
 
-  /* Wallet modal centered on desktop */
+  /* Cards */
+  .card{padding:22px;border-radius:18px;}
+  .card-title{font-size:.75rem;margin-bottom:14px;}
+
+  /* Balance */
+  .home-bal-num{font-size:2.8rem;}
+  .home-bal-card{padding:24px;margin-bottom:12px;}
+
+  /* Quick actions — 3 across like the photo */
+  .home-actions-top{grid-template-columns:repeat(3,1fr);gap:8px;}
+  .home-action{padding:16px 8px;border-radius:16px;}
+  .home-action-icon{font-size:1.4rem;margin-bottom:4px;}
+  .home-action-label{font-size:.7rem;}
+
+  /* Inputs */
+  input,select{font-size:.88rem;padding:11px 14px;}
+  .flbl{font-size:.7rem;margin-bottom:7px;}
+
+  /* Buttons */
+  .btn{padding:15px;font-size:.9rem;border-radius:14px;}
+  .max-btn{padding:9px 13px;font-size:.75rem;}
+
+  /* Page titles */
+  .page-title{font-size:1.6rem;margin-bottom:5px;}
+  .page-sub{font-size:.85rem;margin-bottom:14px;}
+
+  /* More page */
+  .more-item{padding:16px 18px;border-radius:16px;}
+
+  /* AI button */
+  #aiBtn{bottom:32px !important;right:32px !important;width:50px !important;height:50px !important;border-radius:14px !important;}
+
+  /* Agent panel */
+  #agentPanel{left:auto !important;right:0 !important;bottom:0 !important;top:0 !important;width:380px !important;max-width:380px !important;border-radius:0 !important;border-left:1px solid var(--border) !important;transform:translateX(100%) !important;}
+  #agentPanel.open{transform:translateX(0) !important;}
+
+  /* Wallet modal centered */
   .wallet-modal-overlay{align-items:center !important;}
-  .wallet-modal{border-radius:24px !important;max-width:440px !important;}
+  .wallet-modal{border-radius:22px !important;max-width:420px !important;}
 
-  /* Toast above bottom */
-  #toast{bottom:40px !important;}
+  /* Toast */
+  #toast{bottom:36px !important;}
 
-  /* Scrollbar for desktop */
-  .page::-webkit-scrollbar{display:block;width:4px;}
+  /* Thin scrollbar */
+  .page::-webkit-scrollbar{display:block;width:3px;}
   .page::-webkit-scrollbar-track{background:transparent;}
-  .page::-webkit-scrollbar-thumb{background:rgba(139,92,246,.25);border-radius:4px;}
-  .page::-webkit-scrollbar-thumb:hover{background:rgba(139,92,246,.45);}
+  .page::-webkit-scrollbar-thumb{background:rgba(139,92,246,.2);border-radius:3px;}
 }
 
 /* ══ WIDE DESKTOP (1200px+) ══ */
 @media(min-width:1200px){
   #desktopNav{width:240px;}
-  #desktopNav{width:240px;}
-  .page{left:240px;}
-  .page > *{max-width:600px;}
-  .page > *{max-width:800px;}
-  .home-actions-top{grid-template-columns:repeat(5,1fr);}
-  .home-bal-num{font-size:4rem;}
+  .page{left:240px !important;}
+  .page > *{max-width:520px !important;}
+  .home-bal-num{font-size:3rem;}
 }
