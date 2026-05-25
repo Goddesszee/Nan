@@ -2815,12 +2815,18 @@ async function doBorrow(){
     // Collateral is registered during supply — just borrow directly
 
     if(isCircleWallet&&circleWalletId){
+      // Borrow does not require a prior USDC approve — the pool sends tokens TO the user
+      if(btn)btn.innerHTML='<span class="spinner"></span>Borrowing on Arc…';
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
-      toast('✓ Borrowed '+amt.toFixed(2)+' USDC!','success',5000);
+      toast('✓ Borrow submitted — confirming on Arc…','info',4000);
+      if(d.transactionId){
+        await waitForCircleTx(d.transactionId,'borrow');
+      }
+      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},6000);
 
