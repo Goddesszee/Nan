@@ -135,12 +135,13 @@
 </style>
 <script>
   function launchApp() {
+    localStorage.setItem('nan_visited_landing', '1');
     sessionStorage.setItem('nan_visited_landing', '1');
     window.location.href = '/app.html';
   }
 </script>
 <script>
-  sessionStorage.setItem('nan_from_landing', '1');
+  localStorage.setItem('nan_visited_landing','1'); sessionStorage.setItem('nan_from_landing', '1');
 </script>
 </head>
 <body>
