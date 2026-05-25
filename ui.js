@@ -137,7 +137,8 @@ window.onConnected = async function (isEmail, isDev) {
 function updateDesktopNav() {
   const isDesktop = window.innerWidth >= 769;
   const dNav = document.getElementById('desktopNav');
-  if (dNav) dNav.style.display = isDesktop ? 'flex' : 'none';
+  const isLanding = document.getElementById('page-land')?.classList.contains('active');
+  if (dNav) dNav.style.display = (isDesktop && !isLanding) ? 'flex' : 'none';
 }
 
 window.addEventListener('resize', updateDesktopNav);

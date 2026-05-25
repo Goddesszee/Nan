@@ -259,8 +259,10 @@ function updateTopBar(connected){
   const bar=document.getElementById('globalTopBar');
   const btn=document.getElementById('connectTopBtn');
   const landBtn=document.getElementById('landConnectBtn');
+  const dNav=document.getElementById('desktopNav');
   if(connected){
     bar.style.display='flex';
+    if(dNav) dNav.style.display='flex';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
@@ -280,6 +282,7 @@ function updateTopBar(connected){
     if(landBtn) landBtn.style.display='none';
   }else{
     bar.style.display='none';
+    if(dNav) dNav.style.display='none';
     btn.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
