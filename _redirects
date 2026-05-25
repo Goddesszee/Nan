@@ -1,2 +1,0 @@
-/app /app.html 200
-/api/* /.netlify/functions/:splat 200
