@@ -256,11 +256,9 @@ function initTheme(){
   document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
 }
 function updateTopBar(connected){
-  const bar=document.getElementById('globalTopBar');
   const btn=document.getElementById('connectTopBtn');
   const landBtn=document.getElementById('landConnectBtn');
   if(connected){
-    bar.style.display='flex';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
@@ -277,9 +275,9 @@ function updateTopBar(connected){
     };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
+    // Hide the landing connect button completely
     if(landBtn) landBtn.style.display='none';
   }else{
-    bar.style.display='none';
     btn.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
@@ -410,11 +408,8 @@ async function sendEmailOTP(){
     });
     const data=await res.json();
     if(data.success){
-      if(data.dev){
-        toast('⚠️ Email not configured — check Vercel env vars (SMTP_PASS). OTP printed to server logs.','error',8000);
-      } else {
-        toast('✓ Code sent to '+email,'success',6000);
-      }
+      if(data.dev){toast('Dev mode: OTP printed to server console','info',6000);}
+      else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
       document.getElementById('stepDot1').style.width='8px';document.getElementById('stepDot1').style.background='rgba(139,92,246,.4)';
@@ -632,9 +627,6 @@ async function _autoSeedLiquidity(){
 }
 
 async function onConnected(isEmail=false, isDev=false){
-  // Track wallet connection
-  trackEvent('wallet_connected', { method: isEmail ? 'email' : 'web3', wallet: userAddr });
-  document.getElementById('app-root').classList.remove('on-landing');
   document.getElementById('page-land').style.display='none';
   document.getElementById('page-land').style.visibility='hidden';
   document.getElementById('page-land').style.zIndex='-1';
@@ -2371,9 +2363,6 @@ function toggleAgent(){
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',attachAI);
-    document.addEventListener('DOMContentLoaded',function(){
-      document.getElementById('app-root').classList.add('on-landing');
-    });
   } else {
     attachAI();
   }
@@ -2554,9 +2543,8 @@ function showWalletPicker(){
   document.getElementById('walletModalOverlay').classList.add('show');
 }
 function hideWalletPicker(e){
-  const overlay = document.getElementById('walletModalOverlay');
-  if(overlay && (!e || e.target === overlay)){
-    overlay.classList.remove('show');
+  if(!e||e.target===document.getElementById('walletModalOverlay')){
+    document.getElementById('walletModalOverlay').classList.remove('show');
   }
 }
 async function connectSpecific(walletType){
@@ -3572,159 +3560,103 @@ function deletePR(){
 
 
 
-// ══════════════════════════════════════════
-// ══  NAN ADMIN DASHBOARD — RESTRICTED  ══
-// ══════════════════════════════════════════
-
-const ADMIN_HASH = '7d6c5a4b2e1f9c8a3d7e2f5b4c1a9d8e6f3b2a1c7e5d4f9b8a3c2e1d6f5b4a3'; // Arike@2022 obfuscated
-let _secretTaps = 0, _secretTimer = null;
-let _adminUnlocked = false;
+// ══ NAN ADMIN DASHBOARD ══
+let _secretTaps=0,_secretTimer=null,_adminUnlocked=false;
 
 function handleSecretTap(){
   _secretTaps++;
   clearTimeout(_secretTimer);
-  if(_secretTaps >= 5){
-    _secretTaps = 0;
-    openAdmin();
-  } else {
-    _secretTimer = setTimeout(()=>{ _secretTaps = 0; }, 2000);
-  }
+  if(_secretTaps>=5){ _secretTaps=0; openAdmin(); }
+  else { _secretTimer=setTimeout(()=>{ _secretTaps=0; },2000); }
 }
-
-function _hashPw(pw){
-  // Simple obfuscation — not crypto, just stops casual snooping
-  let h = 0;
-  for(let i=0;i<pw.length;i++){ h = ((h<<5)-h)+pw.charCodeAt(i); h|=0; }
-  return Math.abs(h).toString(16);
-}
-
 function openAdmin(){
-  document.getElementById('adminOverlay').style.display = 'block';
-  document.getElementById('adminAuth').style.display = 'flex';
-  document.getElementById('adminDash').style.display = 'none';
-  document.getElementById('adminPwInput').value = '';
-  document.getElementById('adminPwErr').style.display = 'none';
-  setTimeout(()=>document.getElementById('adminPwInput').focus(), 100);
+  document.getElementById('adminOverlay').style.display='block';
+  document.getElementById('adminAuth').style.display='flex';
+  document.getElementById('adminDash').style.display='none';
+  document.getElementById('adminPwInput').value='';
+  document.getElementById('adminPwErr').style.display='none';
+  setTimeout(()=>document.getElementById('adminPwInput').focus(),100);
 }
-
 function closeAdmin(){
-  document.getElementById('adminOverlay').style.display = 'none';
-  _adminUnlocked = false;
+  document.getElementById('adminOverlay').style.display='none';
+  _adminUnlocked=false;
 }
-
 function checkAdminPw(){
-  const pw = document.getElementById('adminPwInput').value;
-  if(pw === 'Arike@2022'){
-    _adminUnlocked = true;
-    document.getElementById('adminAuth').style.display = 'none';
-    document.getElementById('adminDash').style.display = 'block';
+  if(document.getElementById('adminPwInput').value==='Arike@2022'){
+    _adminUnlocked=true;
+    document.getElementById('adminAuth').style.display='none';
+    document.getElementById('adminDash').style.display='block';
     loadAdminStats();
-  } else {
-    document.getElementById('adminPwErr').style.display = 'block';
-    document.getElementById('adminPwInput').value = '';
-    document.getElementById('adminPwInput').focus();
+  }else{
+    document.getElementById('adminPwErr').style.display='block';
+    document.getElementById('adminPwInput').value='';
   }
 }
-
 async function loadAdminStats(){
-  if(!_adminUnlocked) return;
-  document.getElementById('adminLoading').style.display = 'block';
-  document.getElementById('adminLoading').innerHTML = '<div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div>';
-  document.getElementById('adminStats').style.display = 'none';
-
-  const RPC    = 'https://rpc.testnet.arc.network';
-  const USDC   = '0x3600000000000000000000000000000000000000';
-  const EURC   = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
-  const SWAP   = '0x5cE359b74BE53b1B370641571cBef157dD575c79';
-  const LEND   = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
-  const HIST   = '0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
-  const NAME   = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
-  const PAYREQ = '0x1940232f42D4e2083785bC869FbAD8dd43133817';
-  const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero   = '0x0000000000000000000000000000000000000000';
-  const contracts = new Set([USDC,EURC,SWAP,LEND,HIST,NAME,PAYREQ].map(x=>x.toLowerCase()));
-  let _id = 0;
-
-  async function rpc(method, params=[]){
-    const r = await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok) throw new Error('RPC HTTP '+r.status);
-    const d = await r.json();
-    if(d.error) throw new Error(d.error.message||'RPC error');
+  if(!_adminUnlocked)return;
+  const loading=document.getElementById('adminLoading');
+  loading.style.display='block';
+  loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div>';
+  document.getElementById('adminStats').style.display='none';
+  const RPC='https://rpc.testnet.arc.network';
+  const USDC='0x3600000000000000000000000000000000000000';
+  const EURC='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+  const SWAP='0x5cE359b74BE53b1B370641571cBef157dD575c79';
+  const LEND='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
+  const HIST='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
+  const NAME='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
+  const PAYREQ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
+  const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  const zero='0x0000000000000000000000000000000000000000';
+  const contracts=new Set([USDC,EURC,SWAP,LEND,HIST,NAME,PAYREQ].map(x=>x.toLowerCase()));
+  let _id=0;
+  async function rpc(method,params=[]){
+    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
+    if(!r.ok)throw new Error('RPC HTTP '+r.status);
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message||'RPC error');
     return d.result;
   }
-  async function getLogs(filter){
-    try{ return await rpc('eth_getLogs',[filter]); } catch(e){ return []; }
-  }
-
-  try {
-    const blockHex = await rpc('eth_blockNumber');
-    const block = parseInt(blockHex,16);
-    document.getElementById('statBlock').textContent = block.toLocaleString();
-
-    const supHex = await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
-    const supply = parseInt(supHex,16)/1e6;
-    document.getElementById('statSupply').textContent = supply.toLocaleString('en',{maximumFractionDigits:0})+' USDC';
-
-    const [usdcLogs,eurcLogs,swapLogs,lendLogs,nameLogs,payreqLogs,histLogs] = await Promise.all([
+  async function getLogs(f){try{return await rpc('eth_getLogs',[f]);}catch{return [];}}
+  try{
+    const blockHex=await rpc('eth_blockNumber');
+    document.getElementById('statBlock').textContent=parseInt(blockHex,16).toLocaleString();
+    const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
+    document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
+    const [uL,eL,sL,lL,nL,pL]=await Promise.all([
       getLogs({fromBlock:'0x0',toBlock:'latest',address:USDC,topics:[TRANSFER]}),
       getLogs({fromBlock:'0x0',toBlock:'latest',address:EURC,topics:[TRANSFER]}),
       getLogs({fromBlock:'0x0',toBlock:'latest',address:SWAP}),
       getLogs({fromBlock:'0x0',toBlock:'latest',address:LEND}),
       getLogs({fromBlock:'0x0',toBlock:'latest',address:NAME}),
       getLogs({fromBlock:'0x0',toBlock:'latest',address:PAYREQ}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:HIST}),
     ]);
-
-    const allTransfers = [...usdcLogs,...eurcLogs];
-    const wallets = new Set();
-    const recentMap = new Map();
-    let sends=0,bridges=0;
-
-    allTransfers.forEach(log=>{
+    const all=[...uL,...eL];
+    const wallets=new Set();
+    const recent=new Map();
+    let bridges=0;
+    all.forEach(log=>{
       if(log.topics&&log.topics.length>=3){
-        const from='0x'+log.topics[1].slice(-40);
-        const to='0x'+log.topics[2].slice(-40);
-        [from,to].forEach(w=>{ const wl=w.toLowerCase(); if(wl!==zero&&!contracts.has(wl)) wallets.add(wl); });
-        const frml=from.toLowerCase(), tol=to.toLowerCase();
-        if(frml===zero){}
-        else if(tol===zero){ bridges++; }
-        else{
-          sends++;
-          if(!contracts.has(frml)){
-            const bn=parseInt(log.blockNumber,16);
-            if(!recentMap.has(frml)||recentMap.get(frml)<bn) recentMap.set(frml,bn);
-          }
-        }
+        const f='0x'+log.topics[1].slice(-40),t='0x'+log.topics[2].slice(-40);
+        [f,t].forEach(w=>{const wl=w.toLowerCase();if(wl!==zero&&!contracts.has(wl))wallets.add(wl);});
+        if(t.toLowerCase()===zero)bridges++;
+        const fl=f.toLowerCase();
+        if(fl!==zero&&!contracts.has(fl)){const bn=parseInt(log.blockNumber,16);if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);}
       }
     });
-
-    document.getElementById('statWallets').textContent  = wallets.size.toLocaleString();
-    document.getElementById('statTxns').textContent     = allTransfers.length.toLocaleString();
-    document.getElementById('statSwaps').textContent    = swapLogs.length.toLocaleString();
-    document.getElementById('statBridges').textContent  = bridges.toLocaleString();
-    document.getElementById('statLends').textContent    = lendLogs.length.toLocaleString();
-    const nameEl=document.getElementById('statNames'); if(nameEl) nameEl.textContent=nameLogs.length.toLocaleString();
-    const payreqEl=document.getElementById('statPayreqs'); if(payreqEl) payreqEl.textContent=payreqLogs.length.toLocaleString();
-    const sendsEl=document.getElementById('statSends'); if(sendsEl) sendsEl.textContent=sends.toLocaleString();
-
+    document.getElementById('statWallets').textContent=wallets.size.toLocaleString();
+    document.getElementById('statTxns').textContent=all.length.toLocaleString();
+    document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
+    document.getElementById('statBridges').textContent=bridges.toLocaleString();
+    document.getElementById('statLends').textContent=lL.length.toLocaleString();
     const recEl=document.getElementById('statRecentWallets');
-    const recent=[...recentMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
-    recEl.innerHTML = recent.length===0
-      ? '<div style="font-size:.75rem;color:var(--text3);">No wallet activity yet</div>'
-      : recent.map(([addr,bn])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;flex-shrink:0;"></div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</div>
-          </div>
-          <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a>
-        </div>`).join('');
-
-    document.getElementById('adminLastRefresh').textContent = new Date().toLocaleTimeString();
-    document.getElementById('adminLoading').style.display = 'none';
-    document.getElementById('adminStats').style.display = 'block';
-
-  } catch(err){
-    document.getElementById('adminLoading').innerHTML = `<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz — RPC only allows browser calls from the live site</div><button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button></div>`;
+    const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+    recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:var(--text3);">No activity yet</div>':
+      top.map(([addr,bn])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a></div>`).join('');
+    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
+    loading.style.display='none';
+    document.getElementById('adminStats').style.display='block';
+  }catch(err){
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button></div>`;
   }
 }
