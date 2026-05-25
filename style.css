@@ -815,24 +815,40 @@ a:hover{color:var(--text);}
     margin:10px 4px;
   }
 
-  /* Main content area */
+  /* Main content area — centered like Relay */
   .page{
     position:fixed;
     top:0;left:220px;right:0;bottom:0;
     max-width:none;
-    padding:36px 0 40px;
+    padding:0;
     overflow-y:auto;
     overflow-x:hidden;
     display:none;
+    /* Flex center everything */
+    flex-direction:column;
+    align-items:center;
   }
-  .page.active{display:block;}
+  .page.active{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
 
-  /* All direct children centered with max width */
+  /* Inner content wrapper — centered column, max readable width */
   .page > *{
-    max-width:640px;
-    margin-left:auto;
-    margin-right:auto;
-    display:block;
+    width:100%;
+    max-width:560px;
+    flex-shrink:0;
+  }
+
+  /* First child gets top padding */
+  .page > *:first-child{
+    margin-top:36px;
+  }
+
+  /* Last child gets bottom padding */
+  .page > *:last-child{
+    margin-bottom:40px;
   }
 
   /* Cards bigger on desktop */
@@ -917,8 +933,8 @@ a:hover{color:var(--text);}
 @media(min-width:1200px){
   #desktopNav{width:240px;}
   #desktopNav{width:240px;}
-  .page{left:240px;padding:36px 24px 56px;}
-  .page > *{max-width:680px;}
+  .page{left:240px;}
+  .page > *{max-width:600px;}
   .page > *{max-width:800px;}
   .home-actions-top{grid-template-columns:repeat(5,1fr);}
   .home-bal-num{font-size:4rem;}
