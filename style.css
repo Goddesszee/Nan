@@ -762,7 +762,7 @@ a:hover{color:var(--text);}
   #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
   #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 4px;}
 
-  /* ── Content area: centered column like Relay ── */
+  /* ── Content area: truly centered like Relay ── */
   .page{
     position:fixed !important;
     top:0 !important;
@@ -771,27 +771,28 @@ a:hover{color:var(--text);}
     bottom:0 !important;
     width:auto !important;
     max-width:none !important;
-    /* Flex center the content card */
     display:none !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
     overflow-y:auto !important;
     overflow-x:hidden !important;
-    padding:40px 16px 60px !important;
+    padding:0 !important;
     animation:none !important;
   }
   .page.active{
-    display:flex !important;
+    display:block !important;
   }
-
-  /* Content column — compact, centered, like Relay's card */
+  /* Relay-style: all content in a centered column */
   .page > *{
+    display:block !important;
     width:100% !important;
-    max-width:480px !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
+    max-width:460px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    box-sizing:border-box !important;
   }
+  /* Top padding on first element */
+  .page > *:first-child{ margin-top:48px !important; }
+  /* Bottom padding on last element */
+  .page > *:last-child{ margin-bottom:48px !important; }
 
   /* Cards */
   .card{padding:22px;border-radius:18px;}
