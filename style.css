@@ -833,8 +833,15 @@ a:hover{color:var(--text);}
   .wallet-modal-overlay{align-items:center !important;}
   .wallet-modal{border-radius:22px !important;max-width:420px !important;}
 
-  /* Toast */
-  #toast{bottom:36px !important;}
+  /* Toast — centered in content area right of sidebar */
+  #toast{
+    bottom:36px !important;
+    left:calc(220px + (100vw - 220px) / 2) !important;
+    max-width:380px !important;
+    width:auto !important;
+    min-width:180px !important;
+    padding:10px 24px !important;
+  }
 
   /* Thin scrollbar */
   .page::-webkit-scrollbar{display:block;width:3px;}
@@ -865,4 +872,5 @@ a:hover{color:var(--text);}
   .page{left:240px !important;}
   .page > *{max-width:520px !important;}
   .home-bal-num{font-size:3rem;}
+  #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
 }
