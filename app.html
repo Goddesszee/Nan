@@ -778,7 +778,24 @@
         <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:4px;" id="ngnWithdrawUsdc">≈ 0.00 USDC deducted</div>
       </div>
       <div class="field"><div class="flbl">Bank</div>
-        <select id="ngnBankName"><option value="">Select bank</option><option>Access Bank</option><option>GTBank</option><option>First Bank</option><option>Zenith Bank</option><option>UBA</option><option>Kuda Bank</option><option>OPay</option><option>PalmPay</option><option>Stanbic IBTC</option><option>Fidelity Bank</option></select>
+        <div id="bankDropWrap" style="position:relative;">
+          <div id="bankDropBtn" onclick="toggleBankDrop()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;">
+            <span id="bankDropLabel" style="color:var(--text3);">Select bank</span><span style="color:var(--text3);">▾</span>
+          </div>
+          <div id="bankDropList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;overflow-y:auto;max-height:220px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
+            <div onclick="pickBank('Access Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Access Bank</div>
+            <div onclick="pickBank('GTBank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">GTBank</div>
+            <div onclick="pickBank('First Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">First Bank</div>
+            <div onclick="pickBank('Zenith Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Zenith Bank</div>
+            <div onclick="pickBank('UBA')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">UBA</div>
+            <div onclick="pickBank('Kuda Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Kuda Bank</div>
+            <div onclick="pickBank('OPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">OPay</div>
+            <div onclick="pickBank('PalmPay')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">PalmPay</div>
+            <div onclick="pickBank('Stanbic IBTC')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Stanbic IBTC</div>
+            <div onclick="pickBank('Fidelity Bank')" style="padding:12px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);">Fidelity Bank</div>
+          </div>
+        </div>
+        <input type="hidden" id="ngnBankName" value=""/>
       </div>
       <div class="field"><div class="flbl">Account Number</div><input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/></div>
       <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok"><span id="ngnAcctNameTxt"></span></div>
@@ -843,7 +860,7 @@
 
     <!-- Payroll group + token selector -->
     <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:16px;font-family:'Space Grotesk',sans-serif;">
+      <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:16px;font-family:'Space Grotesk',sans-serif;-webkit-appearance:auto;appearance:auto;cursor:pointer;">
         <option value="">— Select saved group —</option>
       </select>
       <button onclick="savePayrollGroup()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:.78rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;font-weight:600;">Save Group</button>
@@ -1187,20 +1204,42 @@
 <script>
 function toggleChainDrop(){
   const list=document.getElementById('chainDropList');
+  closeAllDrops('chainDropList');
   list.style.display=list.style.display==='none'?'block':'none';
 }
 function pickChain(val,label){
   document.getElementById('bridgeDestChain').value=val;
   document.getElementById('chainDropLabel').textContent=label;
+  document.getElementById('chainDropLabel').style.color='var(--text)';
   document.getElementById('chainDropList').style.display='none';
 }
-// Close dropdown when tapping outside
+function toggleBankDrop(){
+  const list=document.getElementById('bankDropList');
+  closeAllDrops('bankDropList');
+  list.style.display=list.style.display==='none'?'block':'none';
+}
+function pickBank(name){
+  document.getElementById('ngnBankName').value=name;
+  document.getElementById('bankDropLabel').textContent=name;
+  document.getElementById('bankDropLabel').style.color='var(--text)';
+  document.getElementById('bankDropList').style.display='none';
+}
+function closeAllDrops(except){
+  ['chainDropList','bankDropList'].forEach(id=>{
+    if(id!==except){
+      const el=document.getElementById(id);
+      if(el) el.style.display='none';
+    }
+  });
+}
 document.addEventListener('click',function(e){
-  const wrap=document.getElementById('chainDropWrap');
-  if(wrap && !wrap.contains(e.target)){
-    const list=document.getElementById('chainDropList');
-    if(list) list.style.display='none';
-  }
+  ['chainDropWrap','bankDropWrap'].forEach(id=>{
+    const wrap=document.getElementById(id);
+    if(wrap&&!wrap.contains(e.target)){
+      const list=wrap.querySelector('[id$="DropList"]');
+      if(list) list.style.display='none';
+    }
+  });
 });
 </script>
 </body>
