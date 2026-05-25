@@ -123,7 +123,6 @@ window.updateBalDisplay = function () {
 const _origOnConnected = window.onConnected;
 window.onConnected = async function (isEmail, isDev) {
   await _origOnConnected(isEmail, isDev);
-  // Override: go home after connect
   document.querySelectorAll('.page:not(.page-land)').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const homePage = document.getElementById('page-home');
@@ -131,6 +130,8 @@ window.onConnected = async function (isEmail, isDev) {
   const homeNav = document.getElementById('nav-home');
   if (homeNav) homeNav.classList.add('active');
   updateHomeScreen();
+  // Show desktop sidebar after connect
+  updateDesktopNav();
 };
 
 // ── Desktop nav visibility ──
