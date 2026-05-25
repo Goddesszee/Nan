@@ -780,14 +780,14 @@ a:hover{color:var(--text);}
   .page.active{
     display:block !important;
   }
-  /* Relay-style: all content in a centered column */
+  /* Relay-style: all direct children centered in a column */
   .page > *{
-    display:block !important;
     width:100% !important;
     max-width:460px !important;
     margin-left:auto !important;
     margin-right:auto !important;
     box-sizing:border-box !important;
+    /* Do NOT set display here — let each element use its natural display (grid, flex, block) */
   }
   /* Top padding on first element */
   .page > *:first-child{ margin-top:48px !important; }
@@ -802,11 +802,11 @@ a:hover{color:var(--text);}
   .home-bal-num{font-size:2.8rem;}
   .home-bal-card{padding:24px;margin-bottom:12px;}
 
-  /* Quick actions — 3 across like the photo */
-  .home-actions-top{grid-template-columns:repeat(3,1fr);gap:8px;}
-  .home-action{padding:16px 8px;border-radius:16px;}
-  .home-action-icon{font-size:1.4rem;margin-bottom:4px;}
-  .home-action-label{font-size:.7rem;}
+  /* Quick actions — always 3 columns side by side */
+  .home-actions-top{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;margin-bottom:8px !important;}
+  .home-action{padding:16px 8px !important;border-radius:16px !important;}
+  .home-action-icon{font-size:1.4rem !important;margin-bottom:4px !important;}
+  .home-action-label{font-size:.7rem !important;}
 
   /* Inputs */
   input,select{font-size:.88rem;padding:11px 14px;}
