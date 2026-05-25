@@ -2518,7 +2518,7 @@ async function connectSpecific(walletType){
 }
 
 // ═══════════════════════════════════════════
-// LEND & BORROW (simulated)
+// LEND & BORROW (on-chain — NANLendingPool)
 // ═══════════════════════════════════════════
 let lendPositions={supplied:0,borrowed:0,interest:0};
 let lendAsset='USDC';
@@ -3023,13 +3023,7 @@ async function registerArcName(){
     } else if(msg.includes('execution reverted')){
       toast('Registration failed — check contract is deployed: '+msg.slice(0,80),'error',7000);
     } else {
-      // Fallback simulation for testing only
-      usdcBal=String(bal-arcNameFeeUsdc-0.009);
-      const expiry=new Date();expiry.setFullYear(expiry.getFullYear()+arcNameDurationYears);
-      arcNames.unshift({name,owner:userAddr,expires:expiry.toLocaleDateString(),years:arcNameDurationYears,fee:arcNameFeeUsdc,ts:Date.now()});
-      saveArcNames();
-      toast('✓ '+name+'.arc registered! (simulated — deploy NANNameRegistry for on-chain)','success',6000);
-      refreshBalances();
+      toast('Registration failed — '+msg.slice(0,80),'error',6000);
     }
   }
   document.getElementById('arcNameInput').value='';
@@ -3494,3 +3488,4 @@ function deletePR(){
     },600);
   };
 })();
+
