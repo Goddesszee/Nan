@@ -2,6 +2,12 @@
   "version": 2,
   "buildCommand": "echo 'no build needed'",
   "outputDirectory": ".",
+  "functions": {
+    "api/*.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/",
