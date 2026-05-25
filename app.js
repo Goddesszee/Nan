@@ -634,6 +634,7 @@ async function _autoSeedLiquidity(){
 async function onConnected(isEmail=false, isDev=false){
   // Track wallet connection
   trackEvent('wallet_connected', { method: isEmail ? 'email' : 'web3', wallet: userAddr });
+  document.getElementById('app-root').classList.remove('on-landing');
   document.getElementById('page-land').style.display='none';
   document.getElementById('page-land').style.visibility='hidden';
   document.getElementById('page-land').style.zIndex='-1';
@@ -2370,6 +2371,9 @@ function toggleAgent(){
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',attachAI);
+    document.addEventListener('DOMContentLoaded',function(){
+      document.getElementById('app-root').classList.add('on-landing');
+    });
   } else {
     attachAI();
   }
