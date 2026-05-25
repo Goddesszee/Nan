@@ -256,9 +256,11 @@ function initTheme(){
   document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
 }
 function updateTopBar(connected){
+  const bar=document.getElementById('globalTopBar');
   const btn=document.getElementById('connectTopBtn');
   const landBtn=document.getElementById('landConnectBtn');
   if(connected){
+    bar.style.display='flex';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
@@ -275,9 +277,9 @@ function updateTopBar(connected){
     };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
-    // Hide the landing connect button completely
     if(landBtn) landBtn.style.display='none';
   }else{
+    bar.style.display='none';
     btn.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
