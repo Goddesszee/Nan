@@ -610,14 +610,14 @@
     </div>
 
     <!-- Option 2: CCTP V2 — standard bridge -->
-    <div class="card" style="margin-bottom:10px;">
+    <div class="card" style="margin-bottom:10px;overflow:visible;">
       <div class="card-title"><div class="cticon">⬡</div>Cross-Chain Bridge (CCTP V2)</div>
       <div class="field"><div class="flbl">From</div>
         <div class="chain-badge" style="text-align:left;font-size:.82rem;">Arc Testnet &nbsp;<span style="color:var(--accent3);">●</span></div>
       </div>
       <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
       <div class="field"><div class="flbl">To Chain</div>
-        <select id="bridgeDestChain" style="margin-bottom:0;">
+        <select id="bridgeDestChain" style="margin-bottom:0;position:relative;z-index:10;cursor:pointer;">
           <option value="ETH-SEPOLIA">Ethereum Sepolia</option>
           <option value="AVAX-FUJI">Avalanche Fuji</option>
           <option value="BASE-SEPOLIA">Base Sepolia</option>
