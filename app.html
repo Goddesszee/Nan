@@ -1281,13 +1281,13 @@
 </div>
 
 <!-- ══ AI Button ══ -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:90px;right:24px;z-index:99999;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.45);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;pointer-events:auto;">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:88px;right:max(16px, calc(50% - 228px));z-index:99999;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.45);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;pointer-events:auto;">
   <span>✦</span>
   <span style="font-size:.68rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);">
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,100%);background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transition:transform .35s cubic-bezier(.32,1,.23,1);">
   <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
@@ -1312,7 +1312,7 @@
 </div>
 
 <!-- ══ Toast ══ -->
-<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
+<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
 <style>
 #toast.show{opacity:1!important;}
 #toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
@@ -1410,4 +1410,5 @@ function pickBank(name){
 </script>
 </body>
 </html>
+
 
