@@ -2317,22 +2317,16 @@ let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything �
 let agentOpen=false;
 
 function toggleAgent(){
-  agentOpen = !agentOpen;
-  const panel = document.getElementById('agentPanel');
-  if(!panel) return;
+  agentOpen=!agentOpen;
+  const panel=document.getElementById('agentPanel');
   if(agentOpen){
-    panel.style.display = 'flex';
-    panel.style.flexDirection = 'column';
-    panel.style.zIndex = '999999';
-    requestAnimationFrame(()=>{
-      panel.style.transform = 'translate(-50%,0)';
-    });
-    renderAgentMsgs();
-    renderAgentChips();
-    scrollAgentBottom();
-  } else {
-    panel.style.transform = 'translate(-50%,100%)';
-    setTimeout(()=>{ panel.style.display = 'none'; }, 350);
+    panel.style.display='flex';
+    panel.style.flexDirection='column';
+    requestAnimationFrame(()=>{ panel.style.transform='translate(-50%,0)'; });
+    renderAgentMsgs();renderAgentChips();scrollAgentBottom();
+  }else{
+    panel.style.transform='translate(-50%,100%)';
+    setTimeout(()=>{ panel.style.display='none'; },350);
   }
 }
 
@@ -2340,39 +2334,39 @@ function toggleAgent(){
 (function(){
   function attachAI(){
     // Fix floating AI button
-    const btn = document.getElementById('aiBtn');
+    const btn=document.getElementById('aiBtn');
     if(btn){
       btn.removeAttribute('onclick');
-      let busy = false;
+      let lastTap=0;
       function handleTap(e){
         e.preventDefault();
         e.stopPropagation();
-        if(busy) return;
-        busy = true;
-        setTimeout(()=>{ busy = false; }, 500);
+        const now=Date.now();
+        if(now-lastTap<400) return;
+        lastTap=now;
         toggleAgent();
       }
-      btn.addEventListener('touchend', handleTap, {passive:false});
-      btn.addEventListener('click', handleTap, {passive:false});
+      btn.addEventListener('touchend',handleTap,{passive:false});
+      btn.addEventListener('click',handleTap,{passive:false});
     }
     // Fix More page NAN AI row
-    const moreBtn = document.getElementById('nanAiMoreBtn');
+    const moreBtn=document.getElementById('nanAiMoreBtn');
     if(moreBtn){
-      let busy2 = false;
+      let lastTap2=0;
       function handleMoreTap(e){
         e.preventDefault();
         e.stopPropagation();
-        if(busy2) return;
-        busy2 = true;
-        setTimeout(()=>{ busy2 = false; }, 500);
+        const now=Date.now();
+        if(now-lastTap2<400) return;
+        lastTap2=now;
         toggleAgent();
       }
-      moreBtn.addEventListener('touchend', handleMoreTap, {passive:false});
-      moreBtn.addEventListener('click', handleMoreTap, {passive:false});
+      moreBtn.addEventListener('touchend',handleMoreTap,{passive:false});
+      moreBtn.addEventListener('click',handleMoreTap,{passive:false});
     }
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', attachAI);
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',attachAI);
   } else {
     attachAI();
   }
@@ -2496,8 +2490,8 @@ RULES:
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
     // Speak the AI response
     speakResponse(clean);
-  }catch(err){
-    agentMsgs[agentMsgs.length-1]={role:'assistant',content:'⚠️ AI unavailable right now. Check that GROQ_API_KEY is set in your Vercel environment variables.'};
+  }catch{
+    agentMsgs[agentMsgs.length-1]={role:'assistant',content:'Connection error — is the server running?'};
   }
   renderAgentMsgs();scrollAgentBottom();
 }
