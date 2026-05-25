@@ -617,20 +617,14 @@
       </div>
       <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
       <div class="field"><div class="flbl">To Chain</div>
-        <div id="chainDropWrap" style="position:relative;">
-          <div id="chainDropBtn" onclick="toggleChainDrop()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;">
-            <span id="chainDropLabel">Ethereum Sepolia</span><span>▾</span>
-          </div>
-          <div id="chainDropList" style="display:none;position:fixed;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);">
-            <div onclick="pickChain('ETH-SEPOLIA','Ethereum Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Ethereum Sepolia</div>
-            <div onclick="pickChain('AVAX-FUJI','Avalanche Fuji')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Avalanche Fuji</div>
-            <div onclick="pickChain('BASE-SEPOLIA','Base Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Base Sepolia</div>
-            <div onclick="pickChain('ARB-SEPOLIA','Arbitrum Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">Arbitrum Sepolia</div>
-            <div onclick="pickChain('OP-SEPOLIA','OP Sepolia')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);">OP Sepolia</div>
-            <div onclick="pickChain('POLYGON-AMOY','Polygon Amoy')" style="padding:11px 14px;font-size:.85rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text);">Polygon Amoy</div>
-          </div>
-        </div>
-        <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
+        <select id="bridgeDestChain" onchange="pickChain(this.value, this.options[this.selectedIndex].text)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:10px 13px;cursor:pointer;box-sizing:border-box;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%238B5CF6%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>');background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;">
+          <option value="ETH-SEPOLIA">Ethereum Sepolia</option>
+          <option value="AVAX-FUJI">Avalanche Fuji</option>
+          <option value="BASE-SEPOLIA">Base Sepolia</option>
+          <option value="ARB-SEPOLIA">Arbitrum Sepolia</option>
+          <option value="OP-SEPOLIA">OP Sepolia</option>
+          <option value="POLYGON-AMOY">Polygon Amoy</option>
+        </select>
       </div>
       <div class="field"><div class="flbl">Recipient Address</div>
         <input id="bridgeDestAddr" type="text" placeholder="0x... wallet address on destination"/>
@@ -1202,27 +1196,9 @@
 <script src="ui.js"></script>
 
 <script>
-function toggleChainDrop(){
-  const list=document.getElementById('chainDropList');
-  const btn=document.getElementById('chainDropBtn');
-  closeAllDrops('chainDropList');
-  if(list.style.display==='none'||list.style.display===''){
-    const r=btn.getBoundingClientRect();
-    list.style.position='fixed';
-    list.style.top=(r.bottom+4)+'px';
-    list.style.left=r.left+'px';
-    list.style.width=r.width+'px';
-    list.style.right='auto';
-    list.style.display='block';
-  } else {
-    list.style.display='none';
-  }
-}
 function pickChain(val,label){
-  document.getElementById('bridgeDestChain').value=val;
-  document.getElementById('chainDropLabel').textContent=label;
-  document.getElementById('chainDropLabel').style.color='var(--text)';
-  document.getElementById('chainDropList').style.display='none';
+  const sel=document.getElementById('bridgeDestChain');
+  if(sel && sel.tagName==='SELECT') sel.value=val;
 }
 function toggleBankDrop(){
   const list=document.getElementById('bankDropList');
@@ -1236,7 +1212,7 @@ function pickBank(name){
   document.getElementById('bankDropList').style.display='none';
 }
 function closeAllDrops(except){
-  ['chainDropList','bankDropList'].forEach(id=>{
+  ['bankDropList'].forEach(id=>{
     if(id!==except){
       const el=document.getElementById(id);
       if(el) el.style.display='none';
@@ -1244,7 +1220,7 @@ function closeAllDrops(except){
   });
 }
 document.addEventListener('click',function(e){
-  ['chainDropWrap','bankDropWrap'].forEach(id=>{
+  ['bankDropWrap'].forEach(id=>{
     const wrap=document.getElementById(id);
     if(wrap&&!wrap.contains(e.target)){
       const list=wrap.querySelector('[id$="DropList"]');
