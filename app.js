@@ -1214,7 +1214,7 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,Math.floor(fromAmt*1_000_000).toString()]})});
+      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appData=await r.json();
       if(!appData.success)throw new Error(appData.error||'Approve failed');
       await waitForCircleTx(appData.transactionId,'approve');
@@ -1303,7 +1303,7 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,amtParsed,arcGasOpts());
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,ethers.MaxUint256,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(1);
     }
@@ -2704,7 +2704,7 @@ async function doSupply(){
       const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
-          params:[LENDING_CONTRACT,amtAtomic]})});
+          params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appData=await appRes.json();
       if(!appData.success)throw new Error(appData.error||'Approve failed');
       btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
@@ -2731,9 +2731,13 @@ async function doSupply(){
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
-      const approveTx=await tokenContract.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
+      const lendAllowance=await tokenContract.allowance(userAddr,LENDING_CONTRACT);
+      if(lendAllowance<amtParsed){
+        btn.innerHTML='<span class="spinner"></span>Approving…';
+        const approveTx=await tokenContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await approveTx.wait(1);
+      }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
-      await approveTx.wait(1);
       const tx=await lendContract.supply(amtParsed,arcGasOpts());
       await tx.wait(1);
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
@@ -2831,10 +2835,6 @@ async function doBorrow(){
 
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
-      const usdcForBorrow=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
-      toast('Approving borrow…','info',3000);
-      const approveBorrowTx=await usdcForBorrow.approve(LENDING_CONTRACT,amtParsed,arcGasOpts());
-      await approveBorrowTx.wait(1);
       toast('Confirming borrow…','info',3000);
       const tx=await lendContract.borrow(amtParsed,arcGasOpts());
       await tx.wait(1);
@@ -2993,7 +2993,7 @@ async function registerArcName(){
     if(isCircleWallet&&circleWalletId){
       if(btn)btn.innerHTML='<span class="spinner"></span>Approving USDC…';
       const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,feeAtomic]})});
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       if(btn)btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
@@ -3010,9 +3010,13 @@ async function registerArcName(){
       const usdcContract=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,signer);
       const fee=ethers.parseUnits(arcNameFeeUsdc.toString(),6);
-      const approveTx=await usdcContract.approve(NAME_REGISTRY,fee,arcGasOpts());
+      const nameAllowance=await usdcContract.allowance(userAddr,NAME_REGISTRY);
+      if(nameAllowance<fee){
+        if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
+        const approveTx=await usdcContract.approve(NAME_REGISTRY,ethers.MaxUint256,arcGasOpts());
+        await approveTx.wait(1);
+      }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
-      await approveTx.wait(1);
       const tx=await nameContract.register(name,arcNameDurationYears,arcGasOpts());
       await tx.wait(1);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
@@ -3415,7 +3419,7 @@ async function doPayNow(){
     if(isCircleWallet&&circleWalletId){
       const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
-          functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,amtAtomic]})});
+          functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       btn.innerHTML='<span class="spinner"></span>Paying…';
@@ -3428,9 +3432,13 @@ async function doPayNow(){
       toast('✓ Payment confirmed on-chain!','success',5000);
     }else if(signer){
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
-      const appTx=await tokenContract.approve(PAYREQ_CONTRACT,amtParsed,arcGasOpts());
+      const payAllowance=await tokenContract.allowance(userAddr,PAYREQ_CONTRACT);
+      if(payAllowance<amtParsed){
+        btn.innerHTML='<span class="spinner"></span>Approving…';
+        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        await appTx.wait(1);
+      }
       btn.innerHTML='<span class="spinner"></span>Paying…';
-      await appTx.wait(1);
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.pay(prId,amtParsed,arcGasOpts());
       await tx.wait(1);
