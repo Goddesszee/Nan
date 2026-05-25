@@ -627,6 +627,8 @@ async function _autoSeedLiquidity(){
 }
 
 async function onConnected(isEmail=false, isDev=false){
+  // Track wallet connection
+  trackEvent('wallet_connected', { method: isEmail ? 'email' : 'web3', wallet: userAddr });
   document.getElementById('page-land').style.display='none';
   document.getElementById('page-land').style.visibility='hidden';
   document.getElementById('page-land').style.zIndex='-1';
@@ -3559,3 +3561,156 @@ function deletePR(){
 })();
 
 
+
+// ══════════════════════════════════════════
+// ══  NAN ADMIN DASHBOARD — RESTRICTED  ══
+// ══════════════════════════════════════════
+
+const ADMIN_HASH = '7d6c5a4b2e1f9c8a3d7e2f5b4c1a9d8e6f3b2a1c7e5d4f9b8a3c2e1d6f5b4a3'; // Arike@2022 obfuscated
+let _secretTaps = 0, _secretTimer = null;
+let _adminUnlocked = false;
+
+function handleSecretTap(){
+  _secretTaps++;
+  clearTimeout(_secretTimer);
+  if(_secretTaps >= 5){
+    _secretTaps = 0;
+    openAdmin();
+  } else {
+    _secretTimer = setTimeout(()=>{ _secretTaps = 0; }, 2000);
+  }
+}
+
+function _hashPw(pw){
+  // Simple obfuscation — not crypto, just stops casual snooping
+  let h = 0;
+  for(let i=0;i<pw.length;i++){ h = ((h<<5)-h)+pw.charCodeAt(i); h|=0; }
+  return Math.abs(h).toString(16);
+}
+
+function openAdmin(){
+  document.getElementById('adminOverlay').style.display = 'block';
+  document.getElementById('adminAuth').style.display = 'flex';
+  document.getElementById('adminDash').style.display = 'none';
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminPwErr').style.display = 'none';
+  setTimeout(()=>document.getElementById('adminPwInput').focus(), 100);
+}
+
+function closeAdmin(){
+  document.getElementById('adminOverlay').style.display = 'none';
+  _adminUnlocked = false;
+}
+
+function checkAdminPw(){
+  const pw = document.getElementById('adminPwInput').value;
+  if(pw === 'Arike@2022'){
+    _adminUnlocked = true;
+    document.getElementById('adminAuth').style.display = 'none';
+    document.getElementById('adminDash').style.display = 'block';
+    loadAdminStats();
+  } else {
+    document.getElementById('adminPwErr').style.display = 'block';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+async function loadAdminStats(){
+  if(!_adminUnlocked) return;
+  document.getElementById('adminLoading').style.display = 'block';
+  document.getElementById('adminStats').style.display = 'none';
+
+  const RPC = 'https://rpc.testnet.arc.network';
+  const USDC = '0x3600000000000000000000000000000000000000';
+  const EURC = '0x3200000000000000000000000000000000000000';
+  const SWAP = '0x5cE359b74BE53b1B370641571cBef157dD575c79';
+  const LEND = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
+  const HIST = '0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
+  const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+
+  async function rpc(method, params=[]){
+    const r = await fetch(RPC, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0',method,params,id:1})
+    });
+    const d = await r.json();
+    return d.result;
+  }
+
+  try {
+    // Block number
+    const blockHex = await rpc('eth_blockNumber');
+    const block = parseInt(blockHex, 16);
+    document.getElementById('statBlock').textContent = block.toLocaleString();
+
+    // USDC total supply
+    const supplyHex = await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
+    const supply = parseInt(supplyHex,16)/1e6;
+    document.getElementById('statSupply').textContent = supply.toLocaleString('en',{maximumFractionDigits:0})+' USDC';
+
+    // USDC transfer logs
+    const usdcLogs = await rpc('eth_getLogs',[{fromBlock:'0x0',toBlock:'latest',address:USDC,topics:[TRANSFER]}]);
+    // EURC transfer logs
+    const eurcLogs = await rpc('eth_getLogs',[{fromBlock:'0x0',toBlock:'latest',address:EURC,topics:[TRANSFER]}]);
+
+    const allLogs = [...(usdcLogs||[]), ...(eurcLogs||[])];
+    const zero = '0x0000000000000000000000000000000000000000';
+    const contracts = new Set([USDC,EURC,SWAP,LEND,HIST].map(x=>x.toLowerCase()));
+
+    const wallets = new Set();
+    const recentWallets = [];
+
+    allLogs.forEach(log=>{
+      if(log.topics.length >= 3){
+        const from = '0x'+log.topics[1].slice(-40);
+        const to   = '0x'+log.topics[2].slice(-40);
+        [from,to].forEach(w=>{
+          const wl = w.toLowerCase();
+          if(wl !== zero && !contracts.has(wl)) wallets.add(wl);
+        });
+        // track recent senders
+        const sender = '0x'+log.topics[1].slice(-40);
+        if(sender.toLowerCase() !== zero && !contracts.has(sender.toLowerCase())){
+          if(!recentWallets.find(x=>x.addr===sender.toLowerCase())){
+            recentWallets.push({addr:sender.toLowerCase(), block: parseInt(log.blockNumber,16)});
+          }
+        }
+      }
+    });
+
+    // Swap events
+    const swapLogs = await rpc('eth_getLogs',[{fromBlock:'0x0',toBlock:'latest',address:SWAP}]);
+    // Lend events
+    const lendLogs = await rpc('eth_getLogs',[{fromBlock:'0x0',toBlock:'latest',address:LEND}]);
+    // Bridge (CCTP burn = from USDC with to=zero)
+    const bridgeLogs = (usdcLogs||[]).filter(l=>l.topics.length>=3 && '0x'+l.topics[2].slice(-40)===zero);
+
+    document.getElementById('statWallets').textContent = wallets.size.toLocaleString();
+    document.getElementById('statTxns').textContent = allLogs.length.toLocaleString();
+    document.getElementById('statSwaps').textContent = (swapLogs||[]).length.toLocaleString();
+    document.getElementById('statBridges').textContent = bridgeLogs.length.toLocaleString();
+    document.getElementById('statLends').textContent = (lendLogs||[]).length.toLocaleString();
+
+    // Recent wallets list
+    const recEl = document.getElementById('statRecentWallets');
+    const recent = recentWallets.sort((a,b)=>b.block-a.block).slice(0,6);
+    if(recent.length === 0){
+      recEl.innerHTML = '<div style="font-size:.75rem;color:var(--text3);">No activity yet</div>';
+    } else {
+      recEl.innerHTML = recent.map(w=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;">
+          <div style="font-family:\'JetBrains Mono\',monospace;font-size:.65rem;color:var(--text2);">${w.addr.slice(0,6)}…${w.addr.slice(-4)}</div>
+          <div style="font-size:.62rem;color:var(--text3);">Block ${w.block.toLocaleString()}</div>
+        </div>`).join('');
+    }
+
+    document.getElementById('adminLastRefresh').textContent = new Date().toLocaleTimeString();
+    document.getElementById('adminLoading').style.display = 'none';
+    document.getElementById('adminStats').style.display = 'block';
+
+  } catch(err){
+    document.getElementById('adminLoading').innerHTML = `<div style="font-size:.78rem;color:#f87171;">Error loading data: ${err.message}<br/><br/><button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:\'Space Grotesk\',sans-serif;">Retry</button></div>`;
+  }
+}

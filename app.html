@@ -22,6 +22,18 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
+<!-- ══ Google Analytics 4 ══ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+  // Custom NAN events
+  function trackEvent(action, params){
+    if(typeof gtag !== 'undefined') gtag('event', action, params || {});
+  }
+</script>
 </head>
 <body>
 <div id="app-root">
@@ -29,7 +41,7 @@
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo">
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()">
         <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="22" cy="36" r="5" fill="#ede9fe"/>
           <circle cx="50" cy="20" r="5" fill="#ede9fe"/>
@@ -80,7 +92,7 @@
   <!-- ══ DESKTOP SIDEBAR NAV ══ -->
   <nav id="desktopNav" style="display:none;">
     <div class="dnav-logo-row">
-      <div class="dnav-logo"><svg width="18" height="18" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="cursor:pointer;"><svg width="18" height="18" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/></svg></div>
       <span class="dnav-brand">NAN</span>
     </div>
     <button class="dnav-btn active" id="dnav-home" onclick="goPage('home')">
@@ -1381,6 +1393,75 @@
     </div>
     <div id="voiceStatus" style="display:none;text-align:center;font-size:.82rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
     <div style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:6px;">Powered by Groq · Live on-chain data · 🎤 Voice enabled</div>
+  </div>
+</div>
+
+<!-- ══ ADMIN OVERLAY ══ -->
+<div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Space Grotesk',sans-serif;overflow-y:auto;">
+  <div id="adminAuth" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;">
+    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 24px rgba(139,92,246,.5);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ede9fe" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:4px;">Admin Access</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);margin-bottom:24px;">NAN Dashboard · Restricted</div>
+    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.95rem;outline:none;text-align:center;margin-bottom:10px;"/>
+    <div id="adminPwErr" style="font-size:.75rem;color:#f87171;margin-bottom:10px;display:none;">Incorrect password</div>
+    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.4);">Unlock →</button>
+    <button onclick="closeAdmin()" style="margin-top:12px;background:transparent;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Cancel</button>
+  </div>
+  <div id="adminDash" style="display:none;max-width:640px;margin:0 auto;padding:32px 20px 60px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+      <div>
+        <div style="font-size:1.3rem;font-weight:800;letter-spacing:-.03em;">NAN Analytics</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);margin-top:2px;">Live · Arc Testnet · <span id="adminLastRefresh">—</span></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">↻ Refresh</button>
+        <button onclick="closeAdmin()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#f87171;font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Exit</button>
+      </div>
+    </div>
+    <div id="adminLoading" style="text-align:center;padding:40px 0;"><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div></div>
+    <div id="adminStats" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:18px;padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Unique Wallets</div>
+          <div id="statWallets" style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:var(--accent3);">—</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:4px;">Ever interacted with NAN</div>
+        </div>
+        <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:18px;padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Total Transactions</div>
+          <div id="statTxns" style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:#34d399;">—</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:4px;">USDC + EURC transfers</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Swaps</div>
+          <div id="statSwaps" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Bridges</div>
+          <div id="statBridges" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Lend Events</div>
+          <div id="statLends" style="font-size:1.6rem;font-weight:800;color:var(--text);">—</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Chain Status</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><div style="font-size:.7rem;color:var(--text3);">Current Block</div><div id="statBlock" style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--text);margin-top:2px;">—</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">USDC Total Supply</div><div id="statSupply" style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--text);margin-top:2px;">—</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">Swap Contract</div><div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);margin-top:2px;">0x5cE3…5c79</div></div>
+          <div><div style="font-size:.7rem;color:var(--text3);">Network</div><div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#34d399;margin-top:2px;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>Arc Testnet</div></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:16px;padding:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Recent Active Wallets</div>
+        <div id="statRecentWallets" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
