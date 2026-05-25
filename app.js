@@ -2555,6 +2555,7 @@ function showWalletPicker(){document.body.classList.add('modal-open');
 function hideWalletPicker(e){
   if(!e||e.target===document.getElementById('walletModalOverlay')){
     document.getElementById('walletModalOverlay').classList.remove('show');
+    document.body.classList.remove('modal-open');
   }
 }
 async function connectSpecific(walletType){
