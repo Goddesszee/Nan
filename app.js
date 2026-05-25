@@ -2325,6 +2325,15 @@ function toggleAgent(){
     setTimeout(()=>{ panel.style.display='none'; },350);
   }
 }
+
+// Ensure AI button is always clickable — fallback listener
+document.addEventListener('DOMContentLoaded',function(){
+  const btn=document.getElementById('aiBtn');
+  if(btn){
+    btn.addEventListener('click',function(e){e.stopPropagation();toggleAgent();},{passive:false});
+    btn.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();toggleAgent();},{passive:false});
+  }
+});
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
