@@ -2309,7 +2309,7 @@ function toggleAgent(){
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  btn.style.bottom='24px';
+  btn.style.bottom='90px';
   btn.style.right='24px';
   btn.style.top='';
   btn.style.transform='';
