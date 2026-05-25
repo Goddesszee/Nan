@@ -2337,9 +2337,8 @@ document.addEventListener('DOMContentLoaded',function(){
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  // Always keep button inside the 480px app container, just above bottom nav
-  btn.style.right='max(16px, calc(50% - 228px))';
-  btn.style.bottom='88px';
+  btn.style.right='18px';
+  btn.style.bottom='96px';
 }
 window.addEventListener('resize',resizeAIPanel);
 
