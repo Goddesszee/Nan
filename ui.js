@@ -38,7 +38,7 @@ function goPage(name) {
     arcname: 'nav-more',
     bulk:    'nav-more',
     naira:   'nav-more',
-    history: 'nav-more',
+    history: 'nav-history',
     lend:    'nav-earn',
   };
 

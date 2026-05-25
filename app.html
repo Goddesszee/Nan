@@ -53,21 +53,25 @@
 
   <!-- ══ BOTTOM NAV — 4 tabs ══ -->
   <nav class="bottom-nav" id="bottomNav">
-    <div class="nav-items">
+    <div class="nav-pill-wrap">
       <button class="nav-btn active" id="nav-home" onclick="goPage('home')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
         Home
       </button>
-      <button class="nav-btn" id="nav-send" onclick="goPage('send')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+      <button class="nav-btn nav-send-hl" id="nav-send" onclick="goPage('send')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
         Send
       </button>
       <button class="nav-btn" id="nav-earn" onclick="goPage('earn')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
         Earn
       </button>
+      <button class="nav-btn" id="nav-history" onclick="goPage('history')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        History
+      </button>
       <button class="nav-btn" id="nav-more" onclick="goPage('more')">
-        <span class="ni"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></span>
         More
       </button>
     </div>
@@ -193,7 +197,13 @@
     <div class="home-bal-card">
       <div class="home-bal-lbl">Total Balance</div>
       <div class="home-bal-num" id="skel-bal">$<span id="homeBalAmt">—</span></div>
-      <div class="home-bal-ngn" id="homeBalNgn">≈ ₦0 NGN</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;margin-bottom:10px;">
+        <div class="home-bal-ngn" id="homeBalNgn" style="margin-bottom:0;">≈ ₦0 NGN</div>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:.56rem;color:#34d399;font-weight:600;">
+          <span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>
+          Arc Testnet
+        </div>
+      </div>
       <div class="home-tok-row">
         <div class="tok"><span class="tok-dot usdc-dot"></span><span id="homeUsdcBal">0.00 USDC</span></div>
         <div class="tok"><span class="tok-dot eurc-dot"></span><span id="homeEurcBal">0.00 EURC</span></div>
@@ -203,15 +213,21 @@
     <!-- 3 quick actions -->
     <div class="home-actions-top">
       <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)">
-        <div class="home-action-icon">↑</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </div>
         <div class="home-action-label">Send</div>
       </div>
       <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)">
-        <div class="home-action-icon">↓</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
         <div class="home-action-label">Receive</div>
       </div>
       <div class="home-action" onclick="goPage('swap')">
-        <div class="home-action-icon">⇄</div>
+        <div class="home-action-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
         <div class="home-action-label">Swap</div>
       </div>
     </div>
@@ -230,32 +246,32 @@
     <div class="home-section-title">Your Assets</div>
     <div class="home-asset-row">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.2);">💵</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">U</div>
         <div><div class="home-asset-name">USDC</div><div class="home-asset-sub">USD Coin · Arc</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetUsdc">0.00</div>
-        <div class="home-asset-change" id="homeAssetUsdcSub" style="color:var(--text3);">Arc Testnet</div>
+        <div class="home-asset-change neutral" id="homeAssetUsdcSub">Arc Testnet</div>
       </div>
     </div>
     <div class="home-asset-row">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.2);">💶</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);">E</div>
         <div><div class="home-asset-name">EURC</div><div class="home-asset-sub">Euro Coin · Arc</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetEurc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetEurcSub" style="color:var(--text3);">Arc Testnet</div>
+        <div class="home-asset-change neutral" id="homeAssetEurcSub">Arc Testnet</div>
       </div>
     </div>
     <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;">
       <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);font-weight:700;color:var(--accent3);">₦</div>
+        <div class="home-asset-icon" style="background:linear-gradient(135deg,rgba(251,191,36,.3),rgba(251,191,36,.15));color:var(--gold);font-size:.9rem;">₦</div>
         <div><div class="home-asset-name">Naira</div><div class="home-asset-sub">NGN · Coming Soon</div></div>
       </div>
       <div>
         <div class="home-asset-val" id="homeAssetNgn">₦0.00</div>
-        <div class="home-asset-change neutral" style="color:var(--gold);font-size:.72rem;">Coming Soon</div>
+        <div class="home-asset-change neutral" style="color:var(--gold);">Coming Soon</div>
       </div>
     </div>
 
