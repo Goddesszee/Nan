@@ -22,6 +22,15 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
+<style>
+  #app-root .page { display: none !important; }
+  #app-root .page.active { display: flex !important; }
+  .wallet-modal-overlay { z-index: 99999 !important; }
+  #agentPanel { z-index: 99998 !important; }
+  #aiBtn { z-index: 99997 !important; }
+  #toast { z-index: 99999 !important; }
+  body.modal-open { overflow: hidden !important; }
+</style>
 </head>
 <body>
 
@@ -1179,12 +1188,7 @@
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'JetBrains Mono',monospace;"/>
     </div>
-    <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;text-align:center;font-family:'JetBrains Mono',monospace;">SEND USDC TO THIS ADDRESS ON ARC TESTNET</div>
-      <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
-    </div>
+    
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
       <div style="font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace;">or pay with NAN wallet</div>
