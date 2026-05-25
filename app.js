@@ -426,7 +426,7 @@ async function sendEmailOTP(){
 async function verifyOTP(){
   const otp=document.getElementById('otpInput').value.trim();
   if(!otp||otp.length!==6){toast('Enter the 6-digit code — got: '+otp.length,'error');return;}
-      if(!window._otpToken||window._otpToken==='dev'||window._otpToken.length!==64){
+      if(!window._otpToken||!window._otpExpiry){
         toast('Session lost — click Send Code again','error',5000);
         document.getElementById('otpBox').style.display='none';
         window._otpToken=null;window._otpExpiry=null;
@@ -1221,10 +1221,12 @@ function flipSwap(){
       const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[Math.floor(fromAmt*1_000_000).toString()]})});
       const d=await r2.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
+      btn.innerHTML='<span class="spinner"></span>Confirming swap…';
+      if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
       const rate=isUSDCtoEURC?FX:(1/FX);
       const amtOut=(fromAmt*rate*0.999).toFixed(4);
-      toast('Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' to '+amtOut+' '+tokenOut,'success',8000);
-      addTx({hash:d.txHash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:!!d.txHash,source:'swap'});
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' on Arc!','success',8000);
+      addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
       setTimeout(()=>refreshBalances(),5000);return;
@@ -2309,10 +2311,13 @@ function toggleAgent(){
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  btn.style.bottom='90px';
-  btn.style.right='24px';
-  btn.style.top='';
-  btn.style.transform='';
+  if(window.innerWidth>1040){
+    btn.style.right='calc(50% - 520px)';
+    btn.style.bottom='120px';
+  }else{
+    btn.style.right='0px';
+    btn.style.bottom='90px';
+  }
 }
 window.addEventListener('resize',resizeAIPanel);
 
@@ -2812,7 +2817,6 @@ async function doBorrow(){
     // Collateral is registered during supply — just borrow directly
 
     if(isCircleWallet&&circleWalletId){
-      // Borrow does not require a prior USDC approve — the pool sends tokens TO the user
       if(btn)btn.innerHTML='<span class="spinner"></span>Borrowing on Arc…';
       const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
@@ -2820,9 +2824,7 @@ async function doBorrow(){
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
       toast('✓ Borrow submitted — confirming on Arc…','info',4000);
-      if(d.transactionId){
-        await waitForCircleTx(d.transactionId,'borrow');
-      }
+      if(d.transactionId){await waitForCircleTx(d.transactionId,'borrow');}
       toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},6000);
@@ -3445,13 +3447,12 @@ async function doPayNow(){
 async function sendPaymentNotification(pr){
   if(!pr.creatorEmail)return;
   try{
-    await fetch('/api/otp',{
+    await fetch('/api/notify',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        action:'notify',
         email:pr.creatorEmail,
         subject:'✓ Payment received — '+pr.label,
-        message:'You received '+(pr.amount||'a')+ ' '+pr.token+' for "'+pr.label+'" on NAN Wallet.\n\nCheck your wallet at nanarc.xyz'
+        message:'You received '+(pr.amount||'a payment of')+' '+pr.token+' for "'+pr.label+'" on NAN Wallet.\n\nCheck your wallet at nanarc.xyz'
       })
     });
   }catch(e){console.log('Notify error:',e);}
