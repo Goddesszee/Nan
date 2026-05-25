@@ -69,8 +69,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .page{display:none;position:absolute;top:57px;left:0;right:0;bottom:76px;z-index:10;isolation:auto;overflow-y:auto;overflow-x:hidden;padding:14px 16px 20px;animation:up .28s ease both;scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}.page[style*="flex-direction:column"].active{display:flex;}
-.page-land{bottom:0!important;display:none;flex-direction:column;z-index:0;}
-.page-land.active{display:flex;}
+.page-land{top:0!important;bottom:0!important;display:none;flex-direction:column;z-index:20;overflow-y:auto;}
+.page-land.active{display:flex!important;}
 @keyframes up{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 
 /* ── HOME PAGE ── */
