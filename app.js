@@ -2309,19 +2309,10 @@ function toggleAgent(){
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  if(window.innerWidth>1040){
-    btn.style.bottom='24px';
-btn.style.right='24px';
-btn.style.top='';
-btn.style.transform='';
-btn.style.right='calc(50% - 540px)';
-btn.style.transform='translateY(-50%)';
-btn.style.bottom='';
-    btn.style.bottom='120px';
-  }else{
-    btn.style.right='0px';
-    btn.style.bottom='90px';
-  }
+  btn.style.bottom='24px';
+  btn.style.right='24px';
+  btn.style.top='';
+  btn.style.transform='';
 }
 window.addEventListener('resize',resizeAIPanel);
 
