@@ -410,8 +410,11 @@ async function sendEmailOTP(){
     });
     const data=await res.json();
     if(data.success){
-      if(data.dev){toast('Dev mode: OTP printed to server console','info',6000);}
-      else{toast('✓ Code sent to '+email,'success',6000);}
+      if(data.dev){
+        toast('⚠️ Email not configured — check Vercel env vars (SMTP_PASS). OTP printed to server logs.','error',8000);
+      } else {
+        toast('✓ Code sent to '+email,'success',6000);
+      }
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
       document.getElementById('stepDot1').style.width='8px';document.getElementById('stepDot1').style.background='rgba(139,92,246,.4)';
@@ -2547,8 +2550,9 @@ function showWalletPicker(){
   document.getElementById('walletModalOverlay').classList.add('show');
 }
 function hideWalletPicker(e){
-  if(!e||e.target===document.getElementById('walletModalOverlay')){
-    document.getElementById('walletModalOverlay').classList.remove('show');
+  const overlay = document.getElementById('walletModalOverlay');
+  if(overlay && (!e || e.target === overlay)){
+    overlay.classList.remove('show');
   }
 }
 async function connectSpecific(walletType){
