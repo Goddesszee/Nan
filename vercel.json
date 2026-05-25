@@ -1,19 +1,30 @@
 {
-  "cleanUrls": true,
+  "version": 2,
+  "buildCommand": "echo 'no build needed'",
+  "outputDirectory": ".",
   "rewrites": [
     {
       "source": "/",
-      "destination": "/landing.html"
+      "destination": "/index.html"
     },
     {
       "source": "/app",
       "destination": "/app.html"
+    },
+    {
+      "source": "/pay",
+      "destination": "/pay.html"
     }
   ],
-  "crons": [
+  "headers": [
     {
-      "path": "/api/agent?action=tick",
-      "schedule": "* * * * *"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     }
   ]
 }
