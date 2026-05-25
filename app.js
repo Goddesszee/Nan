@@ -2310,8 +2310,10 @@ function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
   if(window.innerWidth>1040){
-    btn.style.right='16px';
-btn.style.bottom='160px';
+    btn.style.top='50%';
+btn.style.right='calc(50% - 540px)';
+btn.style.transform='translateY(-50%)';
+btn.style.bottom='';
     btn.style.bottom='120px';
   }else{
     btn.style.right='0px';
