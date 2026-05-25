@@ -262,7 +262,7 @@ function updateTopBar(connected){
   const dNav=document.getElementById('desktopNav');
   if(connected){
     bar.style.display='flex';
-    if(dNav) dNav.style.display='flex';
+    if(dNav) dNav.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';

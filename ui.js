@@ -139,7 +139,12 @@ function updateDesktopNav() {
   const isDesktop = window.innerWidth >= 769;
   const dNav = document.getElementById('desktopNav');
   const isLanding = document.getElementById('page-land')?.classList.contains('active');
-  if (dNav) dNav.style.display = (isDesktop && !isLanding) ? 'flex' : 'none';
+  if (!dNav) return;
+  if (isDesktop && !isLanding) {
+    dNav.style.display = 'flex';
+  } else {
+    dNav.style.display = 'none';
+  }
 }
 
 window.addEventListener('resize', updateDesktopNav);
