@@ -55,8 +55,9 @@ function goPage(name) {
   const desktopNavMap = {
     home: 'dnav-home', send: 'dnav-send', earn: 'dnav-earn',
     lend: 'dnav-earn', swap: 'dnav-swap', bridge: 'dnav-bridge',
+    history: 'dnav-history',
     more: 'dnav-more', arcname: 'dnav-more', bulk: 'dnav-more',
-    naira: 'dnav-more', history: 'dnav-more',
+    naira: 'dnav-more', payreq: 'dnav-more',
   };
   document.querySelectorAll('#desktopNav .dnav-btn').forEach(b => b.classList.remove('active'));
   const dnavId = desktopNavMap[name] || 'dnav-more';
