@@ -2326,14 +2326,47 @@ function toggleAgent(){
   }
 }
 
-// Ensure AI button is always clickable — fallback listener
-document.addEventListener('DOMContentLoaded',function(){
-  const btn=document.getElementById('aiBtn');
-  if(btn){
-    btn.addEventListener('click',function(e){e.stopPropagation();toggleAgent();},{passive:false});
-    btn.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();toggleAgent();},{passive:false});
+// Single reliable tap handler - no double-fire
+(function(){
+  function attachAI(){
+    // Fix floating AI button
+    const btn=document.getElementById('aiBtn');
+    if(btn){
+      btn.removeAttribute('onclick');
+      let lastTap=0;
+      function handleTap(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const now=Date.now();
+        if(now-lastTap<400) return;
+        lastTap=now;
+        toggleAgent();
+      }
+      btn.addEventListener('touchend',handleTap,{passive:false});
+      btn.addEventListener('click',handleTap,{passive:false});
+    }
+    // Fix More page NAN AI row
+    const moreBtn=document.getElementById('nanAiMoreBtn');
+    if(moreBtn){
+      let lastTap2=0;
+      function handleMoreTap(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const now=Date.now();
+        if(now-lastTap2<400) return;
+        lastTap2=now;
+        toggleAgent();
+      }
+      moreBtn.addEventListener('touchend',handleMoreTap,{passive:false});
+      moreBtn.addEventListener('click',handleMoreTap,{passive:false});
+    }
   }
-});
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',attachAI);
+  } else {
+    attachAI();
+  }
+})();
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
