@@ -2318,23 +2318,19 @@ function toggleAgent(){
   if(agentOpen){
     panel.style.display='flex';
     panel.style.flexDirection='column';
-    requestAnimationFrame(()=>{ panel.style.transform='translateY(0)'; });
+    requestAnimationFrame(()=>{ panel.style.transform='translate(-50%,0)'; });
     renderAgentMsgs();renderAgentChips();scrollAgentBottom();
   }else{
-    panel.style.transform='translateY(100%)';
+    panel.style.transform='translate(-50%,100%)';
     setTimeout(()=>{ panel.style.display='none'; },350);
   }
 }
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
-  if(window.innerWidth>1040){
-    btn.style.right='calc(50% - 520px)';
-    btn.style.bottom='120px';
-  }else{
-    btn.style.right='0px';
-    btn.style.bottom='90px';
-  }
+  // Always keep button inside the 480px app container, just above bottom nav
+  btn.style.right='max(16px, calc(50% - 228px))';
+  btn.style.bottom='88px';
 }
 window.addEventListener('resize',resizeAIPanel);
 
@@ -3520,4 +3516,5 @@ function deletePR(){
     },600);
   };
 })();
+
 
