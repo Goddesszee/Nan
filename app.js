@@ -261,7 +261,11 @@ function updateTopBar(connected){
   const landBtn=document.getElementById('landConnectBtn');
   const dNav=document.getElementById('desktopNav');
   if(connected){
-    bar.style.display='flex';
+    if(window.innerWidth >= 769){
+      bar.classList.add('desktop-show');
+    } else {
+      bar.style.display='flex';
+    }
     if(dNav) dNav.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);

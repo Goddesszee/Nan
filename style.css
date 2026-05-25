@@ -721,186 +721,158 @@ a:hover{color:var(--text);}
 @media(min-width:769px){
   html,body{overflow:hidden;height:100%;background:var(--bg);}
 
-  /* Landing page — full screen on desktop, no sidebar */
+  /* ── Landing page: full screen, no sidebar ── */
   .page-land.active{
     position:fixed !important;
     top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;
-    width:100vw !important;max-width:100vw !important;
-    height:100vh !important;
-    z-index:9999 !important;
-    display:flex !important;
-    flex-direction:column !important;
-    overflow-y:auto !important;
-    transform:none !important;
-  }
-  .page-land.active > div:last-child{
-    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:100vw !important;max-width:100vw !important;height:100vh !important;
+    z-index:9999 !important;display:flex !important;
+    flex-direction:column !important;overflow-y:auto !important;transform:none !important;
   }
 
-  /* App root fills screen */
+  /* ── App root ── */
   #app-root{
-    position:fixed;
-    top:0;left:0;right:0;bottom:0;
-    width:100%;max-width:100%;
-    height:100vh;
-    overflow:visible;
-    box-shadow:none;
-    transform:none;
-    background:transparent;
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    width:100%;max-width:100%;height:100vh;
+    overflow:visible;box-shadow:none;transform:none;background:transparent;
   }
   #app-root::before,#app-root::after{display:none;}
 
-  /* Hide mobile top bar & bottom nav */
+  /* Hide mobile elements */
   #globalTopBar{display:none !important;}
   .bottom-nav{display:none !important;}
 
   /* ── Sidebar ── */
   #desktopNav{
     flex-direction:column;
-    position:fixed;
-    top:0;left:0;
+    position:fixed;top:0;left:0;
     width:220px;height:100vh;
-    background:rgba(10,8,20,0.98);
+    background:rgba(10,8,20,.98);
     border-right:1px solid var(--border);
-    padding:20px 12px 24px;
-    gap:2px;
-    z-index:100;
+    padding:0;gap:0;z-index:100;
     backdrop-filter:blur(24px);
   }
+
+  /* Sidebar logo row */
   #desktopNav .dnav-logo-row{
     display:flex;align-items:center;gap:10px;
-    padding:6px 10px 20px;
+    padding:18px 16px 14px;
+    border-bottom:1px solid rgba(139,92,246,.08);
+    margin-bottom:6px;
   }
   #desktopNav .dnav-logo{
-    width:34px;height:34px;border-radius:10px;
+    width:32px;height:32px;border-radius:9px;
     background:linear-gradient(135deg,#8b5cf6,#7c3aed);
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 2px 14px rgba(139,92,246,.45);flex-shrink:0;
+    box-shadow:0 0 14px rgba(139,92,246,.4);flex-shrink:0;
   }
   #desktopNav .dnav-brand{
     font-family:'Space Grotesk',sans-serif;
-    font-size:1.05rem;font-weight:700;letter-spacing:.06em;color:var(--text);
+    font-size:.92rem;font-weight:800;letter-spacing:.06em;color:var(--text);
   }
+
+  /* Sidebar nav wrap */
+  #desktopNav{padding:0;}
   #desktopNav .dnav-btn{
-    display:flex;align-items:center;gap:11px;
-    padding:11px 14px;border-radius:12px;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;border-radius:11px;
     border:1px solid transparent;background:transparent;
     color:var(--text3);font-family:'Space Grotesk',sans-serif;
-    font-size:.88rem;font-weight:600;cursor:pointer;
-    transition:all .18s ease;text-align:left;width:100%;
+    font-size:.82rem;font-weight:600;cursor:pointer;
+    transition:all .15s;text-align:left;width:100%;
+    margin:0 10px;width:calc(100% - 20px);
   }
-  #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.6;transition:opacity .18s;}
-  #desktopNav .dnav-btn:hover{background:rgba(139,92,246,.07);color:var(--text2);border-color:rgba(139,92,246,.12);}
-  #desktopNav .dnav-btn:hover svg{opacity:1;}
-  #desktopNav .dnav-btn.active{background:rgba(139,92,246,.14);color:var(--accent3);border-color:rgba(139,92,246,.25);}
+  #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.5;width:15px;height:15px;transition:opacity .15s;}
+  #desktopNav .dnav-btn:hover{background:rgba(139,92,246,.06);color:var(--text2);border-color:rgba(139,92,246,.1);}
+  #desktopNav .dnav-btn:hover svg{opacity:.8;}
+  #desktopNav .dnav-btn.active{background:rgba(139,92,246,.12);color:var(--accent3);border-color:rgba(139,92,246,.2);}
   #desktopNav .dnav-btn.active svg{opacity:1;}
-  #desktopNav .dnav-btn.dnav-send{background:rgba(139,92,246,.1);color:var(--accent3);border-color:rgba(139,92,246,.2);}
+  #desktopNav .dnav-btn.dnav-send{background:rgba(139,92,246,.08);color:var(--accent3);border-color:rgba(139,92,246,.14);}
   #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
-  #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 4px;}
+  #desktopNav .dnav-divider{height:1px;background:rgba(139,92,246,.08);margin:6px 14px;}
 
-  /* ── Content area: centered in space right of sidebar ── */
+  /* Sidebar nav section padding */
+  #desktopNav > button, #desktopNav .dnav-btn{margin-left:10px;margin-right:10px;width:calc(100% - 20px);}
+
+  /* ── Desktop topbar (shown after connect) ── */
+  #globalTopBar{
+    display:none;
+    position:fixed;top:0;left:220px;right:0;height:52px;
+    background:rgba(10,8,20,.7);backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(139,92,246,.08);
+    align-items:center;justify-content:space-between;
+    padding:0 28px;z-index:90;
+  }
+  #globalTopBar.desktop-show{display:flex !important;}
+
+  /* ── Pages: sit right of sidebar, below topbar ── */
   .page{
     position:fixed !important;
-    top:0 !important;
+    top:52px !important;
     left:220px !important;
     right:0 !important;
     bottom:0 !important;
-    width:auto !important;
-    max-width:none !important;
+    width:auto !important;max-width:none !important;
     display:none !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    padding:48px 20px 60px !important;
-    animation:none !important;
-    isolation:auto !important;
-    transform:none !important;
+    overflow-y:auto !important;overflow-x:hidden !important;
+    flex-direction:column !important;align-items:center !important;
+    padding:32px 24px 48px !important;
+    animation:none !important;isolation:auto !important;transform:none !important;
   }
-  .page.active{
-    display:flex !important;
-  }
-  /* Content column — fixed width, centered */
+  .page.active{display:flex !important;}
+
+  /* Content column */
   .page > *{
-    width:100% !important;
-    max-width:480px !important;
-    flex-shrink:0 !important;
-    box-sizing:border-box !important;
+    width:100% !important;max-width:520px !important;
+    flex-shrink:0 !important;box-sizing:border-box !important;
   }
-  /* Gap between children */
-  .page > * + *{ margin-top:0 !important; }
 
   /* Cards */
   .card{padding:22px;border-radius:18px;}
   .card-title{font-size:.75rem;margin-bottom:14px;}
+  .home-bal-num{font-size:2.6rem;}
+  .home-bal-card{padding:22px;margin-bottom:12px;}
 
-  /* Balance */
-  .home-bal-num{font-size:2.8rem;}
-  .home-bal-card{padding:24px;margin-bottom:12px;}
+  /* Quick actions */
+  .home-actions-top{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;margin-bottom:10px !important;}
+  .home-action{padding:14px 8px !important;border-radius:14px !important;}
+  .home-action-icon{font-size:1.3rem !important;margin-bottom:4px !important;}
+  .home-action-label{font-size:.68rem !important;}
 
-  /* Quick actions — always 3 columns side by side */
-  .home-actions-top{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;margin-bottom:8px !important;}
-  .home-action{padding:16px 8px !important;border-radius:16px !important;}
-  .home-action-icon{font-size:1.4rem !important;margin-bottom:4px !important;}
-  .home-action-label{font-size:.7rem !important;}
-
-  /* Inputs */
+  /* Inputs & buttons */
   input,select{font-size:.88rem;padding:11px 14px;}
   .flbl{font-size:.7rem;margin-bottom:7px;}
-
-  /* Buttons */
-  .btn{padding:15px;font-size:.9rem;border-radius:14px;}
+  .btn{padding:14px;font-size:.9rem;border-radius:14px;}
   .max-btn{padding:9px 13px;font-size:.75rem;}
-
-  /* Page titles */
-  .page-title{font-size:1.6rem;margin-bottom:5px;}
+  .page-title{font-size:1.5rem;margin-bottom:5px;}
   .page-sub{font-size:.85rem;margin-bottom:14px;}
-
-  /* More page */
-  .more-item{padding:16px 18px;border-radius:16px;}
 
   /* AI button */
   #aiBtn{bottom:32px !important;right:32px !important;width:50px !important;height:50px !important;border-radius:14px !important;}
 
-  /* Agent panel */
+  /* Agent panel slides from right */
   #agentPanel{left:auto !important;right:0 !important;bottom:0 !important;top:0 !important;width:380px !important;max-width:380px !important;border-radius:0 !important;border-left:1px solid var(--border) !important;transform:translateX(100%) !important;}
   #agentPanel.open{transform:translateX(0) !important;}
 
-  /* Wallet modal centered */
+  /* Modals centered */
   .wallet-modal-overlay{align-items:center !important;}
   .wallet-modal{border-radius:22px !important;max-width:420px !important;}
 
-  /* Toast — centered in content area right of sidebar */
-  #toast{
-    bottom:36px !important;
-    left:calc(220px + (100vw - 220px) / 2) !important;
-    max-width:380px !important;
-    width:auto !important;
-    min-width:180px !important;
-    padding:10px 24px !important;
+  /* Toast centered in content area */
+  #toast{bottom:36px !important;left:calc(220px + (100vw - 220px) / 2) !important;max-width:380px !important;width:auto !important;min-width:180px !important;padding:10px 24px !important;}
+
+  /* Pickers as centered modals */
+  #chainPickerSheet,#bankPickerSheet{
+    left:50% !important;right:auto !important;bottom:auto !important;top:50% !important;
+    transform:translate(-50%,-50%) !important;width:380px !important;max-height:70vh !important;
+    border-radius:20px !important;border:1px solid var(--border2) !important;
+    box-shadow:0 24px 64px rgba(0,0,0,.6) !important;padding:0 0 8px !important;
   }
 
-  /* Thin scrollbar */
+  /* Scrollbar */
   .page::-webkit-scrollbar{display:block;width:3px;}
   .page::-webkit-scrollbar-track{background:transparent;}
   .page::-webkit-scrollbar-thumb{background:rgba(139,92,246,.2);border-radius:3px;}
-
-  /* ── Pickers: centered modal on desktop instead of bottom sheet ── */
-  #chainPickerSheet,#bankPickerSheet{
-    /* Override mobile bottom-sheet positioning */
-    left:50% !important;
-    right:auto !important;
-    bottom:auto !important;
-    top:50% !important;
-    transform:translate(-50%,-50%) !important;
-    width:380px !important;
-    max-height:70vh !important;
-    border-radius:20px !important;
-    border:1px solid var(--border2) !important;
-    border-top:1px solid var(--border2) !important;
-    box-shadow:0 24px 64px rgba(0,0,0,.6) !important;
-    padding:0 0 8px !important;
-  }
 }
 
 /* ══ WIDE DESKTOP (1200px+) ══ */
