@@ -466,64 +466,76 @@
   <div class="page" id="page-lend">
 
     <!-- Header -->
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:16px;">
       <div class="page-title" style="margin-bottom:3px;">Earn</div>
-      <div style="font-size:.82rem;color:var(--text3);">Supply USDC · Earn interest · Borrow against your balance</div>
+      <div style="font-size:.78rem;color:var(--text3);line-height:1.5;">Supply USDC · Earn interest · Borrow against your balance</div>
     </div>
 
-    <!-- APY + Stats row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <!-- APY hero card -->
-      <div style="background:linear-gradient(145deg,#0d2a1f,#0a1f18);border:1px solid rgba(52,211,153,.25);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:rgba(52,211,153,.6);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;">Supply APY</div>
-        <div style="font-size:2.4rem;font-weight:800;color:var(--success);letter-spacing:-1px;line-height:1;">4.80%</div>
-        <div style="font-size:.68rem;color:rgba(52,211,153,.5);margin-top:8px;font-family:'JetBrains Mono',monospace;">No lockup · Powered by Arc</div>
+    <!-- APY Hero -->
+    <div style="background:linear-gradient(135deg,#052016,#0a2a1c);border:1px solid rgba(52,211,153,.3);border-radius:18px;padding:20px;margin-bottom:10px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.15),transparent 70%);pointer-events:none;"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(52,211,153,.55);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;">Supply APY</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+        <div style="font-size:3rem;font-weight:800;color:var(--success);letter-spacing:-2px;line-height:1;">4.80%</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 9px;border-radius:100px;">No lockup</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 9px;border-radius:100px;">Powered by Arc</div>
+        </div>
       </div>
-      <!-- Stats stacked -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:.72rem;color:var(--text3);">Borrow APR</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--warning);">7.20%</span>
-        </div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:.72rem;color:var(--text3);">Total Supplied</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--text);" id="totalSupplied">—</span>
-        </div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:.72rem;color:var(--text3);">Utilization</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--accent3);" id="utilizationRate">—</span>
-        </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.4);margin-top:8px;">Earn on every dollar you supply · Withdraw anytime</div>
+    </div>
+
+    <!-- 3 stat pills -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px;">
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Borrow APR</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--warning);">7.20%</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Supplied</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--text);" id="totalSupplied">—</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Utilization</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--accent3);" id="utilizationRate">—</div>
       </div>
     </div>
 
-    <!-- Your Positions -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
-      <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
-        <div style="width:18px;height:18px;border-radius:5px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.65rem;">📊</div>
-        Your Positions
+    <!-- Positions header -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="width:22px;height:22px;border-radius:7px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.12);border-radius:12px;padding:12px;">
-          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Supplied</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--success);" id="suppliedAmt">0.00 USDC</div>
-        </div>
-        <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.12);border-radius:12px;padding:12px;">
-          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Borrowed</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--danger);" id="borrowedAmt">0.00 USDC</div>
-        </div>
-        <div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.12);border-radius:12px;padding:12px;">
-          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Accrued Interest</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--gold);" id="accruedInterest">0.000000</div>
-        </div>
-        <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.12);border-radius:12px;padding:12px;">
-          <div style="font-size:.65rem;color:var(--text3);margin-bottom:5px;">Health Factor</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--success);" id="healthFactor">—</div>
-        </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);">Your Positions</div>
+    </div>
+
+    <!-- Positions 2x2 grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;">
+      <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Supplied</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--success);line-height:1;" id="suppliedAmt">0.00</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.5);margin-top:4px;">USDC</div>
+      </div>
+      <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:14px;padding:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Borrowed</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--danger);line-height:1;" id="borrowedAmt">0.00</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(248,113,113,.5);margin-top:4px;">USDC</div>
+      </div>
+      <div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15);border-radius:14px;padding:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Accrued Interest</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--gold);line-height:1;" id="accruedInterest">0.000000</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(251,191,36,.5);margin-top:4px;">USDC</div>
+      </div>
+      <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Health Factor</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--success);line-height:1;" id="healthFactor">—</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.5);margin-top:4px;">Safe</div>
       </div>
     </div>
+
     <!-- Tabs -->
     <div class="card">
-      <div class="send-tabs" style="margin-bottom:9px;">
+      <div class="send-tabs" style="background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:13px;padding:4px;gap:3px;margin-bottom:12px;">
         <button class="stab active" onclick="setLendTab('supply',this)">Supply</button>
         <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
         <button class="stab" onclick="setLendTab('repay',this)">Repay</button>
