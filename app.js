@@ -1430,12 +1430,28 @@ async function pollIrisAttestation(txHash, destChain) {
         const mintEl = document.getElementById('mintStatus');
         if (mintEl) {
           mintEl.style.display = 'block';
-          mintEl.innerHTML = '⚠️ Auto-mint unavailable for email wallets. '
-            + 'Complete the mint manually on ' + (destConfig?.chainName || destChain) + '. '
-            + '<a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" '
-            + 'target="_blank" style="color:var(--accent3);">Circle guide ↗</a>';
+          const destName = destConfig?.chainName || destChain;
+          const transmitterAddr = destConfig?.transmitter || '—';
+          mintEl.innerHTML = `
+            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:14px;">
+              <div style="font-weight:700;color:#fff;margin-bottom:8px;">✅ Burn complete — mint on ${destName}</div>
+              <div style="font-size:.72rem;color:#888;line-height:1.7;margin-bottom:10px;">
+                Your USDC is burned on Arc. To receive it on <strong style="color:#ccc;">${destName}</strong>, complete the mint using the attestation below.
+              </div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:6px;">MessageTransmitter on ${destName}:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#8b5cf6;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Message bytes:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:6px;word-break:break-all;">${message}</div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Attestation:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:12px;word-break:break-all;">${attestation}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
+                <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
+                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7c3aed;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
+              </div>
+            </div>`;
         }
-        toast('Attestation ready — complete mint manually on ' + (destConfig?.chainName || destChain), 'info', 10000);
+        toast('✅ Attestation ready — copy the data above to mint on ' + (destConfig?.chainName || destChain), 'success', 10000);
         return;
       }
 
