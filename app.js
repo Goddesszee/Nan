@@ -2490,6 +2490,11 @@ RULES:
       }),
     });
     const data=await res.json();
+    if(!res.ok || data.error){
+      agentMsgs[agentMsgs.length-1]={role:'assistant',content:`⚠️ ${data.error||'API error '+res.status}. Make sure GROQ_API_KEY is set in Vercel → Settings → Environment Variables.`};
+      renderAgentMsgs();scrollAgentBottom();
+      return;
+    }
     const reply=data.reply||"Sorry, couldn't reach the AI.";
     const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action=null;
@@ -2498,8 +2503,9 @@ RULES:
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
     // Speak the AI response
     speakResponse(clean);
-  }catch{
-    agentMsgs[agentMsgs.length-1]={role:'assistant',content:'Connection error — is the server running?'};
+  }catch(err){
+    console.error('Agent error:', err);
+    agentMsgs[agentMsgs.length-1]={role:'assistant',content:`⚠️ ${err.message||'Connection error'}. Check that GROQ_API_KEY is set in Vercel environment variables.`};
   }
   renderAgentMsgs();scrollAgentBottom();
 }
