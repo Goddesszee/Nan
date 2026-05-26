@@ -1,12 +1,12 @@
 /* ── NAN Wallet — style.css ── */
 :root{
-  --bg:#0c0a18;--surface:#100e22;--card:rgba(139,92,246,0.07);--card2:rgba(139,92,246,0.12);
+  --bg:#06040e;--surface:#0d0b1a;--card:rgba(139,92,246,0.08);--card2:rgba(139,92,246,0.14);
   --border:rgba(139,92,246,0.22);--border2:rgba(139,92,246,0.4);
   --accent:#8b5cf6;--accent3:#a78bfa;--accent4:#c4b5fd;
   --text:#f5f3ff;--text2:#c4b5fd;--text3:rgba(196,181,253,0.72);
   --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#f59e0b;
   --radius:20px;--radius-sm:16px;
-  --topbar-bg:rgba(12,10,24,0.98);--nav-bg:rgba(10,8,20,0.99);
+  --topbar-bg:rgba(6,4,14,0.98);--nav-bg:rgba(6,4,14,0.99);
 }
 [data-theme="light"]{
   --bg:#f5f3ff;--surface:#ffffff;--card:rgba(109,40,217,0.06);--card2:rgba(109,40,217,0.1);
@@ -25,7 +25,7 @@ body{
   -moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
   /* Purple atmosphere — like the demo */
   background-image:
-    radial-gradient(ellipse 800px 500px at 60% -5%, rgba(139,92,246,.13) 0%, transparent 65%),
+    radial-gradient(ellipse 800px 500px at 60% -5%, rgba(139,92,246,.18) 0%, transparent 65%),
     radial-gradient(ellipse 500px 400px at 100% 100%, rgba(109,40,217,.09) 0%, transparent 65%),
     radial-gradient(ellipse 400px 300px at 0% 80%, rgba(124,58,237,.07) 0%, transparent 65%);
   background-attachment:fixed;
@@ -39,7 +39,7 @@ body{
 
 /* ── Background effects ── */
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.14) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 90% -10%,rgba(139,92,246,.18) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at -5% 80%,rgba(109,40,217,.12) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
 /* ── Top bar ── */
 #globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:none;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
