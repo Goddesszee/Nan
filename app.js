@@ -3641,7 +3641,7 @@ async function loadAdminStats(){
   let _id=0;
 
   function setMsg(msg){
-    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#888;text-align:center;padding:10px;line-height:1.8;">${msg}</div>`;
+    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#888;text-align:center;padding:10px;line-height:1.9;">${msg}</div>`;
   }
 
   async function rpc(method,params=[]){
@@ -3652,65 +3652,73 @@ async function loadAdminStats(){
     return d.result;
   }
 
-  // Chunk ALL blocks from 0 to latest in 30k chunks to avoid 413
-  async function getAllLogs(address, topics){
-    const blockHex=await rpc('eth_blockNumber');
-    const latest=parseInt(blockHex,16);
-    const CHUNK=30000;
+  // Try progressively larger chunks until RPC accepts
+  async function getLogs(address, topics, from, to){
+    const filter={fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16), address};
+    if(topics) filter.topics=topics;
+    try{
+      const r=await rpc('eth_getLogs',[filter]);
+      return Array.isArray(r)?r:[];
+    }catch(e){
+      console.warn('getLogs failed',from,to,e.message);
+      return [];
+    }
+  }
+
+  // Query in chunks — find what size the RPC accepts
+  async function getLogsAll(address, topics, latest){
+    // Try different chunk sizes — start large, fall back smaller
+    const chunkSizes=[100000, 50000, 30000, 10000];
+    let workingChunk=50000;
+    
+    // Test with a small sample first
+    for(const sz of chunkSizes){
+      const test=await getLogs(address, topics, Math.max(0,latest-sz), latest);
+      if(test.length>=0){ workingChunk=sz; break; }
+    }
+
     const logs=[];
-    let chunks=0;
-    const total=Math.ceil(latest/CHUNK);
-    for(let from=0; from<=latest; from+=CHUNK){
-      const to=Math.min(from+CHUNK-1, latest);
-      const filter={fromBlock:'0x'+from.toString(16),toBlock:'0x'+to.toString(16),address};
-      if(topics) filter.topics=topics;
-      try{
-        const r=await rpc('eth_getLogs',[filter]);
-        if(Array.isArray(r)) logs.push(...r);
-      }catch(e){
-        console.warn('chunk failed',from,'-',to,e.message);
-      }
-      chunks++;
-      if(chunks%10===0){
+    const total=Math.ceil(latest/workingChunk);
+    let done=0;
+    for(let from=0; from<=latest; from+=workingChunk){
+      const to=Math.min(from+workingChunk-1, latest);
+      const chunk=await getLogs(address, topics, from, to);
+      logs.push(...chunk);
+      done++;
+      if(done%5===0){
         const pct=Math.round((from/latest)*100);
-        setMsg(`Scanning blocks… ${pct}% (${logs.length} events found so far)`);
-        await new Promise(r=>setTimeout(r,0)); // let UI update
+        setMsg(`Scanning… ${pct}% complete<br/>${logs.length} events found`);
+        await new Promise(r=>setTimeout(r,0));
       }
     }
     return logs;
   }
 
   try{
-    setMsg('⛓ Connecting to Arc Testnet…');
+    setMsg('Connecting to Arc Testnet…');
     const blockHex=await rpc('eth_blockNumber');
     const latest=parseInt(blockHex,16);
     document.getElementById('statBlock').textContent=latest.toLocaleString();
 
-    setMsg('📊 Fetching USDC supply…');
+    setMsg('Fetching USDC supply…');
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
     document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
 
-    setMsg(`📥 Scanning ALL blocks (0 → ${latest.toLocaleString()}) for USDC transfers…<br/>This may take 1-2 minutes. Do not close.`);
-    const uL=await getAllLogs(USDC,[TRANSFER]);
+    setMsg(`Scanning USDC transfers…<br/>Block 0 → ${latest.toLocaleString()}`);
+    const uL=await getLogsAll(USDC,[TRANSFER],latest);
 
-    setMsg(`📥 Scanning EURC transfers… (found ${uL.length} USDC events)`);
-    const eL=await getAllLogs(EURC,[TRANSFER]);
+    setMsg(`Scanning EURC transfers… (${uL.length} USDC events found)`);
+    const eL=await getLogsAll(EURC,[TRANSFER],latest);
 
-    setMsg('📥 Fetching contract events…');
-    const CHUNK=30000;
-    async function getLogsRange(address){
-      const logs=[];
-      for(let from=0; from<=latest; from+=CHUNK){
-        const to=Math.min(from+CHUNK-1,latest);
-        try{const r=await rpc('eth_getLogs',[{fromBlock:'0x'+from.toString(16),toBlock:'0x'+to.toString(16),address}]);if(Array.isArray(r))logs.push(...r);}catch(e){}
-      }
-      return logs;
-    }
+    setMsg('Fetching contract events…');
     const [sL,lL,nL,pL]=await Promise.all([
-      getLogsRange(SWAP),getLogsRange(LEND),getLogsRange(NAME),getLogsRange(PAYREQ)
+      getLogsAll(SWAP,null,latest),
+      getLogsAll(LEND,null,latest),
+      getLogsAll(NAME,null,latest),
+      getLogsAll(PAYREQ,null,latest),
     ]);
 
-    setMsg('🔍 Processing data…');
+    setMsg('Processing…');
     const all=[...uL,...eL];
     const wallets=new Set();
     const recent=new Map();
@@ -3734,8 +3742,6 @@ async function loadAdminStats(){
     document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
-    const nameEl=document.getElementById('statNames');if(nameEl)nameEl.textContent=nL.length.toLocaleString();
-    const payEl=document.getElementById('statPayreqs');if(payEl)payEl.textContent=pL.length.toLocaleString();
 
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
@@ -3758,7 +3764,7 @@ async function loadAdminStats(){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Must be on nanarc.xyz</div>
+      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Open browser console (F12) for details</div>
       <button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
