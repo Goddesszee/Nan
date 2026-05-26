@@ -668,6 +668,7 @@ async function onConnected(isEmail=false, isDev=false){
   renderArcDirectory();
   initLendUI();
   document.getElementById('aiBtn').style.display='flex';
+  setTimeout(attachAIListeners, 100); // re-attach after button is visible
   startOrderEngine();
   // Pre-approve all contracts once so users never see repeated approve popups
   if(!isCircleWallet && signer){ _ensureUnlimitedApprovals(); }
@@ -2356,47 +2357,39 @@ function toggleAgent(){
   }
 }
 
-// Single reliable tap handler - no double-fire
-(function(){
-  function attachAI(){
-    // Fix floating AI button
-    const btn=document.getElementById('aiBtn');
-    if(btn){
-      btn.removeAttribute('onclick');
-      let lastTap=0;
-      function handleTap(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const now=Date.now();
-        if(now-lastTap<400) return;
-        lastTap=now;
-        toggleAgent();
-      }
-      btn.addEventListener('touchend',handleTap,{passive:false});
-      btn.addEventListener('click',handleTap,{passive:false});
-    }
-    // Fix More page NAN AI row
-    const moreBtn=document.getElementById('nanAiMoreBtn');
-    if(moreBtn){
-      let lastTap2=0;
-      function handleMoreTap(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const now=Date.now();
-        if(now-lastTap2<400) return;
-        lastTap2=now;
-        toggleAgent();
-      }
-      moreBtn.addEventListener('touchend',handleMoreTap,{passive:false});
-      moreBtn.addEventListener('click',handleMoreTap,{passive:false});
-    }
+// AI button tap handler — runs once on load, re-attaches on connect
+function attachAIListeners(){
+  const btn=document.getElementById('aiBtn');
+  const moreBtn=document.getElementById('nanAiMoreBtn');
+
+  function tap(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    // Cancel any pending click from touchend
+    clearTimeout(tap._t);
+    tap._t=setTimeout(()=>{ toggleAgent(); },10);
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',attachAI);
-  } else {
-    attachAI();
+  tap._t=null;
+
+  if(btn){
+    btn.removeAttribute('onclick');
+    // Remove old listeners by cloning
+    const fresh=btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh,btn);
+    fresh.addEventListener('touchend',tap,{passive:false});
+    fresh.addEventListener('click',tap,false);
   }
-})();
+  if(moreBtn){
+    moreBtn.removeAttribute('onclick');
+    const freshMore=moreBtn.cloneNode(true);
+    moreBtn.parentNode.replaceChild(freshMore,moreBtn);
+    freshMore.addEventListener('touchend',tap,{passive:false});
+    freshMore.addEventListener('click',tap,false);
+  }
+}
+
+// Attach on load and also expose for after-connect call
+document.addEventListener('DOMContentLoaded', attachAIListeners);
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
