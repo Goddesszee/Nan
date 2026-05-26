@@ -819,8 +819,8 @@ a:hover{color:var(--text);}
   #globalTopBar.desktop-show{display:flex !important;}
   /* Hide the brand/logo part of topbar on desktop — sidebar has it */
   #globalTopBar .brand{display:none !important;}
-  /* Topbar right side fills full width since brand is hidden */
-  #globalTopBar > *:last-child{margin-left:auto;}
+  /* Show page info on desktop */
+  #globalTopBar #topbarPageInfo{display:flex !important;}
 
   /* ── Pages: sit right of sidebar, below topbar ── */
   .page{

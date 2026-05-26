@@ -64,6 +64,9 @@ function goPage(name) {
   const dnavBtn = document.getElementById(dnavId);
   if (dnavBtn) dnavBtn.classList.add('active');
 
+  // Update desktop topbar page name + context pill
+  updateTopbarPageInfo(name);
+
   // Trigger page-specific init
   if (name === 'earn' || name === 'lend') initLendUI();
   if (name === 'history') renderHistory();
@@ -151,3 +154,50 @@ window.addEventListener('resize', updateDesktopNav);
 document.addEventListener('DOMContentLoaded', updateDesktopNav);
 // Also run immediately in case DOM is already loaded
 updateDesktopNav();
+
+// ── Desktop topbar: page name + context pill ──
+function updateTopbarPageInfo(page) {
+  if (window.innerWidth < 769) return;
+  const nameEl  = document.getElementById('topbarPageName');
+  const pillEl  = document.getElementById('topbarContextPill');
+  const wrapEl  = document.getElementById('topbarPageInfo');
+  if (!nameEl || !pillEl || !wrapEl) return;
+
+  const labels = {
+    home:'Home', send:'Send', earn:'Earn', lend:'Earn',
+    history:'History', swap:'Swap', bridge:'Bridge',
+    arcname:'.arc Name', more:'More', naira:'Naira',
+    bulk:'Payroll', payreq:'Pay Requests',
+  };
+
+  nameEl.textContent = labels[page] || page.charAt(0).toUpperCase()+page.slice(1);
+  wrapEl.style.display = 'flex';
+
+  // Context pill per page
+  pillEl.style.display = 'none';
+  if (page === 'home') {
+    const bal = document.getElementById('homeBalAmt');
+    if (bal && bal.textContent !== '—') {
+      pillEl.textContent = '$' + bal.textContent;
+      pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    }
+  } else if (page === 'send') {
+    const usdc = parseFloat(usdcBal)||0;
+    const eurc = parseFloat(eurcBal)||0;
+    const total = (usdc + eurc).toFixed(2);
+    pillEl.textContent = 'Balance: ' + total + ' USDC';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+  } else if (page === 'earn' || page === 'lend') {
+    pillEl.textContent = 'APY 4.80%';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);color:#34d399;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+  } else if (page === 'swap') {
+    pillEl.textContent = 'USDC ↔ EURC';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+  } else if (page === 'bridge') {
+    pillEl.textContent = 'CCTP V2';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);color:#60a5fa;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+  } else if (page === 'history') {
+    pillEl.textContent = 'On-chain';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);color:#34d399;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+  }
+}
