@@ -3637,129 +3637,133 @@ async function loadAdminStats(){
   statsEl.style.display='none';
 
   const RPC    ='https://rpc.testnet.arc.network';
-  const USDC   ='0x3600000000000000000000000000000000000000';
-  const EURC   ='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
   const SWAP   ='0x5cE359b74BE53b1B370641571cBef157dD575c79';
   const LEND   ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
   const NAME   ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
   const PAYREQ ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
   const HIST   ='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
+  const USDC   ='0x3600000000000000000000000000000000000000';
   const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero='0x0000000000000000000000000000000000000000';
-  const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ,HIST].map(x=>x.toLowerCase()));
+  const zero   ='0x0000000000000000000000000000000000000000';
+  const nanContracts=new Set([SWAP,LEND,NAME,PAYREQ,HIST,USDC].map(x=>x.toLowerCase()));
   let _id=0;
 
   function setMsg(msg){
-    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#888;text-align:center;padding:16px;line-height:1.9;">${msg}</div>`;
+    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#888;text-align:center;padding:20px;line-height:2;">${msg}</div>`;
   }
 
   async function rpc(method,params=[]){
     const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok)throw new Error('RPC HTTP '+r.status);
+    if(!r.ok) throw new Error('RPC HTTP '+r.status);
     const d=await r.json();
-    if(d.error)throw new Error(d.error.message||'RPC error');
+    if(d.error) throw new Error(d.error.message||'RPC error');
     return d.result;
   }
 
-  // Query logs in chunks — find max chunk size RPC accepts
-  async function getLogs(address, topics, fromBlock, toBlock){
-    const SIZES=[100000,50000,20000,5000];
-    for(const sz of SIZES){
-      const chunks=[];
-      for(let f=fromBlock;f<=toBlock;f+=sz) chunks.push([f,Math.min(f+sz-1,toBlock)]);
-      // Test first chunk
-      const testFilter={fromBlock:'0x'+chunks[0][0].toString(16),toBlock:'0x'+chunks[0][1].toString(16),address};
-      if(topics) testFilter.topics=topics;
+  // Smart chunk query — tries sizes until one works, then uses it
+  async function getLogsChunked(address, topics, from, to, label){
+    const CHUNK = 50000; // fixed — avoids auto-detection loop
+    const logs=[];
+    const total=Math.ceil((to-from)/CHUNK);
+    let i=0;
+    for(let f=from; f<=to; f+=CHUNK){
+      const t=Math.min(f+CHUNK-1,to);
+      const filter={fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16),address};
+      if(topics) filter.topics=topics;
       try{
-        await rpc('eth_getLogs',[testFilter]);
-        // It worked — use this chunk size for all
-        const allLogs=[];
-        for(const [f,t] of chunks){
-          const filter={fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16),address};
-          if(topics) filter.topics=topics;
-          try{const r=await rpc('eth_getLogs',[filter]);if(Array.isArray(r))allLogs.push(...r);}catch(e){console.warn('chunk skip',f,e.message);}
-          setMsg(`Scanning ${address.slice(0,8)}…<br/>${allLogs.length} events · chunk ${Math.ceil(f/sz)+1}/${chunks.length}`);
-          await new Promise(r=>setTimeout(r,0));
-        }
-        return allLogs;
-      }catch(e){ continue; }
+        const r=await rpc('eth_getLogs',[filter]);
+        if(Array.isArray(r)) logs.push(...r);
+      }catch(e){ /* skip failed chunk */ }
+      i++;
+      if(i%4===0){
+        setMsg(`Loading ${label}…<br/>${logs.length} events · ${Math.round((i/total)*100)}%`);
+        await new Promise(r=>setTimeout(r,0));
+      }
     }
-    return [];
+    return logs;
   }
 
   try{
-    setMsg('⛓ Connecting…');
+    setMsg('Connecting to Arc Testnet…');
     const blockHex=await rpc('eth_blockNumber');
     const latest=parseInt(blockHex,16);
     document.getElementById('statBlock').textContent=latest.toLocaleString();
 
-    setMsg('📊 USDC supply…');
+    setMsg('Fetching USDC supply…');
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
-    document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
+    document.getElementById('statSupply').textContent=
+      (parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
 
-    // Step 1: NANHistory — most accurate, usually small
-    setMsg('📋 Loading NAN user history…');
-    const hL=await getLogs(HIST,null,0,latest);
+    // ── NAN-only stats from NAN contracts only ──
+    // Use last 500k blocks (~days of activity). NAN launched recently so this captures all users.
+    const FROM = Math.max(0, latest - 500000);
 
-    // Step 2: USDC+EURC transfers
-    setMsg('💸 USDC transfers…');
-    const uL=await getLogs(USDC,[TRANSFER],0,latest);
-    setMsg('💶 EURC transfers…');
-    const eL=await getLogs(EURC,[TRANSFER],0,latest);
+    setMsg('Loading NAN users (History contract)…');
+    const hL = await getLogsChunked(HIST, null, FROM, latest, 'NAN History');
 
-    // Step 3: Contract events (parallel, all small)
-    setMsg('🔄 Contract events…');
-    const [sL,lL,nL,pL]=await Promise.all([
-      getLogs(SWAP,null,0,latest),
-      getLogs(LEND,null,0,latest),
-      getLogs(NAME,null,0,latest),
-      getLogs(PAYREQ,null,0,latest),
-    ]);
+    setMsg('Loading NAN transactions (USDC on NAN)…');
+    const uL = await getLogsChunked(USDC, [TRANSFER], FROM, latest, 'USDC transfers');
 
-    setMsg('🔍 Processing…');
-    // NAN-specific wallets from history contract
-    const nanWallets=new Set();
+    setMsg('Loading swaps…');
+    const sL = await getLogsChunked(SWAP, null, FROM, latest, 'Swaps');
+
+    setMsg('Loading lend events…');
+    const lL = await getLogsChunked(LEND, null, FROM, latest, 'Lend');
+
+    setMsg('Loading .arc names…');
+    const nL = await getLogsChunked(NAME, null, FROM, latest, '.arc Names');
+
+    setMsg('Loading payment requests…');
+    const pL = await getLogsChunked(PAYREQ, null, FROM, latest, 'Pay Requests');
+
+    setMsg('Processing data…');
+
+    // NAN wallets = unique callers in History contract
+    const nanWallets = new Set();
     hL.forEach(log=>{
-      if(log.topics&&log.topics.length>=2){
-        const addr='0x'+log.topics[1].slice(-40);
-        const al=addr.toLowerCase();
-        if(al!==zero&&!contracts.has(al)) nanWallets.add(al);
-      }
-      // Also check tx sender via topics[0] as fallback
-    });
-
-    // All wallets from transfers
-    const allTransfers=[...uL,...eL];
-    const allWallets=new Set();
-    const recent=new Map();
-    let bridges=0;
-    allTransfers.forEach(log=>{
-      if(!log.topics||log.topics.length<3)return;
-      const f='0x'+log.topics[1].slice(-40);
-      const t='0x'+log.topics[2].slice(-40);
-      [f,t].forEach(w=>{const wl=w.toLowerCase();if(wl!==zero&&!contracts.has(wl))allWallets.add(wl);});
-      const fl=f.toLowerCase(),tl=t.toLowerCase();
-      if(tl===zero){bridges++;}
-      else if(fl!==zero&&!contracts.has(fl)){
-        const bn=parseInt(log.blockNumber,16);
-        if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);
+      if(log.topics && log.topics.length >= 2){
+        const addr = '0x'+log.topics[1].slice(-40);
+        const al = addr.toLowerCase();
+        if(al !== zero && !nanContracts.has(al)) nanWallets.add(al);
       }
     });
 
-    // Use history contract count if available, else fall back to transfer wallets
-    const displayWallets=nanWallets.size>0?nanWallets.size:allWallets.size;
-    document.getElementById('statWallets').textContent=displayWallets.toLocaleString();
-    document.getElementById('statTxns').textContent=allTransfers.length.toLocaleString();
-    document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
-    document.getElementById('statBridges').textContent=bridges.toLocaleString();
-    document.getElementById('statLends').textContent=lL.length.toLocaleString();
+    // NAN transactions = USDC transfers involving NAN contracts
+    let nanTxns = 0;
+    let bridges = 0;
+    const recent = new Map();
+    uL.forEach(log=>{
+      if(!log.topics || log.topics.length < 3) return;
+      const f = '0x'+log.topics[1].slice(-40);
+      const t = '0x'+log.topics[2].slice(-40);
+      const fl = f.toLowerCase(), tl = t.toLowerCase();
+      // Count if from/to involves a NAN contract or known NAN wallet
+      if(nanContracts.has(fl)||nanContracts.has(tl)||nanWallets.has(fl)||nanWallets.has(tl)){
+        nanTxns++;
+      }
+      if(tl === zero) bridges++;
+      if(fl !== zero && !nanContracts.has(fl)){
+        const bn = parseInt(log.blockNumber, 16);
+        if(!recent.has(fl)||recent.get(fl)<bn) recent.set(fl, bn);
+      }
+    });
 
-    const recEl=document.getElementById('statRecentWallets');
-    const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
-    recEl.innerHTML=top.length===0
-      ?'<div style="font-size:.75rem;color:#666;">No wallet-to-wallet sends yet</div>'
-      :top.map(([addr])=>`
+    // Update all stats
+    document.getElementById('statWallets').textContent = nanWallets.size.toLocaleString();
+    document.getElementById('statTxns').textContent = (hL.length).toLocaleString();
+    document.getElementById('statSwaps').textContent = sL.length.toLocaleString();
+    document.getElementById('statBridges').textContent = bridges.toLocaleString();
+    document.getElementById('statLends').textContent = lL.length.toLocaleString();
+    const nameEl=document.getElementById('statNames'); if(nameEl) nameEl.textContent=nL.length.toLocaleString();
+    const payEl=document.getElementById('statPayreqs'); if(payEl) payEl.textContent=pL.length.toLocaleString();
+
+    // Recent wallets from NAN history
+    const recEl = document.getElementById('statRecentWallets');
+    const nanArr = [...nanWallets].slice(-8).reverse();
+    recEl.innerHTML = nanArr.length === 0
+      ? '<div style="font-size:.75rem;color:#666;">No NAN activity in last 500k blocks</div>'
+      : nanArr.map(addr=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span>
@@ -3768,7 +3772,8 @@ async function loadAdminStats(){
           <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a>
         </div>`).join('');
 
-    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
+    document.getElementById('adminLastRefresh').textContent =
+      new Date().toLocaleTimeString()+' · last 500k blocks';
     loading.style.display='none';
     statsEl.style.display='block';
 
@@ -3776,7 +3781,7 @@ async function loadAdminStats(){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Must be on nanarc.xyz · Check F12 console</div>
+      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Must be on nanarc.xyz</div>
       <button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
