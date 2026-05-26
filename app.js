@@ -1229,16 +1229,22 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      // Only approve if not already approved (cached per session)
-      const _swapApprKey='nan_circle_swap_approved_'+circleWalletId;
+      // Separate approval cache per token direction
+      const _swapApprKey='nan_circle_swap_approved_'+circleWalletId+'_'+(isUSDCtoEURC?'usdc':'eurc');
       if(!sessionStorage.getItem(_swapApprKey)){
-        const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
+        const approveToken = isUSDCtoEURC ? USDC_ADDR : EURC_ADDR;
+        const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:approveToken,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
         const appData=await r.json();
         if(!appData.success)throw new Error(appData.error||'Approve failed');
         await waitForCircleTx(appData.transactionId,'approve');
         sessionStorage.setItem(_swapApprKey,'1');
       }
-      const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[Math.floor(fromAmt*1_000_000).toString()]})});
+      // USDC = 6 decimals, EURC = 18 decimals
+      const decimals = isUSDCtoEURC ? 1_000_000 : 1e18;
+      const amtAtomic = isUSDCtoEURC
+        ? Math.floor(fromAmt * 1_000_000).toString()
+        : BigInt(Math.floor(fromAmt * 1e18)).toString();
+      const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[amtAtomic]})});
       const d=await r2.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
       btn.innerHTML='<span class="spinner"></span>Confirming swap…';
