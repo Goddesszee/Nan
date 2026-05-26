@@ -1,9 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "echo 'no build needed'",
+  "buildCommand": "npm install",
   "outputDirectory": ".",
   "functions": {
     "api/*.js": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/transaction/*.js": {
       "memory": 512,
       "maxDuration": 30
     }
