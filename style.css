@@ -766,22 +766,21 @@ a:hover{color:var(--text);}
   #globalTopBar{display:none !important;}
   .bottom-nav{display:none !important;}
 
-  /* ── Sidebar ── */
+  /* ── Sidebar — no hard border, seamless ── */
   #desktopNav{
     flex-direction:column;
     position:fixed;top:0;left:0;
     width:220px;height:100vh;
-    background:rgba(10,8,20,.98);
-    border-right:1px solid var(--border);
+    background:rgba(6,4,14,.95);
+    border-right:1px solid rgba(139,92,246,.08);
     padding:0;gap:0;z-index:100;
-    backdrop-filter:blur(24px);
   }
 
   /* Sidebar logo row */
   #desktopNav .dnav-logo-row{
     display:flex;align-items:center;gap:10px;
     padding:18px 16px 14px;
-    border-bottom:1px solid rgba(139,92,246,.08);
+    border-bottom:1px solid rgba(139,92,246,.06);
     margin-bottom:6px;
   }
   #desktopNav .dnav-logo{
@@ -795,7 +794,7 @@ a:hover{color:var(--text);}
     font-size:.92rem;font-weight:800;letter-spacing:.06em;color:var(--text);
   }
 
-  /* Sidebar nav wrap */
+  /* Sidebar nav */
   #desktopNav{padding:0;}
   #desktopNav .dnav-btn{
     display:flex;align-items:center;gap:10px;
@@ -803,7 +802,7 @@ a:hover{color:var(--text);}
     border:1px solid transparent;background:transparent;
     color:var(--text3);font-family:'Space Grotesk',sans-serif;
     font-size:.82rem;font-weight:600;cursor:pointer;
-    transition:all .15s;text-align:left;width:100%;
+    transition:all .15s;text-align:left;
     margin:0 10px;width:calc(100% - 20px);
   }
   #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.5;width:15px;height:15px;transition:opacity .15s;}
@@ -813,24 +812,20 @@ a:hover{color:var(--text);}
   #desktopNav .dnav-btn.active svg{opacity:1;}
   #desktopNav .dnav-btn.dnav-send{background:rgba(139,92,246,.08);color:var(--accent3);border-color:rgba(139,92,246,.14);}
   #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
-  #desktopNav .dnav-divider{height:1px;background:rgba(139,92,246,.08);margin:6px 14px;}
-
-  /* Sidebar nav section padding */
+  #desktopNav .dnav-divider{height:1px;background:rgba(139,92,246,.06);margin:6px 14px;}
   #desktopNav > button, #desktopNav .dnav-btn{margin-left:10px;margin-right:10px;width:calc(100% - 20px);}
 
-  /* ── Desktop topbar (shown after connect) ── */
+  /* ── Desktop topbar — seamless, no hard border ── */
   #globalTopBar{
     display:none;
     position:fixed;top:0;left:220px;right:0;height:52px;
-    background:rgba(10,8,20,.7);backdrop-filter:blur(16px);
-    border-bottom:1px solid rgba(139,92,246,.08);
+    background:transparent;
+    border-bottom:1px solid rgba(139,92,246,.06);
     align-items:center;justify-content:space-between;
-    padding:0 28px;z-index:90;
+    padding:0 32px;z-index:90;
   }
   #globalTopBar.desktop-show{display:flex !important;}
-  /* Hide the brand/logo part of topbar on desktop — sidebar has it */
   #globalTopBar .brand{display:none !important;}
-  /* Show page info on desktop */
   #globalTopBar #topbarPageInfo{display:flex !important;}
 
   /* ── Pages: sit right of sidebar, below topbar ── */
@@ -851,7 +846,7 @@ a:hover{color:var(--text);}
 
   /* Content column */
   .page > *{
-    width:100% !important;max-width:520px !important;
+    width:100% !important;max-width:600px !important;
     flex-shrink:0 !important;box-sizing:border-box !important;
   }
 
@@ -907,7 +902,7 @@ a:hover{color:var(--text);}
 @media(min-width:1200px){
   #desktopNav{width:240px;}
   .page{left:240px !important;}
-  .page > *{max-width:520px !important;}
+  .page > *{max-width:600px !important;}
   .home-bal-num{font-size:3rem;}
   #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
 }
