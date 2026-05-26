@@ -3636,140 +3636,39 @@ async function loadAdminStats(){
   loading.style.display='block';
   statsEl.style.display='none';
 
-  const RPC    ='https://rpc.testnet.arc.network';
-  const USDC   ='0x3600000000000000000000000000000000000000';
-  const SWAP   ='0x5cE359b74BE53b1B370641571cBef157dD575c79';
-  const LEND   ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
-  const NAME   ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
-  const PAYREQ ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
-  const HIST   ='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
-  const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero   ='0x0000000000000000000000000000000000000000';
-  const nanContracts=new Set([SWAP,LEND,NAME,PAYREQ,HIST,USDC].map(x=>x.toLowerCase()));
-  let _id=0;
-
   function setMsg(msg){
     loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#888;text-align:center;padding:20px;line-height:2;">${msg}</div>`;
   }
 
-  async function rpc(method,params=[]){
-    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok) throw new Error('RPC HTTP '+r.status);
-    const d=await r.json();
-    if(d.error) throw new Error(d.error.message||'RPC error');
-    return d.result;
-  }
-
-  // Scan ALL blocks for a contract in chunks of 50k
-  async function scanAll(address, topics, label, latest){
-    const CHUNK=50000;
-    const logs=[];
-    const total=Math.ceil(latest/CHUNK);
-    let i=0;
-    for(let f=0; f<=latest; f+=CHUNK){
-      const t=Math.min(f+CHUNK-1,latest);
-      const filter={fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16),address};
-      if(topics) filter.topics=topics;
-      try{
-        const r=await rpc('eth_getLogs',[filter]);
-        if(Array.isArray(r)) logs.push(...r);
-      }catch(e){}
-      i++;
-      if(i%10===0){
-        const pct=Math.round((i/total)*100);
-        setMsg(`${label}<br/>${logs.length} events · ${pct}%`);
-        await new Promise(r=>setTimeout(r,0));
-      }
-    }
-    return logs;
-  }
-
   try{
-    setMsg('Connecting to Arc Testnet…');
-    const blockHex=await rpc('eth_blockNumber');
-    const latest=parseInt(blockHex,16);
-    document.getElementById('statBlock').textContent=latest.toLocaleString();
+    setMsg('Loading NAN analytics…<br/><span style="font-size:.65rem;color:#555;">Fetching from server</span>');
 
-    setMsg('Fetching USDC supply…');
-    const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
+    const res=await fetch('/api/analytics');
+    if(!res.ok) throw new Error('Analytics API returned '+res.status);
+    const d=await res.json();
+
+    if(d.error) throw new Error(d.error);
+
+    // Update stats
+    document.getElementById('statBlock').textContent=d.block.toLocaleString();
     document.getElementById('statSupply').textContent=
-      (parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
-
-    // Scan NAN-specific contracts from block 0
-    // These are small (only NAN activity) so they complete fast
-    setMsg('📋 Scanning NAN user history (all-time)…');
-    const hL=await scanAll(HIST, null, 'NAN History', latest);
-
-    setMsg('🔄 Scanning swaps (all-time)…');
-    const sL=await scanAll(SWAP, null, 'Swaps', latest);
-
-    setMsg('💰 Scanning lend events (all-time)…');
-    const lL=await scanAll(LEND, null, 'Lend', latest);
-
-    setMsg('🏷 Scanning .arc names (all-time)…');
-    const nL=await scanAll(NAME, null, '.arc Names', latest);
-
-    setMsg('📨 Scanning payment requests (all-time)…');
-    const pL=await scanAll(PAYREQ, null, 'Pay Requests', latest);
-
-    // For USDC — only scan last 2M blocks to avoid timeout
-    // Filter to NAN-related transfers only
-    setMsg('💸 Scanning USDC transfers (recent)…');
-    const uFrom=Math.max(0, latest-2000000);
-    const uL=await scanAll(USDC, [TRANSFER], 'USDC transfers', uFrom > 0 ? uFrom : latest);
-
-    setMsg('Processing…');
-
-    // NAN wallets from History contract (most accurate)
-    const nanWallets=new Set();
-    hL.forEach(log=>{
-      if(log.topics&&log.topics.length>=2){
-        const addr='0x'+log.topics[1].slice(-40);
-        const al=addr.toLowerCase();
-        if(al!==zero&&!nanContracts.has(al)) nanWallets.add(al);
-      }
-    });
-
-    // Also count wallets from swap/lend/name/payreq callers
-    [...sL,...lL,...nL,...pL].forEach(log=>{
-      if(log.topics&&log.topics.length>=2){
-        const addr='0x'+log.topics[1].slice(-40);
-        const al=addr.toLowerCase();
-        if(al!==zero&&!nanContracts.has(al)) nanWallets.add(al);
-      }
-    });
-
-    // USDC bridges from NAN
-    let bridges=0;
-    const recent=new Map();
-    uL.forEach(log=>{
-      if(!log.topics||log.topics.length<3)return;
-      const f='0x'+log.topics[1].slice(-40);
-      const t='0x'+log.topics[2].slice(-40);
-      const fl=f.toLowerCase(),tl=t.toLowerCase();
-      if(tl===zero) bridges++;
-      if(fl!==zero&&!nanContracts.has(fl)&&nanWallets.has(fl)){
-        const bn=parseInt(log.blockNumber,16);
-        if(!recent.has(fl)||recent.get(fl)<bn) recent.set(fl,bn);
-      }
-    });
-
-    // Set all stats
-    document.getElementById('statWallets').textContent=nanWallets.size.toLocaleString();
-    document.getElementById('statTxns').textContent=hL.length.toLocaleString();
-    document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
-    document.getElementById('statBridges').textContent=bridges.toLocaleString();
-    document.getElementById('statLends').textContent=lL.length.toLocaleString();
-    const nameEl=document.getElementById('statNames'); if(nameEl) nameEl.textContent=nL.length.toLocaleString();
-    const payEl=document.getElementById('statPayreqs'); if(payEl) payEl.textContent=pL.length.toLocaleString();
+      parseInt(d.usdcSupply).toLocaleString('en')+' USDC';
+    document.getElementById('statWallets').textContent=d.wallets.toLocaleString();
+    document.getElementById('statTxns').textContent=d.transactions.toLocaleString();
+    document.getElementById('statSwaps').textContent=d.swaps.toLocaleString();
+    document.getElementById('statBridges').textContent=d.bridges.toLocaleString();
+    document.getElementById('statLends').textContent=d.lends.toLocaleString();
+    const nameEl=document.getElementById('statNames');
+    if(nameEl) nameEl.textContent=d.arcNames.toLocaleString();
+    const payEl=document.getElementById('statPayreqs');
+    if(payEl) payEl.textContent=d.payRequests.toLocaleString();
 
     // Recent wallets
     const recEl=document.getElementById('statRecentWallets');
-    const walletArr=[...nanWallets].slice(-8).reverse();
-    recEl.innerHTML=walletArr.length===0
+    const wallets=d.recentWallets||[];
+    recEl.innerHTML=wallets.length===0
       ?'<div style="font-size:.75rem;color:#666;">No NAN wallet activity found yet</div>'
-      :walletArr.map(addr=>`
+      :wallets.map(addr=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span>
@@ -3778,7 +3677,9 @@ async function loadAdminStats(){
           <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a>
         </div>`).join('');
 
-    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
+    const cached=d.cached?' (cached)':'';
+    document.getElementById('adminLastRefresh').textContent=
+      new Date().toLocaleTimeString()+cached+' · all-time';
     loading.style.display='none';
     statsEl.style.display='block';
 
@@ -3786,7 +3687,7 @@ async function loadAdminStats(){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Must be on nanarc.xyz · Check F12 console</div>
+      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">The server is scanning the blockchain — try again in 30 seconds</div>
       <button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
