@@ -1239,11 +1239,8 @@ function flipSwap(){
         await waitForCircleTx(appData.transactionId,'approve');
         sessionStorage.setItem(_swapApprKey,'1');
       }
-      // USDC = 6 decimals, EURC = 18 decimals
-      const decimals = isUSDCtoEURC ? 1_000_000 : 1e18;
-      const amtAtomic = isUSDCtoEURC
-        ? Math.floor(fromAmt * 1_000_000).toString()
-        : BigInt(Math.floor(fromAmt * 1e18)).toString();
+      // Both USDC and EURC use 6 decimals on Arc Testnet
+      const amtAtomic = Math.floor(fromAmt * 1_000_000).toString();
       const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[amtAtomic]})});
       const d=await r2.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
@@ -2786,9 +2783,8 @@ async function doSupply(){
   btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
   try{
     const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
-    // USDC=6 decimals, EURC=18 decimals
-    const isEURC = lendAsset==='EURC';
-    const amtAtomic = isEURC ? BigInt(Math.floor(amt*1e18)).toString() : Math.floor(amt*1_000_000).toString();
+    // Both USDC and EURC use 6 decimals on Arc Testnet
+    const amtAtomic = Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Circle email wallet path
       btn.innerHTML='<span class="spinner"></span>Approving...';
