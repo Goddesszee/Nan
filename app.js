@@ -3635,9 +3635,10 @@ async function loadAdminStats(){
   const LEND   ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
   const NAME   ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
   const PAYREQ ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
+  const HIST   ='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
   const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
   const zero='0x0000000000000000000000000000000000000000';
-  const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ].map(x=>x.toLowerCase()));
+  const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ,HIST].map(x=>x.toLowerCase()));
   let _id=0;
 
   function setMsg(msg){
@@ -3711,18 +3712,29 @@ async function loadAdminStats(){
     const eL=await getLogsAll(EURC,[TRANSFER],latest);
 
     setMsg('Fetching contract events…');
-    const [sL,lL,nL,pL]=await Promise.all([
+    const [sL,lL,nL,pL,hL]=await Promise.all([
       getLogsAll(SWAP,null,latest),
       getLogsAll(LEND,null,latest),
       getLogsAll(NAME,null,latest),
       getLogsAll(PAYREQ,null,latest),
+      getLogsAll(HIST,null,latest),
     ]);
 
     setMsg('Processing…');
     const all=[...uL,...eL];
     const wallets=new Set();
+    const nanWallets=new Set(); // NAN-specific — from History contract
     const recent=new Map();
     let bridges=0;
+
+    // Extract NAN-specific wallets from History contract logs
+    hL.forEach(log=>{
+      if(log.topics&&log.topics.length>=2){
+        const addr='0x'+log.topics[1].slice(-40);
+        const al=addr.toLowerCase();
+        if(al!==zero&&!contracts.has(al)) nanWallets.add(al);
+      }
+    });
 
     all.forEach(log=>{
       if(!log.topics||log.topics.length<3)return;
@@ -3737,8 +3749,13 @@ async function loadAdminStats(){
       }
     });
 
-    document.getElementById('statWallets').textContent=wallets.size.toLocaleString();
+    // NAN-specific count from History contract (most accurate)
+    const nanCount = nanWallets.size || wallets.size;
+    document.getElementById('statWallets').textContent=nanCount.toLocaleString();
     document.getElementById('statTxns').textContent=all.length.toLocaleString();
+    // Update subtitle if element exists
+    const walletSub=document.querySelector('#adminStats [data-stat="wallet-sub"]');
+    if(walletSub) walletSub.textContent = nanWallets.size>0 ? 'Verified NAN users' : 'Arc Testnet wallets';
     document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
