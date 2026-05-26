@@ -2786,7 +2786,9 @@ async function doSupply(){
   btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
   try{
     const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
-    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    // USDC=6 decimals, EURC=18 decimals
+    const isEURC = lendAsset==='EURC';
+    const amtAtomic = isEURC ? BigInt(Math.floor(amt*1e18)).toString() : Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Circle email wallet path
       btn.innerHTML='<span class="spinner"></span>Approving...';
