@@ -839,15 +839,21 @@ a:hover{color:var(--text);}
     display:none !important;
     overflow-y:auto !important;overflow-x:hidden !important;
     flex-direction:column !important;align-items:center !important;
-    padding:16px 24px 48px !important;
+    padding:16px 0 48px !important;
     animation:none !important;isolation:auto !important;transform:none !important;
   }
   .page.active{display:flex !important;}
 
-  /* Content column */
+  /* All direct children centered at 600px */
   .page > *{
     width:100% !important;max-width:600px !important;
     flex-shrink:0 !important;box-sizing:border-box !important;
+    padding-left:24px !important;padding-right:24px !important;
+  }
+  /* Elements that already have their own padding — don't double-pad */
+  .page > .card,
+  .page > .send-card{
+    padding-left:22px !important;padding-right:22px !important;
   }
 
   /* Cards */
@@ -855,6 +861,15 @@ a:hover{color:var(--text);}
   .card-title{font-size:.75rem;margin-bottom:14px;}
   .home-bal-num{font-size:2.6rem;}
   .home-bal-card{padding:22px;margin-bottom:12px;}
+
+  /* Ensure ALL page content respects 600px — catch nested containers */
+  #page-home > *,#page-send > *,#page-lend > *,
+  #page-swap > *,#page-bridge > *,#page-history > *,
+  #page-more > *,#page-arcname > *,#page-naira > *,
+  #page-bulk > *,#page-history > *{
+    max-width:600px !important;width:100% !important;
+    box-sizing:border-box !important;
+  }
 
   /* Quick actions */
   .home-actions-top{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;margin-bottom:10px !important;}
