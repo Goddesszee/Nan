@@ -731,17 +731,25 @@ a:hover{color:var(--text);}
     transform:none !important;margin:0 !important;
     background:var(--bg) !important;
   }
-  /* Top bar stretches full width */
+  /* Top bar full width */
   .page-land.active > div:first-child{
     width:100% !important;max-width:100% !important;flex-shrink:0 !important;
   }
-  /* Content column centered 480px, scrolls internally */
+  /* Content area — two column layout on desktop */
   .page-land.active > div:last-child{
-    width:100% !important;max-width:480px !important;
-    margin:0 auto !important;flex:1 !important;
+    flex:1 !important;display:flex !important;
+    align-items:center !important;justify-content:center !important;
     overflow-y:auto !important;scrollbar-width:none !important;
+    padding:40px 60px !important;max-width:100% !important;width:100% !important;
+    gap:80px !important;flex-direction:row !important;
   }
   .page-land.active > div:last-child::-webkit-scrollbar{display:none !important;}
+  /* Show hero branding column on desktop */
+  .land-hero-col{display:flex !important;}
+  /* Form column fixed width */
+  .land-form-col{width:400px !important;flex-shrink:0 !important;max-width:400px !important;}
+  /* Hide mobile-only trust bar on desktop */
+  .land-form-col > div:last-child{display:none !important;}
 
   /* ── App root ── */
   #app-root{
