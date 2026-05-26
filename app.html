@@ -20,7 +20,7 @@
 <meta name="theme-color" content="#07081a"/>
 <title>NAN — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -57,7 +57,7 @@
       <div class="net-pill" id="netPill">Arc Testnet</div>
       <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
       <button id="landConnectBtn" style="display:none;" onclick="showWalletPicker()">Connect</button>
-      <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
+      <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
     </div>
   </div>
 
@@ -128,7 +128,7 @@
   <div class="page page-land active" id="page-land" style="background:var(--bg);">
 
     <!-- Top bar — like Relay -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(139,92,246,.1);flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(139,92,246,.4);">
           <svg width="16" height="16" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#ede9fe"/><circle cx="50" cy="20" r="6" fill="#ede9fe"/><circle cx="50" cy="52" r="6" fill="#ede9fe"/><line x1="28" y1="36" x2="44" y2="22" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#ede9fe" stroke-width="3.5" stroke-linecap="round"/></svg>
@@ -151,7 +151,7 @@
           Arc Testnet · Live
         </div>
         <div style="font-size:3.2rem;font-weight:800;letter-spacing:-.06em;line-height:1.05;margin-bottom:16px;">
-          Weave.<br/><span style="color:transparent;background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;">Connect.<br/>Build.</span>
+          Weave.<br/><span style="color:transparent;background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;background-clip:text;">Connect.<br/>Build.</span>
         </div>
         <div style="font-size:.95rem;color:var(--text3);line-height:1.7;margin-bottom:32px;max-width:320px;">
           Send USDC globally.<br/>Gas paid in dollars.<br/>No extension needed.
@@ -172,7 +172,7 @@
       <div class="land-form-col" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:0;">
 
         <!-- Card wrapper -->
-        <div style="background:#100e22;border:1px solid rgba(139,92,246,.25);border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.6);">
 
           <!-- Card header -->
           <div style="text-align:center;margin-bottom:22px;">
@@ -191,8 +191,8 @@
               <div id="stepDot2" style="width:7px;height:3px;border-radius:2px;background:rgba(139,92,246,.2);transition:all .3s;"></div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
             </div>
-            <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.22);border-radius:11px;padding:11px 13px;color:var(--text);font-size:.88rem;margin-bottom:8px;outline:none;box-sizing:border-box;font-family:'Space Grotesk',sans-serif;"/>
-            <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:11px;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;padding:13px;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.38);display:flex;align-items:center;justify-content:center;gap:8px;">
+            <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;color:var(--text);font-size:.88rem;margin-bottom:8px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;"/>
+            <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:11px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.9rem;padding:13px;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.38);display:flex;align-items:center;justify-content:center;gap:8px;">
               Continue with Email
               <span style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -205,36 +205,36 @@
               </div>
               <div style="display:flex;gap:7px;">
                 <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'JetBrains Mono',monospace;box-sizing:border-box;"/>
-                <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;padding:11px 16px;cursor:pointer;">Verify →</button>
+                <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:11px 16px;cursor:pointer;">Verify →</button>
               </div>
             </div>
           </div>
 
           <!-- Divider -->
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
             <span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);">or connect wallet</span>
-            <div style="flex:1;height:1px;background:rgba(139,92,246,.1);"></div>
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
           </div>
 
           <!-- Wallet 2x2 grid -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
-            <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.12);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
+            <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
               <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800;color:#f97316;">M</div>
               MetaMask
             </button>
-            <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.12);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
+            <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
               <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(59,153,252,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800;color:#3b99fc;">W</div>
               WalletConnect
             </button>
-            <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.12);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
+            <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
               <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(22,82,240,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800;color:#1652f0;">C</div>
               Coinbase
             </button>
-            <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.12);border-radius:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
+            <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left;">
               <div style="width:26px;height:26px;border-radius:7px;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
               Circle
             </button>
@@ -352,7 +352,7 @@
         <div style="font-size:.78rem;color:var(--text3);">USDC &amp; EURC · Gas paid in USDC</div>
       </div>
       <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Explorer ↗</a>
-      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
+      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
     </div>
     <div id="onboardChecklist" style="display:none;"></div>
     <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
@@ -961,7 +961,7 @@
       <span style="font-size:.78rem;color:var(--text3);">Account Number</span>
       <div style="display:flex;align-items:center;gap:7px;">
         <span style="font-size:.88rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="ngnVirtualAcct">9901234567</span>
-        <button onclick="navigator.clipboard.writeText('9901234567');toast('Account number copied!','success',2000)" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:5px;color:var(--accent3);font-size:.7rem;padding:2px 7px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Copy</button>
+        <button onclick="navigator.clipboard.writeText('9901234567');toast('Account number copied!','success',2000)" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:5px;color:var(--accent3);font-size:.7rem;padding:2px 7px;cursor:pointer;font-family:'Inter',sans-serif;">Copy</button>
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:9px;">
@@ -993,7 +993,7 @@
   <div style="font-size:.78rem;color:var(--text3);margin-bottom:9px;">Simulate an incoming NGN transfer</div>
   <div style="display:flex;gap:7px;">
     <input id="ngnSimAmt" type="number" placeholder="Amount in NGN" style="flex:1;padding:9px 12px;border-radius:9px;font-size:.88rem;"/>
-    <button onclick="simulateNgnDeposit()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:9px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.88rem;padding:9px 14px;cursor:pointer;white-space:nowrap;">+ Deposit</button>
+    <button onclick="simulateNgnDeposit()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:9px;color:#ede9fe;font-family:'Inter',sans-serif;font-weight:700;font-size:.88rem;padding:9px 14px;cursor:pointer;white-space:nowrap;">+ Deposit</button>
   </div>
 </div>
     </div>
@@ -1070,25 +1070,25 @@
         <div class="page-sub">Pay your team · USDC · Scheduled runs · Receipts</div>
       </div>
       <div style="display:flex;gap:6px;">
-        <button onclick="clearBulkRecipients()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--danger);font-size:.72rem;padding:5px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Clear</button>
+        <button onclick="clearBulkRecipients()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--danger);font-size:.72rem;padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif;">Clear</button>
       </div>
     </div>
 
     <!-- Payroll group + token selector -->
     <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:16px;font-family:'Space Grotesk',sans-serif;-webkit-appearance:auto;appearance:auto;cursor:pointer;">
+      <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:16px;font-family:'Inter',sans-serif;-webkit-appearance:auto;appearance:auto;cursor:pointer;">
         <option value="">— Select saved group —</option>
       </select>
-      <button onclick="savePayrollGroup()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:.78rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;font-weight:600;">Save Group</button>
+      <button onclick="savePayrollGroup()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:.78rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;font-weight:600;">Save Group</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button id="bulk-usdc" onclick="setBulkToken('USDC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;">USDC</button>
-      <button id="bulk-eurc" onclick="setBulkToken('EURC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;background:var(--surface);border:1px solid var(--border);color:var(--text3);">EURC</button>
+      <button id="bulk-usdc" onclick="setBulkToken('USDC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;">USDC</button>
+      <button id="bulk-eurc" onclick="setBulkToken('EURC')" style="flex:1;padding:9px;border-radius:10px;font-size:.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--surface);border:1px solid var(--border);color:var(--text3);">EURC</button>
     </div>
 
     <!-- Quick amount selector -->
     <div style="margin-bottom:12px;">
-      <div style="font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Default amount per recipient</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Default amount per recipient</div>
       <div style="display:flex;gap:5px;">
         <button onclick="setBulkDefaultAmt(10)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">10</button>
         <button onclick="setBulkDefaultAmt(20)" class="ibtn" style="flex:1;padding:8px;text-align:center;font-size:.82rem;">20</button>
@@ -1103,7 +1103,7 @@
 
     <!-- Add recipient row -->
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
-      <input id="bulkNameInput" type="text" placeholder="Name or role (e.g. Chidi · Lead Dev)" style="width:100%;padding:10px 12px;border-radius:10px;font-size:16px;font-family:'Space Grotesk',sans-serif;"/>
+      <input id="bulkNameInput" type="text" placeholder="Name or role (e.g. Chidi · Lead Dev)" style="width:100%;padding:10px 12px;border-radius:10px;font-size:16px;font-family:'Inter',sans-serif;"/>
       <div style="display:flex;gap:6px;">
         <input id="bulkAddrInput" type="text" placeholder="Wallet address or .arc name" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.82rem;font-family:'JetBrains Mono',monospace;" onkeydown="if(event.key==='Enter')addBulkRecipient()"/>
         <button onclick="addBulkRecipient()" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-size:1.2rem;padding:10px 14px;cursor:pointer;font-weight:700;">+</button>
@@ -1140,8 +1140,8 @@
     <!-- Payroll actions -->
     <button class="btn" id="bulkSendBtn" onclick="doBulkSend()" disabled style="margin-bottom:8px;">Run Payroll</button>
     <div style="display:flex;gap:6px;margin-bottom:8px;">
-      <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
-      <button onclick="downloadPayrollReceipt()" style="flex:1;padding:10px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">🧾 Last Receipt</button>
+      <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
+      <button onclick="downloadPayrollReceipt()" style="flex:1;padding:10px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">🧾 Last Receipt</button>
     </div>
 
     <!-- Progress -->
@@ -1178,7 +1178,7 @@
         <div class="page-title">Payment Requests</div>
         <div class="page-sub">Create invoices · Share links · Get paid</div>
       </div>
-      <button onclick="goPage('payreq-new')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.82rem;padding:8px 14px;cursor:pointer;">+ New</button>
+      <button onclick="goPage('payreq-new')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-weight:700;font-size:.82rem;padding:8px 14px;cursor:pointer;">+ New</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
       <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
@@ -1223,7 +1223,7 @@
       <div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;text-align:center;font-family:'JetBrains Mono',monospace;">SEND USDC TO THIS ADDRESS ON ARC TESTNET</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
@@ -1234,7 +1234,7 @@
       <div style="font-size:.72rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-bottom:10px;">STEP 1 — SCAN OR COPY ADDRESS</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
     <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:12px;margin-bottom:12px;">
       <div style="font-size:.72rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;margin-bottom:8px;">STEP 2 — SEND FROM YOUR WALLET</div>
@@ -1277,13 +1277,13 @@
       <div style="font-size:.72rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;" id="prViewLink"></div>
       <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
       <div style="display:flex;gap:8px;">
-        <button onclick="copyPRLink()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
-        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">↗ Share</button>
+        <button onclick="copyPRLink()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
+        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">↗ Share</button>
       </div>
     </div>
     <div style="display:flex;gap:8px;">
-      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
-      <button onclick="deletePR()" style="padding:9px 12px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-family:'Space Grotesk',sans-serif;font-size:.82rem;cursor:pointer;">🗑</button>
+      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
+      <button onclick="deletePR()" style="padding:9px 12px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-family:'Inter',sans-serif;font-size:.82rem;cursor:pointer;">🗑</button>
     </div>
   </div>
 
@@ -1373,11 +1373,11 @@
 <!-- ══ AI Button ══ -->
 <button id="aiBtn" style="position:fixed;bottom:96px;right:18px;z-index:2147483647;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
   <span>✦</span>
-  <span style="font-size:.68rem;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
+  <span style="font-size:.68rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,100%);background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Space Grotesk',sans-serif;overflow:hidden;transition:transform .35s cubic-bezier(.32,1,.23,1);">
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,100%);background:var(--bg);border-top:1px solid rgba(139,92,246,.25);border-radius:24px 24px 0 0;z-index:9998;font-family:'Inter',sans-serif;overflow:hidden;transition:transform .35s cubic-bezier(.32,1,.23,1);">
   <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
@@ -1393,7 +1393,7 @@
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
-      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Space Grotesk',sans-serif;outline:none;"/>
+      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
     </div>
     <div id="voiceStatus" style="display:none;text-align:center;font-size:.82rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
@@ -1402,7 +1402,7 @@
 </div>
 
 <!-- ══ Toast ══ -->
-<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
+<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
 <style>
 #toast.show{opacity:1!important;}
 #toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
@@ -1421,7 +1421,7 @@
 <div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
 <div id="bankPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:75vh;overflow-y:auto;">
   <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
-  <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
+  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
   <div id="bankPickerOptions"></div>
   <div style="height:16px;"></div>
 </div>
@@ -1430,7 +1430,7 @@
 <div id="chainPickerOverlay" onclick="closeChainPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
 <div id="chainPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;">
   <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
-  <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Destination Chain</div>
+  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Destination Chain</div>
   <div id="chainPickerOptions"></div>
   <div style="height:16px;"></div>
 </div>
@@ -1499,17 +1499,17 @@ function pickBank(name){
 }
 </script>
 <!-- ══ ADMIN OVERLAY ══ -->
-<div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Space Grotesk',sans-serif;overflow-y:auto;">
+<div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Inter',sans-serif;overflow-y:auto;">
   <div id="adminAuth" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;">
     <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 24px rgba(139,92,246,.5);">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ede9fe" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <div style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:4px;">Admin Access</div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);margin-bottom:24px;">NAN Dashboard · Restricted</div>
-    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.95rem;outline:none;text-align:center;margin-bottom:10px;"/>
+    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;text-align:center;margin-bottom:10px;"/>
     <div id="adminPwErr" style="font-size:.75rem;color:#f87171;margin-bottom:10px;display:none;">Incorrect password</div>
-    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.4);">Unlock →</button>
-    <button onclick="closeAdmin()" style="margin-top:12px;background:transparent;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Cancel</button>
+    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.4);">Unlock →</button>
+    <button onclick="closeAdmin()" style="margin-top:12px;background:transparent;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
   </div>
   <div id="adminDash" style="display:none;max-width:640px;margin:0 auto;padding:32px 20px 60px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
@@ -1518,8 +1518,8 @@ function pickBank(name){
         <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);margin-top:2px;">Live · Arc Testnet · <span id="adminLastRefresh">—</span></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">↻ Refresh</button>
-        <button onclick="closeAdmin()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#f87171;font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Exit</button>
+        <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;">↻ Refresh</button>
+        <button onclick="closeAdmin()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#f87171;font-size:.78rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;">Exit</button>
       </div>
     </div>
     <div id="adminLoading" style="text-align:center;padding:40px 0;"><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div></div>
