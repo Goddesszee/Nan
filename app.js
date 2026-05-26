@@ -3610,35 +3610,50 @@ async function loadAdminStats(){
   loading.style.display='block';
   loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div>';
   document.getElementById('adminStats').style.display='none';
-  const RPC='https://rpc.testnet.arc.network';
-  const USDC='0x3600000000000000000000000000000000000000';
-  const EURC='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
-  const SWAP='0x5cE359b74BE53b1B370641571cBef157dD575c79';
-  const LEND='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
-  const HIST='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
-  const NAME='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
-  const PAYREQ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
+
+  const RPC    ='https://rpc.testnet.arc.network';
+  const USDC   ='0x3600000000000000000000000000000000000000';
+  const EURC   ='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+  const SWAP   ='0x5cE359b74BE53b1B370641571cBef157dD575c79';
+  const LEND   ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
+  const NAME   ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
+  const PAYREQ ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
   const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero='0x0000000000000000000000000000000000000000';
-  const contracts=new Set([USDC,EURC,SWAP,LEND,HIST,NAME,PAYREQ].map(x=>x.toLowerCase()));
+  const zero   ='0x0000000000000000000000000000000000000000';
+  const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ].map(x=>x.toLowerCase()));
   let _id=0;
+
   async function rpc(method,params=[]){
     const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok)throw new Error('RPC HTTP '+r.status);
+    if(!r.ok) throw new Error('RPC HTTP '+r.status);
     const d=await r.json();
-    if(d.error)throw new Error(d.error.message||'RPC error');
+    if(d.error) throw new Error(d.error.message||'RPC error');
     return d.result;
   }
-  async function getLogs(f){
+
+  // Chunk getLogs to avoid 413 — query last 500k blocks only
+  async function getLogs(address, topics){
     try{
-      const r=await rpc('eth_getLogs',[f]);
+      const blockHex=await rpc('eth_blockNumber');
+      const latest=parseInt(blockHex,16);
+      const CHUNK=500000;
+      const from=Math.max(0, latest-CHUNK);
+      const filter={
+        fromBlock:'0x'+from.toString(16),
+        toBlock:'0x'+latest.toString(16),
+        address
+      };
+      if(topics) filter.topics=topics;
+      const r=await rpc('eth_getLogs',[filter]);
       return Array.isArray(r)?r:[];
     }catch(e){
-      console.warn('getLogs failed for',f.address,e.message);
+      console.warn('getLogs failed for',address,e.message);
       return [];
     }
   }
+
   try{
+    // Block + supply
     const blockHex=await rpc('eth_blockNumber');
     const currentBlock=parseInt(blockHex,16);
     document.getElementById('statBlock').textContent=currentBlock.toLocaleString();
@@ -3646,48 +3661,70 @@ async function loadAdminStats(){
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
     document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
 
-    // Use earliest block or 0x0 — query in parallel with individual error handling
-    const FROM='0x0';
-    const TO='0x'+currentBlock.toString(16);
+    loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Fetching transfer logs (last 500k blocks)…</div>';
+
+    // Fetch all in parallel — chunked range
     const [uL,eL,sL,lL,nL,pL]=await Promise.all([
-      getLogs({fromBlock:FROM,toBlock:TO,address:USDC,topics:[TRANSFER]}),
-      getLogs({fromBlock:FROM,toBlock:TO,address:EURC,topics:[TRANSFER]}),
-      getLogs({fromBlock:FROM,toBlock:TO,address:SWAP}),
-      getLogs({fromBlock:FROM,toBlock:TO,address:LEND}),
-      getLogs({fromBlock:FROM,toBlock:TO,address:NAME}),
-      getLogs({fromBlock:FROM,toBlock:TO,address:PAYREQ}),
+      getLogs(USDC,[TRANSFER]),
+      getLogs(EURC,[TRANSFER]),
+      getLogs(SWAP),
+      getLogs(LEND),
+      getLogs(NAME),
+      getLogs(PAYREQ),
     ]);
+
+    // Process wallets
     const all=[...uL,...eL];
     const wallets=new Set();
     const recent=new Map();
-    let bridges=0;
+    let bridges=0,sends=0;
+
     all.forEach(log=>{
-      if(log.topics&&log.topics.length>=3){
-        const f='0x'+log.topics[1].slice(-40),t='0x'+log.topics[2].slice(-40);
-        [f,t].forEach(w=>{const wl=w.toLowerCase();if(wl!==zero&&!contracts.has(wl))wallets.add(wl);});
-        if(t.toLowerCase()===zero)bridges++;
-        const fl=f.toLowerCase();
-        if(fl!==zero&&!contracts.has(fl)){const bn=parseInt(log.blockNumber,16);if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);}
+      if(!log.topics||log.topics.length<3)return;
+      const f='0x'+log.topics[1].slice(-40);
+      const t='0x'+log.topics[2].slice(-40);
+      [f,t].forEach(w=>{
+        const wl=w.toLowerCase();
+        if(wl!==zero&&!contracts.has(wl))wallets.add(wl);
+      });
+      const fl=f.toLowerCase(),tl=t.toLowerCase();
+      if(tl===zero){bridges++;}
+      else if(fl!==zero&&!contracts.has(fl)){
+        sends++;
+        const bn=parseInt(log.blockNumber,16);
+        if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);
       }
     });
+
     document.getElementById('statWallets').textContent=wallets.size.toLocaleString();
     document.getElementById('statTxns').textContent=all.length.toLocaleString();
     document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
+
+    // Recent wallets
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
-    recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:var(--text3);">No activity yet</div>':
-      top.map(([addr,bn])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a></div>`).join('');
+    recEl.innerHTML=top.length===0
+      ?'<div style="font-size:.75rem;color:var(--text3);">No wallet activity in last 500k blocks</div>'
+      :top.map(([addr])=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</span>
+          </div>
+          <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a>
+        </div>`).join('');
+
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
     loading.style.display='none';
     document.getElementById('adminStats').style.display='block';
+
   }catch(err){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:var(--text3);margin-bottom:6px;">Open browser console (F12) to see details.</div>
-      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">RPC only works from nanarc.xyz or nan-swart.vercel.app</div>
+      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Check console (F12) for details</div>
       <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
