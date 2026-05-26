@@ -2327,9 +2327,11 @@ let agentOpen=false;
 function toggleAgent(){
   agentOpen=!agentOpen;
   const panel=document.getElementById('agentPanel');
+  if(!panel)return;
   if(agentOpen){
     panel.style.display='flex';
     panel.style.flexDirection='column';
+    panel.style.zIndex='2147483647';
     requestAnimationFrame(()=>{ panel.style.transform='translate(-50%,0)'; });
     renderAgentMsgs();renderAgentChips();scrollAgentBottom();
   }else{
