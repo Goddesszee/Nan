@@ -833,7 +833,7 @@ a:hover{color:var(--text);}
     display:none !important;
     overflow-y:auto !important;overflow-x:hidden !important;
     flex-direction:column !important;align-items:center !important;
-    padding:32px 24px 48px !important;
+    padding:16px 24px 48px !important;
     animation:none !important;isolation:auto !important;transform:none !important;
   }
   .page.active{display:flex !important;}
