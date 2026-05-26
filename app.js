@@ -3607,9 +3607,9 @@ function checkAdminPw(){
 async function loadAdminStats(){
   if(!_adminUnlocked)return;
   const loading=document.getElementById('adminLoading');
+  const statsEl=document.getElementById('adminStats');
   loading.style.display='block';
-  loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div>';
-  document.getElementById('adminStats').style.display='none';
+  statsEl.style.display='none';
 
   const RPC    ='https://rpc.testnet.arc.network';
   const USDC   ='0x3600000000000000000000000000000000000000';
@@ -3619,65 +3619,81 @@ async function loadAdminStats(){
   const NAME   ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
   const PAYREQ ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
   const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero   ='0x0000000000000000000000000000000000000000';
+  const zero='0x0000000000000000000000000000000000000000';
   const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ].map(x=>x.toLowerCase()));
   let _id=0;
 
+  function setLoading(msg){
+    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text3);text-align:center;padding:10px;">${msg}</div>`;
+  }
+
   async function rpc(method,params=[]){
-    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok) throw new Error('RPC HTTP '+r.status);
+    const r=await fetch(RPC,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})
+    });
+    if(!r.ok)throw new Error('RPC HTTP '+r.status);
     const d=await r.json();
-    if(d.error) throw new Error(d.error.message||'RPC error');
+    if(d.error)throw new Error(d.error.message||'RPC error');
     return d.result;
   }
 
-  // Chunk getLogs to avoid 413 — query last 500k blocks only
-  async function getLogs(address, topics){
-    try{
-      const blockHex=await rpc('eth_blockNumber');
-      const latest=parseInt(blockHex,16);
-      const CHUNK=500000;
-      const from=Math.max(0, latest-CHUNK);
+  // Small chunk size to avoid 413
+  async function getLogsChunked(address, topics, fromBlock, toBlock, chunkSize=50000){
+    const logs=[];
+    for(let from=fromBlock; from<=toBlock; from+=chunkSize){
+      const to=Math.min(from+chunkSize-1, toBlock);
       const filter={
         fromBlock:'0x'+from.toString(16),
-        toBlock:'0x'+latest.toString(16),
+        toBlock:'0x'+to.toString(16),
         address
       };
       if(topics) filter.topics=topics;
-      const r=await rpc('eth_getLogs',[filter]);
-      return Array.isArray(r)?r:[];
-    }catch(e){
-      console.warn('getLogs failed for',address,e.message);
-      return [];
+      try{
+        const r=await rpc('eth_getLogs',[filter]);
+        if(Array.isArray(r)) logs.push(...r);
+      }catch(e){
+        console.warn('chunk failed',from,to,e.message);
+      }
     }
+    return logs;
   }
 
   try{
-    // Block + supply
+    setLoading('⛓ Connecting to Arc Testnet…');
     const blockHex=await rpc('eth_blockNumber');
-    const currentBlock=parseInt(blockHex,16);
-    document.getElementById('statBlock').textContent=currentBlock.toLocaleString();
+    const latest=parseInt(blockHex,16);
+    document.getElementById('statBlock').textContent=latest.toLocaleString();
 
+    setLoading('📊 Fetching USDC supply…');
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
     document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
 
-    loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Fetching transfer logs (last 500k blocks)…</div>';
+    // Query last 200k blocks in 50k chunks (4 requests per contract)
+    const LOOKBACK=200000;
+    const fromBlock=Math.max(0, latest-LOOKBACK);
 
-    // Fetch all in parallel — chunked range
-    const [uL,eL,sL,lL,nL,pL]=await Promise.all([
-      getLogs(USDC,[TRANSFER]),
-      getLogs(EURC,[TRANSFER]),
-      getLogs(SWAP),
-      getLogs(LEND),
-      getLogs(NAME),
-      getLogs(PAYREQ),
+    setLoading('📥 Fetching USDC transfers…');
+    const uL=await getLogsChunked(USDC,[TRANSFER],fromBlock,latest);
+
+    setLoading('📥 Fetching EURC transfers…');
+    const eL=await getLogsChunked(EURC,[TRANSFER],fromBlock,latest);
+
+    setLoading('📥 Fetching swap & lend events…');
+    const [sL,lL,nL,pL]=await Promise.all([
+      getLogsChunked(SWAP,null,fromBlock,latest),
+      getLogsChunked(LEND,null,fromBlock,latest),
+      getLogsChunked(NAME,null,fromBlock,latest),
+      getLogsChunked(PAYREQ,null,fromBlock,latest),
     ]);
 
-    // Process wallets
+    setLoading('🔍 Processing data…');
+
     const all=[...uL,...eL];
     const wallets=new Set();
     const recent=new Map();
-    let bridges=0,sends=0;
+    let bridges=0;
 
     all.forEach(log=>{
       if(!log.topics||log.topics.length<3)return;
@@ -3690,7 +3706,6 @@ async function loadAdminStats(){
       const fl=f.toLowerCase(),tl=t.toLowerCase();
       if(tl===zero){bridges++;}
       else if(fl!==zero&&!contracts.has(fl)){
-        sends++;
         const bn=parseInt(log.blockNumber,16);
         if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);
       }
@@ -3702,11 +3717,10 @@ async function loadAdminStats(){
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
 
-    // Recent wallets
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0
-      ?'<div style="font-size:.75rem;color:var(--text3);">No wallet activity in last 500k blocks</div>'
+      ?'<div style="font-size:.75rem;color:var(--text3);">No wallet activity in last 200k blocks</div>'
       :top.map(([addr])=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -3718,13 +3732,13 @@ async function loadAdminStats(){
 
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
     loading.style.display='none';
-    document.getElementById('adminStats').style.display='block';
+    statsEl.style.display='block';
 
   }catch(err){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Check console (F12) for details</div>
+      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz — open F12 console for details</div>
       <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
