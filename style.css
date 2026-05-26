@@ -353,6 +353,9 @@ a:hover{color:var(--text);}
   #app-root{left:0;transform:none;max-width:100%;box-shadow:none;height:100dvh;}
   #app-root::before,#app-root::after{display:none;}
 
+  /* Landing card transparent on mobile */
+  .land-form-col > div{background:transparent !important;border:none !important;padding:0 !important;box-shadow:none !important;}
+
   /* Pages */
   .page{top:54px;bottom:68px!important;padding:12px 14px 16px!important;}
   .page-land{top:0!important;bottom:0!important;overflow:hidden!important;}
@@ -747,9 +750,9 @@ a:hover{color:var(--text);}
   /* Show hero branding column on desktop */
   .land-hero-col{display:flex !important;}
   /* Form column fixed width */
-  .land-form-col{width:400px !important;flex-shrink:0 !important;max-width:400px !important;}
+  .land-form-col{width:420px !important;flex-shrink:0 !important;max-width:420px !important;}
   /* Hide mobile-only trust bar on desktop */
-  .land-form-col > div:last-child{display:none !important;}
+
 
   /* ── App root ── */
   #app-root{
