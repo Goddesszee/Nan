@@ -1045,9 +1045,9 @@ function showReceipt(){
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -1102,7 +1102,7 @@ function downloadReceipt(){
   ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,56.5);ctx.stroke();
 
   // NAN title
-  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Space Grotesk, sans-serif';
+  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Inter, sans-serif';
   ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
   ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
   ctx.fillText('ARC TESTNET',82,63);
@@ -1120,9 +1120,9 @@ function downloadReceipt(){
   ctx.textAlign='center';ctx.fillText('✓',300,168);
 
   // Transaction confirmed
-  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
-  ctx.fillStyle='#a78bfa';ctx.font='14px Space Grotesk, sans-serif';
+  ctx.fillStyle='#a78bfa';ctx.font='14px Inter, sans-serif';
   ctx.fillText(msg,300,250);
 
   // Divider
@@ -1148,7 +1148,7 @@ function downloadReceipt(){
 
   // Footer
   ctx.fillStyle='rgba(139,92,246,0.15)';ctx.fillRect(0,360,600,40);
-  ctx.fillStyle='#a78bfa';ctx.font='11px Space Grotesk, sans-serif';
+  ctx.fillStyle='#a78bfa';ctx.font='11px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
 
   // Download
@@ -2400,7 +2400,7 @@ function renderAgentMsgs(){
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
   const chips=["What's my balance?","Sell USDC when rate hits","Send 20 USDC on Friday","My pending orders","Cancel all orders","Swap USDC → EURC","Bridge via CCTP"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
+  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -3432,7 +3432,7 @@ function renderPaymentRequests(){
   if(el2)el2.textContent=paid;
   if(el3)el3.textContent=pending;
   if(!paymentRequests.length){
-    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
     return;
   }
   list.innerHTML=paymentRequests.map(pr=>{
@@ -3623,73 +3623,77 @@ async function loadAdminStats(){
   const contracts=new Set([USDC,EURC,SWAP,LEND,NAME,PAYREQ].map(x=>x.toLowerCase()));
   let _id=0;
 
-  function setLoading(msg){
-    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text3);text-align:center;padding:10px;">${msg}</div>`;
+  function setMsg(msg){
+    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#888;text-align:center;padding:10px;line-height:1.8;">${msg}</div>`;
   }
 
   async function rpc(method,params=[]){
-    const r=await fetch(RPC,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})
-    });
+    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
     if(!r.ok)throw new Error('RPC HTTP '+r.status);
     const d=await r.json();
     if(d.error)throw new Error(d.error.message||'RPC error');
     return d.result;
   }
 
-  // Small chunk size to avoid 413
-  async function getLogsChunked(address, topics, fromBlock, toBlock, chunkSize=50000){
+  // Chunk ALL blocks from 0 to latest in 30k chunks to avoid 413
+  async function getAllLogs(address, topics){
+    const blockHex=await rpc('eth_blockNumber');
+    const latest=parseInt(blockHex,16);
+    const CHUNK=30000;
     const logs=[];
-    for(let from=fromBlock; from<=toBlock; from+=chunkSize){
-      const to=Math.min(from+chunkSize-1, toBlock);
-      const filter={
-        fromBlock:'0x'+from.toString(16),
-        toBlock:'0x'+to.toString(16),
-        address
-      };
+    let chunks=0;
+    const total=Math.ceil(latest/CHUNK);
+    for(let from=0; from<=latest; from+=CHUNK){
+      const to=Math.min(from+CHUNK-1, latest);
+      const filter={fromBlock:'0x'+from.toString(16),toBlock:'0x'+to.toString(16),address};
       if(topics) filter.topics=topics;
       try{
         const r=await rpc('eth_getLogs',[filter]);
         if(Array.isArray(r)) logs.push(...r);
       }catch(e){
-        console.warn('chunk failed',from,to,e.message);
+        console.warn('chunk failed',from,'-',to,e.message);
+      }
+      chunks++;
+      if(chunks%10===0){
+        const pct=Math.round((from/latest)*100);
+        setMsg(`Scanning blocks… ${pct}% (${logs.length} events found so far)`);
+        await new Promise(r=>setTimeout(r,0)); // let UI update
       }
     }
     return logs;
   }
 
   try{
-    setLoading('⛓ Connecting to Arc Testnet…');
+    setMsg('⛓ Connecting to Arc Testnet…');
     const blockHex=await rpc('eth_blockNumber');
     const latest=parseInt(blockHex,16);
     document.getElementById('statBlock').textContent=latest.toLocaleString();
 
-    setLoading('📊 Fetching USDC supply…');
+    setMsg('📊 Fetching USDC supply…');
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
     document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
 
-    // Query last 200k blocks in 50k chunks (4 requests per contract)
-    const LOOKBACK=200000;
-    const fromBlock=Math.max(0, latest-LOOKBACK);
+    setMsg(`📥 Scanning ALL blocks (0 → ${latest.toLocaleString()}) for USDC transfers…<br/>This may take 1-2 minutes. Do not close.`);
+    const uL=await getAllLogs(USDC,[TRANSFER]);
 
-    setLoading('📥 Fetching USDC transfers…');
-    const uL=await getLogsChunked(USDC,[TRANSFER],fromBlock,latest);
+    setMsg(`📥 Scanning EURC transfers… (found ${uL.length} USDC events)`);
+    const eL=await getAllLogs(EURC,[TRANSFER]);
 
-    setLoading('📥 Fetching EURC transfers…');
-    const eL=await getLogsChunked(EURC,[TRANSFER],fromBlock,latest);
-
-    setLoading('📥 Fetching swap & lend events…');
+    setMsg('📥 Fetching contract events…');
+    const CHUNK=30000;
+    async function getLogsRange(address){
+      const logs=[];
+      for(let from=0; from<=latest; from+=CHUNK){
+        const to=Math.min(from+CHUNK-1,latest);
+        try{const r=await rpc('eth_getLogs',[{fromBlock:'0x'+from.toString(16),toBlock:'0x'+to.toString(16),address}]);if(Array.isArray(r))logs.push(...r);}catch(e){}
+      }
+      return logs;
+    }
     const [sL,lL,nL,pL]=await Promise.all([
-      getLogsChunked(SWAP,null,fromBlock,latest),
-      getLogsChunked(LEND,null,fromBlock,latest),
-      getLogsChunked(NAME,null,fromBlock,latest),
-      getLogsChunked(PAYREQ,null,fromBlock,latest),
+      getLogsRange(SWAP),getLogsRange(LEND),getLogsRange(NAME),getLogsRange(PAYREQ)
     ]);
 
-    setLoading('🔍 Processing data…');
-
+    setMsg('🔍 Processing data…');
     const all=[...uL,...eL];
     const wallets=new Set();
     const recent=new Map();
@@ -3699,10 +3703,7 @@ async function loadAdminStats(){
       if(!log.topics||log.topics.length<3)return;
       const f='0x'+log.topics[1].slice(-40);
       const t='0x'+log.topics[2].slice(-40);
-      [f,t].forEach(w=>{
-        const wl=w.toLowerCase();
-        if(wl!==zero&&!contracts.has(wl))wallets.add(wl);
-      });
+      [f,t].forEach(w=>{const wl=w.toLowerCase();if(wl!==zero&&!contracts.has(wl))wallets.add(wl);});
       const fl=f.toLowerCase(),tl=t.toLowerCase();
       if(tl===zero){bridges++;}
       else if(fl!==zero&&!contracts.has(fl)){
@@ -3716,21 +3717,23 @@ async function loadAdminStats(){
     document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
+    const nameEl=document.getElementById('statNames');if(nameEl)nameEl.textContent=nL.length.toLocaleString();
+    const payEl=document.getElementById('statPayreqs');if(payEl)payEl.textContent=pL.length.toLocaleString();
 
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0
-      ?'<div style="font-size:.75rem;color:var(--text3);">No wallet activity in last 200k blocks</div>'
+      ?'<div style="font-size:.75rem;color:#666;">No wallet-to-wallet activity found</div>'
       :top.map(([addr])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</span>
+            <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${addr.slice(0,8)}…${addr.slice(-6)}</span>
           </div>
-          <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a>
+          <a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a>
         </div>`).join('');
 
-    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
+    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' (all-time)';
     loading.style.display='none';
     statsEl.style.display='block';
 
@@ -3738,8 +3741,8 @@ async function loadAdminStats(){
     console.error('Admin stats error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
       <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
-      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz — open F12 console for details</div>
-      <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button>
+      <div style="font-size:.7rem;color:#666;margin-bottom:14px;">Must be on nanarc.xyz</div>
+      <button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">↻ Retry</button>
     </div>`;
   }
 }
