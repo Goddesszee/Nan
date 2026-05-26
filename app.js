@@ -3629,19 +3629,33 @@ async function loadAdminStats(){
     if(d.error)throw new Error(d.error.message||'RPC error');
     return d.result;
   }
-  async function getLogs(f){try{return await rpc('eth_getLogs',[f]);}catch{return [];}}
+  async function getLogs(f){
+    try{
+      const r=await rpc('eth_getLogs',[f]);
+      return Array.isArray(r)?r:[];
+    }catch(e){
+      console.warn('getLogs failed for',f.address,e.message);
+      return [];
+    }
+  }
   try{
     const blockHex=await rpc('eth_blockNumber');
-    document.getElementById('statBlock').textContent=parseInt(blockHex,16).toLocaleString();
+    const currentBlock=parseInt(blockHex,16);
+    document.getElementById('statBlock').textContent=currentBlock.toLocaleString();
+
     const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
     document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
+
+    // Use earliest block or 0x0 — query in parallel with individual error handling
+    const FROM='0x0';
+    const TO='0x'+currentBlock.toString(16);
     const [uL,eL,sL,lL,nL,pL]=await Promise.all([
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:USDC,topics:[TRANSFER]}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:EURC,topics:[TRANSFER]}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:SWAP}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:LEND}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:NAME}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:PAYREQ}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:USDC,topics:[TRANSFER]}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:EURC,topics:[TRANSFER]}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:SWAP}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:LEND}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:NAME}),
+      getLogs({fromBlock:FROM,toBlock:TO,address:PAYREQ}),
     ]);
     const all=[...uL,...eL];
     const wallets=new Set();
@@ -3669,6 +3683,12 @@ async function loadAdminStats(){
     loading.style.display='none';
     document.getElementById('adminStats').style.display='block';
   }catch(err){
-    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button></div>`;
+    console.error('Admin stats error:',err);
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;">
+      <div style="margin-bottom:8px;">⚠️ ${err.message}</div>
+      <div style="font-size:.7rem;color:var(--text3);margin-bottom:6px;">Open browser console (F12) to see details.</div>
+      <div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">RPC only works from nanarc.xyz or nan-swart.vercel.app</div>
+      <button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button>
+    </div>`;
   }
 }
