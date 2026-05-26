@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   // Polls Iris V2 by transactionHash (V2 uses txHash, not messageHash)
   if (action === 'getAttestation') {
     if (!validTxHash(txHash))
-      return res.status(400).json({ error: 'txHash required (0x + 64 hex chars)' });
+      return res.status(200).json({ status: 'pending', attestation: null, message: null, hint: 'Waiting for burn tx hash' });
 
     try {
       const r = await fetch(`${IRIS_URL}/${domain}?transactionHash=${txHash}`, {
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
   // Fetches Arc receipt, extracts messageBytes, computes keccak256 messageHash
   if (action === 'getTxStatus') {
     if (!validTxHash(txHash))
-      return res.status(400).json({ error: 'txHash required (0x + 64 hex chars)' });
+      return res.status(200).json({ status: 'pending', message: 'Waiting for tx hash' });
 
     try {
       const rpcRes = await fetch(ARC_RPC, {
