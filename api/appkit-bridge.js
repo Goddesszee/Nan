@@ -10,8 +10,6 @@
 //
 // Chain name mapping: your app uses 'ETH-SEPOLIA', SDK expects 'Ethereum_Sepolia'
 
-import { AppKit } from '@circle-fin/app-kit';
-import { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';
 import crypto from 'crypto';
 
 // Map from your app's chain IDs → Circle SDK Blockchain enum strings
@@ -33,6 +31,8 @@ function getAppKit() {
   if (!apiKey || !entitySecret)
     throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET must be set');
 
+  const { AppKit } = await import('@circle-fin/app-kit');
+  const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
   const kit     = new AppKit();
   return { kit, adapter };
