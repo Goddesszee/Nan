@@ -1272,13 +1272,20 @@ function flipSwap(){
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
-      toast('Swap confirmed on Arc!','success',6000);
+      toast('✓ Swap confirmed on Arc!','success',6000);
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
     }
   }catch(err){
-    toast('Swap failed: '+err.message.slice(0,100),'error',6000);
+    console.error('Swap error:', err);
+    // Extract meaningful revert reason
+    let msg = err.message || 'Unknown error';
+    if(msg.includes('FAILED')) msg = 'Swap contract rejected — the contract may have insufficient liquidity. Try a smaller amount.';
+    else if(msg.includes('insufficient')) msg = 'Insufficient balance or liquidity';
+    else if(msg.includes('allowance')) msg = 'Approval failed — please try again';
+    else msg = msg.slice(0, 120);
+    toast('Swap failed: '+msg,'error',8000);
   }
   btn.innerHTML='Swap';btn.disabled=false;
 }
@@ -2683,9 +2690,29 @@ async function checkPoolLiquidity(){
     poolStats.usdcLiq=parseFloat(ethers.formatUnits(usdcLiq,6));
     poolStats.eurcLiq=parseFloat(ethers.formatUnits(eurcLiq,6));
     console.log('Pool liquidity — USDC:',poolStats.usdcLiq,'EURC:',poolStats.eurcLiq);
-    // Warn if pool is low
-    if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
-      console.warn('Pool liquidity low — swaps will simulate');
+
+    // Show liquidity info on swap page
+    const banner=document.getElementById('swapModeBanner');
+    if(banner){
+      if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
+        banner.style.display='block';
+        banner.style.background='rgba(248,113,113,.1)';
+        banner.style.border='1px solid rgba(248,113,113,.25)';
+        banner.style.borderRadius='12px';
+        banner.style.padding='10px 14px';
+        banner.style.color='#f87171';
+        banner.style.fontSize='.78rem';
+        banner.innerHTML=`⚠️ Pool liquidity is low (${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC). Swaps may fail. Add liquidity first.`;
+      } else {
+        banner.style.display='block';
+        banner.style.background='rgba(52,211,153,.06)';
+        banner.style.border='1px solid rgba(52,211,153,.15)';
+        banner.style.borderRadius='12px';
+        banner.style.padding='8px 14px';
+        banner.style.color='#34d399';
+        banner.style.fontSize='.72rem';
+        banner.innerHTML=`Pool: ${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC`;
+      }
     }
   }catch(e){console.log('Pool check error:',e.message);}
 }
