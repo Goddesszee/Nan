@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
+  "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": ".",
   "functions": {
     "api/*.js": {
       "memory": 512,
-      "maxDuration": 30
+      "maxDuration": 30,
+      "excludeFiles": "node_modules/@circle-fin/app-kit/**,node_modules/@circle-fin/adapter-circle-wallets/**,node_modules/@circle-fin/bridge-kit/**,node_modules/@circle-fin/swap-kit/**,node_modules/@solana/**"
     },
     "api/transaction/*.js": {
       "memory": 512,
