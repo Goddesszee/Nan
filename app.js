@@ -1229,26 +1229,21 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      // Separate approval cache per token direction
-      const _swapApprKey='nan_circle_swap_approved_'+circleWalletId+'_'+(isUSDCtoEURC?'usdc':'eurc');
-      if(!sessionStorage.getItem(_swapApprKey)){
-        const approveToken = isUSDCtoEURC ? USDC_ADDR : EURC_ADDR;
-        const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:approveToken,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-        const appData=await r.json();
-        if(!appData.success)throw new Error(appData.error||'Approve failed');
-        await waitForCircleTx(appData.transactionId,'approve');
-        sessionStorage.setItem(_swapApprKey,'1');
-      }
-      // Both USDC and EURC use 6 decimals on Arc Testnet
-      const amtAtomic = Math.floor(fromAmt * 1_000_000).toString();
-      const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[amtAtomic]})});
+      // Use Circle App Kit swap — no liquidity management, no approvals needed
+      btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
+      const r2=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        action:'swap',
+        walletId:circleWalletId,
+        tokenIn:isUSDCtoEURC?'USDC':'EURC',
+        tokenOut:isUSDCtoEURC?'EURC':'USDC',
+        amountIn:fromAmt.toFixed(6)
+      })});
       const d=await r2.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
       btn.innerHTML='<span class="spinner"></span>Confirming swap…';
       if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
-      const rate=isUSDCtoEURC?FX:(1/FX);
-      const amtOut=(fromAmt*rate*0.999).toFixed(4);
-      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' on Arc!','success',8000);
+      const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' via App Kit!','success',8000);
       addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
