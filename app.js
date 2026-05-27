@@ -1234,6 +1234,7 @@ function flipSwap(){
       const r2=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         action:'swap',
         walletId:circleWalletId,
+        walletAddress:userAddr,
         tokenIn:isUSDCtoEURC?'USDC':'EURC',
         tokenOut:isUSDCtoEURC?'EURC':'USDC',
         amountIn:fromAmt.toFixed(6)

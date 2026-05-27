@@ -1,17 +1,4 @@
-// api/appkit-swap.js — Circle App Kit swap (no liquidity pool needed)
-import { AppKit } from '@circle-fin/app-kit';
-import { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';
-
-const kit = new AppKit();
-
-function getAdapter(walletId) {
-  return createCircleWalletsAdapter({
-    apiKey: process.env.CIRCLE_API_KEY,
-    entitySecret: process.env.CIRCLE_ENTITY_SECRET,
-    ...(walletId ? { walletId } : {}),
-  });
-}
-
+// api/appkit-swap.js — Circle App Kit swap
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -19,13 +6,27 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { action, walletId, tokenIn, tokenOut, amountIn } = req.body || {};
+  const { action, walletId, walletAddress, tokenIn, tokenOut, amountIn } = req.body || {};
 
   try {
-    // Quote — use estimateSwap (no wallet needed)
+    // Lazy import to avoid build-time issues
+    const { AppKit } = await import('@circle-fin/app-kit');
+    const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+
+    const kit = new AppKit();
+
+    const adapter = createCircleWalletsAdapter({
+      apiKey: process.env.CIRCLE_API_KEY,
+      entitySecret: process.env.CIRCLE_ENTITY_SECRET,
+    });
+
     if (action === 'quote') {
       const estimate = await kit.estimateSwap({
-        from: { adapter: getAdapter(), chain: 'Arc_Testnet' },
+        from: {
+          adapter,
+          chain: 'Arc_Testnet',
+          address: walletAddress || process.env.AGENT_WALLET_ID,
+        },
         tokenIn: tokenIn || 'USDC',
         tokenOut: tokenOut || 'EURC',
         amountIn: String(parseFloat(amountIn || '1').toFixed(6)),
@@ -34,15 +35,26 @@ export default async function handler(req, res) {
       return res.json({ success: true, quote: estimate });
     }
 
-    // Execute swap
     if (action === 'swap') {
-      if (!walletId) return res.status(400).json({ error: 'walletId required' });
+      if (!walletId || !walletAddress) {
+        return res.status(400).json({ error: 'walletId and walletAddress required' });
+      }
       if (!tokenIn || !tokenOut || !amountIn) {
         return res.status(400).json({ error: 'tokenIn, tokenOut, amountIn required' });
       }
 
+      const swapAdapter = createCircleWalletsAdapter({
+        apiKey: process.env.CIRCLE_API_KEY,
+        entitySecret: process.env.CIRCLE_ENTITY_SECRET,
+        walletId,
+      });
+
       const result = await kit.swap({
-        from: { adapter: getAdapter(walletId), chain: 'Arc_Testnet' },
+        from: {
+          adapter: swapAdapter,
+          chain: 'Arc_Testnet',
+          address: walletAddress,
+        },
         tokenIn,
         tokenOut,
         amountIn: String(parseFloat(amountIn).toFixed(6)),
@@ -59,7 +71,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ error: 'Unknown action. Use quote or swap.' });
+    return res.status(400).json({ error: 'Unknown action' });
 
   } catch (err) {
     console.error('AppKit swap error:', err.message);
