@@ -436,6 +436,150 @@ app.get('/app', (req, res) => {
   res.sendFile(path.join(__dirname, '../app.html'));
 });
 
+
+// =============================================================================
+// App Kit Routes — send, swap, bridge via @circle-fin/app-kit
+// Runs on Railway (persistent Node server) NOT Vercel (serverless)
+// =============================================================================
+
+const APPKIT_CHAIN   = process.env.CIRCLE_BLOCKCHAIN || 'Arc_Testnet';
+const APPKIT_USDC    = process.env.USDC_ADDRESS      || '0x3600000000000000000000000000000000000000';
+const APPKIT_EURC    = process.env.EURC_ADDRESS      || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
+
+const BRIDGE_CHAIN_MAP = {
+  'ETH-SEPOLIA':  'Ethereum_Sepolia',
+  'AVAX-FUJI':    'Avalanche_Fuji',
+  'BASE-SEPOLIA': 'Base_Sepolia',
+  'ARB-SEPOLIA':  'Arbitrum_Sepolia',
+  'OP-SEPOLIA':   'Optimism_Sepolia',
+  'POLYGON-AMOY': 'Polygon_Amoy_Testnet',
+};
+
+async function getAppKit() {
+  const { AppKit }                    = await import('@circle-fin/app-kit');
+  const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+  const adapter = createCircleWalletsAdapter({
+    apiKey:       process.env.CIRCLE_API_KEY,
+    entitySecret: process.env.CIRCLE_ENTITY_SECRET,
+  });
+  return { kit: new AppKit(), adapter };
+}
+
+// POST /api/appkit/send
+app.post('/api/appkit/send', async (req, res) => {
+  const { walletAddress, destinationAddress, amount, tokenSymbol } = req.body || {};
+  const token  = (tokenSymbol || 'USDC').toUpperCase();
+  const parsed = parseFloat(amount);
+  const TOKEN_ADDRESSES = { USDC: APPKIT_USDC, EURC: APPKIT_EURC };
+
+  if (!walletAddress || !destinationAddress || !parsed || parsed <= 0)
+    return res.json({ success: false, error: 'walletAddress, destinationAddress, amount required' });
+  if (!TOKEN_ADDRESSES[token])
+    return res.json({ success: false, error: 'Unsupported token. Use USDC or EURC' });
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+    return res.json({ success: true, txHash: '0xdev_send_' + Date.now(), state: 'success', dev: true });
+
+  try {
+    const { kit, adapter } = await getAppKit();
+    const result = await kit.send({
+      from:   { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+      to:     destinationAddress,
+      amount: parsed.toString(),
+      token:  TOKEN_ADDRESSES[token],
+    });
+    res.json({ success: true, txHash: result.txHash || null, state: result.state, explorerUrl: result.explorerUrl || null });
+  } catch (err) {
+    console.error('[appkit/send]', err.message);
+    res.json({ success: false, error: err.message.slice(0, 150) });
+  }
+});
+
+// POST /api/appkit/swap  (action: quote | swap)
+app.post('/api/appkit/swap', async (req, res) => {
+  const { action, walletAddress, tokenIn, tokenOut, amountIn } = req.body || {};
+  const fromToken = (tokenIn  || 'USDC').toUpperCase();
+  const toToken   = (tokenOut || 'EURC').toUpperCase();
+  const amtIn     = parseFloat(amountIn);
+
+  if (!amtIn || amtIn <= 0)
+    return res.json({ success: false, error: 'Valid amountIn required' });
+
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    const rate = fromToken === 'USDC' ? 0.9224 : 1.0842;
+    const amountOut = (amtIn * rate * 0.999).toFixed(6);
+    return res.json({ success: true, amountOut, estimatedOutput: { amount: amountOut, token: toToken }, dev: true });
+  }
+
+  try {
+    const { kit, adapter } = await getAppKit();
+    const swapParams = {
+      from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress || 'estimate' },
+      tokenIn:  fromToken,
+      tokenOut: toToken,
+      amountIn: amtIn.toString(),
+      config:   { slippageBps: 300 },
+    };
+
+    if (action === 'quote') {
+      const estimate = await kit.estimateSwap(swapParams);
+      return res.json({
+        success:         true,
+        amountOut:       estimate.estimatedOutput?.amount || null,
+        estimatedOutput: estimate.estimatedOutput || null,
+        stopLimit:       estimate.stopLimit || null,
+        fees:            estimate.fees || null,
+      });
+    }
+
+    if (!walletAddress)
+      return res.json({ success: false, error: 'walletAddress required for swap' });
+
+    const result = await kit.swap(swapParams);
+    res.json({ success: true, txHash: result.txHash || null, amountOut: result.amountOut || null, explorerUrl: result.explorerUrl || null });
+  } catch (err) {
+    console.error('[appkit/swap]', err.message);
+    if (err.message.includes('not supported') || err.message.includes('Arc'))
+      return res.json({ success: false, fallback: true, error: 'AppKit swap not available on Arc Testnet' });
+    res.json({ success: false, error: err.message.slice(0, 150) });
+  }
+});
+
+// POST /api/appkit/bridge
+app.post('/api/appkit/bridge', async (req, res) => {
+  const { walletAddress, destChain, destAddr, amount } = req.body || {};
+  const parsed      = parseFloat(amount);
+  const destChainName = BRIDGE_CHAIN_MAP[destChain];
+
+  if (!walletAddress || !destChain || !destAddr || !parsed || parsed <= 0)
+    return res.json({ success: false, error: 'walletAddress, destChain, destAddr, amount required' });
+  if (!destChainName)
+    return res.json({ success: false, error: 'Unsupported chain: ' + destChain });
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+    return res.json({ success: true, state: 'success', burnTxHash: '0xdev_burn_' + Date.now(), mintTxHash: '0xdev_mint_' + Date.now(), dev: true });
+
+  try {
+    const { kit, adapter } = await getAppKit();
+    const result = await kit.bridge({
+      from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+      to:   { adapter, chain: destChainName, address: destAddr },
+      amount: parsed.toFixed(2),
+      token:  'USDC',
+    });
+    const burnStep = result.steps?.find(s => s.name?.includes('burn'));
+    const mintStep = result.steps?.find(s => s.name?.includes('mint'));
+    res.json({
+      success:    result.state === 'success' || result.state === 'pending',
+      state:      result.state,
+      burnTxHash: burnStep?.txHash || null,
+      mintTxHash: mintStep?.txHash || null,
+      steps:      result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
+    });
+  } catch (err) {
+    console.error('[appkit/bridge]', err.message);
+    res.json({ success: false, error: err.message.slice(0, 200) });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
