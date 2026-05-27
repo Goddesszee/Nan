@@ -447,7 +447,7 @@ async function verifyOTP(){
   try{
     const res=await fetch('/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'verify',email:otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry}),
+      body:JSON.stringify({action:'verify',email:window._otpEmail||otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry}),
     });
     const data=await res.json();
     if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
