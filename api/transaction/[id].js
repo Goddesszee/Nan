@@ -1,6 +1,5 @@
-import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
-
-function getClient() {
+async function getClient() {
+  const { initiateDeveloperControlledWalletsClient } = await import('@circle-fin/developer-controlled-wallets');
   return initiateDeveloperControlledWalletsClient({
     apiKey:       process.env.CIRCLE_API_KEY,
     entitySecret: process.env.CIRCLE_ENTITY_SECRET,
@@ -19,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid transaction ID' });
 
   try {
-    const client = getClient();
+    const client = await getClient();
     const result = await client.getTransaction({ id: txId });
     const tx     = result.data?.transaction;
 

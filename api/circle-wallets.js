@@ -13,7 +13,6 @@
 //   FIX 4 (waitForTx): Confirmed correct — data.transaction is right for getTransaction polling
 //   FIX 5 (bridge): Already correct — no changes needed
 
-import { initiateDeveloperControlledWalletsClient } from '@circle-fin/developer-controlled-wallets';
 import crypto from 'crypto';
 
 // ── Token addresses ───────────────────────────────────────────────────────────
@@ -37,7 +36,8 @@ const CCTP_DEST_DOMAINS = {
 const BLOCKCHAIN = process.env.CIRCLE_BLOCKCHAIN || 'ARC-TESTNET';
 
 // ── Circle SDK client ─────────────────────────────────────────────────────────
-function getClient() {
+async function getClient() {
+  const { initiateDeveloperControlledWalletsClient } = await import('@circle-fin/developer-controlled-wallets');
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
   if (!apiKey || !entitySecret)
@@ -151,7 +151,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const client = getClient();
+      const client = await getClient();
       const name   = walletSetName(email);
 
       // Find or create walletSet
@@ -225,7 +225,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const client = getClient();
+      const client = await getClient();
 
       // FIX 1: createTransaction with walletAddress + human-readable amount array
       // The walletAddress comes from req.body (frontend passes circleWalletAddress)
@@ -301,7 +301,7 @@ export default async function handler(req, res) {
     const destinationCaller = '0x' + '0'.repeat(64);
 
     try {
-      const client = getClient();
+      const client = await getClient();
 
       // Step 1 — Approve USDC to TokenMessengerV2
       console.log(`[bridge] Approve ${atomicAmount} atomic USDC to TokenMessenger…`);
@@ -401,7 +401,7 @@ export default async function handler(req, res) {
       });
 
     try {
-      const client = getClient();
+      const client = await getClient();
       const txRes  = await client.createContractExecutionTransaction({
         walletId,
         blockchain:           BLOCKCHAIN,

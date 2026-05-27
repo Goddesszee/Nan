@@ -5,13 +5,11 @@
   "functions": {
     "api/*.js": {
       "memory": 512,
-      "maxDuration": 30,
-      "includeFiles": "node_modules/@circle-fin/**"
+      "maxDuration": 30
     },
     "api/transaction/*.js": {
       "memory": 512,
-      "maxDuration": 30,
-      "includeFiles": "node_modules/@circle-fin/**"
+      "maxDuration": 30
     }
   },
   "rewrites": [
