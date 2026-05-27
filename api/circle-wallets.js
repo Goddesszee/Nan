@@ -460,7 +460,7 @@ export default async function handler(req, res) {
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
-        config:   { slippageBps: 300 },
+        config:   { kitKey: process.env.KIT_KEY || '', slippageBps: 300 },
       });
       return res.json({
         success:         true,
