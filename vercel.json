@@ -1,7 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "npm install",
   "outputDirectory": ".",
-  "installCommand": "npm install --no-package-lock",
   "functions": {
     "api/*.js": {
       "memory": 512,
