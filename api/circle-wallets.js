@@ -89,8 +89,8 @@ async function waitForTx(client, txId, label = 'tx', maxWaitMs = 120_000) {
       const tx    = res.data?.transaction;   // correct: nested under data.transaction
       const state = tx?.state;
       console.log(`[${label}] state=${state}`);
-      if (state === 'CONFIRMED' || state === 'COMPLETE')
-        return { state, txHash: tx?.txHash, id: txId };
+      if (['CONFIRMED', 'COMPLETE'].includes(state))
+        return { state, txHash: tx?.txHash || null, id: txId };
       if (['FAILED', 'CANCELLED', 'DENIED'].includes(state))
         throw new Error(`${label} ended with state: ${state}`);
     } catch (e) {
@@ -240,12 +240,11 @@ export default async function handler(req, res) {
         idempotencyKey:     crypto.randomUUID(),
       };
 
-      // Prefer walletAddress if provided (Circle's documented pattern for Arc)
-      if (walletAddress) {
-        txParams.walletAddress = walletAddress;
-      } else {
-        txParams.walletId = walletId;
+      // Circle docs require walletAddress for createTransaction on Arc
+      if (!walletAddress) {
+        throw new Error('walletAddress is required for createTransaction on Arc');
       }
+      txParams.walletAddress = walletAddress;
 
       const txRes = await client.createTransaction(txParams);
 
@@ -457,7 +456,7 @@ export default async function handler(req, res) {
       const adapter  = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit      = new AppKit();
       const estimate = await kit.estimateSwap({
-        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress || 'estimate' },
+        from:     { adapter, chain: APPKIT_CHAIN },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
@@ -496,11 +495,11 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.swap({
-        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+        from:     { adapter, chain: APPKIT_CHAIN },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
-        config:   { slippageBps: 300 },
+        config:   { kitKey: process.env.KIT_KEY || '', slippageBps: 300 },
       });
       return res.json({ success: true, txHash: result.txHash || null, amountOut: result.amountOut || null, explorerUrl: result.explorerUrl || null });
     } catch (err) {
@@ -540,10 +539,10 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.send({
-        from:   { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+        from:   { adapter, chain: APPKIT_CHAIN },
         to:     destinationAddress,
         amount: parsed.toString(),
-        token:  TOKEN_ADDRESSES[token],
+        token,
       });
       return res.json({ success: result.state === 'success' || result.state === 'pending', txHash: result.txHash || null, state: result.state, explorerUrl: result.explorerUrl || null });
     } catch (err) {
@@ -577,8 +576,8 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.bridge({
-        from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-        to:   { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
+        from: { adapter, chain: APPKIT_CHAIN },
+        to:   { adapter, chain: CHAIN_MAP[bDestChain], recipientAddress: bDestAddr },
         amount: parsed.toFixed(2),
         token:  'USDC',
       });
