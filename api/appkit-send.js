@@ -5,8 +5,6 @@
 //
 // Replaces the raw createTransaction() path in circle-wallets.js for Circle wallet users.
 
-import { AppKit } from '@circle-fin/app-kit';
-import { createCircleWalletsAdapter } from '@circle-fin/adapter-circle-wallets';
 import crypto from 'crypto';
 
 const BLOCKCHAIN = process.env.CIRCLE_BLOCKCHAIN || 'Arc_Testnet';
@@ -23,6 +21,8 @@ function getAppKit() {
   if (!apiKey || !entitySecret)
     throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET must be set');
 
+  const { AppKit } = await import('@circle-fin/app-kit');
+  const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
   const kit     = new AppKit();
   return { kit, adapter };
