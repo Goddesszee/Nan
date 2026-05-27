@@ -495,7 +495,7 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.swap({
-        from:     { adapter, chain: APPKIT_CHAIN },
+        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
