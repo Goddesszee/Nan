@@ -1,14 +1,17 @@
 {
   "version": 2,
   "outputDirectory": ".",
+  "installCommand": "npm install",
   "functions": {
     "api/*.js": {
       "memory": 512,
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "node_modules/@circle-fin/**"
     },
     "api/transaction/*.js": {
       "memory": 512,
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "node_modules/@circle-fin/**"
     }
   },
   "rewrites": [
