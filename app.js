@@ -1240,18 +1240,43 @@ function flipSwap(){
         amountIn:fromAmt.toFixed(6)
       })});
       const d=await r2.json();
-      if(!d.success)throw new Error(d.error||'Swap failed');
-      btn.innerHTML='<span class="spinner"></span>Confirming swap…';
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
-      const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' via App Kit!','success',8000);
-      addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
-      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-      lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
-      setTimeout(()=>refreshBalances(),5000);return;
+      // If AppKit not available on Arc, fall back to contract call
+      if(!d.success && d.fallback){
+        toast('Using direct contract swap…','info',3000);
+        // fall through to MetaMask/contract path below
+      } else {
+        if(!d.success)throw new Error(d.error||'Swap failed');
+        btn.innerHTML='<span class="spinner"></span>Confirming swap…';
+        if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
+        const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' via App Kit!','success',8000);
+        addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+        lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
+        setTimeout(()=>refreshBalances(),5000);return;
+      }
     }catch(err){
-      toast('Swap failed: '+err.message.slice(0,120),'error',7000);
-      btn.innerHTML='Swap';btn.disabled=false;return;
+      // AppKit failed — try contract fallback for Circle wallets
+      console.warn('AppKit swap failed, trying contract fallback:', err.message);
+      try{
+        const r3=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+            contractAddress:SWAP_CONTRACT,
+            functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',
+            params:[Math.floor(fromAmt*1_000_000).toString()]})});
+        const d3=await r3.json();
+        if(!d3.success)throw new Error(d3.error||'Contract swap failed');
+        if(d3.transactionId){await waitForCircleTx(d3.transactionId,'swap');}
+        const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',8000);
+        addTx({hash:d3.txHash||d3.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+        btn.innerHTML='Swap';btn.disabled=false;
+        setTimeout(()=>refreshBalances(),5000);return;
+      }catch(e2){
+        toast('Swap failed: '+e2.message.slice(0,120),'error',7000);
+        btn.innerHTML='Swap';btn.disabled=false;return;
+      }
     }
   }
   try{
