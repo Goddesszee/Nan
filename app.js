@@ -411,6 +411,7 @@ async function sendEmailOTP(){
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   otpEmail=email;
   window._otpEmail=email;
+  window._otpEmail=email;
   try{
     const res=await fetch('/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
