@@ -1231,7 +1231,7 @@ function flipSwap(){
     try{
       // Use Circle App Kit swap — no liquidity management, no approvals needed
       btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
-      const r2=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      const r2=await fetch('/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         action:'swap',
         walletAddress:circleWalletAddress,
         tokenIn:isUSDCtoEURC?'USDC':'EURC',
