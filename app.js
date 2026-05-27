@@ -899,9 +899,9 @@ async function doSend(){
     if(!circleWalletId){toast('Wallet not ready — please log in again','error');return;}
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
-      const res=await fetch('/api/circle-wallets',{
+      const res=await fetch('/api/appkit-send',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        body: JSON.stringify({walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
       });
       const data=await res.json();
       if(!data.success){throw new Error(data.error||'Transfer failed');}
@@ -1194,7 +1194,7 @@ async function _fetchAppKitQuote(amt){
   try{
     const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
     const d=await r.json();
-    if(d.success&&d.quote){_quoteCache[key]={q:d.quote,ts:Date.now()};_applyQuote(d.quote);}
+    if(d.success&&d.amountOut){_quoteCache[key]={q:d,ts:Date.now()};_applyQuote(d);}
   }catch(e){console.log('[quote]',e.message);}
 }
 function _applyQuote(q){
@@ -1233,8 +1233,7 @@ function flipSwap(){
       btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
       const r2=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         action:'swap',
-        walletId:circleWalletId,
-        walletAddress:userAddr,
+        walletAddress:circleWalletAddress,
         tokenIn:isUSDCtoEURC?'USDC':'EURC',
         tokenOut:isUSDCtoEURC?'EURC':'USDC',
         amountIn:fromAmt.toFixed(6)
@@ -1336,7 +1335,7 @@ async function doBridge(){
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
-  if(isCircleWallet){if(!circleWalletId){toast('Wallet not ready — log in again','error');return;}const btn=document.getElementById('bridgeBtn');btn.innerHTML='<span class="spinner"></span>Step 1/3: Approving USDC…';btn.disabled=true;try{const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bridge',walletId:circleWalletId,destChain,destAddr,bridgeAmount:amt.toString()})});const data=await r.json();if(!data.success)throw new Error(data.error||'Bridge failed');lastTxHash=data.burnTxHash;addTx({hash:data.burnTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});toast('✓ USDC burned! Polling attestation…','success',8000);await refreshBalances();await pollIrisAttestation(data.burnTxHash,destChain);}catch(err){toast((err?.message||'Bridge failed').slice(0,140),'error',8000);}finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}return;}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
+  if(isCircleWallet){if(!circleWalletAddress){toast('Wallet not ready — log in again','error');return;}const btn=document.getElementById('bridgeBtn');btn.innerHTML='<span class="spinner"></span>Bridging via App Kit…';btn.disabled=true;try{const r=await fetch('/api/appkit-bridge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({walletAddress:circleWalletAddress,destChain,destAddr,amount:amt.toString()})});const data=await r.json();if(!data.success)throw new Error(data.error||'Bridge failed');lastTxHash=data.burnTxHash||data.steps?.find(s=>s.name==='burn')?.txHash||null;addTx({hash:lastTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:data.state==='success',source:'appkit-bridge',destChain});const mintHash=data.mintTxHash||data.steps?.find(s=>s.name==='mint')?.txHash||null;if(data.state==='success'){toast('✅ Bridge complete via App Kit! USDC arrived on '+destChain,'success',8000);}else{toast('✓ Bridge submitted via App Kit — CCTP processing…','success',6000);}if(mintHash)lastTxHash=mintHash;await refreshBalances();}catch(err){toast((err?.message||'Bridge failed').slice(0,140),'error',8000);}finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}return;}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
