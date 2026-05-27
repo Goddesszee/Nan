@@ -456,7 +456,7 @@ export default async function handler(req, res) {
       const adapter  = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit      = new AppKit();
       const estimate = await kit.estimateSwap({
-        from:     { adapter, chain: APPKIT_CHAIN },
+        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
@@ -539,7 +539,7 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.send({
-        from:   { adapter, chain: APPKIT_CHAIN },
+        from:   { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         to:     destinationAddress,
         amount: parsed.toString(),
         token,
@@ -576,8 +576,8 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.bridge({
-        from: { adapter, chain: APPKIT_CHAIN },
-        to:   { adapter, chain: CHAIN_MAP[bDestChain], recipientAddress: bDestAddr },
+        from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+        to:   { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
         amount: parsed.toFixed(2),
         token:  'USDC',
       });
