@@ -33,7 +33,8 @@ const CCTP_DEST_DOMAINS = {
   'POLYGON-AMOY': 7,
 };
 
-const BLOCKCHAIN = process.env.CIRCLE_BLOCKCHAIN || 'ARC-TESTNET';
+const BLOCKCHAIN     = 'ARC-TESTNET';   // Circle Dev-Controlled Wallets SDK
+const APPKIT_CHAIN   = 'Arc_Testnet';   // Circle App Kit SDK
 
 // ── Circle SDK client ─────────────────────────────────────────────────────────
 async function getClient() {
@@ -456,7 +457,7 @@ export default async function handler(req, res) {
       const adapter  = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit      = new AppKit();
       const estimate = await kit.estimateSwap({
-        from:     { adapter, chain: BLOCKCHAIN, address: walletAddress || 'estimate' },
+        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress || 'estimate' },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
@@ -495,7 +496,7 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.swap({
-        from:     { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
         amountIn: amtIn.toString(),
@@ -539,7 +540,7 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.send({
-        from:   { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        from:   { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         to:     destinationAddress,
         amount: parsed.toString(),
         token:  TOKEN_ADDRESSES[token],
@@ -576,7 +577,7 @@ export default async function handler(req, res) {
       const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit     = new AppKit();
       const result  = await kit.bridge({
-        from: { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
         to:   { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
         amount: parsed.toFixed(2),
         token:  'USDC',
