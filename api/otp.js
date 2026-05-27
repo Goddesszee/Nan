@@ -125,18 +125,20 @@ export default async function handler(req, res) {
 
   // ── verify ────────────────────────────────────────────────────────────────
   if (action === 'verify') {
+    console.log('[OTP verify]', { email, otp, token: token?.slice(0,8), expiresAt, now: Date.now() });
     if (!email || !otp || !token || !expiresAt)
-      return res.json({ success: false, error: 'Missing fields' });
+      return res.json({ success: false, error: 'Missing fields: '+JSON.stringify({email:!!email,otp:!!otp,token:!!token,expiresAt:!!expiresAt}) });
     if (typeof otp !== 'string' || otp.length !== 6 || !/^\d+$/.test(otp))
       return res.json({ success: false, error: 'Code must be 6 digits' });
     if (Date.now() > Number(expiresAt))
       return res.json({ success: false, error: 'Code expired — request a new one' });
 
     const expected = signOTP(email, otp.trim(), Number(expiresAt));
+    console.log('[OTP verify] expected:', expected?.slice(0,8), 'got:', token?.slice(0,8));
     const a = Buffer.from(expected, 'hex');
     const b = Buffer.from(token,    'hex');
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b))
-      return res.json({ success: false, error: 'Wrong code — try again' });
+      return res.json({ success: false, error: 'Wrong code — expected:'+expected?.slice(0,8)+' got:'+token?.slice(0,8) });
 
     return res.json({ success: true });
   }
