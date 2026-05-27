@@ -432,8 +432,172 @@ export default async function handler(req, res) {
     }
   }
 
+
+  // ── App Kit: Swap Quote ────────────────────────────────────────────────────
+  // Uses dynamic import so Vercel bundler never touches @circle-fin/app-kit at build time
+  if (action === 'swapQuote') {
+    const fromToken = (req.body.tokenIn  || 'USDC').toUpperCase();
+    const toToken   = (req.body.tokenOut || 'EURC').toUpperCase();
+    const amtIn     = parseFloat(req.body.amountIn);
+
+    if (!amtIn || amtIn <= 0)
+      return res.json({ success: false, error: 'Valid amountIn required' });
+
+    // Dev mode
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+      const rate = fromToken === 'USDC' ? 0.9224 : 1.0842;
+      const amountOut = (amtIn * rate * 0.999).toFixed(6);
+      return res.json({ success: true, amountOut, estimatedOutput: { amount: amountOut, token: toToken }, dev: true });
+    }
+
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter  = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
+      const kit      = new AppKit();
+      const estimate = await kit.estimateSwap({
+        from:     { adapter, chain: BLOCKCHAIN, address: walletAddress || 'estimate' },
+        tokenIn:  fromToken,
+        tokenOut: toToken,
+        amountIn: amtIn.toString(),
+        config:   { slippageBps: 300 },
+      });
+      return res.json({
+        success:         true,
+        amountOut:       estimate.estimatedOutput?.amount || null,
+        estimatedOutput: estimate.estimatedOutput || null,
+        stopLimit:       estimate.stopLimit || null,
+        fees:            estimate.fees || null,
+      });
+    } catch (err) {
+      console.error('[swapQuote]', err.message);
+      if (err.message.includes('not supported') || err.message.includes('Arc') || err.message.includes('chain'))
+        return res.json({ success: false, fallback: true, error: 'AppKit swap not available on Arc Testnet' });
+      return res.json({ success: false, error: err.message.slice(0, 150) });
+    }
+  }
+
+  // ── App Kit: Swap Execute ─────────────────────────────────────────────────
+  if (action === 'swapExecute') {
+    const fromToken = (req.body.tokenIn  || 'USDC').toUpperCase();
+    const toToken   = (req.body.tokenOut || 'EURC').toUpperCase();
+    const amtIn     = parseFloat(req.body.amountIn);
+
+    if (!walletAddress || !amtIn || amtIn <= 0)
+      return res.json({ success: false, error: 'walletAddress and amountIn required' });
+
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+      return res.json({ success: true, txHash: 'dev-swap-' + crypto.randomBytes(8).toString('hex'), dev: true });
+
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
+      const kit     = new AppKit();
+      const result  = await kit.swap({
+        from:     { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        tokenIn:  fromToken,
+        tokenOut: toToken,
+        amountIn: amtIn.toString(),
+        config:   { slippageBps: 300 },
+      });
+      return res.json({ success: true, txHash: result.txHash || null, amountOut: result.amountOut || null, explorerUrl: result.explorerUrl || null });
+    } catch (err) {
+      console.error('[swapExecute]', err.message);
+      if (err.message.includes('not supported') || err.message.includes('Arc') || err.message.includes('chain'))
+        return res.json({ success: false, fallback: true, error: 'AppKit swap not available — use contract fallback' });
+      return res.json({ success: false, error: err.message.slice(0, 150) });
+    }
+  }
+
+  // ── App Kit: Send ─────────────────────────────────────────────────────────
+  if (action === 'appkitSend') {
+    const { destinationAddress, amount: sendAmt, tokenSymbol } = req.body;
+    const token   = (tokenSymbol || 'USDC').toUpperCase();
+    const parsed  = parseFloat(sendAmt);
+
+    if (!walletAddress || !destinationAddress || !parsed || parsed <= 0)
+      return res.json({ success: false, error: 'walletAddress, destinationAddress, amount required' });
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destinationAddress))
+      return res.json({ success: false, error: 'Invalid destination address' });
+
+    const TOKEN_ADDRESSES = {
+      USDC: process.env.USDC_ADDRESS || '0x3600000000000000000000000000000000000000',
+      EURC: process.env.EURC_ADDRESS || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a',
+    };
+
+    if (!TOKEN_ADDRESSES[token])
+      return res.json({ success: false, error: 'Unsupported token. Use USDC or EURC' });
+
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+      return res.json({ success: true, txHash: '0xdev_send_' + crypto.randomBytes(16).toString('hex'), state: 'success', dev: true });
+
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
+      const kit     = new AppKit();
+      const result  = await kit.send({
+        from:   { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        to:     destinationAddress,
+        amount: parsed.toString(),
+        token:  TOKEN_ADDRESSES[token],
+      });
+      return res.json({ success: result.state === 'success' || result.state === 'pending', txHash: result.txHash || null, state: result.state, explorerUrl: result.explorerUrl || null });
+    } catch (err) {
+      console.error('[appkitSend]', err.message);
+      return res.json({ success: false, error: err.message.slice(0, 150) });
+    }
+  }
+
+  // ── App Kit: Bridge ───────────────────────────────────────────────────────
+  if (action === 'appkitBridge') {
+    const { destChain: bDestChain, destAddr: bDestAddr, bridgeAmount: bAmt } = req.body;
+    const parsed = parseFloat(bAmt);
+    const CHAIN_MAP = {
+      'ETH-SEPOLIA': 'Ethereum_Sepolia', 'AVAX-FUJI': 'Avalanche_Fuji',
+      'BASE-SEPOLIA': 'Base_Sepolia', 'ARB-SEPOLIA': 'Arbitrum_Sepolia',
+      'OP-SEPOLIA': 'Optimism_Sepolia', 'POLYGON-AMOY': 'Polygon_Amoy_Testnet',
+    };
+
+    if (!walletAddress || !bDestChain || !bDestAddr || !parsed || parsed <= 0)
+      return res.json({ success: false, error: 'walletAddress, destChain, destAddr, bridgeAmount required' });
+
+    if (!CHAIN_MAP[bDestChain])
+      return res.json({ success: false, error: 'Unsupported chain: ' + bDestChain });
+
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+      return res.json({ success: true, state: 'success', burnTxHash: '0xdev_bridge_burn_' + crypto.randomBytes(16).toString('hex'), mintTxHash: '0xdev_bridge_mint_' + crypto.randomBytes(16).toString('hex'), dev: true });
+
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
+      const kit     = new AppKit();
+      const result  = await kit.bridge({
+        from: { adapter, chain: BLOCKCHAIN, address: walletAddress },
+        to:   { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
+        amount: parsed.toFixed(2),
+        token:  'USDC',
+      });
+      const burnStep = result.steps?.find(s => s.name?.includes('burn'));
+      const mintStep = result.steps?.find(s => s.name?.includes('mint'));
+      return res.json({
+        success:    result.state === 'success' || result.state === 'pending',
+        state:      result.state,
+        burnTxHash: burnStep?.txHash || null,
+        mintTxHash: mintStep?.txHash || null,
+        steps:      result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
+      });
+    } catch (err) {
+      console.error('[appkitBridge]', err.message);
+      return res.json({ success: false, error: err.message.slice(0, 200) });
+    }
+  }
+
   return res.json({
     success: false,
-    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall',
+    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge',
   });
 }
