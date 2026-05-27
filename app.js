@@ -901,11 +901,18 @@ async function doSend(){
     if(!circleWalletId){toast('Wallet not ready — please log in again','error');return;}
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
-      const res=await fetch('/api/appkit/send',{
+      const appkitRes=await fetch('/api/appkit/send',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        body:JSON.stringify({walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
       });
-      const data=await res.json();
+      let data=await appkitRes.json();
+      if(!data.success){
+        const fbRes=await fetch('/api/circle-wallets',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        });
+        data=await fbRes.json();
+      }
       if(!data.success){throw new Error(data.error||'Transfer failed');}
       lastTxHash=data.txHash||data.transactionId;
       const isConfirmed=!!data.txHash&&!data.pending;
