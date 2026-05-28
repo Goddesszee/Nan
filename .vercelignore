@@ -1,0 +1,6 @@
+# Railway handles all API calls - ignore these on Vercel
+api/
+_server/
+node_modules/
+.env
+*.py
