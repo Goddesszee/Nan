@@ -1309,10 +1309,10 @@ function flipSwap(){
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
         const approveTx=await tokenContract.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
-      await swapTx.wait(1);
+      await swapTx.wait(0);
       toast('✓ Swap confirmed on Arc!','success',6000);
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
@@ -1376,7 +1376,7 @@ async function doBridge(){
     if(allowance<amtParsed){
       const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,ethers.MaxUint256,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
-      await appTx.wait(1);
+      await appTx.wait(0);
     }
     btn.innerHTML='<span class="spinner"></span>Step 2/3: Burning USDC on Arc…';
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
@@ -1632,7 +1632,7 @@ async function _recordTxOnChain(tx){
     }else if(signer){
       const c=new ethers.Contract(HISTORY_CONTRACT,HISTORY_ABI,signer);
       const t=await c.record(tx.type||'out',tx.token||'USDC',tx.amount||'0',tx.to||'',tx.toRaw||'',hashBytes,arcGasOpts());
-      await t.wait(1);
+      await t.wait(0);
     }
   }catch(e){console.log('On-chain history error:',e.message);}
 }
@@ -2105,7 +2105,7 @@ async function doBulkSend(){
       } else if(signer){
         const c = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
         const tx = await c.transfer(r.addr, ethers.parseUnits(r.amount.toFixed(decimals), decimals), arcGasOpts());
-        await tx.wait(1);
+        await tx.wait(0);
         addTx({hash:tx.hash,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:true,source:'metamask'});
       } else {
         throw new Error('No wallet connected');
@@ -3172,7 +3172,7 @@ async function registerArcName(){
       if(nameAllowance<fee){
         if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
         const approveTx=await usdcContract.approve(NAME_REGISTRY,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
       const tx=await nameContract.register(name,arcNameDurationYears,arcGasOpts());
