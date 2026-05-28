@@ -594,9 +594,11 @@ app.post('/api/appkit/bridge', async (req, res) => {
 
   try {
     const { kit, adapter } = await getAppKit();
+    // Per Circle docs: both from and to must use Circle developer-controlled wallets
+    // We use walletAddress for both - bridging to user's own wallet on dest chain
     const result = await kit.bridge({
       from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-      to:   { adapter, chain: destChainName, address: destAddr },
+      to:   { adapter, chain: destChainName, address: walletAddress },
       amount: parsed.toFixed(2),
       token:  'USDC',
     });
