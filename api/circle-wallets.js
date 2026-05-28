@@ -572,11 +572,14 @@ export default async function handler(req, res) {
     try {
       const { AppKit } = await import('@circle-fin/app-kit');
       const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
-      const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
-      const kit     = new AppKit();
-      const result  = await kit.bridge({
-        from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-        to:   { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
+      const adapter = createCircleWalletsAdapter({
+        apiKey:       process.env.CIRCLE_API_KEY,
+        entitySecret: process.env.CIRCLE_ENTITY_SECRET,
+      });
+      const kit    = new AppKit();
+      const result = await kit.bridge({
+        from:   { adapter, chain: 'Arc_Testnet', address: walletAddress },
+        to:     { adapter, chain: CHAIN_MAP[bDestChain], address: bDestAddr },
         amount: parsed.toFixed(2),
         token:  'USDC',
       });
