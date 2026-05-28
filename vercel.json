@@ -1,23 +1,8 @@
 {
   "version": 2,
-  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "echo done",
   "outputDirectory": ".",
-  "functions": {
-    "api/*.js": {
-      "memory": 512,
-      "maxDuration": 30,
-      "excludeFiles": "node_modules/@circle-fin/app-kit/**,node_modules/@circle-fin/adapter-circle-wallets/**,node_modules/@circle-fin/bridge-kit/**,node_modules/@circle-fin/swap-kit/**,node_modules/@solana/**"
-    },
-    "api/transaction/*.js": {
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
     {
       "source": "/app",
       "destination": "/app.html"
@@ -25,26 +10,13 @@
     {
       "source": "/pay",
       "destination": "/pay.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
     }
   ],
   "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [
