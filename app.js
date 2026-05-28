@@ -1253,7 +1253,7 @@ function flipSwap(){
       // Use Circle App Kit swap — no liquidity management, no approvals needed
       btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
       const r2=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        action:'swapexecute',
+        action:'swap',
         walletAddress:circleWalletAddress,
         tokenIn:isUSDCtoEURC?'USDC':'EURC',
         tokenOut:isUSDCtoEURC?'EURC':'USDC',
@@ -1357,51 +1357,19 @@ async function doBridge(){
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
   if(isCircleWallet){
-  if(!circleWalletAddress||!circleWalletId){toast('Wallet not ready — log in again','error');return;}
+  if(!circleWalletAddress){toast('Wallet not ready — log in again','error');return;}
   const btn=document.getElementById('bridgeBtn');
-  btn.innerHTML='<span class="spinner"></span>Step 1/3: Approving USDC…';btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Bridging via App Kit…';btn.disabled=true;
   try{
-    const atomicAmt=Math.floor(amt*1_000_000).toString();
-    // Step 1 — approve USDC to TokenMessenger
-    const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-        contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',
-        params:[CCTP_TOKEN_MESSENGER,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-    const appD=await appR.json();
-    if(!appD.success)throw new Error(appD.error||'Approve failed');
-    btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
-    await waitForCircleTx(appD.transactionId,'approve');
-    // Step 2 — depositForBurn
-    btn.innerHTML='<span class="spinner"></span>Step 2/3: Burning USDC on Arc…';
-    const destDomain=CCTP_DEST_DOMAIN[destChain];
-    if(destDomain===undefined)throw new Error('Unsupported chain: '+destChain);
-    const mintRecipient='0x'+destAddr.replace('0x','').toLowerCase().padStart(64,'0');
-    const destinationCaller='0x'+'0'.repeat(64);
-    const burnR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-        contractAddress:CCTP_TOKEN_MESSENGER,
-        functionSignature:'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)',
-        params:[atomicAmt,destDomain.toString(),mintRecipient,USDC_ADDR,destinationCaller,'1000','1000']})});
-    const burnD=await burnR.json();
-    if(!burnD.success)throw new Error(burnD.error||'Burn failed');
-    btn.innerHTML='<span class="spinner"></span>Step 3/3: Waiting for burn…';
-    await waitForCircleTx(burnD.transactionId,'burn');
-    lastTxHash=burnD.txHash||burnD.transactionId;
-    addTx({hash:lastTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});
-    toast('✓ USDC burned on Arc! Polling for attestation…','success',6000);
+    const r=await fetch('https://nan-production.up.railway.app/api/appkit/bridge',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({walletAddress:circleWalletAddress,destChain,destAddr,amount:amt.toString()})});
+    const data=await r.json();
+    if(!data.success)throw new Error(data.error||'Bridge failed');
+    const txHash=data.burnTxHash||null;
+    addTx({hash:txHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:data.state==='success',source:'appkit-bridge',destChain});
+    if(data.state==='success'){toast('✅ Bridge complete! USDC arrived on '+destChain,'success',8000);}
+    else{toast('✓ Bridge submitted via App Kit — CCTP processing…','success',6000);}
     await refreshBalances();
-    // Step 3 — poll attestation and show manual mint instructions
-    const statusCard=document.getElementById('bridgeStatusCard');
-    const statusContent=document.getElementById('bridgeStatusContent');
-    if(statusCard){
-      statusCard.style.display='block';
-      statusContent.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;line-height:2;color:var(--text2);">
-        <div>✅ Step 1: USDC burned on Arc</div>
-        <div id="attestStatus">⏳ Step 2: Waiting for Circle attestation…</div>
-        <div id="mintStatus" style="display:none;"></div>
-      </div>`;
-    }
-    await pollIrisAttestation(lastTxHash, destChain);
   }catch(err){
     toast((err?.message||'Bridge failed').slice(0,140),'error',8000);
   }finally{
