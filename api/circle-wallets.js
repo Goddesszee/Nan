@@ -80,10 +80,12 @@ async function findWalletSet(client, name) {
 // CONFIRMED from Circle docs:
 //   createContractExecutionTransaction → { data: { id, state } }
 //   getTransaction                     → { data: { transaction: { id, state, txHash } } }
-async function waitForTx(client, txId, label = 'tx', maxWaitMs = 15_000) {
+async function waitForTx(client, txId, label = 'tx', maxWaitMs = 90_000) {
   const start = Date.now();
+  let interval = 2000;
   while (Date.now() - start < maxWaitMs) {
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, interval));
+    interval = Math.min(Math.floor(interval * 1.3), 8000);
     try {
       const res   = await client.getTransaction({ id: txId });
       const tx    = res.data?.transaction;   // correct: nested under data.transaction
@@ -98,7 +100,7 @@ async function waitForTx(client, txId, label = 'tx', maxWaitMs = 15_000) {
       console.warn(`[${label}] poll error:`, e.message);
     }
   }
-  throw new Error(`${label} timed out after ${maxWaitMs}ms`);
+  throw new Error(`${label} timed out after ${maxWaitMs / 1000}s`);
 }
 
 // ── Iris attestation poll ─────────────────────────────────────────────────────
@@ -311,7 +313,7 @@ export default async function handler(req, res) {
       const approveTxId = approveRes.data?.id;
       if (!approveTxId) throw new Error('Approve tx: no ID returned from Circle');
 
-      await waitForTx(client, approveTxId, 'approve', 55_000);
+      await waitForTx(client, approveTxId, 'approve', 90_000);
       console.log('[bridge] Approve confirmed');
 
       // Step 2 — depositForBurn
