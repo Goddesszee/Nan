@@ -3245,13 +3245,16 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // CIRCLE TX POLL HELPER
 // ═══════════════════════════════════════════
-async function waitForCircleTx(txId, label='tx', timeoutMs=12000) {
+async function waitForCircleTx(txId, label='tx', timeoutMs=90000) {
   if(!txId) return true;
   const start = Date.now();
+  let interval = 2000;
   while (Date.now() - start < timeoutMs) {
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, interval));
+    interval = Math.min(interval * 1.3, 8000);
     try {
       const res = await fetch('https://nan-production.up.railway.app/api/transaction/' + txId);
+      if (!res.ok) continue;
       const data = await res.json();
       const state = data.state || data.status || '';
       if (state === 'CONFIRMED' || state === 'COMPLETE') return true;
@@ -3261,7 +3264,7 @@ async function waitForCircleTx(txId, label='tx', timeoutMs=12000) {
       if (e.message.includes('failed:')) throw e;
     }
   }
-  throw new Error(label + ' timed out');
+  throw new Error(label + ' timed out after ' + (timeoutMs/1000) + 's');
 }
 
 // ═══════════════════════════════════════════
