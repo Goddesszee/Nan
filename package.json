@@ -1,12 +1,11 @@
 {
   "name": "nan-app",
   "version": "1.0.0",
-  "type": "module",
   "main": "_server/index.js",
   "scripts": {
     "start": "node _server/index.js",
     "dev": "node --env-file=.env _server/index.js",
-    "build": "npm install"
+    "build": "echo 'static site'"
   },
   "dependencies": {
     "@circle-fin/adapter-circle-wallets": "^1.3.1",
