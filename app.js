@@ -605,7 +605,7 @@ async function _ensureUnlimitedApprovals(){
       const uAllow=await usdcC.allowance(userAddr,contract);
       if(uAllow<THRESHOLD){
         const tx=await usdcC.approve(contract,ethers.MaxUint256,arcGasOpts());
-        await tx.wait(1);
+        await tx.wait(0);
         console.log('USDC approved for',contract);
         addTx({hash:tx.hash,to:contract,toRaw:'Unlimited USDC Approval',amount:'0',type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'approval'});
       }
@@ -1213,7 +1213,7 @@ async function _fetchAppKitQuote(amt){
   const key=`${tokenIn}-${tokenOut}-${amt}`;
   if(_quoteCache[key]&&Date.now()-_quoteCache[key].ts<10000){_applyQuote(_quoteCache[key].q);return;}
   try{
-    const r=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
+    const r=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'swapQuote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
     const d=await r.json();
     if(d.success&&d.amountOut){_quoteCache[key]={q:d,ts:Date.now()};_applyQuote(d);}
   }catch(e){console.log('[quote]',e.message);}
@@ -1253,7 +1253,7 @@ function flipSwap(){
       // Use Circle App Kit swap — no liquidity management, no approvals needed
       btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
       const r2=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        action:'swap',
+        action:'swapexecute',
         walletAddress:circleWalletAddress,
         tokenIn:isUSDCtoEURC?'USDC':'EURC',
         tokenOut:isUSDCtoEURC?'EURC':'USDC',
@@ -3245,11 +3245,11 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // CIRCLE TX POLL HELPER
 // ═══════════════════════════════════════════
-async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
+async function waitForCircleTx(txId, label='tx', timeoutMs=12000) {
   if(!txId) return true;
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, 1200));
     try {
       const res = await fetch('https://nan-production.up.railway.app/api/transaction/' + txId);
       const data = await res.json();
