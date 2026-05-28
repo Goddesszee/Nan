@@ -588,8 +588,24 @@ export default async function handler(req, res) {
     }
   }
 
+  if (action === 'getUnifiedBalance') {
+    if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
+      const kit = new AppKit();
+      const balance = await kit.getUnifiedBalance({
+        wallet: { adapter, chain: 'Arc_Testnet', address: walletAddress },
+      });
+      return res.json({ success: true, total: balance.total, balances: balance.breakdown || {} });
+    } catch (err) {
+      return res.json({ success: false, error: err.message.slice(0, 120) });
+    }
+  }
+
   return res.json({
     success: false,
-    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge',
+    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge, getUnifiedBalance',
   });
 }
