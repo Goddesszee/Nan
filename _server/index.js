@@ -1,5 +1,6 @@
 /**
  * NAN App — Backend Server
+ * Redeployed: 2026-05-28 01:24 UTC
  * Handles: Circle Wallets API, OTP email auth, faucet proxy, Claude AI chat
  */
 
