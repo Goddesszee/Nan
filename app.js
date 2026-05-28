@@ -297,7 +297,7 @@ function updateTopBar(connected){
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
   try{
-    const res=await fetch('/api/fx-rate');
+    const res=await fetch('https://nan-production.up.railway.app/api/fx-rate');
     if(res.ok){
       const data=await res.json();
       if(data.rate&&data.rate>0.5&&data.rate<2){
@@ -451,7 +451,7 @@ async function verifyOTP(){
     const data=await res.json();
     if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
     try{
-      const cwRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getWallet',email:otpEmail})});
+      const cwRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getWallet',email:otpEmail})});
       const cwData=await cwRes.json();
       if(cwData.success&&cwData.wallet?.address){
         circleWalletId=cwData.wallet.id;
@@ -772,7 +772,7 @@ async function pollTxStatus(txId, userToken, onConfirmed){
   txPollTimer=setInterval(async()=>{
     attempts++;
     try{
-      const res=await fetch('/api/transaction/'+txId,{
+      const res=await fetch('https://nan-production.up.railway.app/api/transaction/'+txId,{
         headers:{'X-User-Token':userToken||''}
       });
       const data=await res.json();
@@ -905,7 +905,7 @@ async function doSend(){
       });
       let data=await appkitRes.json();
       if(!data.success){
-        const fbRes=await fetch('/api/circle-wallets',{
+        const fbRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
         });
@@ -1265,7 +1265,7 @@ function flipSwap(){
       // AppKit failed — try contract fallback for Circle wallets
       console.warn('AppKit swap failed, trying contract fallback:', err.message);
       try{
-        const r3=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        const r3=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
             contractAddress:SWAP_CONTRACT,
             functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',
@@ -1421,7 +1421,7 @@ async function pollIrisAttestation(txHash, destChain) {
       // 1. Try server proxy first (avoids CORS)
       let attestation = null, message = null;
       try {
-        const pr = await fetch('/api/cctp-attest', {
+        const pr = await fetch('https://nan-production.up.railway.app/api/cctp-attest', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({action:'getAttestation', txHash, sourceDomain:26}),
         });
@@ -1609,7 +1609,7 @@ async function _recordTxOnChain(tx){
       ? tx.hash
       : ethers.zeroPadValue('0x01',32);
     if(isCircleWallet&&circleWalletId){
-      await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:HISTORY_CONTRACT,
           functionSignature:'record(string,string,string,string,string,bytes32)',
@@ -1690,7 +1690,7 @@ async function claimFaucet(){
   const btn=document.getElementById('faucetBtn');
   btn.innerHTML='<span class="spinner"></span>Claiming…';btn.disabled=true;
   try{
-    const res=await fetch('/api/faucet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:userAddr})});
+    const res=await fetch('https://nan-production.up.railway.app/api/faucet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:userAddr})});
     const data=await res.json();
     if(data.success){
       toast('💧 Tokens on the way! Check balance in ~30s','success',7000);
@@ -2074,7 +2074,7 @@ async function doBulkSend(){
 
     try {
       if(isCircleWallet && circleWalletId){
-        const res = await fetch('/api/circle-wallets', {
+        const res = await fetch('https://nan-production.up.railway.app/api/circle-wallets', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             action: 'transfer',
@@ -2144,7 +2144,7 @@ async function saveOrders(){
     // Sync all pending orders to server
     for(const order of nanOrders){
       if(!order.synced){
-        await fetch('/api/orders?wallet='+userAddr,{
+        await fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({wallet:userAddr,order:{...order,email:otpEmail||null,synced:true}})
         });
@@ -2160,7 +2160,7 @@ async function loadOrders(){
   // Then sync from server
   if(!userAddr)return;
   try{
-    const res=await fetch('/api/orders?wallet='+userAddr);
+    const res=await fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr);
     const data=await res.json();
     if(data.orders&&data.orders.length){
       // Merge server orders with local
@@ -2350,7 +2350,7 @@ function cancelOrder(id){
     saveOrders();
     // Delete from server
     if(userAddr){
-      fetch('/api/orders?wallet='+userAddr,{
+      fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{
         method:'DELETE',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({wallet:userAddr,id})
       }).catch(()=>{});
@@ -2530,7 +2530,7 @@ RULES:
 - ACTION block is invisible to user — never mention it`;
 
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetch('https://nan-production.up.railway.app/api/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         system:context,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
@@ -2589,7 +2589,7 @@ function executeAgentAction(action){
       const count=nanOrders.length;
       nanOrders=[];saveOrders();
       // Delete all from server
-      if(userAddr){fetch('/api/orders?wallet='+userAddr,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:userAddr,id:'all'})}).catch(()=>{});}
+      if(userAddr){fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:userAddr,id:'all'})}).catch(()=>{});}
       addAgentMsg(`🗑️ Cancelled all ${count} pending order${count!==1?'s':''}. Your queue is clear!`);
       break;}
     case 'list_orders':{
@@ -2658,7 +2658,7 @@ async function depositToGateway() {
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
   toast('Approving Gateway contract...','info');
   try {
-    const r = await fetch('/api/gateway-deposit', {
+    const r = await fetch('https://nan-production.up.railway.app/api/gateway-deposit', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ walletId: _wId, amount }),
@@ -2678,7 +2678,7 @@ async function refreshGatewayBalance(){
   const chains=document.getElementById('gatewayChains');
   if(display) display.textContent='Loading...';
   try{
-    const res=await fetch('/api/gateway',{
+    const res=await fetch('https://nan-production.up.railway.app/api/gateway',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'getBalance',address:userAddr}),
     });
@@ -2842,7 +2842,7 @@ async function doSupply(){
     if(isCircleWallet&&circleWalletId){
       // Circle email wallet path
       btn.innerHTML='<span class="spinner"></span>Approving...';
-      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const appRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
           params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
@@ -2851,7 +2851,7 @@ async function doSupply(){
       btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
       await waitForCircleTx(appData.transactionId, 'approve');
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
-      const supRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const supRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
           params:[amtAtomic]})});
@@ -2963,7 +2963,7 @@ async function doBorrow(){
 
     if(isCircleWallet&&circleWalletId){
       if(btn)btn.innerHTML='<span class="spinner"></span>Borrowing on Arc…';
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
       const d=await r.json();
@@ -3014,13 +3014,13 @@ async function doRepay(){
     const amtAtomic=Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Approve first
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       btn.innerHTML='<span class="spinner"></span>Waiting…';
       await waitForCircleTx(appD.transactionId,'approve');
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'repay(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Repay failed');
@@ -3056,7 +3056,7 @@ async function doWithdraw(){
   try{
     const amtAtomic=Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'withdraw(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Withdraw failed');
@@ -3136,14 +3136,14 @@ async function registerArcName(){
     const feeAtomic=Math.floor(arcNameFeeUsdc*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       if(btn)btn.innerHTML='<span class="spinner"></span>Approving USDC…';
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       if(btn)btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
       await waitForCircleTx(appD.transactionId,'approve');
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc…';
-      const regR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const regR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:NAME_REGISTRY,functionSignature:'register(string,uint8)',params:[name,arcNameDurationYears]})});
       const regD=await regR.json();
       if(!regD.success)throw new Error(regD.error||'Registration failed');
@@ -3237,7 +3237,7 @@ async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
   while (Date.now() - start < timeoutMs) {
     await new Promise(r => setTimeout(r, 4000));
     try {
-      const res = await fetch('/api/transaction/' + txId);
+      const res = await fetch('https://nan-production.up.railway.app/api/transaction/' + txId);
       const data = await res.json();
       const state = data.state || data.status || '';
       if (state === 'CONFIRMED' || state === 'COMPLETE') return true;
@@ -3438,7 +3438,7 @@ async function createPaymentRequest(){
     const expiresAt=currentPRExpiry>0?Math.floor(Date.now()/1000)+currentPRExpiry*3600:0;
     let onChainId=null;
     if(isCircleWallet&&circleWalletId){
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:PAYREQ_CONTRACT,
           functionSignature:'createRequest(address,uint256,string,string,uint256)',
@@ -3561,14 +3561,14 @@ async function doPayNow(){
     const amtParsed=ethers.parseUnits(amt.toFixed(decimals),decimals);
     const amtAtomic=amtParsed.toString();
     if(isCircleWallet&&circleWalletId){
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
           functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
       btn.innerHTML='<span class="spinner"></span>Paying…';
       await waitForCircleTx(appD.transactionId,'approve');
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:PAYREQ_CONTRACT,
           functionSignature:'pay(uint256,uint256)',params:[prId,amtAtomic]})});
       const d=await r.json();
@@ -3599,7 +3599,7 @@ async function doPayNow(){
 async function sendPaymentNotification(pr){
   if(!pr.creatorEmail)return;
   try{
-    await fetch('/api/notify',{
+    await fetch('https://nan-production.up.railway.app/api/notify',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         email:pr.creatorEmail,
