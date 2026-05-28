@@ -550,7 +550,10 @@ app.post('/api/appkit/swap', async (req, res) => {
       tokenIn:  fromToken,
       tokenOut: toToken,
       amountIn: amtIn.toString(),
-      config:   { slippageBps: 300 },
+      config:   {
+        slippageBps: 300,
+        ...(process.env.KIT_KEY ? { kitKey: process.env.KIT_KEY } : {}),
+      },
     };
 
     if (action === 'quote') {
