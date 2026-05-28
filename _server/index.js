@@ -431,6 +431,91 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+
+// ── Circle Wallets proxy (forward to api/circle-wallets.js handler) ──────────
+app.post('/api/circle-wallets', async (req, res) => {
+  try {
+    const mod = await import('../api/circle-wallets.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── CCTP Attest ───────────────────────────────────────────────────────────────
+app.post('/api/cctp-attest', async (req, res) => {
+  try {
+    const mod = await import('../api/cctp-attest.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── FX Rate ───────────────────────────────────────────────────────────────────
+app.get('/api/fx-rate', async (req, res) => {
+  try {
+    const mod = await import('../api/fx-rate.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── Gateway balance ───────────────────────────────────────────────────────────
+app.post('/api/gateway', async (req, res) => {
+  try {
+    const mod = await import('../api/gateway.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+app.get('/api/gateway', async (req, res) => {
+  try {
+    const mod = await import('../api/gateway.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── Gateway deposit ───────────────────────────────────────────────────────────
+app.post('/api/gateway-deposit', async (req, res) => {
+  try {
+    const mod = await import('../api/gateway-deposit.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── Notify ────────────────────────────────────────────────────────────────────
+app.post('/api/notify', async (req, res) => {
+  try {
+    const mod = await import('../api/notify.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── Orders ────────────────────────────────────────────────────────────────────
+app.get('/api/orders', async (req, res) => {
+  try {
+    const mod = await import('../api/orders.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+app.post('/api/orders', async (req, res) => {
+  try {
+    const mod = await import('../api/orders.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+app.delete('/api/orders', async (req, res) => {
+  try {
+    const mod = await import('../api/orders.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── Transaction status ────────────────────────────────────────────────────────
+app.get('/api/transaction/:txId', async (req, res) => {
+  try {
+    req.query = req.query || {};
+    req.query.id = req.params.txId;
+    const mod = await import('../api/transaction/[id].js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 // ── Serve frontend ──
 app.get('/app', (req, res) => {
   res.sendFile(path.join(__dirname, '../app.html'));
