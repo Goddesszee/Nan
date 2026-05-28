@@ -411,7 +411,7 @@ async function sendEmailOTP(){
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   otpEmail=email;
   try{
-    const res=await fetch('/api/otp',{
+    const res=await fetch('https://nan-production.up.railway.app/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'send',email}),
     });
@@ -444,7 +444,7 @@ async function verifyOTP(){
   const btn=document.getElementById('verifyBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
-    const res=await fetch('/api/otp',{
+    const res=await fetch('https://nan-production.up.railway.app/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'verify',email:otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry}),
     });
