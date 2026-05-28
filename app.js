@@ -613,7 +613,7 @@ async function _ensureUnlimitedApprovals(){
     const eAllow=await eurcC.allowance(userAddr,SWAP_CONTRACT);
     if(eAllow<THRESHOLD){
       const tx=await eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       console.log('EURC approved for',SWAP_CONTRACT);
       addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
     }
@@ -639,11 +639,11 @@ async function _autoSeedLiquidity(){
       usdcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
       eurcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
     ]);
-    await Promise.all([appU.wait(1),appE.wait(1)]);
+    await Promise.all([appU.wait(0),appE.wait(0)]);
     const seedU=uBal/2n;
     const seedE=eBal/2n;
     const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
-    await liqTx.wait(1);
+    await liqTx.wait(0);
     toast('✓ Pool liquidity added — swaps ready!','success',5000);
     await refreshBalances();
   }catch(e){console.warn('[pool] Liquidity seed skipped:',e.message);}
@@ -960,7 +960,7 @@ async function doSend(){
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
-    const receipt=await tx.wait(1);
+    const receipt=await tx.wait(0);
     addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'metamask'});
     toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+'!','success',7000);
     document.getElementById('confirmCard').classList.remove('show');
@@ -2890,11 +2890,11 @@ async function doSupply(){
       if(lendAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
         const approveTx=await tokenContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       const tx=await lendContract.supply(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Supply',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       
@@ -2992,7 +2992,7 @@ async function doBorrow(){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       toast('Confirming borrow…','info',3000);
       const tx=await lendContract.borrow(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();
@@ -3048,10 +3048,10 @@ async function doRepay(){
       const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
       if(repayAllowance<amtParsed){
         const appTx=await usdc.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
+        await appTx.wait(0);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Repaid '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();await refreshLendPosition();
@@ -3080,7 +3080,7 @@ async function doWithdraw(){
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const tx=await lendContract.withdraw(ethers.parseUnits(amt.toFixed(6),6),arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();await refreshLendPosition();
@@ -3176,7 +3176,7 @@ async function registerArcName(){
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
       const tx=await nameContract.register(name,arcNameDurationYears,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
       addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
       await refreshBalances();await refreshArcNames();
@@ -3468,7 +3468,7 @@ async function createPaymentRequest(){
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
-      const receipt=await tx.wait(1);
+      const receipt=await tx.wait(0);
       const event=receipt.logs.find(l=>l.fragment?.name==='RequestCreated');
       onChainId=event?.args?.id?.toString();
     }else{throw new Error('No wallet connected');}
@@ -3594,12 +3594,12 @@ async function doPayNow(){
       if(payAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
         const appTx=await tokenContract.approve(PAYREQ_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
+        await appTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.pay(prId,amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Payment confirmed on-chain!','success',5000);
     }else{throw new Error('No wallet connected');}
     addTx({hash:'onchain',to,toRaw:'Payment Request #'+prId,amount:amt.toFixed(6),type:'out',token,ts:Date.now(),confirmed:true,source:'payreq'});
