@@ -21,7 +21,7 @@ function checkOtpLimit(email) {
 }
 
 function signOTP(email, otp, expiresAt) {
-  const secret = process.env.CIRCLE_ENTITY_SECRET || 'nan-dev-secret-key';
+  const secret = process.env.OTP_SECRET || process.env.CIRCLE_ENTITY_SECRET || 'nan-otp-fixed-secret-v1';
   const ts     = String(Math.floor(Number(expiresAt)));
   const data   = `${email.toLowerCase().trim()}:${otp.trim()}:${ts}`;
   return crypto.createHmac('sha256', secret).update(data).digest('hex');
