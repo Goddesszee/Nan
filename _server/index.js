@@ -19,7 +19,7 @@ const require = createRequire(import.meta.url);
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // ── In-memory stores (use Redis/DB in production) ──
 const otpStore = new Map();      // email -> { otp, expires, attempts }
