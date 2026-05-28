@@ -1,6 +1,20 @@
 // ═══════════════════════════════════════════
 // CONFIG — Arc Testnet
 // ═══════════════════════════════════════════
+// ── API Base — points to Railway when served from Vercel domain ──────────────
+const API_BASE = (()=>{
+  const host = window.location.hostname;
+  if(host.includes('vercel.app') || host === 'nanarc.xyz' || host === 'www.nanarc.xyz'){
+    return 'https://nan-production.up.railway.app';
+  }
+  return '';
+})();
+
+// Helper: all API calls go through Railway when on Vercel/nanarc.xyz
+function apiFetch(path, opts){
+  return fetch(API_BASE + path, opts);
+}
+
 const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://rpc.testnet.arc.network';
