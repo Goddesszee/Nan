@@ -474,7 +474,7 @@ app.get('/app', (req, res) => {
 // Runs on Railway (persistent Node server) NOT Vercel (serverless)
 // =============================================================================
 
-const APPKIT_CHAIN   = process.env.CIRCLE_BLOCKCHAIN || 'Arc_Testnet';
+const APPKIT_CHAIN   = 'Arc_Testnet'; // App Kit uses Arc_Testnet, NOT ARC-TESTNET
 const APPKIT_USDC    = process.env.USDC_ADDRESS      || '0x3600000000000000000000000000000000000000';
 const APPKIT_EURC    = process.env.EURC_ADDRESS      || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 
