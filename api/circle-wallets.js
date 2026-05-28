@@ -483,8 +483,30 @@ export default async function handler(req, res) {
     if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
       return res.json({ success: true, txHash: 'dev-swap-' + crypto.randomBytes(8).toString('hex'), dev: true });
 
-    // AppKit swap not supported on Arc Testnet — fall back to contract call
-    return res.json({ success: false, fallback: true, error: 'AppKit swap not available — use contract fallback' });
+    try {
+      const { AppKit } = await import('@circle-fin/app-kit');
+      const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+      const adapter = createCircleWalletsAdapter({
+        apiKey:        process.env.CIRCLE_API_KEY,
+        entitySecret:  process.env.CIRCLE_ENTITY_SECRET,
+      });
+      const kit    = new AppKit();
+      const result = await kit.swap({
+        from:     { adapter, chain: 'Arc_Testnet', address: walletAddress },
+        tokenIn:  fromToken,
+        tokenOut: toToken,
+        amount:   amtIn.toString(),
+      });
+      return res.json({
+        success:   true,
+        txHash:    result.txHash || null,
+        amountOut: result.amountOut || null,
+        steps:     result.steps || [],
+      });
+    } catch (err) {
+      console.error('[swapExecute]', err.message);
+      return res.json({ success: false, fallback: true, error: err.message.slice(0, 150) });
+    }
   }
 
   // ── App Kit: Send ─────────────────────────────────────────────────────────
