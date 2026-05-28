@@ -80,10 +80,10 @@ async function findWalletSet(client, name) {
 // CONFIRMED from Circle docs:
 //   createContractExecutionTransaction → { data: { id, state } }
 //   getTransaction                     → { data: { transaction: { id, state, txHash } } }
-async function waitForTx(client, txId, label = 'tx', maxWaitMs = 120_000) {
+async function waitForTx(client, txId, label = 'tx', maxWaitMs = 15_000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
-    await new Promise(r => setTimeout(r, 6000));
+    await new Promise(r => setTimeout(r, 1200));
     try {
       const res   = await client.getTransaction({ id: txId });
       const tx    = res.data?.transaction;   // correct: nested under data.transaction
@@ -253,15 +253,7 @@ export default async function handler(req, res) {
       if (!txId) throw new Error('No transaction ID in Circle response: ' + JSON.stringify(txRes.data));
 
       // Poll for up to 30s before returning; if still pending, return pending so client polls
-      try {
-        const confirmed = await waitForTx(client, txId, 'transfer', 30_000);
-        return res.json({ success: true, txHash: confirmed.txHash, transactionId: txId });
-      } catch (e) {
-        if (e.message.includes('ended with state'))
-          return res.json({ success: false, error: 'Transaction ' + e.message });
-        // Timed out — return pending so frontend polls /api/transaction/:id
-        return res.json({ success: true, pending: true, transactionId: txId, txHash: null });
-      }
+      return res.json({ success: true, pending: true, transactionId: txId, txHash: null });
 
     } catch (err) {
       console.error('[transfer]', err.message);
