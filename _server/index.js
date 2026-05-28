@@ -541,13 +541,14 @@ const BRIDGE_CHAIN_MAP = {
 };
 
 async function getAppKit() {
-  const { AppKit }                    = await import('@circle-fin/app-kit');
-  const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
-  const adapter = createCircleWalletsAdapter({
-    apiKey:       process.env.CIRCLE_API_KEY,
-    entitySecret: process.env.CIRCLE_ENTITY_SECRET,
-  });
-  return { kit: new AppKit(), adapter };
+  const { AppKit }                             = await import('@circle-fin/app-kit');
+  const { createCircleWalletsAdapter }          = await import('@circle-fin/adapter-circle-wallets');
+  const { initiateDeveloperControlledWalletsClient } = await import('@circle-fin/developer-controlled-wallets');
+  const apiKey       = process.env.CIRCLE_API_KEY;
+  const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
+  const walletsClient = initiateDeveloperControlledWalletsClient({ apiKey, entitySecret });
+  const adapter = createCircleWalletsAdapter({ walletsClient });
+  return { kit: new AppKit({ adapter }), adapter };
 }
 
 // POST /api/appkit/send
