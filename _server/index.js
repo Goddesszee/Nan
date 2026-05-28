@@ -184,68 +184,14 @@ app.get('/api/health', (req, res) => {
 
 // ── OTP: Send & Verify ──
 app.post('/api/otp', async (req, res) => {
-  const { action, email, otp } = req.body;
-
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ success: false, error: 'Valid email required' });
+  try {
+    const mod = await import('../api/otp.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[otp]', e.message);
+    res.status(500).json({ success: false, error: e.message });
   }
-
-  if (action === 'send') {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore.set(email, {
-      otp: code,
-      expires: Date.now() + 10 * 60 * 1000,
-      attempts: 0,
-    });
-
-    try {
-      const result = await sendOTPEmail(email, code);
-      return res.json({
-        success: true,
-        dev: result.dev || false,
-        message: result.dev ? 'Dev mode: check server console for OTP' : 'Code sent to your email',
-      });
-    } catch (err) {
-      console.error('Email send error:', err);
-      return res.status(500).json({ success: false, error: 'Failed to send email. Check SMTP config.' });
-    }
-  }
-
-  if (action === 'verify') {
-    const record = otpStore.get(email);
-    if (!record) return res.status(400).json({ success: false, error: 'No code found — request a new one' });
-    if (Date.now() > record.expires) {
-      otpStore.delete(email);
-      return res.status(400).json({ success: false, error: 'Code expired — request a new one' });
-    }
-    if (record.attempts >= 5) {
-      otpStore.delete(email);
-      return res.status(400).json({ success: false, error: 'Too many attempts — request a new code' });
-    }
-    if (record.otp !== otp) {
-      record.attempts++;
-      return res.status(400).json({ success: false, error: 'Wrong code — ' + (5 - record.attempts) + ' attempts left' });
-    }
-
-    otpStore.delete(email);
-    try {
-      const userData = await getOrCreateCircleWallet(email);
-      return res.json({
-        success: true,
-        walletAddress: userData.walletAddress,
-        walletId: userData.walletId,
-        circleUserId: userData.circleUserId,
-        userToken: userData.userToken,
-        dev: userData.dev || false,
-      });
-    } catch (err) {
-      console.error('Wallet creation error:', err);
-      return res.status(500).json({ success: false, error: 'Wallet setup failed: ' + err.message });
-    }
-  }
-
-  return res.status(400).json({ success: false, error: 'Invalid action' });
-});
+});;
 
 // ── Circle API Proxy ──
 app.post('/api/circle', async (req, res) => {
