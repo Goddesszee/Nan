@@ -450,17 +450,15 @@ export default async function handler(req, res) {
       const adapter  = createCircleWalletsAdapter({ apiKey: process.env.CIRCLE_API_KEY, entitySecret: process.env.CIRCLE_ENTITY_SECRET });
       const kit      = new AppKit();
       const estimate = await kit.estimateSwap({
-        from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+        from:     { adapter, chain: 'Arc_Testnet', address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
-        amountIn: amtIn.toString(),
-        config:   { kitKey: process.env.KIT_KEY || '', slippageBps: 300 },
+        amount:   amtIn.toString(),
       });
       return res.json({
         success:         true,
-        amountOut:       estimate.estimatedOutput?.amount || null,
+        amountOut:       estimate.amountOut || estimate.estimatedOutput?.amount || null,
         estimatedOutput: estimate.estimatedOutput || null,
-        stopLimit:       estimate.stopLimit || null,
         fees:            estimate.fees || null,
       });
     } catch (err) {
