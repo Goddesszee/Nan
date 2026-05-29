@@ -2579,7 +2579,7 @@ RULES:
 - ACTION block is invisible to user — never mention it`;
 
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetch('https://nan-production.up.railway.app/api/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         system:context,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
