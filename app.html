@@ -730,7 +730,7 @@
         <span style="color:var(--text3);font-size:1rem;">›</span>
       </div>
 
-      <div id="nanAiMoreBtn" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(139,92,246,.08);transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
+      <div id="nanAiMoreBtn" onclick="toggleAgent()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid rgba(139,92,246,.08);transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.05)'" onmouseout="this.style.background='transparent'">
         <div style="width:36px;height:36px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
@@ -1371,7 +1371,7 @@
 </div>
 
 <!-- ══ AI Button ══ -->
-<button id="aiBtn" style="position:fixed;bottom:96px;right:18px;z-index:2147483647;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:96px;right:18px;z-index:2147483647;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
   <span>✦</span>
   <span style="font-size:.68rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>

@@ -2413,23 +2413,8 @@ function toggleAgent(){
   }
 }
 
-// AI button tap handler — runs once on load, re-attaches on connect
-function attachAIListeners(){
-  const btn=document.getElementById('aiBtn');
-  const moreBtn=document.getElementById('nanAiMoreBtn');
-
-  if(btn){
-    const fresh=btn.cloneNode(true);
-    fresh.style.display=btn.style.display||'flex';
-    btn.parentNode.replaceChild(fresh,btn);
-    fresh.onclick=function(e){ e.preventDefault(); toggleAgent(); };
-  }
-  if(moreBtn){
-    const freshMore=moreBtn.cloneNode(true);
-    moreBtn.parentNode.replaceChild(freshMore,moreBtn);
-    freshMore.onclick=function(e){ e.preventDefault(); toggleAgent(); };
-  }
-}
+// AI button — onclick is set directly in HTML, nothing needed here
+function attachAIListeners(){ /* onclick handled in HTML */ }
 
 // Attach on load and also expose for after-connect call
 document.addEventListener('DOMContentLoaded', attachAIListeners);
