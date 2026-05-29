@@ -3441,31 +3441,31 @@ async function createPaymentRequest(){
     const expiresAt=currentPRExpiry>0?Math.floor(Date.now()/1000)+currentPRExpiry*3600:0;
     let onChainId=null;
     if(isCircleWallet&&circleWalletId){
-      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      // Generate link immediately — don't wait for Circle API or chain confirmation
+      onChainId='circ_'+Date.now();
+      // Submit to chain in background
+      fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:PAYREQ_CONTRACT,
           functionSignature:'createRequest(address,uint256,string,string,uint256)',
-          params:[tokenAddr,amtAtomic.toString(),label,note||'',String(expiresAt)]})});
-      const d=await r.json();
-      if(!d.success)throw new Error(d.error||'Create failed');
-      // Don't wait for on-chain confirm — generate link immediately with local ID
-      // Transaction confirms in background (~1s on Arc)
-      onChainId='circ_'+Date.now();
-      // After 5s try to get real on-chain ID
-      setTimeout(async()=>{
+          params:[tokenAddr,amtAtomic.toString(),label,note||'',String(expiresAt)]})})
+      .then(async r=>{
+        const d=await r.json();
+        if(!d.success){console.warn('PR create failed:',d.error);return;}
+        // After 5s get real on-chain ID and update
+        await new Promise(r=>setTimeout(r,5000));
         try{
-          await new Promise(r=>setTimeout(r,5000));
           const rp=getArcProvider();
           const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,rp);
           const ids=await c.getCreatorRequests(circleWalletAddress||userAddr);
           if(ids.length>0){
             const realId=ids[ids.length-1].toString();
-            // Update stored PR with real ID
             const idx=paymentRequests.findIndex(p=>p.onChainId===onChainId);
             if(idx>=0){paymentRequests[idx].onChainId=realId;savePaymentRequests();}
           }
-        }catch(e){console.warn('PR ID update failed:',e.message);}
-      },0);
+        }catch(e){console.warn('PR ID update:',e.message);}
+      })
+      .catch(e=>console.warn('PR submit error:',e.message));
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
