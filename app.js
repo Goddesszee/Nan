@@ -3479,15 +3479,17 @@ async function createPaymentRequest(){
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:PAYREQ_CONTRACT,
           functionSignature:'createRequest(address,uint256,string,string,uint256)',
-          params:[tokenAddr,amtAtomic.toString(),label,note||'',expiresAt.toString()]})});
+          params:[tokenAddr,amtAtomic.toString(),label,note||'',String(expiresAt)]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Create failed');
       await waitForCircleTx(d.transactionId,'createRequest');
-      // Read ID from chain
+      // Small delay to let the chain state settle after confirmation
+      await new Promise(r=>setTimeout(r,2000));
+      // Read ID from chain using the circle wallet address
       const readProvider=getArcProvider();
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,readProvider);
-      const ids=await c.getCreatorRequests(userAddr);
-      onChainId=ids[ids.length-1].toString();
+      const ids=await c.getCreatorRequests(circleWalletAddress||userAddr);
+      onChainId=ids.length>0?ids[ids.length-1].toString():'0';
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
