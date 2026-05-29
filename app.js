@@ -3477,7 +3477,7 @@ async function createPaymentRequest(){
   btn.innerHTML='<span class="spinner"></span>Creating on-chain…';btn.disabled=true;
   try{
     const tokenAddr=currentPRToken==='USDC'?USDC_ADDR:EURC_ADDR;
-    const amtAtomic=amt?ethers.parseUnits(amt.toFixed(6),6):0n;
+    const amtAtomic=amt&&amt>0?ethers.parseUnits(amt.toFixed(6),6):BigInt(0);
     const expiresAt=currentPRExpiry>0?Math.floor(Date.now()/1000)+currentPRExpiry*3600:0;
     let onChainId=null;
     if(isCircleWallet&&circleWalletId){
@@ -3512,7 +3512,8 @@ async function createPaymentRequest(){
     toast('✓ Created on-chain! Link copied — share it to get paid','success',4000);
     viewPaymentRequest(pr.id);
   }catch(err){
-    toast('Create failed: '+err.message.slice(0,100),'error',5000);
+    console.error('[createPaymentRequest] error:', err);
+    toast('Create failed: '+err.message.slice(0,150),'error',7000);
     btn.innerHTML='Create & Share Link';btn.disabled=false;
   }
 }

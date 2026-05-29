@@ -396,6 +396,7 @@ export default async function handler(req, res) {
 
     try {
       const client = await getClient();
+      console.log('[contractCall] calling:', contractAddress, functionSignature, JSON.stringify(params));
       const txRes  = await client.createContractExecutionTransaction({
         walletId,
         blockchain:           BLOCKCHAIN,
@@ -405,6 +406,7 @@ export default async function handler(req, res) {
         idempotencyKey:       crypto.randomUUID(),
         fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
       });
+      console.log('[contractCall] response:', JSON.stringify(txRes.data));
 
       // FIX 2: ID is at data.id for createContractExecutionTransaction
       // data.transaction only exists when you call getTransaction later
