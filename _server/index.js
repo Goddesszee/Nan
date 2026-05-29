@@ -493,7 +493,7 @@ async function getAppKit() {
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
-  return { kit: new AppKit({ adapter }), adapter };
+  return { kit: new AppKit(), adapter };
 }
 
 // POST /api/appkit/send
