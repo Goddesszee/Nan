@@ -3456,9 +3456,16 @@ async function createPaymentRequest(){
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
-      const receipt=await tx.wait(0);
-      const event=receipt.logs.find(l=>l.fragment?.name==='RequestCreated');
+      // wait(1) ensures logs are available — Arc sub-second so still fast
+      const receipt=await tx.wait(1);
+      const event=receipt?.logs?.find(l=>l.fragment?.name==='RequestCreated');
       onChainId=event?.args?.id?.toString();
+      // Fallback: read ID from chain if event not parsed
+      if(!onChainId){
+        await new Promise(r=>setTimeout(r,1000));
+        const ids=await c.getCreatorRequests(userAddr);
+        onChainId=ids.length>0?ids[ids.length-1].toString():'0';
+      }
     }else{throw new Error('No wallet connected');}
     // Store locally with on-chain ID as reference
     const pr={id:'onchain_'+onChainId,onChainId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
@@ -3467,7 +3474,7 @@ async function createPaymentRequest(){
     const link=buildPRLink(pr);
     navigator.clipboard.writeText(link).catch(()=>{});
     toast('✓ Created on-chain! Link copied — share it to get paid','success',4000);
-    viewPaymentRequest(pr.id);
+    try{viewPaymentRequest(pr.id);}catch(e){console.warn('viewPR err:',e.message);}
   }catch(err){
     console.error('[createPaymentRequest] error:', err);
     toast('Create failed: '+err.message.slice(0,150),'error',7000);
