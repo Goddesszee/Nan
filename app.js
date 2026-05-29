@@ -1266,26 +1266,13 @@ function flipSwap(){
         // fall through to MetaMask/contract path below
       } else {
         if(!d.success)throw new Error(d.error||'Swap failed');
-        btn.innerHTML='<span class="spinner"></span>Confirming swap…';
-        if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
         const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' via App Kit!','success',8000);
-        addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',8000);
+        addTx({hash:d.txHash||'appkit',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
         document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
         lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
-        // App Kit swap is async on Railway — poll balance until it changes
         await refreshBalances();
-        const startBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
-        let polls=0;
-        const pollBal=setInterval(async()=>{
-          polls++;
-          await refreshBalances();
-          const newBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
-          if(newBal<startBal||polls>=12){
-            clearInterval(pollBal);
-            if(newBal<startBal) toast('✓ Balance updated!','success',3000);
-          }
-        },10000);
+        setTimeout(()=>refreshBalances(),3000);
         return;
       }
     }catch(err){
