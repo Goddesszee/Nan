@@ -1267,12 +1267,22 @@ function flipSwap(){
       } else {
         if(!d.success)throw new Error(d.error||'Swap failed');
         const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',8000);
-        addTx({hash:d.txHash||'appkit',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+        toast('✓ Swap submitted! Balance updating…','info',4000);
+        addTx({hash:d.txHash||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:false,source:'swap'});
         document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-        lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
-        await refreshBalances();
-        setTimeout(()=>refreshBalances(),3000);
+        btn.innerHTML='Swap';btn.disabled=false;
+        // Poll every 8s until balance changes (swap completes in background on Railway)
+        const snapBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
+        let p=0;
+        const pi=setInterval(async()=>{
+          p++;
+          await refreshBalances();
+          const nb=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
+          if(nb<snapBal-0.001||p>=15){
+            clearInterval(pi);
+            if(nb<snapBal-0.001)toast('✓ Swap complete! Balance updated','success',4000);
+          }
+        },8000);
         return;
       }
     }catch(err){
