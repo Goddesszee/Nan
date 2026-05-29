@@ -1277,7 +1277,9 @@ function flipSwap(){
       addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       btn.innerHTML='Swap';btn.disabled=false;
-      setTimeout(()=>refreshBalances(),2000);return;
+      await refreshBalances();
+      setTimeout(()=>refreshBalances(),3000);
+      setTimeout(()=>refreshBalances(),8000);return;
     }catch(err){
       toast('Swap failed: '+err.message.slice(0,120),'error',7000);
       btn.innerHTML='Swap';btn.disabled=false;return;
@@ -1300,8 +1302,8 @@ function flipSwap(){
       toast('✓ Swap confirmed on Arc!','success',6000);
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
-      // Refresh again after 3s to catch any lag
       setTimeout(()=>refreshBalances(),3000);
+      setTimeout(()=>refreshBalances(),8000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
     }
   }catch(err){
