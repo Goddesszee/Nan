@@ -598,7 +598,7 @@ app.post('/api/appkit/bridge', async (req, res) => {
     res.json({ success: true, pending: true, state: 'pending', message: 'Bridge submitted via CCTP — USDC arriving on destination chain' });
     kit.bridge({
       from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-      to:   { adapter, chain: destChainName, address: walletAddress },
+      to:   { adapter, chain: destChainName, address: destAddr || walletAddress },
       amount: parsed.toFixed(2),
       token:  'USDC',
     }).then(r => console.log('[bridge] complete, state:', r.state))
