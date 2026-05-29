@@ -596,11 +596,17 @@ app.post('/api/appkit/bridge', async (req, res) => {
     // Non-blocking — CCTP bridge takes 3-20 mins on testnet
     // Return immediately so frontend doesn't timeout
     res.json({ success: true, pending: true, state: 'pending', message: 'Bridge submitted via CCTP — USDC arriving on destination chain' });
+    // useForwarder: true = Circle's Forwarding Service mints on destination
+    // Recipient pays NO native gas on destination chain
     kit.bridge({
       from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-      to:   { adapter, chain: destChainName, address: destAddr || walletAddress },
+      to: {
+        recipientAddress: destAddr || walletAddress,
+        chain: destChainName,
+        useForwarder: true,
+      },
       amount: parsed.toFixed(2),
-      token:  'USDC',
+      token: 'USDC',
     }).then(r => console.log('[bridge] complete, state:', r.state))
       .catch(e => console.error('[bridge] background error:', e.message));
   } catch (err) {
