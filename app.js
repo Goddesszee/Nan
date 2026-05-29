@@ -3851,6 +3851,8 @@ async function loadAdminStats(){
 async function loadAdminPoolStats(){
   try{
     const readProvider=getArcProvider();
+
+    // NANSwap pool
     const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
     const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
     const u=parseFloat(ethers.formatUnits(usdcLiq,6));
@@ -3862,10 +3864,41 @@ async function loadAdminPoolStats(){
     const statusEl=document.getElementById('adminSeedStatus');
     if(statusEl){
       if(u<10||e<10){
-        statusEl.innerHTML='<span style="color:#f87171;">⚠️ Pool is low — MetaMask swaps may fail. Tap Seed Pool.</span>';
+        statusEl.innerHTML='<span style="color:#f87171;">⚠️ Swap pool low — MetaMask swaps may fail. Tap Seed Pool.</span>';
       } else {
-        statusEl.innerHTML='<span style="color:#34d399;">✓ Pool healthy — MetaMask swaps working.</span>';
+        statusEl.innerHTML='<span style="color:#34d399;">✓ Swap pool healthy.</span>';
       }
+    }
+
+    // NANLendingPool
+    const lendRead=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,readProvider);
+    const [totalSup,totalBor]=await Promise.all([
+      lendRead.totalSupplied(),
+      lendRead.totalBorrowed(),
+    ]);
+    const ts=parseFloat(ethers.formatUnits(totalSup,6));
+    const tb=parseFloat(ethers.formatUnits(totalBor,6));
+    const avail=Math.max(0,ts-tb);
+    const lendEl=document.getElementById('adminLendStats');
+    if(lendEl){
+      const util=ts>0?((tb/ts)*100).toFixed(1):0;
+      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#34d399';
+      lendEl.innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
+          <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL SUPPLIED</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#34d399;">${ts.toFixed(2)}</div>
+          </div>
+          <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL BORROWED</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#fbbf24;">${tb.toFixed(2)}</div>
+          </div>
+          <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">AVAILABLE</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:${color};">${avail.toFixed(2)}</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:.72rem;color:var(--text3);">Utilization: ${util}% · ${avail<10?'⚠️ Low — supply USDC to enable borrows':'✓ Healthy'}</div>`;
     }
   }catch(e){console.warn('Pool stats error:',e.message);}
 }
