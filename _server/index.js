@@ -618,13 +618,6 @@ app.post('/api/appkit/swap', async (req, res) => {
     console.error('[appkit/bridge]', err.message);
     return res.json({ success: false, error: err.message.slice(0, 150) });
   }
-});.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
-    });
-  } catch (err) {
-    console.error('[appkit/bridge]', err.message);
-    res.json({ success: false, error: err.message.slice(0, 200) });
-  }
-});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
