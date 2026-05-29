@@ -474,7 +474,7 @@ app.get('/app', (req, res) => {
 // Runs on Railway (persistent Node server) NOT Vercel (serverless)
 // =============================================================================
 
-const APPKIT_CHAIN   = 'Arc_Testnet'; // App Kit uses Arc_Testnet, NOT ARC-TESTNET
+const APPKIT_CHAIN   = 'Arc_Testnet'; // App Kit uses Arc_Testnet (not ARC-TESTNET)
 const APPKIT_USDC    = process.env.USDC_ADDRESS      || '0x3600000000000000000000000000000000000000';
 const APPKIT_EURC    = process.env.EURC_ADDRESS      || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 
@@ -488,11 +488,10 @@ const BRIDGE_CHAIN_MAP = {
 };
 
 async function getAppKit() {
-  const { AppKit }                    = await import('@circle-fin/app-kit');
-  const { createCircleWalletsAdapter } = await import('@circle-fin/adapter-circle-wallets');
+  const { AppKit }                             = await import('@circle-fin/app-kit');
+  const { createCircleWalletsAdapter }          = await import('@circle-fin/adapter-circle-wallets');
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
-  if (!apiKey || !entitySecret) throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET are required');
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
   return { kit: new AppKit({ adapter }), adapter };
 }
@@ -536,27 +535,23 @@ app.post('/api/appkit/swap', async (req, res) => {
   if (!amtIn || amtIn <= 0)
     return res.json({ success: false, error: 'Valid amountIn required' });
 
-  // Dev mode fallback
   if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
     const rate = fromToken === 'USDC' ? 0.9224 : 1.0842;
     const amountOut = (amtIn * rate * 0.999).toFixed(6);
     return res.json({ success: true, amountOut, estimatedOutput: { amount: amountOut, token: toToken }, dev: true });
   }
 
-  // KIT_KEY is required for Circle's swap service
-  if (!process.env.KIT_KEY)
-    return res.json({ success: false, fallback: true, error: 'KIT_KEY env var not set — swap unavailable, using contract fallback' });
-
   try {
     const { kit, adapter } = await getAppKit();
-
-    // Per Circle docs: SwapParams needs from.address, tokenIn/Out as strings, config.kitKey
     const swapParams = {
       from:     { adapter, chain: APPKIT_CHAIN, address: walletAddress || 'estimate' },
       tokenIn:  fromToken,
       tokenOut: toToken,
       amountIn: amtIn.toString(),
-      config:   { kitKey: process.env.KIT_KEY },
+      config:   {
+        slippageBps: 300,
+        ...(process.env.KIT_KEY ? { kitKey: process.env.KIT_KEY } : {}),
+      },
     };
 
     if (action === 'quote') {
@@ -564,8 +559,9 @@ app.post('/api/appkit/swap', async (req, res) => {
       return res.json({
         success:         true,
         amountOut:       estimate.estimatedOutput?.amount || null,
-        estimatedOutput: estimate.estimatedOutput        || null,
-        fees:            estimate.fees                   || null,
+        estimatedOutput: estimate.estimatedOutput || null,
+        stopLimit:       estimate.stopLimit || null,
+        fees:            estimate.fees || null,
       });
     }
 
@@ -573,51 +569,50 @@ app.post('/api/appkit/swap', async (req, res) => {
       return res.json({ success: false, error: 'walletAddress required for swap' });
 
     const result = await kit.swap(swapParams);
-    return res.json({
-      success:    true,
-      txHash:     result.txHash       || null,
-      amountOut:  result.amountOut    || null,
-      explorerUrl: result.explorerUrl || null,
-      state:      result.state        || 'success',
-    });
+    res.json({ success: true, txHash: result.txHash || null, amountOut: result.amountOut || null, explorerUrl: result.explorerUrl || null });
   } catch (err) {
-    consoapp.post('/api/appkit/bridge', async (req, res) => {
+    console.error('[appkit/swap]', err.message);
+    if (err.message.includes('not supported') || err.message.includes('Arc'))
+      return res.json({ success: false, fallback: true, error: 'AppKit swap not available on Arc Testnet' });
+    res.json({ success: false, error: err.message.slice(0, 150) });
+  }
+});
+
+// POST /api/appkit/bridge
+app.post('/api/appkit/bridge', async (req, res) => {
   const { walletAddress, destChain, destAddr, amount } = req.body || {};
-  const parsed        = parseFloat(amount);
-  const destChainName = BRIDGE_CHAIN_MAP[destChain] || destChain;
+  const parsed      = parseFloat(amount);
+  const destChainName = BRIDGE_CHAIN_MAP[destChain];
 
-  if (!walletAddress || !destAddr || !parsed || parsed <= 0)
-    return res.json({ success: false, error: 'walletAddress, destAddr, amount required' });
-
-  // Dev mode fallback
+  if (!walletAddress || !destChain || !destAddr || !parsed || parsed <= 0)
+    return res.json({ success: false, error: 'walletAddress, destChain, destAddr, amount required' });
+  if (!destChainName)
+    return res.json({ success: false, error: 'Unsupported chain: ' + destChain });
   if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
-    return res.json({ success: true, txHash: '0xdev_bridge_' + Date.now(), state: 'success', dev: true });
+    return res.json({ success: true, state: 'success', burnTxHash: '0xdev_burn_' + Date.now(), mintTxHash: '0xdev_mint_' + Date.now(), dev: true });
 
   try {
     const { kit, adapter } = await getAppKit();
-
-    // Per Circle docs: BridgeParams needs from.address, to.address, and chain names as strings
     const result = await kit.bridge({
-      from:   { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-      to:     { adapter, chain: destChainName || 'Ethereum_Sepolia', address: destAddr },
-      amount: parsed.toString(),
+      from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
+      to:   { adapter, chain: destChainName, address: walletAddress },
+      amount: parsed.toFixed(2),
       token:  'USDC',
     });
-
-    // result.state = 'success' | 'pending' | 'failed'
-    // result.steps = array of steps (approve, burn, attest, mint)
-    const txHash = result.steps?.find(s => s.txHash)?.txHash || result.txHash || null;
-    return res.json({
-      success:    result.state !== 'failed',
-      txHash,
+    const burnStep = result.steps?.find(s => s.name?.includes('burn'));
+    const mintStep = result.steps?.find(s => s.name?.includes('mint'));
+    res.json({
+      success:    result.state === 'success' || result.state === 'pending',
       state:      result.state,
-      steps:      result.steps || [],
-      explorerUrl: result.explorerUrl || null,
+      burnTxHash: burnStep?.txHash || null,
+      mintTxHash: mintStep?.txHash || null,
+      steps:      result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
     });
   } catch (err) {
     console.error('[appkit/bridge]', err.message);
-    return res.json({ success: false, error: err.message.slice(0, 150) });
+    res.json({ success: false, error: err.message.slice(0, 200) });
   }
+});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
@@ -632,9 +627,3 @@ app.listen(PORT, () => {
   console.log(`   SMTP Email: ${SMTP_USER ? '✅ configured' : '⚠️  DEV MODE (OTP logged to console)'}`);
   console.log(`\n💡 Set environment variables in .env to enable production features\n`);
 });
-
-
-
-}
-}
-}
