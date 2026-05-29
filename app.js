@@ -3468,12 +3468,13 @@ async function createPaymentRequest(){
       }
     }else{throw new Error('No wallet connected');}
     // Store locally with on-chain ID as reference
-    const pr={id:'onchain_'+onChainId,onChainId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
+    const safeId=onChainId||('local_'+Date.now());
+    const pr={id:'onchain_'+safeId,onChainId:safeId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
     paymentRequests.unshift(pr);
     savePaymentRequests();
     const link=buildPRLink(pr);
     navigator.clipboard.writeText(link).catch(()=>{});
-    toast('✓ Created on-chain! Link copied — share it to get paid','success',4000);
+    toast('✓ Created! Link copied — share it to get paid','success',4000);
     try{viewPaymentRequest(pr.id);}catch(e){console.warn('viewPR err:',e.message);}
   }catch(err){
     console.error('[createPaymentRequest] error:', err);
