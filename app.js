@@ -2842,14 +2842,15 @@ async function doSupply(){
     if(isCircleWallet&&circleWalletId){
       // Circle email wallet path
       btn.innerHTML='<span class="spinner"></span>Approving...';
-      const appRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
-          params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appData=await appRes.json();
-      if(!appData.success)throw new Error(appData.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
-      await waitForCircleTx(appData.transactionId, 'approve');
+      const supApprKey='nan_lend_approved_'+circleWalletId+'_'+lendAsset;
+      if(!sessionStorage.getItem(supApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+            contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
+            params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(supApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       const supRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
@@ -3016,12 +3017,13 @@ async function doRepay(){
     const amtAtomic=Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Approve first
-      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appD=await appR.json();
-      if(!appD.success)throw new Error(appD.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting…';
-      await waitForCircleTx(appD.transactionId,'approve');
+      const repApprKey='nan_repay_approved_'+circleWalletId;
+      if(!sessionStorage.getItem(repApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(repApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
       const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'repay(uint256)',params:[amtAtomic]})});
       const d=await r.json();
@@ -3146,8 +3148,9 @@ async function registerArcName(){
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
-      if(btn)btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
-      await waitForCircleTx(appD.transactionId,'approve');
+      sessionStorage.setItem('nan_name_approving_'+circleWalletId,'1');
+      // Don't wait — Arc confirms in <1s, proceed immediately
+      await new Promise(r=>setTimeout(r,2000));
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc…';
       const regR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:NAME_REGISTRY,functionSignature:'register(string,uint8)',params:[name,arcNameDurationYears]})});
@@ -3591,13 +3594,15 @@ async function doPayNow(){
     const amtParsed=ethers.parseUnits(amt.toFixed(decimals),decimals);
     const amtAtomic=amtParsed.toString();
     if(isCircleWallet&&circleWalletId){
-      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
-          functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appD=await appR.json();
-      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      const payApprKey='nan_pay_approved_'+circleWalletId+'_'+token;
+      if(!sessionStorage.getItem(payApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
+            functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(payApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
       btn.innerHTML='<span class="spinner"></span>Paying…';
-      await waitForCircleTx(appD.transactionId,'approve');
       const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:PAYREQ_CONTRACT,
           functionSignature:'pay(uint256,uint256)',params:[prId,amtAtomic]})});
