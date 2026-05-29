@@ -632,3 +632,9 @@ app.listen(PORT, () => {
   console.log(`   SMTP Email: ${SMTP_USER ? '✅ configured' : '⚠️  DEV MODE (OTP logged to console)'}`);
   console.log(`\n💡 Set environment variables in .env to enable production features\n`);
 });
+
+
+
+}
+}
+}
