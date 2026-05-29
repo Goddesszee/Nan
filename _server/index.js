@@ -583,38 +583,32 @@ app.post('/api/appkit/swap', async (req, res) => {
 // POST /api/appkit/bridge
 app.post('/api/appkit/bridge', async (req, res) => {
   const { walletAddress, destChain, destAddr, amount } = req.body || {};
-  const parsed      = parseFloat(amount);
+  const parsed = parseFloat(amount);
   const destChainName = BRIDGE_CHAIN_MAP[destChain];
-
   if (!walletAddress || !destChain || !destAddr || !parsed || parsed <= 0)
     return res.json({ success: false, error: 'walletAddress, destChain, destAddr, amount required' });
   if (!destChainName)
     return res.json({ success: false, error: 'Unsupported chain: ' + destChain });
   if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
-    return res.json({ success: true, state: 'success', burnTxHash: '0xdev_burn_' + Date.now(), mintTxHash: '0xdev_mint_' + Date.now(), dev: true });
-
+    return res.json({ success: true, state: 'success', burnTxHash: '0xdev_burn_' + Date.now(), dev: true });
   try {
     const { kit, adapter } = await getAppKit();
-    const result = await kit.bridge({
+    // Non-blocking — CCTP bridge takes 3-20 mins on testnet
+    // Return immediately so frontend doesn't timeout
+    res.json({ success: true, pending: true, state: 'pending', message: 'Bridge submitted via CCTP — USDC arriving on destination chain' });
+    kit.bridge({
       from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
       to:   { adapter, chain: destChainName, address: walletAddress },
       amount: parsed.toFixed(2),
       token:  'USDC',
-    });
-    const burnStep = result.steps?.find(s => s.name?.includes('burn'));
-    const mintStep = result.steps?.find(s => s.name?.includes('mint'));
-    res.json({
-      success:    result.state === 'success' || result.state === 'pending',
-      state:      result.state,
-      burnTxHash: burnStep?.txHash || null,
-      mintTxHash: mintStep?.txHash || null,
-      steps:      result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
-    });
+    }).then(r => console.log('[bridge] complete, state:', r.state))
+      .catch(e => console.error('[bridge] background error:', e.message));
   } catch (err) {
     console.error('[appkit/bridge]', err.message);
-    res.json({ success: false, error: err.message.slice(0, 200) });
+    if (!res.headersSent) res.json({ success: false, error: err.message.slice(0, 200) });
   }
 });
+
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
