@@ -2435,29 +2435,16 @@ function attachAIListeners(){
   const btn=document.getElementById('aiBtn');
   const moreBtn=document.getElementById('nanAiMoreBtn');
 
-  function tap(e){
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    // Cancel any pending click from touchend
-    clearTimeout(tap._t);
-    tap._t=setTimeout(()=>{ toggleAgent(); },10);
-  }
-  tap._t=null;
-
   if(btn){
-    btn.removeAttribute('onclick');
-    // Remove old listeners by cloning
     const fresh=btn.cloneNode(true);
+    fresh.style.display=btn.style.display||'flex';
     btn.parentNode.replaceChild(fresh,btn);
-    fresh.addEventListener('touchend',tap,{passive:false});
-    fresh.addEventListener('click',tap,false);
+    fresh.onclick=function(e){ e.preventDefault(); toggleAgent(); };
   }
   if(moreBtn){
-    moreBtn.removeAttribute('onclick');
     const freshMore=moreBtn.cloneNode(true);
     moreBtn.parentNode.replaceChild(freshMore,moreBtn);
-    freshMore.addEventListener('touchend',tap,{passive:false});
-    freshMore.addEventListener('click',tap,false);
+    freshMore.onclick=function(e){ e.preventDefault(); toggleAgent(); };
   }
 }
 
