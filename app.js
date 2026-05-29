@@ -3446,14 +3446,24 @@ async function createPaymentRequest(){
           params:[tokenAddr,amtAtomic.toString(),label,note||'',String(expiresAt)]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Create failed');
-      await waitForCircleTx(d.transactionId,'createRequest');
-      // Small delay to let the chain state settle after confirmation
-      await new Promise(r=>setTimeout(r,2000));
-      // Read ID from chain using the circle wallet address
-      const readProvider=getArcProvider();
-      const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,readProvider);
-      const ids=await c.getCreatorRequests(circleWalletAddress||userAddr);
-      onChainId=ids.length>0?ids[ids.length-1].toString():'0';
+      // Don't wait for on-chain confirm — generate link immediately with local ID
+      // Transaction confirms in background (~1s on Arc)
+      onChainId='circ_'+Date.now();
+      // After 5s try to get real on-chain ID
+      setTimeout(async()=>{
+        try{
+          await new Promise(r=>setTimeout(r,5000));
+          const rp=getArcProvider();
+          const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,rp);
+          const ids=await c.getCreatorRequests(circleWalletAddress||userAddr);
+          if(ids.length>0){
+            const realId=ids[ids.length-1].toString();
+            // Update stored PR with real ID
+            const idx=paymentRequests.findIndex(p=>p.onChainId===onChainId);
+            if(idx>=0){paymentRequests[idx].onChainId=realId;savePaymentRequests();}
+          }
+        }catch(e){console.warn('PR ID update failed:',e.message);}
+      },0);
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
