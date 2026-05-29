@@ -335,46 +335,13 @@ app.post('/api/faucet', async (req, res) => {
 
 // ── Groq AI Chat ──
 app.post('/api/chat', async (req, res) => {
-  const { system, messages } = req.body;
-  const { default: fetch } = await import('node-fetch');
-
-  if (!GROQ_API_KEY) {
-    const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
-    let reply = "I'm NAN AI ✦ — running in dev mode. Add GROQ_API_KEY to enable real AI responses.";
-    if (lastMsg.includes('balance')) reply = "Your balance info is shown in the wallet card above.";
-    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send tokens, use the Send tab. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
-    if (lastMsg.includes('stake')) reply = "You can stake USDC to earn 5.20% APY. <ACTION>{\"action\":\"navigate\",\"tab\":\"stake\"}</ACTION>";
-    if (lastMsg.includes('swap')) reply = "Swap between USDC and EURC at live exchange rates. <ACTION>{\"action\":\"navigate\",\"tab\":\"swap\"}</ACTION>";
-    if (lastMsg.includes('bridge')) reply = "Bridge USDC cross-chain via Circle CCTP. <ACTION>{\"action\":\"navigate\",\"tab\":\"bridge\"}</ACTION>";
-    return res.json({ reply });
-  }
-
+  // Proxy to Vercel api/chat.js handler — it handles Groq, rate limiting, ACTION parsing
   try {
-    const groqMessages = [
-      { role: 'system', content: system || 'You are NAN AI, a helpful wallet assistant.' },
-      ...(messages || []),
-    ];
-
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 512,
-        temperature: 0.7,
-        messages: groqMessages,
-      }),
-    });
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
-    res.json({ reply });
-  } catch (err) {
-    console.error('Groq API error:', err);
-    res.status(500).json({ reply: "Connection error — please try again." });
+    const mod = await import('../api/chat.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[chat]', e.message);
+    res.status(500).json({ reply: 'AI unavailable — ' + e.message.slice(0,80) });
   }
 });
 
