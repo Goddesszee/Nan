@@ -1250,63 +1250,36 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      // Use Circle App Kit swap — no liquidity management, no approvals needed
-      btn.innerHTML='<span class="spinner"></span>Swapping via App Kit…';
-      const r2=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        action:'swap',
-        walletAddress:circleWalletAddress,
-        tokenIn:isUSDCtoEURC?'USDC':'EURC',
-        tokenOut:isUSDCtoEURC?'EURC':'USDC',
-        amountIn:fromAmt.toFixed(6)
-      })});
-      const d=await r2.json();
-      // If AppKit not available on Arc, fall back to contract call
-      if(!d.success && d.fallback){
-        toast('Using direct contract swap…','info',3000);
-        // fall through to MetaMask/contract path below
-      } else {
-        if(!d.success)throw new Error(d.error||'Swap failed');
-        const amtOut=d.amountOut||(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-        toast('✓ Swap submitted! Balance updating…','info',4000);
-        addTx({hash:d.txHash||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:false,source:'swap'});
-        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-        btn.innerHTML='Swap';btn.disabled=false;
-        // Poll every 8s until balance changes (swap completes in background on Railway)
-        const snapBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
-        let p=0;
-        const pi=setInterval(async()=>{
-          p++;
-          await refreshBalances();
-          const nb=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
-          if(nb<snapBal-0.001||p>=15){
-            clearInterval(pi);
-            if(nb<snapBal-0.001)toast('✓ Swap complete! Balance updated','success',4000);
-          }
-        },8000);
-        return;
-      }
+      // Direct contract call — sub-second finality on Arc, no App Kit overhead
+      btn.innerHTML='<span class="spinner"></span>Approving…';
+      const approveRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,
+          functionSignature:'approve(address,uint256)',
+          params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
+      const appD=await approveRes.json();
+      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
+      if(appD.transactionId)await waitForCircleTx(appD.transactionId,'approve');
+      btn.innerHTML='<span class="spinner"></span>Swapping on Arc…';
+      const swapRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:SWAP_CONTRACT,
+          functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',
+          params:[Math.floor(fromAmt*1_000_000).toString()]})});
+      const d=await swapRes.json();
+      if(!d.success)throw new Error(d.error||'Swap failed');
+      btn.innerHTML='<span class="spinner"></span>Confirming…';
+      if(d.transactionId)await waitForCircleTx(d.transactionId,'swap');
+      const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
+      addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
+      btn.innerHTML='Swap';btn.disabled=false;
+      setTimeout(()=>refreshBalances(),2000);return;
     }catch(err){
-      // AppKit failed — try contract fallback for Circle wallets
-      console.warn('AppKit swap failed, trying contract fallback:', err.message);
-      try{
-        const r3=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-            contractAddress:SWAP_CONTRACT,
-            functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',
-            params:[Math.floor(fromAmt*1_000_000).toString()]})});
-        const d3=await r3.json();
-        if(!d3.success)throw new Error(d3.error||'Contract swap failed');
-        if(d3.transactionId){await waitForCircleTx(d3.transactionId,'swap');}
-        const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
-        toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',8000);
-        addTx({hash:d3.txHash||d3.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
-        document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-        btn.innerHTML='Swap';btn.disabled=false;
-        setTimeout(()=>refreshBalances(),5000);return;
-      }catch(e2){
-        toast('Swap failed: '+e2.message.slice(0,120),'error',7000);
-        btn.innerHTML='Swap';btn.disabled=false;return;
-      }
+      toast('Swap failed: '+err.message.slice(0,120),'error',7000);
+      btn.innerHTML='Swap';btn.disabled=false;return;
     }
   }
   try{
