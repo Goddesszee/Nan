@@ -1273,7 +1273,20 @@ function flipSwap(){
         addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
         document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
         lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
-        setTimeout(()=>refreshBalances(),5000);return;
+        // App Kit swap is async on Railway — poll balance until it changes
+        await refreshBalances();
+        const startBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
+        let polls=0;
+        const pollBal=setInterval(async()=>{
+          polls++;
+          await refreshBalances();
+          const newBal=parseFloat(isUSDCtoEURC?usdcBal:eurcBal);
+          if(newBal<startBal||polls>=12){
+            clearInterval(pollBal);
+            if(newBal<startBal) toast('✓ Balance updated!','success',3000);
+          }
+        },10000);
+        return;
       }
     }catch(err){
       // AppKit failed — try contract fallback for Circle wallets
@@ -1312,10 +1325,12 @@ function flipSwap(){
         await approveTx.wait(0);
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
-      await swapTx.wait(0);
+      await swapTx.wait(1);
       toast('✓ Swap confirmed on Arc!','success',6000);
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
+      // Refresh again after 3s to catch any lag
+      setTimeout(()=>refreshBalances(),3000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
     }
   }catch(err){
