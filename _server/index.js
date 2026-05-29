@@ -568,8 +568,10 @@ app.post('/api/appkit/swap', async (req, res) => {
     if (!walletAddress)
       return res.json({ success: false, error: 'walletAddress required for swap' });
 
-    const result = await kit.swap(swapParams);
-    res.json({ success: true, txHash: result.txHash || null, amountOut: result.amountOut || null, explorerUrl: result.explorerUrl || null });
+    // Non-blocking — swap can take 90s+ on testnet
+    res.json({ success: true, pending: true, message: 'Swap submitted — balance will update shortly' });
+    kit.swap(swapParams).then(r => console.log('[swap] done:', r.txHash)).catch(e => console.error('[swap] err:', e.message));
+    return;
   } catch (err) {
     console.error('[appkit/swap]', err.message);
     if (err.message.includes('not supported') || err.message.includes('Arc'))
