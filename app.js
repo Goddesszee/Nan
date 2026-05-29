@@ -3832,9 +3832,69 @@ async function loadAdminStats(){
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
     statsEl.style.display='block';
+    loadAdminPoolStats();
 
   }catch(err){
     console.error('Admin error:',err);
     loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
   }
 }
+
+async function loadAdminPoolStats(){
+  try{
+    const readProvider=getArcProvider();
+    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
+    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+    const u=parseFloat(ethers.formatUnits(usdcLiq,6));
+    const e=parseFloat(ethers.formatUnits(eurcLiq,6));
+    const uEl=document.getElementById('adminPoolUSDC');
+    const eEl=document.getElementById('adminPoolEURC');
+    if(uEl) uEl.textContent=u.toFixed(2)+' USDC';
+    if(eEl) eEl.textContent=e.toFixed(2)+' EURC';
+    const statusEl=document.getElementById('adminSeedStatus');
+    if(statusEl){
+      if(u<10||e<10){
+        statusEl.innerHTML='<span style="color:#f87171;">⚠️ Pool is low — MetaMask swaps may fail. Tap Seed Pool.</span>';
+      } else {
+        statusEl.innerHTML='<span style="color:#34d399;">✓ Pool healthy — MetaMask swaps working.</span>';
+      }
+    }
+  }catch(e){console.warn('Pool stats error:',e.message);}
+}
+
+async function adminSeedPool(){
+  if(!signer){toast('Connect MetaMask first to seed pool','error',4000);return;}
+  if(!onArcNetwork){toast('Switch to Arc Testnet first','error',4000);return;}
+  const btn=document.getElementById('adminSeedBtn');
+  const statusEl=document.getElementById('adminSeedStatus');
+  btn.disabled=true;btn.textContent='Seeding…';
+  try{
+    const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+    const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
+    const swapC=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
+    const [uBal,eBal]=await Promise.all([usdcC.balanceOf(userAddr),eurcC.balanceOf(userAddr)]);
+    const u=parseFloat(ethers.formatUnits(uBal,6));
+    const e=parseFloat(ethers.formatUnits(eBal,6));
+    if(u<1||e<1){toast('Need at least 1 USDC and 1 EURC to seed pool','error',5000);btn.disabled=false;btn.textContent='Seed Pool';return;}
+    // Seed with up to 500 of each, or full balance if less
+    const seedAmt=Math.min(500, u*0.9, e*0.9);
+    const seedU=ethers.parseUnits(seedAmt.toFixed(6),6);
+    const seedE=ethers.parseUnits(seedAmt.toFixed(6),6);
+    statusEl.innerHTML='<span style="color:#a78bfa;">Approving tokens…</span>';
+    const [appU,appE]=await Promise.all([
+      usdcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
+      eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
+    ]);
+    await Promise.all([appU.wait(0),appE.wait(0)]);
+    statusEl.innerHTML='<span style="color:#a78bfa;">Adding liquidity…</span>';
+    const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
+    await liqTx.wait(1);
+    toast('✓ Pool seeded with '+seedAmt.toFixed(2)+' USDC + '+seedAmt.toFixed(2)+' EURC','success',6000);
+    await loadAdminPoolStats();
+  }catch(err){
+    toast('Seed failed: '+err.message.slice(0,100),'error',6000);
+  }finally{
+    btn.disabled=false;btn.textContent='Seed Pool';
+  }
+}
+
