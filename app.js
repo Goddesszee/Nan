@@ -1251,18 +1251,24 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      // Direct contract call — sub-second finality on Arc, no App Kit overhead
-      btn.innerHTML='<span class="spinner"></span>Approving…';
-      const approveRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,
-          functionSignature:'approve(address,uint256)',
-          params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appD=await approveRes.json();
-      if(!appD.success)throw new Error(appD.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
-      if(appD.transactionId)await waitForCircleTx(appD.transactionId,'approve');
-      btn.innerHTML='<span class="spinner"></span>Swapping on Arc…';
+      // Fire approve + swap without waiting between — Arc confirms in <1s
+      // Approve runs in background, swap submits immediately after
+      btn.innerHTML='<span class="spinner"></span>Submitting swap…';
+      const approveKey='nan_sw_approved_'+circleWalletId+'_'+(isUSDCtoEURC?'u':'e');
+      const alreadyApproved=sessionStorage.getItem(approveKey);
+      if(!alreadyApproved){
+        // Fire approve without waiting
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+            contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,
+            functionSignature:'approve(address,uint256)',
+            params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(approveKey,'1'))
+          .catch(()=>{});
+        // Wait 2s for Arc to confirm approve (sub-second finality + Circle processing)
+        await new Promise(r=>setTimeout(r,2000));
+      }
+      // Submit swap
       const swapRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:SWAP_CONTRACT,
@@ -1270,7 +1276,7 @@ function flipSwap(){
           params:[Math.floor(fromAmt*1_000_000).toString()]})});
       const d=await swapRes.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
-      btn.innerHTML='<span class="spinner"></span>Confirming…';
+      // Wait for swap confirmation
       if(d.transactionId)await waitForCircleTx(d.transactionId,'swap');
       const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
       toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
