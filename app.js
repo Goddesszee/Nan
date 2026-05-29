@@ -703,6 +703,7 @@ async function onConnected(isEmail=false, isDev=false){
 }
 
 function disconnect(){
+  txHistory=[];paymentRequests=[];arcNames=[];
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=lastTxId=null;
   circleWalletId=circleWalletAddress=circleWalletBlockchain=null;
@@ -3350,7 +3351,7 @@ let currentPRExpiry=0;
 let activePRId=null;
 
 function loadPaymentRequests(){
-  try{paymentRequests=JSON.parse(localStorage.getItem('nan_payreqs')||'[]');}catch{paymentRequests=[];}
+  try{paymentRequests=JSON.parse(localStorage.getItem('nan_payreqs_'+(userAddr||''))||'[]');}catch{paymentRequests=[];}
   checkPendingPaymentRequests();
 }
 async function checkPendingPaymentRequests(){
@@ -3372,7 +3373,7 @@ async function checkPendingPaymentRequests(){
   renderPaymentRequests();
 }
 function savePaymentRequests(){
-  localStorage.setItem('nan_payreqs',JSON.stringify(paymentRequests));
+  localStorage.setItem('nan_payreqs_'+(userAddr||''),JSON.stringify(paymentRequests));
 }
 function genPRId(){
   return 'pr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
