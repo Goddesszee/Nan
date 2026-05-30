@@ -136,13 +136,12 @@
 </style>
 <script>
   function launchApp() {
-    localStorage.setItem('nan_visited_landing', '1');
-    sessionStorage.setItem('nan_visited_landing', '1');
+    sessionStorage.setItem('nan_from_landing', '1');
     window.location.href = '/app.html';
   }
 </script>
 <script>
-  localStorage.setItem('nan_visited_landing','1'); sessionStorage.setItem('nan_from_landing', '1');
+  sessionStorage.setItem('nan_from_landing', '1');
 </script>
 </head>
 <body>
@@ -459,13 +458,11 @@ function landingEmailConnect(){
   const email = document.getElementById('landingEmailInput').value.trim();
   if(!email || !email.includes('@')){ alert('Please enter a valid email'); return; }
   localStorage.setItem('nan_otp_email', email);
-  localStorage.setItem('nan_visited_landing', '1');
-  sessionStorage.setItem('nan_visited_landing', '1');
+  sessionStorage.setItem('nan_from_landing', '1');
   window.location.href = '/app.html?connect=email&email=' + encodeURIComponent(email);
 }
 function landingWalletConnect(type){
-  localStorage.setItem('nan_visited_landing', '1');
-  sessionStorage.setItem('nan_visited_landing', '1');
+  sessionStorage.setItem('nan_from_landing', '1');
   localStorage.setItem('nan_connect_type', type);
   window.location.href = '/app.html?connect=' + type;
 }
