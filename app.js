@@ -730,8 +730,8 @@ async function refreshBalances(){
     const homeBalNgn=document.getElementById('homeBalNgn');
     const homeUsdcBal=document.getElementById('homeUsdcBal');
     const homeEurcBal=document.getElementById('homeEurcBal');
-    if(homeBalAmt)homeBalAmt.textContent=totalUsd.toFixed(2);
-    if(homeBalNgn)homeBalNgn.textContent='≈ ₦'+Math.round(totalUsd*NGN_RATE).toLocaleString()+' NGN';
+    if(homeBalAmt)homeBalAmt.textContent=isNaN(totalUsd)?'0.00':totalUsd.toFixed(2);
+    if(homeBalNgn)homeBalNgn.textContent='≈ ₦'+(isNaN(totalUsd)?'0':Math.round(totalUsd*NGN_RATE).toLocaleString())+' NGN';
     if(homeUsdcBal)homeUsdcBal.textContent=u+' USDC';
     if(homeEurcBal)homeEurcBal.textContent=e+' EURC';
     // Update home page asset rows
