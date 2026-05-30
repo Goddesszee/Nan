@@ -1325,9 +1325,10 @@ function flipSwap(){
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const approveAmt=ethers.parseUnits(fromAmt.toFixed(6),6);
-        const approveTx=await tokenContract.approve(SWAP_CONTRACT,approveAmt,arcGasOpts());
-        await approveTx.wait(1); // wait for confirmation before swapping
+        // Approve full token balance — safe (not unlimited) but avoids repeat approvals
+        const fullBal=await tokenContract.balanceOf(userAddr);
+        const approveTx=await tokenContract.approve(SWAP_CONTRACT,fullBal,arcGasOpts());
+        await approveTx.wait(1);
         btn.innerHTML='<span class="spinner"></span>Swapping…';
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
@@ -1415,8 +1416,8 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const approveAmt=ethers.parseUnits(parsed.toFixed(6),6);
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,approveAmt,arcGasOpts());
+      const bridgeBal=await usdc.balanceOf(userAddr);
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,bridgeBal,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(0);
     }
@@ -3027,8 +3028,8 @@ async function doSupply(){
       const lendAllowance=await tokenContract.allowance(userAddr,LENDING_CONTRACT);
       if(lendAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const lendApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
-        const approveTx=await tokenContract.approve(LENDING_CONTRACT,lendApproveAmt,arcGasOpts());
+        const lendBal=await tokenContract.balanceOf(userAddr);
+        const approveTx=await tokenContract.approve(LENDING_CONTRACT,lendBal,arcGasOpts());
         await approveTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
@@ -3187,8 +3188,8 @@ async function doRepay(){
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
       const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
       if(repayAllowance<amtParsed){
-        const repayApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
-        const appTx=await usdc.approve(LENDING_CONTRACT,repayApproveAmt,arcGasOpts());
+        const repayBal=await usdc.balanceOf(userAddr);
+        const appTx=await usdc.approve(LENDING_CONTRACT,repayBal,arcGasOpts());
         await appTx.wait(1);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
@@ -3315,8 +3316,8 @@ async function registerArcName(){
       const nameAllowance=await usdcContract.allowance(userAddr,NAME_REGISTRY);
       if(nameAllowance<fee){
         if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
-        const nameApproveAmt=ethers.parseUnits(arcNameFeeUsdc.toFixed(6),6);
-        const approveTx=await usdcContract.approve(NAME_REGISTRY,nameApproveAmt,arcGasOpts());
+        const nameBal=await usdcContract.balanceOf(userAddr);
+        const approveTx=await usdcContract.approve(NAME_REGISTRY,nameBal,arcGasOpts());
         await approveTx.wait(0);
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
@@ -3821,8 +3822,8 @@ async function doPayNow(){
       const payAllowance=await tokenContract.allowance(userAddr,PAYREQ_CONTRACT);
       if(payAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const payApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
-        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payApproveAmt,arcGasOpts());
+        const payBal=await tokenContract.balanceOf(userAddr);
+        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payBal,arcGasOpts());
         await appTx.wait(1);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
