@@ -254,95 +254,106 @@
 
   <!-- ══ HOME PAGE ══ -->
   <div class="page" id="page-home">
-    <div id="homeGreet" class="home-greeting">Good morning,</div>
-    <div id="homeGreetName" class="home-name">Welcome ✦</div>
 
     <!-- Balance card -->
-    <div class="home-bal-card">
-      <div class="home-bal-lbl">Total Balance</div>
-      <div class="home-bal-num" id="skel-bal">$<span id="homeBalAmt">—</span></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;margin-bottom:10px;">
-        <div class="home-bal-ngn" id="homeBalNgn" style="margin-bottom:0;">≈ ₦0 NGN</div>
-        <div style="display:flex;align-items:center;gap:5px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:.56rem;color:#34d399;font-weight:600;">
-          <span style="width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span>
-          Arc Testnet
+    <div class="home-bal-card" style="border-radius:22px;padding:24px 24px 20px;margin-bottom:16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(167,139,250,.5);">Total Balance</div>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);padding:4px 10px;border-radius:100px;font-size:.62rem;color:#34d399;font-weight:700;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span>Arc Testnet
         </div>
       </div>
-      <div class="home-tok-row">
-        <div class="tok"><span class="tok-dot usdc-dot"></span><span id="homeUsdcBal">0.00 USDC</span></div>
-        <div class="tok"><span class="tok-dot eurc-dot"></span><span id="homeEurcBal">0.00 EURC</span></div>
+      <div style="font-size:2.8rem;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.1;margin-bottom:4px;">$<span id="homeBalAmt">—</span></div>
+      <div id="homeBalNgn" style="font-size:.78rem;color:rgba(167,139,250,.45);margin-bottom:16px;">≈ ₦0 NGN</div>
+      <div style="display:flex;gap:8px;">
+        <div class="tok" style="padding:6px 14px;font-size:.78rem;font-weight:600;"><span class="tok-dot usdc-dot"></span><span id="homeUsdcBal">0.00 USDC</span></div>
+        <div class="tok" style="padding:6px 14px;font-size:.78rem;font-weight:600;"><span class="tok-dot eurc-dot"></span><span id="homeEurcBal">0.00 EURC</span></div>
       </div>
     </div>
 
     <!-- 3 quick actions -->
-    <div class="home-actions-top">
-      <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)">
-        <div class="home-action-icon-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(124,58,237,.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:50px;height:50px;border-radius:15px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         </div>
-        <div class="home-action-label">Send</div>
+        <div style="text-align:center;">
+          <div style="font-size:.92rem;font-weight:700;color:var(--text);">Send</div>
+          <div style="font-size:.65rem;color:var(--text3);margin-top:2px;">Transfer tokens</div>
+        </div>
       </div>
-      <div class="home-action" onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)">
-        <div class="home-action-icon-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      <div onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)" style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(52,211,153,.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:50px;height:50px;border-radius:15px;background:rgba(52,211,153,.1);display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         </div>
-        <div class="home-action-label">Receive</div>
+        <div style="text-align:center;">
+          <div style="font-size:.92rem;font-weight:700;color:var(--text);">Receive</div>
+          <div style="font-size:.65rem;color:var(--text3);margin-top:2px;">Show QR code</div>
+        </div>
       </div>
-      <div class="home-action" onclick="goPage('swap')">
-        <div class="home-action-icon-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <div onclick="goPage('swap')" style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(96,165,250,.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:50px;height:50px;border-radius:15px;background:rgba(96,165,250,.1);display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
         </div>
-        <div class="home-action-label">Swap</div>
+        <div style="text-align:center;">
+          <div style="font-size:.92rem;font-weight:700;color:var(--text);">Swap</div>
+          <div style="font-size:.65rem;color:var(--text3);margin-top:2px;">USDC ↔ EURC</div>
+        </div>
       </div>
     </div>
 
     <!-- Naira wide button -->
-    <div class="naira-wide-btn" onclick="goPage('naira')">
-      <div class="naira-wide-icon">₦</div>
+    <div class="naira-wide-btn" onclick="goPage('naira')" style="border-radius:16px;padding:16px 18px;margin-bottom:20px;">
+      <div class="naira-wide-icon" style="width:42px;height:42px;border-radius:12px;font-size:1.1rem;">₦</div>
       <div class="naira-wide-text">
-        <div class="naira-wide-title">Naira — NGN &nbsp;<span style="font-size:.72rem;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 8px;font-weight:700;">Coming Soon</span></div>
-        <div class="naira-wide-sub">Deposit · Withdraw · Convert NGN</div>
+        <div class="naira-wide-title" style="font-size:.92rem;font-weight:700;">Naira — NGN <span style="font-size:.65rem;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:100px;padding:2px 8px;font-weight:700;margin-left:4px;">Coming Soon</span></div>
+        <div class="naira-wide-sub" style="font-size:.74rem;margin-top:3px;">Deposit · Withdraw · Convert NGN</div>
       </div>
-      <div class="naira-wide-arrow">›</div>
+      <div class="naira-wide-arrow" style="font-size:1.2rem;">›</div>
     </div>
 
     <!-- Assets -->
-    <div class="home-section-title">Your Assets</div>
-    <div class="home-asset-row">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">U</div>
-        <div><div class="home-asset-name">USDC</div><div class="home-asset-sub">USD Coin · Arc</div></div>
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">Your Assets</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="home-asset-row" style="border-radius:16px;padding:16px 18px;">
+        <div class="home-asset-left">
+          <div class="home-asset-icon" style="width:44px;height:44px;border-radius:13px;font-size:.95rem;font-weight:800;background:linear-gradient(135deg,#3b82f6,#2563eb);">U</div>
+          <div><div class="home-asset-name" style="font-size:.95rem;font-weight:700;">USDC</div><div class="home-asset-sub" style="font-size:.74rem;margin-top:3px;">USD Coin · Arc</div></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="home-asset-val" id="homeAssetUsdc" style="font-size:1.05rem;font-weight:700;">0.00</div>
+          <div class="home-asset-change neutral" id="homeAssetUsdcSub" style="font-size:.72rem;margin-top:3px;">Arc Testnet</div>
+        </div>
       </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetUsdc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetUsdcSub">Arc Testnet</div>
+      <div class="home-asset-row" style="border-radius:16px;padding:16px 18px;">
+        <div class="home-asset-left">
+          <div class="home-asset-icon" style="width:44px;height:44px;border-radius:13px;font-size:.95rem;font-weight:800;background:linear-gradient(135deg,#1d4ed8,#1e40af);">E</div>
+          <div><div class="home-asset-name" style="font-size:.95rem;font-weight:700;">EURC</div><div class="home-asset-sub" style="font-size:.74rem;margin-top:3px;">Euro Coin · Arc</div></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="home-asset-val" id="homeAssetEurc" style="font-size:1.05rem;font-weight:700;">0.00</div>
+          <div class="home-asset-change neutral" id="homeAssetEurcSub" style="font-size:.72rem;margin-top:3px;">Arc Testnet</div>
+        </div>
       </div>
-    </div>
-    <div class="home-asset-row">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);">E</div>
-        <div><div class="home-asset-name">EURC</div><div class="home-asset-sub">Euro Coin · Arc</div></div>
-      </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetEurc">0.00</div>
-        <div class="home-asset-change neutral" id="homeAssetEurcSub">Arc Testnet</div>
-      </div>
-    </div>
-    <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;">
-      <div class="home-asset-left">
-        <div class="home-asset-icon" style="background:linear-gradient(135deg,rgba(251,191,36,.3),rgba(251,191,36,.15));color:var(--gold);font-size:.9rem;">₦</div>
-        <div><div class="home-asset-name">Naira</div><div class="home-asset-sub">NGN · Coming Soon</div></div>
-      </div>
-      <div>
-        <div class="home-asset-val" id="homeAssetNgn">₦0.00</div>
-        <div class="home-asset-change neutral" style="color:var(--gold);">Coming Soon</div>
+      <div class="home-asset-row" onclick="goPage('naira')" style="cursor:pointer;border-radius:16px;padding:16px 18px;">
+        <div class="home-asset-left">
+          <div class="home-asset-icon" style="width:44px;height:44px;border-radius:13px;font-size:.95rem;background:linear-gradient(135deg,rgba(251,191,36,.25),rgba(251,191,36,.1));color:var(--gold);">₦</div>
+          <div><div class="home-asset-name" style="font-size:.95rem;font-weight:700;">Naira</div><div class="home-asset-sub" style="font-size:.74rem;margin-top:3px;">NGN · Coming Soon</div></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="home-asset-val" id="homeAssetNgn" style="font-size:1.05rem;font-weight:700;">₦0.00</div>
+          <div style="font-size:.72rem;color:var(--gold);margin-top:3px;">Coming Soon</div>
+        </div>
       </div>
     </div>
 
-    <!-- Wallet address (hidden, kept for JS compatibility) -->
+    <!-- Hidden elements for JS compatibility -->
     <div style="display:none;">
       <div id="walInit" class="wal-dot">N</div>
       <div id="walAddr" class="wal-addr">Connect wallet</div>
+      <div id="homeGreet" class="home-greeting"></div>
+      <div id="homeGreetName" class="home-name"></div>
+      <div id="skel-bal"></div>
     </div>
   </div>
 
