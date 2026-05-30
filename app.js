@@ -1,6 +1,20 @@
 // ═══════════════════════════════════════════
 // CONFIG — Arc Testnet
 // ═══════════════════════════════════════════
+// ── API Base — points to Railway when served from Vercel domain ──────────────
+const API_BASE = (()=>{
+  const host = window.location.hostname;
+  if(host.includes('vercel.app') || host === 'nanarc.xyz' || host === 'www.nanarc.xyz'){
+    return 'https://nan-production.up.railway.app';
+  }
+  return '';
+})();
+
+// Helper: all API calls go through Railway when on Vercel/nanarc.xyz
+function apiFetch(path, opts){
+  return fetch(API_BASE + path, opts);
+}
+
 const ARC_CHAIN_ID  = 5042002;
 const ARC_HEX       = '0x4CEF52';
 const ARC_RPC       = 'https://rpc.testnet.arc.network';
@@ -206,23 +220,28 @@ function toggleBalCurrency(){
 function updateBalDisplay(){
   const usdc=parseFloat(usdcBal)||0;
   const eurc=parseFloat(eurcBal)||0;
+  const eurcInUsd=eurc*(1/FX);
+  const totalUsd=usdc+eurcInUsd;
   const lbl=document.getElementById('balCurrencyLabel');
   const amt=document.getElementById('balAmt');
   const usd=document.getElementById('balUsd');
   if(balCurrency==='USD'){
-    amt.textContent=usdc.toFixed(2);
-    lbl.textContent='USDC';
-    usd.textContent='≈ $'+usdc.toFixed(2)+' USD · '+eurc.toFixed(2)+' EURC';
+    // Show total USD value (USDC + EURC converted)
+    amt.textContent='$'+totalUsd.toFixed(2);
+    lbl.textContent='';
+    usd.textContent=usdc.toFixed(2)+' USDC · '+eurc.toFixed(2)+' EURC';
   } else if(balCurrency==='EURC'){
     amt.textContent=eurc.toFixed(2);
     lbl.textContent='EURC';
-    usd.textContent='≈ $'+(eurc*(1/FX)).toFixed(2)+' USD';
+    usd.textContent='≈ $'+eurcInUsd.toFixed(2)+' USD';
   } else {
-    const total=usdc+(eurc*(1/FX));
-    amt.textContent=total.toFixed(2);
-    lbl.textContent='USDC';
-    usd.textContent='Total portfolio value';
+    amt.textContent='$'+totalUsd.toFixed(2);
+    lbl.textContent='';
+    usd.textContent='Total · '+usdc.toFixed(2)+' USDC + '+eurc.toFixed(2)+' EURC';
   }
+  // Also update the NGN equivalent
+  const ngnEl=document.getElementById('balNgn');
+  if(ngnEl){const NGN_RATE=1622;ngnEl.textContent='≈ ₦'+Math.round(totalUsd*NGN_RATE).toLocaleString()+' NGN';}
 }
 function showBalSkeleton(){
   document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';
@@ -239,6 +258,7 @@ function goPage(name){
   showPage(name);
   if(name==='lend'){initLendUI();}
   if(name==='history')renderHistory();
+  if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();}
   if(name==='arcname'){renderArcDirectory();}
   if(name==='swap')refreshBalances();
 }
@@ -256,9 +276,17 @@ function initTheme(){
   document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
 }
 function updateTopBar(connected){
+  const bar=document.getElementById('globalTopBar');
   const btn=document.getElementById('connectTopBtn');
   const landBtn=document.getElementById('landConnectBtn');
+  const dNav=document.getElementById('desktopNav');
   if(connected){
+    if(window.innerWidth >= 769){
+      bar.classList.add('desktop-show');
+    } else {
+      bar.style.display='flex';
+    }
+    if(dNav) dNav.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
     btn.style.display='block';
     btn.textContent=otpEmail?'⚡ '+otpEmail.split('@')[0].slice(0,10):'0x…'+userAddr.slice(-6);
     btn.className='connected';
@@ -275,9 +303,10 @@ function updateTopBar(connected){
     };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
-    // Hide the landing connect button completely
     if(landBtn) landBtn.style.display='none';
   }else{
+    bar.style.display='none';
+    if(dNav) dNav.style.display='none';
     btn.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
@@ -288,7 +317,7 @@ function updateTopBar(connected){
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
   try{
-    const res=await fetch('/api/fx-rate');
+    const res=await fetch('https://nan-production.up.railway.app/api/fx-rate');
     if(res.ok){
       const data=await res.json();
       if(data.rate&&data.rate>0.5&&data.rate<2){
@@ -402,7 +431,7 @@ async function sendEmailOTP(){
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   otpEmail=email;
   try{
-    const res=await fetch('/api/otp',{
+    const res=await fetch('https://nan-production.up.railway.app/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'send',email}),
     });
@@ -435,14 +464,14 @@ async function verifyOTP(){
   const btn=document.getElementById('verifyBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   try{
-    const res=await fetch('/api/otp',{
+    const res=await fetch('https://nan-production.up.railway.app/api/otp',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'verify',email:otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry}),
     });
     const data=await res.json();
     if(!data.success){toast(data.error||'Wrong code — try again','error',5000);btn.innerHTML='Verify →';btn.disabled=false;return;}
     try{
-      const cwRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getWallet',email:otpEmail})});
+      const cwRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getWallet',email:otpEmail})});
       const cwData=await cwRes.json();
       if(cwData.success&&cwData.wallet?.address){
         circleWalletId=cwData.wallet.id;
@@ -582,7 +611,7 @@ async function _ensureUnlimitedApprovals(){
       const uAllow=await usdcC.allowance(userAddr,contract);
       if(uAllow<THRESHOLD){
         const tx=await usdcC.approve(contract,ethers.MaxUint256,arcGasOpts());
-        await tx.wait(1);
+        await tx.wait(0);
         console.log('USDC approved for',contract);
         addTx({hash:tx.hash,to:contract,toRaw:'Unlimited USDC Approval',amount:'0',type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'approval'});
       }
@@ -590,7 +619,7 @@ async function _ensureUnlimitedApprovals(){
     const eAllow=await eurcC.allowance(userAddr,SWAP_CONTRACT);
     if(eAllow<THRESHOLD){
       const tx=await eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       console.log('EURC approved for',SWAP_CONTRACT);
       addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
     }
@@ -616,23 +645,26 @@ async function _autoSeedLiquidity(){
       usdcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
       eurcC.approve(SWAP_CONTRACT,UNLIMITED,arcGasOpts()),
     ]);
-    await Promise.all([appU.wait(1),appE.wait(1)]);
+    await Promise.all([appU.wait(0),appE.wait(0)]);
     const seedU=uBal/2n;
     const seedE=eBal/2n;
     const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
-    await liqTx.wait(1);
+    await liqTx.wait(0);
     toast('✓ Pool liquidity added — swaps ready!','success',5000);
     await refreshBalances();
   }catch(e){console.warn('[pool] Liquidity seed skipped:',e.message);}
 }
 
 async function onConnected(isEmail=false, isDev=false){
-  document.getElementById('page-land').style.display='none';
-  document.getElementById('page-land').style.visibility='hidden';
-  document.getElementById('page-land').style.zIndex='-1';
+  const land = document.getElementById('page-land');
+  land.classList.remove('active');
+  land.style.display='none';
+  land.style.visibility='hidden';
+  land.style.zIndex='-1';
   document.getElementById('bottomNav').classList.add('show');
   showPage('send');
   updateTopBar(true);
+  if(typeof updateDesktopNav === 'function') updateDesktopNav();
 
   document.getElementById('walAddr').textContent=short(userAddr);
   document.getElementById('walAddr').title=userAddr;
@@ -656,6 +688,7 @@ async function onConnected(isEmail=false, isDev=false){
   renderArcDirectory();
   initLendUI();
   document.getElementById('aiBtn').style.display='flex';
+  setTimeout(attachAIListeners, 100); // re-attach after button is visible
   startOrderEngine();
   // Pre-approve all contracts once so users never see repeated approve popups
   if(!isCircleWallet && signer){ _ensureUnlimitedApprovals(); }
@@ -676,6 +709,7 @@ async function onConnected(isEmail=false, isDev=false){
 }
 
 function disconnect(){
+  txHistory=[];paymentRequests=[];arcNames=[];
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=lastTxId=null;
   circleWalletId=circleWalletAddress=circleWalletBlockchain=null;
@@ -732,6 +766,17 @@ async function refreshBalances(){
     if(emptyHint){emptyHint.style.display=(parseFloat(u)===0&&parseFloat(e)===0)?'flex':'none';}
     document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
     document.getElementById('swapToBal').textContent=swapFlipped?u:e;
+    // Update home page balance card
+    const totalUsd=(parseFloat(u)+parseFloat(e)*(1/FX));
+    const NGN_RATE=1622;
+    const homeBalAmt=document.getElementById('homeBalAmt');
+    const homeBalNgn=document.getElementById('homeBalNgn');
+    const homeUsdcBal=document.getElementById('homeUsdcBal');
+    const homeEurcBal=document.getElementById('homeEurcBal');
+    if(homeBalAmt)homeBalAmt.textContent=totalUsd.toFixed(2);
+    if(homeBalNgn)homeBalNgn.textContent='≈ ₦'+Math.round(totalUsd*NGN_RATE).toLocaleString()+' NGN';
+    if(homeUsdcBal)homeUsdcBal.textContent=u+' USDC';
+    if(homeEurcBal)homeEurcBal.textContent=e+' EURC';
     // Update home page asset rows
     const haUsdc=document.getElementById('homeAssetUsdc');
     const haEurc=document.getElementById('homeAssetEurc');
@@ -759,7 +804,7 @@ async function pollTxStatus(txId, userToken, onConfirmed){
   txPollTimer=setInterval(async()=>{
     attempts++;
     try{
-      const res=await fetch('/api/transaction/'+txId,{
+      const res=await fetch('https://nan-production.up.railway.app/api/transaction/'+txId,{
         headers:{'X-User-Token':userToken||''}
       });
       const data=await res.json();
@@ -886,15 +931,23 @@ async function doSend(){
     if(!circleWalletId){toast('Wallet not ready — please log in again','error');return;}
     btn.innerHTML='<span class="spinner"></span>Submitting via Circle…';btn.disabled=true;
     try{
-      const res=await fetch('/api/circle-wallets',{
+      const appkitRes=await fetch('https://nan-production.up.railway.app/api/appkit/send',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        body:JSON.stringify({walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
       });
-      const data=await res.json();
+      let data=await appkitRes.json();
+      if(!data.success){
+        const fbRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'transfer',walletId:circleWalletId,walletAddress:circleWalletAddress,destinationAddress:to,amount:amt.toString(),tokenSymbol:sendToken}),
+        });
+        data=await fbRes.json();
+      }
       if(!data.success){throw new Error(data.error||'Transfer failed');}
       lastTxHash=data.txHash||data.transactionId;
       const isConfirmed=!!data.txHash&&!data.pending;
       addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:isConfirmed,source:'circle'});
+      setTimeout(()=>resolveCircleTxHash(lastTxHash),2000);
       showSendSuccess(amt,to,lastTxHash);
       if(data.pending&&data.transactionId){
         pollTxStatus(data.transactionId,'',async(confirmedHash)=>{
@@ -926,7 +979,7 @@ async function doSend(){
     lastTxHash=tx.hash;
     btn.innerHTML='<span class="spinner"></span>Confirming…';
     toast('Submitted! '+short(tx.hash),'info',14000);
-    const receipt=await tx.wait(1);
+    const receipt=await tx.wait(0);
     addTx({hash:tx.hash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:!!receipt,source:'metamask'});
     toast('✓ Sent '+amt.toFixed(2)+' '+sendToken+'!','success',7000);
     document.getElementById('confirmCard').classList.remove('show');
@@ -946,12 +999,12 @@ function showSendSuccess(amt,to,hash){
   const btn=document.getElementById('confirmSendBtn');
   btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
 }
-function openExplorer(){if(lastTxHash)window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');}
+function openExplorer(){if(lastTxHash&&lastTxHash.startsWith('0x'))window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');else if(lastTxHash)toast('Transaction confirmed on Arc — hash not available for Circle wallet txs','info',4000);}
 
 function shareOnX(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
+  const explorerUrl=(hash&&hash.startsWith('0x'))?ARC_EXP+'/tx/'+hash:ARC_EXP+'/address/'+(userAddr||'');
   const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
@@ -959,7 +1012,8 @@ function shareOnX(){
 function showReceipt(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const shortHash=hash?hash.slice(0,10)+'...'+hash.slice(-6):'pending';
+  const isReal=hash&&hash.startsWith('0x');
+  const shortHash=isReal?hash.slice(0,10)+'...'+hash.slice(-6):'Circle Wallet ✓';
   const now=new Date().toLocaleString();
   const modal=document.createElement('div');
   modal.id='receiptModal';
@@ -1012,7 +1066,7 @@ function showReceipt(){
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            <a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>
+            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
           </div>
         </div>
 
@@ -1033,9 +1087,9 @@ function showReceipt(){
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -1090,7 +1144,7 @@ function downloadReceipt(){
   ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,56.5);ctx.stroke();
 
   // NAN title
-  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Space Grotesk, sans-serif';
+  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Inter, sans-serif';
   ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
   ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
   ctx.fillText('ARC TESTNET',82,63);
@@ -1108,9 +1162,9 @@ function downloadReceipt(){
   ctx.textAlign='center';ctx.fillText('✓',300,168);
 
   // Transaction confirmed
-  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
-  ctx.fillStyle='#a78bfa';ctx.font='14px Space Grotesk, sans-serif';
+  ctx.fillStyle='#a78bfa';ctx.font='14px Inter, sans-serif';
   ctx.fillText(msg,300,250);
 
   // Divider
@@ -1136,7 +1190,7 @@ function downloadReceipt(){
 
   // Footer
   ctx.fillStyle='rgba(139,92,246,0.15)';ctx.fillRect(0,360,600,40);
-  ctx.fillStyle='#a78bfa';ctx.font='11px Space Grotesk, sans-serif';
+  ctx.fillStyle='#a78bfa';ctx.font='11px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
 
   // Download
@@ -1179,9 +1233,9 @@ async function _fetchAppKitQuote(amt){
   const key=`${tokenIn}-${tokenOut}-${amt}`;
   if(_quoteCache[key]&&Date.now()-_quoteCache[key].ts<10000){_applyQuote(_quoteCache[key].q);return;}
   try{
-    const r=await fetch('/api/appkit-swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
+    const r=await fetch('https://nan-production.up.railway.app/api/appkit/swap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'swapQuote',tokenIn,tokenOut,amountIn:amt.toFixed(6)})});
     const d=await r.json();
-    if(d.success&&d.quote){_quoteCache[key]={q:d.quote,ts:Date.now()};_applyQuote(d.quote);}
+    if(d.success&&d.amountOut){_quoteCache[key]={q:d,ts:Date.now()};_applyQuote(d);}
   }catch(e){console.log('[quote]',e.message);}
 }
 function _applyQuote(q){
@@ -1216,27 +1270,46 @@ function flipSwap(){
   btn.innerHTML='<span class="spinner"></span>Swapping...';btn.disabled=true;
   if(isCircleWallet&&circleWalletId){
     try{
-      // Only approve if not already approved (cached per session)
-      const _swapApprKey='nan_circle_swap_approved_'+circleWalletId;
-      if(!sessionStorage.getItem(_swapApprKey)){
-        const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,functionSignature:'approve(address,uint256)',params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-        const appData=await r.json();
-        if(!appData.success)throw new Error(appData.error||'Approve failed');
-        await waitForCircleTx(appData.transactionId,'approve');
-        sessionStorage.setItem(_swapApprKey,'1');
+      // Fire approve + swap without waiting between — Arc confirms in <1s
+      // Approve runs in background, swap submits immediately after
+      btn.innerHTML='<span class="spinner"></span>Submitting swap…';
+      const approveKey='nan_sw_approved_'+circleWalletId+'_'+(isUSDCtoEURC?'u':'e');
+      const alreadyApproved=sessionStorage.getItem(approveKey);
+      if(!alreadyApproved){
+        // Fire approve without waiting
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+            contractAddress:isUSDCtoEURC?USDC_ADDR:EURC_ADDR,
+            functionSignature:'approve(address,uint256)',
+            params:[SWAP_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(approveKey,'1'))
+          .catch(()=>{});
+        // Wait 2s for Arc to confirm approve (sub-second finality + Circle processing)
+        await new Promise(r=>setTimeout(r,2000));
       }
-      const r2=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:SWAP_CONTRACT,functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',params:[Math.floor(fromAmt*1_000_000).toString()]})});
-      const d=await r2.json();
+      // Submit swap — non-blocking, Arc confirms in <1s
+      const swapRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:SWAP_CONTRACT,
+          functionSignature:isUSDCtoEURC?'swapUSDCtoEURC(uint256)':'swapEURCtoUSDC(uint256)',
+          params:[Math.floor(fromAmt*1_000_000).toString()]})});
+      const d=await swapRes.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
-      btn.innerHTML='<span class="spinner"></span>Confirming swap…';
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'swap');}
-      const rate=isUSDCtoEURC?FX:(1/FX);
-      const amtOut=(fromAmt*rate*0.999).toFixed(4);
-      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+' on Arc!','success',8000);
-      addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
+      toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
+      const _swapTxId=d.txHash||d.transactionId||'pending';
+      addTx({hash:_swapTxId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      setTimeout(()=>resolveCircleTxHash(_swapTxId),2000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
-      lastTxHash=d.txHash;btn.innerHTML='Swap';btn.disabled=false;
-      setTimeout(()=>refreshBalances(),5000);return;
+      btn.innerHTML='Swap';btn.disabled=false;
+      // Poll balance until it changes
+      setTimeout(async()=>{
+        for(let i=0;i<6;i++){
+          await new Promise(r=>setTimeout(r,3000));
+          await refreshBalances();
+        }
+      },0);
+      return;
     }catch(err){
       toast('Swap failed: '+err.message.slice(0,120),'error',7000);
       btn.innerHTML='Swap';btn.disabled=false;return;
@@ -1252,17 +1325,26 @@ function flipSwap(){
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
         const approveTx=await tokenContract.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
-      toast('Swap confirmed on Arc!','success',6000);
+      toast('✓ Swap confirmed on Arc!','success',6000);
       addTx({hash:swapTx.hash,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),type:'out',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       await refreshBalances();
+      setTimeout(()=>refreshBalances(),3000);
+      setTimeout(()=>refreshBalances(),8000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
     }
   }catch(err){
-    toast('Swap failed: '+err.message.slice(0,100),'error',6000);
+    console.error('Swap error:', err);
+    // Extract meaningful revert reason
+    let msg = err.message || 'Unknown error';
+    if(msg.includes('FAILED')) msg = 'Swap contract rejected — the contract may have insufficient liquidity. Try a smaller amount.';
+    else if(msg.includes('insufficient')) msg = 'Insufficient balance or liquidity';
+    else if(msg.includes('allowance')) msg = 'Approval failed — please try again';
+    else msg = msg.slice(0, 120);
+    toast('Swap failed: '+msg,'error',8000);
   }
   btn.innerHTML='Swap';btn.disabled=false;
 }
@@ -1292,7 +1374,27 @@ async function doBridge(){
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
-  if(isCircleWallet){if(!circleWalletId){toast('Wallet not ready — log in again','error');return;}const btn=document.getElementById('bridgeBtn');btn.innerHTML='<span class="spinner"></span>Step 1/3: Approving USDC…';btn.disabled=true;try{const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bridge',walletId:circleWalletId,destChain,destAddr,bridgeAmount:amt.toString()})});const data=await r.json();if(!data.success)throw new Error(data.error||'Bridge failed');lastTxHash=data.burnTxHash;addTx({hash:data.burnTxHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:true,source:'cctp',destChain});toast('✓ USDC burned! Polling attestation…','success',8000);await refreshBalances();await pollIrisAttestation(data.burnTxHash,destChain);}catch(err){toast((err?.message||'Bridge failed').slice(0,140),'error',8000);}finally{btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;}return;}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
+  if(isCircleWallet){
+  if(!circleWalletAddress){toast('Wallet not ready — log in again','error');return;}
+  const btn=document.getElementById('bridgeBtn');
+  btn.innerHTML='<span class="spinner"></span>Bridging via App Kit…';btn.disabled=true;
+  try{
+    const r=await fetch('https://nan-production.up.railway.app/api/appkit/bridge',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({walletAddress:circleWalletAddress,destChain,destAddr,amount:amt.toString()})});
+    const data=await r.json();
+    if(!data.success)throw new Error(data.error||'Bridge failed');
+    const txHash=data.burnTxHash||null;
+    addTx({hash:txHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:data.state==='success',source:'appkit-bridge',destChain});
+    if(data.state==='success'){toast('✅ Bridge complete! USDC arrived on '+destChain,'success',8000);}
+    else{toast('✓ Bridge submitted via App Kit — CCTP processing…','success',6000);}
+    await refreshBalances();
+  }catch(err){
+    toast((err?.message||'Bridge failed').slice(0,140),'error',8000);
+  }finally{
+    btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;
+  }
+  return;
+}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
@@ -1312,7 +1414,7 @@ async function doBridge(){
     if(allowance<amtParsed){
       const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,ethers.MaxUint256,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
-      await appTx.wait(1);
+      await appTx.wait(0);
     }
     btn.innerHTML='<span class="spinner"></span>Step 2/3: Burning USDC on Arc…';
     const mintRecipient=ethers.zeroPadValue(destAddr,32);
@@ -1371,7 +1473,7 @@ async function pollIrisAttestation(txHash, destChain) {
       // 1. Try server proxy first (avoids CORS)
       let attestation = null, message = null;
       try {
-        const pr = await fetch('/api/cctp-attest', {
+        const pr = await fetch('https://nan-production.up.railway.app/api/cctp-attest', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({action:'getAttestation', txHash, sourceDomain:26}),
         });
@@ -1418,12 +1520,28 @@ async function pollIrisAttestation(txHash, destChain) {
         const mintEl = document.getElementById('mintStatus');
         if (mintEl) {
           mintEl.style.display = 'block';
-          mintEl.innerHTML = '⚠️ Auto-mint unavailable for email wallets. '
-            + 'Complete the mint manually on ' + (destConfig?.chainName || destChain) + '. '
-            + '<a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" '
-            + 'target="_blank" style="color:var(--accent3);">Circle guide ↗</a>';
+          const destName = destConfig?.chainName || destChain;
+          const transmitterAddr = destConfig?.transmitter || '—';
+          mintEl.innerHTML = `
+            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:14px;">
+              <div style="font-weight:700;color:#fff;margin-bottom:8px;">✅ Burn complete — mint on ${destName}</div>
+              <div style="font-size:.72rem;color:#888;line-height:1.7;margin-bottom:10px;">
+                Your USDC is burned on Arc. To receive it on <strong style="color:#ccc;">${destName}</strong>, complete the mint using the attestation below.
+              </div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:6px;">MessageTransmitter on ${destName}:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#8b5cf6;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Message bytes:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:6px;word-break:break-all;">${message}</div>
+              <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Attestation:</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:12px;word-break:break-all;">${attestation}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
+                <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
+                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7c3aed;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
+              </div>
+            </div>`;
         }
-        toast('Attestation ready — complete mint manually on ' + (destConfig?.chainName || destChain), 'info', 10000);
+        toast('✅ Attestation ready — copy the data above to mint on ' + (destConfig?.chainName || destChain), 'success', 10000);
         return;
       }
 
@@ -1543,7 +1661,7 @@ async function _recordTxOnChain(tx){
       ? tx.hash
       : ethers.zeroPadValue('0x01',32);
     if(isCircleWallet&&circleWalletId){
-      await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:HISTORY_CONTRACT,
           functionSignature:'record(string,string,string,string,string,bytes32)',
@@ -1552,7 +1670,7 @@ async function _recordTxOnChain(tx){
     }else if(signer){
       const c=new ethers.Contract(HISTORY_CONTRACT,HISTORY_ABI,signer);
       const t=await c.record(tx.type||'out',tx.token||'USDC',tx.amount||'0',tx.to||'',tx.toRaw||'',hashBytes,arcGasOpts());
-      await t.wait(1);
+      await t.wait(0);
     }
   }catch(e){console.log('On-chain history error:',e.message);}
 }
@@ -1610,9 +1728,16 @@ function renderHistory(){
     if(tx.type==='bridge'){icon='⬡';cls='bridge';label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
     const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
+    // Real hash = starts with 0x AND is 66 chars (32 bytes). Circle UUIDs are not 0x hashes.
+    const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
+    const viewLink=isRealHash
+      ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);" onclick="verifyTx('${tx.hash}',event)">View ↗</a>`
+      :`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="color:var(--accent3);">Wallet ↗</a>`;
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
-      `${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a> ${srcBadge}`;
-    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div>${!isSim?`<span class="tx-status ${statusClass}">${tx.confirmed?'confirmed':tx.failed?'failed':'pending'}</span>`:''}</div><div class="tx-amt ${cls==='out'||cls==='bridge'?'out':'in'}">${amt}</div></div>`;
+      `${new Date(tx.ts).toLocaleString()} · ${viewLink} ${srcBadge}`;
+    // Circle wallet txs (no 0x hash) are always confirmed — Arc settles in <1s
+    const displayStatus=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
+    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div>${!isSim?`<span class="tx-status ${displayStatus==='confirmed'?'confirmed':displayStatus==='failed'?'failed':'pending'}">${displayStatus}</span>`:''}</div><div class="tx-amt ${cls==='out'||cls==='bridge'?'out':'in'}">${amt}</div></div>`;
   }).join('');
 }
 
@@ -1624,7 +1749,7 @@ async function claimFaucet(){
   const btn=document.getElementById('faucetBtn');
   btn.innerHTML='<span class="spinner"></span>Claiming…';btn.disabled=true;
   try{
-    const res=await fetch('/api/faucet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:userAddr})});
+    const res=await fetch('https://nan-production.up.railway.app/api/faucet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:userAddr})});
     const data=await res.json();
     if(data.success){
       toast('💧 Tokens on the way! Check balance in ~30s','success',7000);
@@ -1857,13 +1982,22 @@ function clearBulkRecipients(){
 }
 
 // ── Payroll Groups ──
-function savePayrollGroup(){
+async function savePayrollGroup(){
   if(!bulkRecipients.length){ toast('Add recipients first','error'); return; }
   const name = prompt('Name this payroll group (e.g. Engineering Team, October Payroll):');
   if(!name) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
-  groups[name] = bulkRecipients.map(r=>({addr:r.addr,name:r.name,amount:r.amount}));
-  localStorage.setItem('nan_payroll_groups', JSON.stringify(groups));
+  const groupData = bulkRecipients.map(r=>({addr:r.addr,name:r.name,amount:r.amount}));
+  // Save locally always
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
+  groups[name] = groupData;
+  localStorage.setItem('nan_payroll_groups_'+(userAddr||''), JSON.stringify(groups));
+  // Also save to Railway server for cross-device access
+  try{
+    await fetch('https://nan-production.up.railway.app/api/orders?wallet='+(userAddr||''),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:userAddr,order:{type:'payroll_group',name,recipients:groupData,token:bulkToken,ts:Date.now(),synced:false}})
+    });
+  }catch(e){console.log('Payroll group sync error:',e.message);}
   renderPayrollGroups();
   toast('✓ Group "'+name+'" saved!','success',3000);
 }
@@ -1872,7 +2006,7 @@ function loadPayrollGroup(){
   const sel = document.getElementById('payrollGroupSelect');
   const name = sel.value;
   if(!name) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
   const group = groups[name];
   if(!group) return;
   bulkRecipients = group.map(r=>({...r, status:'pending'}));
@@ -1884,10 +2018,28 @@ function loadPayrollGroup(){
 function renderPayrollGroups(){
   const sel = document.getElementById('payrollGroupSelect');
   if(!sel) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
   const keys = Object.keys(groups);
   sel.innerHTML = '<option value="">— Select saved group —</option>'
     + keys.map(k=>`<option value="${k}">${k} (${groups[k].length} people)</option>`).join('');
+}
+
+function renderPayrollHistory(){
+  const el=document.getElementById('payrollHistory');
+  if(!el)return;
+  const hist=JSON.parse(localStorage.getItem('nan_payroll_history_'+(userAddr||''))||'[]');
+  if(!hist.length){
+    el.innerHTML='<div style="font-size:.75rem;color:var(--text3);text-align:center;padding:12px;">No payroll runs yet</div>';
+    return;
+  }
+  el.innerHTML=hist.map(h=>`
+    <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:.78rem;font-weight:600;color:var(--text);">${new Date(h.date).toLocaleDateString()} · ${new Date(h.date).toLocaleTimeString()}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent3);">${h.total} ${h.token}</span>
+      </div>
+      <div style="font-size:.68rem;color:var(--text3);">${h.sent} sent · ${h.failed} failed · ${h.recipients.length} recipients</div>
+    </div>`).join('');
 }
 
 function schedulePayroll(){
@@ -1980,6 +2132,13 @@ function downloadPayrollReceipt(){
 
 async function doBulkSend(){
   if(!bulkRecipients.length) return;
+
+  // Dry run confirmation
+  const total_amt = bulkRecipients.reduce((s,r)=>s+r.amount,0);
+  const preview = bulkRecipients.slice(0,3).map(r=>`  • ${r.name||r.addr.slice(0,10)}… — ${r.amount} ${bulkToken}`).join('\n');
+  const more = bulkRecipients.length>3?`\n  … and ${bulkRecipients.length-3} more`:'';
+  if(!confirm(`Run Payroll?\n\n${preview}${more}\n\nTotal: ${total_amt.toFixed(2)} ${bulkToken} to ${bulkRecipients.length} recipient${bulkRecipients.length!==1?'s':''}\n\nThis will send real tokens on Arc Testnet.`)) return;
+
   const btn = document.getElementById('bulkSendBtn');
   const progress = document.getElementById('bulkProgress');
   const progressTitle = document.getElementById('bulkProgressTitle');
@@ -1996,19 +2155,25 @@ async function doBulkSend(){
   const tokenAddr = bulkToken === 'USDC' ? USDC_ADDR : EURC_ADDR;
   const decimals = bulkToken === 'USDC' ? USDC_DECIMALS : EURC_DECIMALS;
 
-  for(let i = 0; i < bulkRecipients.length; i++){
-    const r = bulkRecipients[i];
-    progressTitle.textContent = `Sending ${i+1} of ${total}...`;
-    progressBar.style.width = (i/total*100) + '%';
-
+  // Render all status rows first
+  bulkRecipients.forEach((r, i) => {
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.72rem;';
     item.innerHTML = `<span style="color:var(--text3);font-family:'JetBrains Mono',monospace;">${r.name||r.addr.slice(0,12)}…</span><span id="bulk-status-${i}" style="color:var(--text3);">⏳</span>`;
     progressList.appendChild(item);
+  });
+  progressTitle.textContent = `Sending to ${total} recipients in parallel…`;
 
+  // Send in batches of 10 — avoids rate limits and nonce conflicts
+  const BATCH_SIZE = 10;
+  for(let batchStart = 0; batchStart < bulkRecipients.length; batchStart += BATCH_SIZE){
+    const batch = bulkRecipients.slice(batchStart, batchStart + BATCH_SIZE);
+    progressTitle.textContent = `Sending batch ${Math.floor(batchStart/BATCH_SIZE)+1} of ${Math.ceil(bulkRecipients.length/BATCH_SIZE)}…`;
+    await Promise.allSettled(batch.map(async (r, bi) => {
+      const i = batchStart + bi;
     try {
       if(isCircleWallet && circleWalletId){
-        const res = await fetch('/api/circle-wallets', {
+        const res = await fetch('https://nan-production.up.railway.app/api/circle-wallets', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             action: 'transfer',
@@ -2021,7 +2186,7 @@ async function doBulkSend(){
         });
         const data = await res.json();
         if(!data.success) throw new Error(data.error || 'Transfer failed');
-        addTx({hash:data.txHash||data.transactionId,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:!!data.txHash,source:'circle'});
+        addTx({hash:data.txHash||data.transactionId,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:true,source:'circle'});
       } else if(signer){
         const c = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
         const tx = await c.transfer(r.addr, ethers.parseUnits(r.amount.toFixed(decimals), decimals), arcGasOpts());
@@ -2034,16 +2199,20 @@ async function doBulkSend(){
       document.getElementById('bulk-status-'+i).textContent = '✓';
       document.getElementById('bulk-status-'+i).style.color = 'var(--success)';
       done++;
+      progressBar.style.width = (done/total*100)+'%';
     } catch(e) {
       r.status = 'failed';
-      document.getElementById('bulk-status-'+i).textContent = '✗';
+      document.getElementById('bulk-status-'+i).textContent = '✗ '+e.message.slice(0,30);
       document.getElementById('bulk-status-'+i).style.color = 'var(--danger)';
       console.error('Bulk send error for', r.addr, e.message);
     }
-
-    progressBar.style.width = ((i+1)/total*100) + '%';
-    await new Promise(res => setTimeout(res, 500));
-  }
+    }));
+    // Small delay between batches
+    if(batchStart + BATCH_SIZE < bulkRecipients.length){
+      progressTitle.textContent = 'Batch done — starting next batch…';
+      await new Promise(r=>setTimeout(r,1000));
+    }
+  } // end batch loop
 
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
@@ -2053,6 +2222,24 @@ async function doBulkSend(){
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
   lastPayrollTxs = [...bulkRecipients];
+
+  // Save payroll history
+  try{
+    const histKey='nan_payroll_history_'+(userAddr||'');
+    const hist=JSON.parse(localStorage.getItem(histKey)||'[]');
+    hist.unshift({
+      date:new Date().toISOString(),
+      total:bulkRecipients.reduce((s,r)=>s+(r.status==='done'?r.amount:0),0).toFixed(2),
+      token:bulkToken,
+      sent:done,
+      failed:total-done,
+      recipients:bulkRecipients.map(r=>({name:r.name||r.addr.slice(0,10),addr:r.addr,amount:r.amount,status:r.status}))
+    });
+    // Keep last 20 payroll runs
+    localStorage.setItem(histKey,JSON.stringify(hist.slice(0,20)));
+    renderPayrollHistory();
+  }catch(e){console.warn('Payroll history save error:',e.message);}
+
   bulkRecipients = bulkRecipients.filter(r => r.status !== 'done');
   setTimeout(() => {
     renderBulkRecipients();
@@ -2078,7 +2265,7 @@ async function saveOrders(){
     // Sync all pending orders to server
     for(const order of nanOrders){
       if(!order.synced){
-        await fetch('/api/orders?wallet='+userAddr,{
+        await fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({wallet:userAddr,order:{...order,email:otpEmail||null,synced:true}})
         });
@@ -2094,7 +2281,7 @@ async function loadOrders(){
   // Then sync from server
   if(!userAddr)return;
   try{
-    const res=await fetch('/api/orders?wallet='+userAddr);
+    const res=await fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr);
     const data=await res.json();
     if(data.orders&&data.orders.length){
       // Merge server orders with local
@@ -2284,7 +2471,7 @@ function cancelOrder(id){
     saveOrders();
     // Delete from server
     if(userAddr){
-      fetch('/api/orders?wallet='+userAddr,{
+      fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{
         method:'DELETE',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({wallet:userAddr,id})
       }).catch(()=>{});
@@ -2313,60 +2500,51 @@ let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything �
 let agentOpen=false;
 
 function toggleAgent(){
-  agentOpen=!agentOpen;
-  const panel=document.getElementById('agentPanel');
-  if(agentOpen){
-    panel.style.display='flex';
+  try{
+    agentOpen=!agentOpen;
+    const panel=document.getElementById('agentPanel');
+    console.log('[NAN AI] toggleAgent called, agentOpen='+agentOpen+', panel='+!!panel);
+    if(!panel){console.error('agentPanel not found!');return;}
+    panel.style.display=agentOpen?'flex':'none';
     panel.style.flexDirection='column';
-    requestAnimationFrame(()=>{ panel.style.transform='translate(-50%,0)'; });
-    renderAgentMsgs();renderAgentChips();scrollAgentBottom();
-  }else{
-    panel.style.transform='translate(-50%,100%)';
-    setTimeout(()=>{ panel.style.display='none'; },350);
-  }
+    panel.style.position='fixed';
+    panel.style.top='0';
+    panel.style.left='0';
+    panel.style.right='0';
+    panel.style.bottom='0';
+    panel.style.zIndex='999999999';
+    if(agentOpen){
+      try{renderAgentMsgs();}catch(e){console.error('renderAgentMsgs error:',e);}
+      try{renderAgentChips();}catch(e){console.error('renderAgentChips error:',e);}
+      try{scrollAgentBottom();}catch(e){}
+    }
+  }catch(e){console.error('toggleAgent error:',e);}
 }
 
-// Single reliable tap handler - no double-fire
-(function(){
-  function attachAI(){
-    // Fix floating AI button
-    const btn=document.getElementById('aiBtn');
-    if(btn){
-      btn.removeAttribute('onclick');
-      let lastTap=0;
-      function handleTap(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const now=Date.now();
-        if(now-lastTap<400) return;
-        lastTap=now;
-        toggleAgent();
-      }
-      btn.addEventListener('touchend',handleTap,{passive:false});
-      btn.addEventListener('click',handleTap,{passive:false});
-    }
-    // Fix More page NAN AI row
-    const moreBtn=document.getElementById('nanAiMoreBtn');
-    if(moreBtn){
-      let lastTap2=0;
-      function handleMoreTap(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const now=Date.now();
-        if(now-lastTap2<400) return;
-        lastTap2=now;
-        toggleAgent();
-      }
-      moreBtn.addEventListener('touchend',handleMoreTap,{passive:false});
-      moreBtn.addEventListener('click',handleMoreTap,{passive:false});
-    }
+// AI button listeners — single source of truth, no onclick in HTML
+function attachAIListeners(){
+  function addToggle(el){
+    if(!el||el._aiListenerAdded)return;
+    el._aiListenerAdded=true;
+    // Use click for desktop, touchend for mobile (prevents double-fire)
+    el.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAgent();
+    });
+    el.addEventListener('touchend',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAgent();
+    },{passive:false});
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',attachAI);
-  } else {
-    attachAI();
-  }
-})();
+  addToggle(document.getElementById('aiBtn'));
+  addToggle(document.getElementById('nanAiMoreBtn'));
+  addToggle(document.getElementById('agentCloseBtn'));
+}
+
+// Attach on load and also expose for after-connect call
+document.addEventListener('DOMContentLoaded', attachAIListeners);
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
@@ -2387,8 +2565,19 @@ function renderAgentMsgs(){
 }
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
-  const chips=["What's my balance?","Sell USDC when rate hits","Send 20 USDC on Friday","My pending orders","Cancel all orders","Swap USDC → EURC","Bridge via CCTP"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">${c}</button>`).join('');
+  // Context-aware chips based on current wallet state
+  const chips=[];
+  const usdc=parseFloat(usdcBal||0), eurc=parseFloat(eurcBal||0);
+  if(usdc>0) chips.push("What's my balance?");
+  if(usdc>1) chips.push("Swap USDC → EURC");
+  if(eurc>1) chips.push("Swap EURC → USDC");
+  if(usdc>5) chips.push("Supply USDC to earn");
+  if(usdc>0||eurc>0) chips.push("Send tokens");
+  chips.push("Bridge to Sepolia");
+  chips.push("My pending orders");
+  if(nanOrders.length>0) chips.push("Cancel all orders");
+  chips.push("How does earn work?");
+  document.getElementById('agentChips').innerHTML=chips.slice(0,6).map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -2402,7 +2591,12 @@ async function sendAgentMsg(text){
   agentMsgs.push({role:'assistant',content:'<span class="spinner" style="border-top-color:var(--accent3);"></span>'});
   renderAgentMsgs();scrollAgentBottom();
 
-  const context=`You are NAN AI ✦, a friendly DeFi assistant embedded in NAN Wallet — a stablecoin wallet built on Arc Testnet, Circle's new Layer-1 blockchain.
+  // Build rich context for AI
+  const lendPos=parseFloat(document.getElementById('lendSupplied')?.textContent||'0');
+  const borrowPos=parseFloat(document.getElementById('lendBorrowed')?.textContent||'0');
+  const myNames=arcNames.filter(n=>n.owner===userAddr).map(n=>n.name+'.arc').join(', ')||'none';
+  const pendingOrders=nanOrders.length;
+  const context=`You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
 
 LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddr||'Not connected'}
@@ -2470,14 +2664,19 @@ RULES:
 - ACTION block is invisible to user — never mention it`;
 
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetch('https://nan-production.up.railway.app/api/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        system:context,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
+        system:context+`\n- USDC Supplied: ${lendPos} USDC\n- USDC Borrowed: ${borrowPos} USDC\n- .arc Names: ${myNames}\n- Pending Orders: ${pendingOrders}`,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
         messages:agentMsgs.slice(0,-1).filter(m=>!m.content.includes('spinner')).map(m=>({role:m.role,content:m.content}))
       }),
     });
     const data=await res.json();
+    if(!res.ok || data.error){
+      agentMsgs[agentMsgs.length-1]={role:'assistant',content:`⚠️ ${data.error||'API error '+res.status}. Make sure GROQ_API_KEY is set in Vercel → Settings → Environment Variables.`};
+      renderAgentMsgs();scrollAgentBottom();
+      return;
+    }
     const reply=data.reply||"Sorry, couldn't reach the AI.";
     const actionMatch=reply.match(/<ACTION>([\s\S]*?)<\/ACTION>/);
     let action=null;
@@ -2486,8 +2685,9 @@ RULES:
     agentMsgs[agentMsgs.length-1]={role:'assistant',content:clean,action};
     // Speak the AI response
     speakResponse(clean);
-  }catch{
-    agentMsgs[agentMsgs.length-1]={role:'assistant',content:'Connection error — is the server running?'};
+  }catch(err){
+    console.error('Agent error:', err);
+    agentMsgs[agentMsgs.length-1]={role:'assistant',content:`⚠️ ${err.message||'Connection error'}. Check that GROQ_API_KEY is set in Vercel environment variables.`};
   }
   renderAgentMsgs();scrollAgentBottom();
 }
@@ -2523,7 +2723,7 @@ function executeAgentAction(action){
       const count=nanOrders.length;
       nanOrders=[];saveOrders();
       // Delete all from server
-      if(userAddr){fetch('/api/orders?wallet='+userAddr,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:userAddr,id:'all'})}).catch(()=>{});}
+      if(userAddr){fetch('https://nan-production.up.railway.app/api/orders?wallet='+userAddr,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:userAddr,id:'all'})}).catch(()=>{});}
       addAgentMsg(`🗑️ Cancelled all ${count} pending order${count!==1?'s':''}. Your queue is clear!`);
       break;}
     case 'list_orders':{
@@ -2592,15 +2792,21 @@ async function depositToGateway() {
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
   toast('Approving Gateway contract...','info');
   try {
-    const r = await fetch('/api/gateway-deposit', {
+    const r = await fetch('https://nan-production.up.railway.app/api/gateway-deposit', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ walletId: _wId, amount }),
+      body: JSON.stringify({ walletId: _wId, walletAddress: circleWalletAddress, amount }),
     });
     const data = await r.json();
     if (!data.success) return toast(data.error || 'Deposit failed','error');
-    toast(`✅ Depositing ${amount} USDC to Gateway — refreshing balance...`,'success');
-    setTimeout(() => refreshGatewayBalance(), 10000);
+    toast('✅ Deposit submitted! Gateway balance updates in up to 20 mins per Circle docs','success',8000);
+    // Poll gateway balance every 2 min for up to 20 min
+    let polls=0;
+    const gp=setInterval(async()=>{
+      polls++;
+      await refreshGatewayBalance();
+      if(polls>=10)clearInterval(gp);
+    },120000);
   } catch(err) {
     toast('Gateway deposit error: ' + err.message,'error');
   }
@@ -2612,7 +2818,7 @@ async function refreshGatewayBalance(){
   const chains=document.getElementById('gatewayChains');
   if(display) display.textContent='Loading...';
   try{
-    const res=await fetch('/api/gateway',{
+    const res=await fetch('https://nan-production.up.railway.app/api/gateway',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'getBalance',address:userAddr}),
     });
@@ -2651,9 +2857,29 @@ async function checkPoolLiquidity(){
     poolStats.usdcLiq=parseFloat(ethers.formatUnits(usdcLiq,6));
     poolStats.eurcLiq=parseFloat(ethers.formatUnits(eurcLiq,6));
     console.log('Pool liquidity — USDC:',poolStats.usdcLiq,'EURC:',poolStats.eurcLiq);
-    // Warn if pool is low
-    if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
-      console.warn('Pool liquidity low — swaps will simulate');
+
+    // Show liquidity info on swap page
+    const banner=document.getElementById('swapModeBanner');
+    if(banner){
+      if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
+        banner.style.display='block';
+        banner.style.background='rgba(248,113,113,.1)';
+        banner.style.border='1px solid rgba(248,113,113,.25)';
+        banner.style.borderRadius='12px';
+        banner.style.padding='10px 14px';
+        banner.style.color='#f87171';
+        banner.style.fontSize='.78rem';
+        banner.innerHTML=`⚠️ Pool liquidity is low (${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC). Swaps may fail. Add liquidity first.`;
+      } else {
+        banner.style.display='block';
+        banner.style.background='rgba(52,211,153,.06)';
+        banner.style.border='1px solid rgba(52,211,153,.15)';
+        banner.style.borderRadius='12px';
+        banner.style.padding='8px 14px';
+        banner.style.color='#34d399';
+        banner.style.fontSize='.72rem';
+        banner.innerHTML=`Pool: ${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC`;
+      }
     }
   }catch(e){console.log('Pool check error:',e.message);}
 }
@@ -2751,28 +2977,33 @@ async function doSupply(){
   btn.innerHTML='<span class="spinner"></span>Approving...';btn.disabled=true;
   try{
     const tokenAddr=lendAsset==='USDC'?USDC_ADDR:EURC_ADDR;
-    const amtAtomic=Math.floor(amt*1_000_000).toString();
+    // Both USDC and EURC use 6 decimals on Arc Testnet
+    const amtAtomic = Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Circle email wallet path
       btn.innerHTML='<span class="spinner"></span>Approving...';
-      const appRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
-          params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appData=await appRes.json();
-      if(!appData.success)throw new Error(appData.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting for approval...';
-      await waitForCircleTx(appData.transactionId, 'approve');
+      const supApprKey='nan_lend_approved_'+circleWalletId+'_'+lendAsset;
+      if(!sessionStorage.getItem(supApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+            contractAddress:tokenAddr,functionSignature:'approve(address,uint256)',
+            params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(supApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
-      const supRes=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const supRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:LENDING_CONTRACT,functionSignature:'supply(uint256)',
           params:[amtAtomic]})});
       const supData=await supRes.json();
       if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
-      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
+      toast('✓ Supply submitted!','success',4000);
+      // Arc confirms in <1s — refresh balance after short delay
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
-      addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:!!supData.txHash&&!supData.pending,source:'lending'});
+      setTimeout(()=>resolveCircleTxHash(supplyHash),2000);
+      addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       if(supData.pending&&supData.transactionId){
         pollTxStatus(supData.transactionId,'',async()=>{
           txHistory[0].confirmed=true;saveTxHistory();
@@ -2789,11 +3020,11 @@ async function doSupply(){
       if(lendAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
         const approveTx=await tokenContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
       const tx=await lendContract.supply(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+'! Adding as collateral…','info',4000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Supply',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       
@@ -2876,22 +3107,21 @@ async function doBorrow(){
 
     if(isCircleWallet&&circleWalletId){
       if(btn)btn.innerHTML='<span class="spinner"></span>Borrowing on Arc…';
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
-      toast('✓ Borrow submitted — confirming on Arc…','info',4000);
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'borrow');}
-      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
-      setTimeout(()=>{refreshBalances();refreshLendPosition();},6000);
+      toast('✓ Borrow submitted!','success',4000);
+      setTimeout(()=>resolveCircleTxHash(d.txHash||d.transactionId),2000);
+      addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();refreshLendPosition();}},0);
 
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       toast('Confirming borrow…','info',3000);
       const tx=await lendContract.borrow(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();
@@ -2927,18 +3157,20 @@ async function doRepay(){
     const amtAtomic=Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       // Approve first
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appD=await appR.json();
-      if(!appD.success)throw new Error(appD.error||'Approve failed');
-      btn.innerHTML='<span class="spinner"></span>Waiting…';
-      await waitForCircleTx(appD.transactionId,'approve');
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const repApprKey='nan_repay_approved_'+circleWalletId;
+      if(!sessionStorage.getItem(repApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[LENDING_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(repApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'repay(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Repay failed');
-      toast('✓ Repaid '+amt.toFixed(2)+' USDC on-chain!','success',5000);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      toast('✓ Repay submitted!','success',4000);
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
       const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
@@ -2947,10 +3179,10 @@ async function doRepay(){
       const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
       if(repayAllowance<amtParsed){
         const appTx=await usdc.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
+        await appTx.wait(0);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Repaid '+amt.toFixed(2)+' USDC on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();await refreshLendPosition();
@@ -2969,17 +3201,18 @@ async function doWithdraw(){
   try{
     const amtAtomic=Math.floor(amt*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'withdraw(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Withdraw failed');
-      toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on-chain!','success',5000);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      toast('✓ Withdraw submitted!','success',4000);
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
       const tx=await lendContract.withdraw(ethers.parseUnits(amt.toFixed(6),6),arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on Arc!','success',5000);
       addTx({hash:tx.hash,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       await refreshBalances();await refreshLendPosition();
@@ -3049,18 +3282,20 @@ async function registerArcName(){
     const feeAtomic=Math.floor(arcNameFeeUsdc*1_000_000).toString();
     if(isCircleWallet&&circleWalletId){
       if(btn)btn.innerHTML='<span class="spinner"></span>Approving USDC…';
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const appR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:USDC_ADDR,functionSignature:'approve(address,uint256)',params:[NAME_REGISTRY,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
       const appD=await appR.json();
       if(!appD.success)throw new Error(appD.error||'Approve failed');
-      if(btn)btn.innerHTML='<span class="spinner"></span>Waiting for approval…';
-      await waitForCircleTx(appD.transactionId,'approve');
+      sessionStorage.setItem('nan_name_approving_'+circleWalletId,'1');
+      // Don't wait — Arc confirms in <1s, proceed immediately
+      await new Promise(r=>setTimeout(r,2000));
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc…';
-      const regR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const regR=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:NAME_REGISTRY,functionSignature:'register(string,uint8)',params:[name,arcNameDurationYears]})});
       const regD=await regR.json();
       if(!regD.success)throw new Error(regD.error||'Registration failed');
       toast('✓ '+name+'.arc registered on Arc! 🎉','success',7000);
+      setTimeout(()=>resolveCircleTxHash(regD.txHash||regD.transactionId),2000);
       addTx({hash:regD.txHash||regD.transactionId,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!regD.txHash,source:'arcname'});
       await refreshBalances();await refreshArcNames();
     }else if(signer){
@@ -3071,11 +3306,11 @@ async function registerArcName(){
       if(nameAllowance<fee){
         if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
         const approveTx=await usdcContract.approve(NAME_REGISTRY,ethers.MaxUint256,arcGasOpts());
-        await approveTx.wait(1);
+        await approveTx.wait(0);
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
       const tx=await nameContract.register(name,arcNameDurationYears,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ '+name+'.arc registered on Arc Testnet! 🎉','success',7000);
       addTx({hash:tx.hash,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'arcname'});
       await refreshBalances();await refreshArcNames();
@@ -3144,13 +3379,73 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // CIRCLE TX POLL HELPER
 // ═══════════════════════════════════════════
-async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
+// Poll Circle API until tx is COMPLETE and we have the real txHash
+// Then update history entry with real hash so View link works on arcscan
+// Verify tx exists on Arc RPC before opening arcscan
+// Arcscan indexing can lag — RPC is always accurate
+async function verifyTx(hash, event) {
+  try {
+    event.preventDefault();
+    const rpc = 'https://rpc.testnet.arc.network';
+    const r = await fetch(rpc, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0',method:'eth_getTransactionReceipt',params:[hash],id:1})
+    });
+    const data = await r.json();
+    if(data.result && data.result.transactionHash) {
+      // Tx confirmed on RPC — open arcscan
+      window.open(ARC_EXP+'/tx/'+hash, '_blank');
+    } else {
+      // Not yet indexed on RPC either — show message
+      toast('Transaction is confirming on Arc — try again in a few seconds','info',4000);
+    }
+  } catch(e) {
+    // RPC error — just open arcscan anyway
+    window.open(ARC_EXP+'/tx/'+hash, '_blank');
+  }
+}
+
+async function resolveCircleTxHash(circleId) {
+  if(!circleId||circleId.startsWith('0x')||circleId==='pending'||circleId==='ok') return;
+  const MAX_ATTEMPTS=15; // poll up to 15 times
+  const INTERVAL=4000;   // every 4 seconds = up to 60s total
+  for(let i=0;i<MAX_ATTEMPTS;i++){
+    await new Promise(r=>setTimeout(r,INTERVAL));
+    try{
+      const res=await fetch('https://nan-production.up.railway.app/api/transaction/'+circleId);
+      if(!res.ok) continue;
+      const data=await res.json();
+      const txHash=data.txHash;
+      const state=data.state;
+      // Once COMPLETE with a real hash, update history
+      if((state==='COMPLETE'||state==='CONFIRMED')&&txHash&&txHash.startsWith('0x')&&txHash.length===66){
+        const idx=txHistory.findIndex(t=>t.hash===circleId);
+        if(idx>=0){
+          txHistory[idx].hash=txHash;
+          txHistory[idx].confirmed=true;
+          saveTxHistory();
+          if(document.getElementById('page-history')?.classList.contains('active')||
+             document.querySelector('#page-history.show')){
+            renderHistory();
+          }
+        }
+        return; // done
+      }
+      if(state==='FAILED'||state==='CANCELLED'||state==='DENIED') return;
+    }catch(e){/* continue polling */}
+  }
+}
+
+async function waitForCircleTx(txId, label='tx', timeoutMs=90000) {
   if(!txId) return true;
   const start = Date.now();
+  let interval = 2000;
   while (Date.now() - start < timeoutMs) {
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, interval));
+    interval = Math.min(interval * 1.3, 8000);
     try {
-      const res = await fetch('/api/transaction/' + txId);
+      const res = await fetch('https://nan-production.up.railway.app/api/transaction/' + txId);
+      if (!res.ok) continue;
       const data = await res.json();
       const state = data.state || data.status || '';
       if (state === 'CONFIRMED' || state === 'COMPLETE') return true;
@@ -3160,7 +3455,7 @@ async function waitForCircleTx(txId, label='tx', timeoutMs=55000) {
       if (e.message.includes('failed:')) throw e;
     }
   }
-  throw new Error(label + ' timed out');
+  throw new Error(label + ' timed out after ' + (timeoutMs/1000) + 's');
 }
 
 // ═══════════════════════════════════════════
@@ -3263,7 +3558,7 @@ let currentPRExpiry=0;
 let activePRId=null;
 
 function loadPaymentRequests(){
-  try{paymentRequests=JSON.parse(localStorage.getItem('nan_payreqs')||'[]');}catch{paymentRequests=[];}
+  try{paymentRequests=JSON.parse(localStorage.getItem('nan_payreqs_'+(userAddr||''))||'[]');}catch{paymentRequests=[];}
   checkPendingPaymentRequests();
 }
 async function checkPendingPaymentRequests(){
@@ -3285,7 +3580,7 @@ async function checkPendingPaymentRequests(){
   renderPaymentRequests();
 }
 function savePaymentRequests(){
-  localStorage.setItem('nan_payreqs',JSON.stringify(paymentRequests));
+  localStorage.setItem('nan_payreqs_'+(userAddr||''),JSON.stringify(paymentRequests));
 }
 function genPRId(){
   return 'pr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -3347,40 +3642,61 @@ async function createPaymentRequest(){
   btn.innerHTML='<span class="spinner"></span>Creating on-chain…';btn.disabled=true;
   try{
     const tokenAddr=currentPRToken==='USDC'?USDC_ADDR:EURC_ADDR;
-    const amtAtomic=amt?ethers.parseUnits(amt.toFixed(6),6):0n;
+    const amtAtomic=amt&&amt>0?ethers.parseUnits(amt.toFixed(6),6):BigInt(0);
     const expiresAt=currentPRExpiry>0?Math.floor(Date.now()/1000)+currentPRExpiry*3600:0;
     let onChainId=null;
     if(isCircleWallet&&circleWalletId){
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      // Generate link immediately — don't wait for Circle API or chain confirmation
+      onChainId='circ_'+Date.now();
+      // Submit to chain in background
+      fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:PAYREQ_CONTRACT,
           functionSignature:'createRequest(address,uint256,string,string,uint256)',
-          params:[tokenAddr,amtAtomic.toString(),label,note||'',expiresAt.toString()]})});
-      const d=await r.json();
-      if(!d.success)throw new Error(d.error||'Create failed');
-      await waitForCircleTx(d.transactionId,'createRequest');
-      // Read ID from chain
-      const readProvider=getArcProvider();
-      const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,readProvider);
-      const ids=await c.getCreatorRequests(userAddr);
-      onChainId=ids[ids.length-1].toString();
+          params:[tokenAddr,amtAtomic.toString(),label,note||'',String(expiresAt)]})})
+      .then(async r=>{
+        const d=await r.json();
+        if(!d.success){console.warn('PR create failed:',d.error);return;}
+        // After 5s get real on-chain ID and update
+        await new Promise(r=>setTimeout(r,5000));
+        try{
+          const rp=getArcProvider();
+          const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,rp);
+          const ids=await c.getCreatorRequests(circleWalletAddress||userAddr);
+          if(ids.length>0){
+            const realId=ids[ids.length-1].toString();
+            const idx=paymentRequests.findIndex(p=>p.onChainId===onChainId);
+            if(idx>=0){paymentRequests[idx].onChainId=realId;savePaymentRequests();}
+          }
+        }catch(e){console.warn('PR ID update:',e.message);}
+      })
+      .catch(e=>console.warn('PR submit error:',e.message));
     }else if(signer){
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.createRequest(tokenAddr,amtAtomic,label,note||'',expiresAt,arcGasOpts());
+      // wait(1) ensures logs are available — Arc sub-second so still fast
       const receipt=await tx.wait(1);
-      const event=receipt.logs.find(l=>l.fragment?.name==='RequestCreated');
+      const event=receipt?.logs?.find(l=>l.fragment?.name==='RequestCreated');
       onChainId=event?.args?.id?.toString();
+      // Fallback: read ID from chain if event not parsed
+      if(!onChainId){
+        await new Promise(r=>setTimeout(r,1000));
+        const ids=await c.getCreatorRequests(userAddr);
+        onChainId=ids.length>0?ids[ids.length-1].toString():'0';
+      }
     }else{throw new Error('No wallet connected');}
     // Store locally with on-chain ID as reference
-    const pr={id:'onchain_'+onChainId,onChainId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
+    const safeId=onChainId||('local_'+Date.now());
+    const pr={id:'onchain_'+safeId,onChainId:safeId,to:userAddr,token:currentPRToken,amount:amt,label,note,creatorEmail:email,expiresAt:currentPRExpiry>0?Date.now()+currentPRExpiry*3600000:null,status:'pending',createdAt:Date.now()};
     paymentRequests.unshift(pr);
     savePaymentRequests();
     const link=buildPRLink(pr);
     navigator.clipboard.writeText(link).catch(()=>{});
-    toast('✓ Created on-chain! Link copied — share it to get paid','success',4000);
-    viewPaymentRequest(pr.id);
+    toast('✓ Created! Link copied — share it to get paid','success',4000);
+    try{viewPaymentRequest(pr.id);}catch(e){console.warn('viewPR err:',e.message);}
   }catch(err){
-    toast('Create failed: '+err.message.slice(0,100),'error',5000);
+    console.error('[createPaymentRequest] error:', err);
+    toast('Create failed: '+err.message.slice(0,150),'error',7000);
     btn.innerHTML='Create & Share Link';btn.disabled=false;
   }
 }
@@ -3420,7 +3736,7 @@ function renderPaymentRequests(){
   if(el2)el2.textContent=paid;
   if(el3)el3.textContent=pending;
   if(!paymentRequests.length){
-    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
     return;
   }
   list.innerHTML=paymentRequests.map(pr=>{
@@ -3474,14 +3790,16 @@ async function doPayNow(){
     const amtParsed=ethers.parseUnits(amt.toFixed(decimals),decimals);
     const amtAtomic=amtParsed.toString();
     if(isCircleWallet&&circleWalletId){
-      const appR=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
-          functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})});
-      const appD=await appR.json();
-      if(!appD.success)throw new Error(appD.error||'Approve failed');
+      const payApprKey='nan_pay_approved_'+circleWalletId+'_'+token;
+      if(!sessionStorage.getItem(payApprKey)){
+        fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:tokenAddr,
+            functionSignature:'approve(address,uint256)',params:[PAYREQ_CONTRACT,'115792089237316195423570985008687907853269984665640564039457584007913129639935']})})
+          .then(()=>sessionStorage.setItem(payApprKey,'1')).catch(()=>{});
+        await new Promise(r=>setTimeout(r,2000));
+      }
       btn.innerHTML='<span class="spinner"></span>Paying…';
-      await waitForCircleTx(appD.transactionId,'approve');
-      const r=await fetch('/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
+      const r=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:PAYREQ_CONTRACT,
           functionSignature:'pay(uint256,uint256)',params:[prId,amtAtomic]})});
       const d=await r.json();
@@ -3493,12 +3811,12 @@ async function doPayNow(){
       if(payAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
         const appTx=await tokenContract.approve(PAYREQ_CONTRACT,ethers.MaxUint256,arcGasOpts());
-        await appTx.wait(1);
+        await appTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
       const tx=await c.pay(prId,amtParsed,arcGasOpts());
-      await tx.wait(1);
+      await tx.wait(0);
       toast('✓ Payment confirmed on-chain!','success',5000);
     }else{throw new Error('No wallet connected');}
     addTx({hash:'onchain',to,toRaw:'Payment Request #'+prId,amount:amt.toFixed(6),type:'out',token,ts:Date.now(),confirmed:true,source:'payreq'});
@@ -3512,7 +3830,7 @@ async function doPayNow(){
 async function sendPaymentNotification(pr){
   if(!pr.creatorEmail)return;
   try{
-    await fetch('/api/notify',{
+    await fetch('https://nan-production.up.railway.app/api/notify',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         email:pr.creatorEmail,
@@ -3595,68 +3913,245 @@ function checkAdminPw(){
 async function loadAdminStats(){
   if(!_adminUnlocked)return;
   const loading=document.getElementById('adminLoading');
+  const statsEl=document.getElementById('adminStats');
   loading.style.display='block';
-  loading.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;color:var(--text3);animation:pulse 1.5s infinite;">Loading on-chain data…</div>';
-  document.getElementById('adminStats').style.display='none';
+  statsEl.style.display='none';
+
+  function setMsg(msg){
+    loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#888;text-align:center;padding:20px;line-height:2;">${msg}</div>`;
+  }
+
+  // Try server-side analytics first (fast)
+  try{
+    setMsg('Loading NAN analytics…');
+    const res=await fetch('/api/analytics');
+    if(res.ok){
+      const d=await res.json();
+      if(!d.error&&d.wallets!==undefined){
+        document.getElementById('statBlock').textContent=(d.block||0).toLocaleString();
+        document.getElementById('statSupply').textContent=parseInt(d.usdcSupply||0).toLocaleString('en')+' USDC';
+        document.getElementById('statWallets').textContent=(d.wallets||0).toLocaleString();
+        document.getElementById('statTxns').textContent=(d.transactions||0).toLocaleString();
+        document.getElementById('statSwaps').textContent=(d.swaps||0).toLocaleString();
+        document.getElementById('statBridges').textContent=(d.bridges||0).toLocaleString();
+        document.getElementById('statLends').textContent=(d.lends||0).toLocaleString();
+        const ne=document.getElementById('statNames');if(ne)ne.textContent=(d.arcNames||0).toLocaleString();
+        const pe=document.getElementById('statPayreqs');if(pe)pe.textContent=(d.payRequests||0).toLocaleString();
+        const recEl=document.getElementById('statRecentWallets');
+        const wallets=d.recentWallets||[];
+        recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+        document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
+        loading.style.display='none';
+        statsEl.style.display='block';
+        loadAdminPoolStats();
+        return;
+      }
+    }
+  }catch(e){ console.warn('Server analytics failed, falling back to RPC scan:', e.message); }
+
+  // Fallback: browser RPC scan
+  setMsg('Server unavailable — scanning blockchain…');
   const RPC='https://rpc.testnet.arc.network';
-  const USDC='0x3600000000000000000000000000000000000000';
-  const EURC='0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
-  const SWAP='0x5cE359b74BE53b1B370641571cBef157dD575c79';
-  const LEND='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
-  const HIST='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
-  const NAME='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
+  const SWAP  ='0x5cE359b74BE53b1B370641571cBef157dD575c79';
+  const LEND  ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
+  const NAME  ='0x043D072B12CBe488DBA3d2975c42Db3055F2836f';
   const PAYREQ='0x1940232f42D4e2083785bC869FbAD8dd43133817';
+  const HIST  ='0xC64Fad1CFFDE16167d5887211066b47E1df48B4d';
+  const USDC  ='0x3600000000000000000000000000000000000000';
   const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const zero='0x0000000000000000000000000000000000000000';
-  const contracts=new Set([USDC,EURC,SWAP,LEND,HIST,NAME,PAYREQ].map(x=>x.toLowerCase()));
+  const ZERO='0x0000000000000000000000000000000000000000';
+  const nanC=new Set([SWAP,LEND,NAME,PAYREQ,HIST,USDC].map(x=>x.toLowerCase()));
   let _id=0;
-  async function rpc(method,params=[]){
-    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:++_id})});
-    if(!r.ok)throw new Error('RPC HTTP '+r.status);
+
+  async function rpc(m,p=[]){
+    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:m,params:p,id:++_id})});
+    if(!r.ok)throw new Error('RPC '+r.status);
     const d=await r.json();
-    if(d.error)throw new Error(d.error.message||'RPC error');
+    if(d.error)throw new Error(d.error.message);
     return d.result;
   }
-  async function getLogs(f){try{return await rpc('eth_getLogs',[f]);}catch{return [];}}
+
+  // Single request per contract — no loop
+  async function oneLogs(addr, topics, from, to){
+    const f={fromBlock:'0x'+from.toString(16),toBlock:'0x'+to.toString(16),address:addr};
+    if(topics)f.topics=topics;
+    try{const r=await rpc('eth_getLogs',[f]);return Array.isArray(r)?r:[];}
+    catch(e){return [];}
+  }
+
   try{
-    const blockHex=await rpc('eth_blockNumber');
-    document.getElementById('statBlock').textContent=parseInt(blockHex,16).toLocaleString();
-    const supHex=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
-    document.getElementById('statSupply').textContent=(parseInt(supHex,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
-    const [uL,eL,sL,lL,nL,pL]=await Promise.all([
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:USDC,topics:[TRANSFER]}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:EURC,topics:[TRANSFER]}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:SWAP}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:LEND}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:NAME}),
-      getLogs({fromBlock:'0x0',toBlock:'latest',address:PAYREQ}),
-    ]);
-    const all=[...uL,...eL];
+    setMsg('Connecting…');
+    const bh=await rpc('eth_blockNumber');
+    const latest=parseInt(bh,16);
+    document.getElementById('statBlock').textContent=latest.toLocaleString();
+
+    const sh=await rpc('eth_call',[{to:USDC,data:'0x18160ddd'},'latest']);
+    document.getElementById('statSupply').textContent=(parseInt(sh,16)/1e6).toLocaleString('en',{maximumFractionDigits:0})+' USDC';
+
+    // Find what chunk size RPC accepts by testing
+    setMsg('Finding optimal chunk size…');
+    let CHUNK=500000;
+    for(const sz of [500000,200000,100000,50000,20000,10000,5000]){
+      try{
+        await rpc('eth_getLogs',[{fromBlock:'0x0',toBlock:'0x'+sz.toString(16),address:HIST}]);
+        CHUNK=sz;
+        break;
+      }catch(e){continue;}
+    }
+    setMsg(`Using ${CHUNK.toLocaleString()} block chunks…`);
+
+    // Scan in chunks — show progress
+    async function scanContract(addr, topics, label){
+      const logs=[];
+      const chunks=Math.ceil(latest/CHUNK);
+      for(let i=0;i<chunks;i++){
+        const from=i*CHUNK, to=Math.min(from+CHUNK-1,latest);
+        const r=await oneLogs(addr,topics,from,to);
+        logs.push(...r);
+        setMsg(`${label}<br/>${logs.length} events · ${Math.round(((i+1)/chunks)*100)}%`);
+        await new Promise(r=>setTimeout(r,0));
+      }
+      return logs;
+    }
+
+    const hL=await scanContract(HIST,null,'📋 NAN History');
+    const sL=await scanContract(SWAP,null,'🔄 Swaps');
+    const lL=await scanContract(LEND,null,'💰 Lend');
+    const nL=await scanContract(NAME,null,'🏷 .arc Names');
+    const pL=await scanContract(PAYREQ,null,'📨 Pay Requests');
+    const uL=await scanContract(USDC,[TRANSFER],'💸 USDC Transfers');
+
+    setMsg('Processing…');
     const wallets=new Set();
-    const recent=new Map();
-    let bridges=0;
-    all.forEach(log=>{
-      if(log.topics&&log.topics.length>=3){
-        const f='0x'+log.topics[1].slice(-40),t='0x'+log.topics[2].slice(-40);
-        [f,t].forEach(w=>{const wl=w.toLowerCase();if(wl!==zero&&!contracts.has(wl))wallets.add(wl);});
-        if(t.toLowerCase()===zero)bridges++;
-        const fl=f.toLowerCase();
-        if(fl!==zero&&!contracts.has(fl)){const bn=parseInt(log.blockNumber,16);if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);}
+    [...hL,...sL,...lL,...nL,...pL].forEach(log=>{
+      if(log.topics&&log.topics.length>=2){
+        const a='0x'+log.topics[1].slice(-40),al=a.toLowerCase();
+        if(al!==ZERO&&!nanC.has(al))wallets.add(al);
       }
     });
+
+    let bridges=0;
+    const recent=new Map();
+    uL.forEach(log=>{
+      if(!log.topics||log.topics.length<3)return;
+      const f='0x'+log.topics[1].slice(-40),t='0x'+log.topics[2].slice(-40);
+      if(t.toLowerCase()===ZERO)bridges++;
+      const fl=f.toLowerCase();
+      if(fl!==ZERO&&!nanC.has(fl)){const bn=parseInt(log.blockNumber,16);if(!recent.has(fl)||recent.get(fl)<bn)recent.set(fl,bn);}
+    });
+
     document.getElementById('statWallets').textContent=wallets.size.toLocaleString();
-    document.getElementById('statTxns').textContent=all.length.toLocaleString();
+    document.getElementById('statTxns').textContent=hL.length.toLocaleString();
     document.getElementById('statSwaps').textContent=sL.length.toLocaleString();
     document.getElementById('statBridges').textContent=bridges.toLocaleString();
     document.getElementById('statLends').textContent=lL.length.toLocaleString();
+    const ne=document.getElementById('statNames');if(ne)ne.textContent=nL.length.toLocaleString();
+    const pe=document.getElementById('statPayreqs');if(pe)pe.textContent=pL.length.toLocaleString();
+
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
-    recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:var(--text3);">No activity yet</div>':
-      top.map(([addr,bn])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(139,92,246,.1);border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px #34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);">${addr.slice(0,8)}…${addr.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${addr}" target="_blank" style="font-size:.6rem;color:var(--accent3);text-decoration:none;">View ↗</a></div>`).join('');
-    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString();
+    recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
+      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+
+    document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
-    document.getElementById('adminStats').style.display='block';
+    statsEl.style.display='block';
+    loadAdminPoolStats();
+
   }catch(err){
-    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:var(--text3);margin-bottom:14px;">Must be on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:var(--accent3);padding:8px 16px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;">↻ Retry</button></div>`;
+    console.error('Admin error:',err);
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
+  }
+}
+
+async function loadAdminPoolStats(){
+  try{
+    const readProvider=getArcProvider();
+
+    // NANSwap pool
+    const swapRead=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,readProvider);
+    const [usdcLiq,eurcLiq]=await swapRead.getLiquidity();
+    const u=parseFloat(ethers.formatUnits(usdcLiq,6));
+    const e=parseFloat(ethers.formatUnits(eurcLiq,6));
+    const uEl=document.getElementById('adminPoolUSDC');
+    const eEl=document.getElementById('adminPoolEURC');
+    if(uEl) uEl.textContent=u.toFixed(2)+' USDC';
+    if(eEl) eEl.textContent=e.toFixed(2)+' EURC';
+    const statusEl=document.getElementById('adminSeedStatus');
+    if(statusEl){
+      if(u<10||e<10){
+        statusEl.innerHTML='<span style="color:#f87171;">⚠️ Swap pool low — MetaMask swaps may fail. Tap Seed Pool.</span>';
+      } else {
+        statusEl.innerHTML='<span style="color:#34d399;">✓ Swap pool healthy.</span>';
+      }
+    }
+
+    // NANLendingPool
+    const lendRead=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,readProvider);
+    const [totalSup,totalBor]=await Promise.all([
+      lendRead.totalSupplied(),
+      lendRead.totalBorrowed(),
+    ]);
+    const ts=parseFloat(ethers.formatUnits(totalSup,6));
+    const tb=parseFloat(ethers.formatUnits(totalBor,6));
+    const avail=Math.max(0,ts-tb);
+    const lendEl=document.getElementById('adminLendStats');
+    if(lendEl){
+      const util=ts>0?((tb/ts)*100).toFixed(1):0;
+      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#34d399';
+      lendEl.innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
+          <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL SUPPLIED</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#34d399;">${ts.toFixed(2)}</div>
+          </div>
+          <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL BORROWED</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#fbbf24;">${tb.toFixed(2)}</div>
+          </div>
+          <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:10px;">
+            <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">AVAILABLE</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:${color};">${avail.toFixed(2)}</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:.72rem;color:var(--text3);">Utilization: ${util}% · ${avail<10?'⚠️ Low — supply USDC to enable borrows':'✓ Healthy'}</div>`;
+    }
+  }catch(e){console.warn('Pool stats error:',e.message);}
+}
+
+async function adminSeedPool(){
+  if(!signer){toast('Connect MetaMask first to seed pool','error',4000);return;}
+  if(!onArcNetwork){toast('Switch to Arc Testnet first','error',4000);return;}
+  const btn=document.getElementById('adminSeedBtn');
+  const statusEl=document.getElementById('adminSeedStatus');
+  btn.disabled=true;btn.textContent='Seeding…';
+  try{
+    const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
+    const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
+    const swapC=new ethers.Contract(SWAP_CONTRACT,SWAP_ABI,signer);
+    const [uBal,eBal]=await Promise.all([usdcC.balanceOf(userAddr),eurcC.balanceOf(userAddr)]);
+    const u=parseFloat(ethers.formatUnits(uBal,6));
+    const e=parseFloat(ethers.formatUnits(eBal,6));
+    if(u<1||e<1){toast('Need at least 1 USDC and 1 EURC to seed pool','error',5000);btn.disabled=false;btn.textContent='Seed Pool';return;}
+    // Seed with up to 500 of each, or full balance if less
+    const seedAmt=Math.min(500, u*0.9, e*0.9);
+    const seedU=ethers.parseUnits(seedAmt.toFixed(6),6);
+    const seedE=ethers.parseUnits(seedAmt.toFixed(6),6);
+    statusEl.innerHTML='<span style="color:#a78bfa;">Approving tokens…</span>';
+    const [appU,appE]=await Promise.all([
+      usdcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
+      eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
+    ]);
+    await Promise.all([appU.wait(0),appE.wait(0)]);
+    statusEl.innerHTML='<span style="color:#a78bfa;">Adding liquidity…</span>';
+    const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
+    await liqTx.wait(1);
+    toast('✓ Pool seeded with '+seedAmt.toFixed(2)+' USDC + '+seedAmt.toFixed(2)+' EURC','success',6000);
+    await loadAdminPoolStats();
+  }catch(err){
+    toast('Seed failed: '+err.message.slice(0,100),'error',6000);
+  }finally{
+    btn.disabled=false;btn.textContent='Seed Pool';
   }
 }
