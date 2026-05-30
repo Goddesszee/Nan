@@ -3897,7 +3897,7 @@ async function loadAdminStats(){
   // Try server-side analytics first (fast)
   try{
     setMsg('Loading NAN analytics…');
-    const res=await fetch('/api/analytics');
+    const res=await fetch('https://nan-production.up.railway.app/api/analytics');
     if(res.ok){
       const d=await res.json();
       if(!d.error&&d.wallets!==undefined){
