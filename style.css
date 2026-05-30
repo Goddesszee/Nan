@@ -906,8 +906,94 @@ a:hover{color:var(--text);}
 /* ══ WIDE DESKTOP (1200px+) ══ */
 @media(min-width:1200px){
   #desktopNav{width:240px;}
-  .page{left:240px !important;}
-  .page > *{max-width:600px !important;}
   .home-bal-num{font-size:3rem;}
-  #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
 }
+
+/* ── Desktop Right Panel ── */
+@media(min-width:900px){
+  #desktopRightPanel{
+    display:flex !important;
+    flex-direction:column;
+    position:fixed;top:0;right:0;
+    width:260px;height:100vh;
+    background:#0d0d0d;
+    border-left:1px solid #1e1e1e;
+    padding:20px 16px;
+    z-index:99;overflow-y:auto;
+    scrollbar-width:none;
+  }
+  #desktopRightPanel::-webkit-scrollbar{display:none;}
+  .page{right:260px !important;}
+  #agentPanel{right:260px !important;}
+  #toast{left:calc(220px + (100vw - 220px - 260px) / 2) !important;}
+
+  /* Right panel components */
+  .rp-section{margin-bottom:20px;}
+  .rp-title{font-size:.7rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:10px;}
+  .rp-net-badge{display:flex;align-items:center;gap:7px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:10px;padding:9px 12px;margin-bottom:16px;}
+  .rp-net-dot{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;animation:pulse 2s infinite;flex-shrink:0;}
+  .rp-net-label{font-size:.75rem;color:#34d399;font-weight:500;}
+  .rp-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px;margin-bottom:8px;}
+  .rp-stat-label{font-size:.65rem;color:rgba(255,255,255,.35);margin-bottom:4px;letter-spacing:.04em;}
+  .rp-stat-value{font-size:.9rem;font-weight:600;color:#ffffff;}
+  .rp-stat-sub{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:2px;}
+  .rp-tx{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .rp-tx:last-child{border-bottom:none;}
+  .rp-tx-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .rp-tx-icon.send{background:rgba(248,113,113,.1);}
+  .rp-tx-icon.receive{background:rgba(52,211,153,.1);}
+  .rp-tx-icon.swap{background:rgba(139,92,246,.1);}
+  .rp-tx-icon.bridge{background:rgba(96,165,250,.1);}
+  .rp-tx-info{flex:1;min-width:0;}
+  .rp-tx-name{font-size:.75rem;color:rgba(255,255,255,.8);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rp-tx-time{font-size:.65rem;color:rgba(255,255,255,.3);}
+  .rp-tx-amt{font-size:.75rem;font-weight:600;white-space:nowrap;}
+  .rp-tx-amt.neg{color:#f87171;}
+  .rp-tx-amt.pos{color:#34d399;}
+}
+
+@media(min-width:1200px){
+  #desktopNav{width:240px;}
+  .page{left:240px !important;right:260px !important;}
+  .page > *{max-width:560px !important;}
+  #toast{left:calc(240px + (100vw - 240px - 260px) / 2) !important;}
+  #desktopRightPanel{display:flex !important;}
+}
+
+/* ── Improved home balance card on desktop ── */
+@media(min-width:769px){
+  .home-bal-card{
+    background:linear-gradient(145deg,#1a1040 0%,#130f35 60%,#0d0b24 100%) !important;
+    border:1px solid rgba(139,92,246,.2) !important;
+    box-shadow:0 4px 24px rgba(124,58,237,.15) !important;
+  }
+  .home-bal-num{font-size:2.6rem !important;font-weight:700 !important;}
+  .home-actions-top{
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+    gap:10px !important;
+  }
+  .home-action{
+    background:rgba(255,255,255,.04) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    border-radius:14px !important;
+    padding:16px 10px !important;
+    transition:background .15s,border-color .15s !important;
+  }
+  .home-action:hover{
+    background:rgba(139,92,246,.1) !important;
+    border-color:rgba(139,92,246,.3) !important;
+  }
+  .home-asset-row{
+    background:rgba(255,255,255,.03) !important;
+    border:1px solid rgba(255,255,255,.06) !important;
+    border-radius:12px !important;
+    padding:12px 14px !important;
+    margin-bottom:8px !important;
+  }
+  .home-asset-row:hover{
+    background:rgba(139,92,246,.06) !important;
+    border-color:rgba(139,92,246,.15) !important;
+  }
+}
+
