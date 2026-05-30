@@ -1594,5 +1594,30 @@ function pickBank(name){
   </div>
 </div>
 </div>
+
+  <!-- Desktop Right Panel -->
+  <div id="desktopRightPanel" style="display:none;">
+    <div class="rp-net-badge">
+      <div class="rp-net-dot"></div>
+      <span class="rp-net-label">Arc Testnet · Live</span>
+    </div>
+    <div class="rp-section">
+      <div class="rp-title">Live rates</div>
+      <div class="rp-stat">
+        <div class="rp-stat-label">USDC / EURC</div>
+        <div class="rp-stat-value" id="rpFxRate">1 USDC = — EURC</div>
+        <div class="rp-stat-sub" id="rpFxTime">Loading…</div>
+      </div>
+      <div class="rp-stat">
+        <div class="rp-stat-label">Gas fee</div>
+        <div class="rp-stat-value">~0.009 USDC</div>
+        <div class="rp-stat-sub">Paid in USDC · Arc Testnet</div>
+      </div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-title">Recent activity</div>
+      <div id="rpTxList"><div style="font-size:.75rem;color:rgba(255,255,255,.25);text-align:center;padding:16px 0;">No transactions yet</div></div>
+    </div>
+  </div>
 </body>
 </html>
