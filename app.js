@@ -1321,13 +1321,11 @@ function flipSwap(){
       const tokenAddr=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
-      // Only approve if allowance is insufficient for this swap
+      // Approve exact swap amount — safest, user sees exactly what they're approving
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
-        btn.innerHTML='<span class="spinner"></span>Approving…';
-        // Approve 1,000,000 tokens once — covers all future swaps, safe cap for testnet
-        const bigApproval=ethers.parseUnits('1000000',6);
-        const approveTx=await tokenContract.approve(SWAP_CONTRACT,bigApproval,arcGasOpts());
+        btn.innerHTML='<span class="spinner"></span>Approving '+fromAmt.toFixed(2)+' '+tokenIn+'…';
+        const approveTx=await tokenContract.approve(SWAP_CONTRACT,amtIn,arcGasOpts());
         await approveTx.wait(1);
         btn.innerHTML='<span class="spinner"></span>Swapping…';
       }
@@ -1416,8 +1414,8 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const bridgeBal=await usdc.balanceOf(userAddr);
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,bridgeBal,arcGasOpts());
+      const bridgeExact=amtParsed;
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,bridgeExact,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(0);
     }
@@ -3028,8 +3026,8 @@ async function doSupply(){
       const lendAllowance=await tokenContract.allowance(userAddr,LENDING_CONTRACT);
       if(lendAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const lendBal=await tokenContract.balanceOf(userAddr);
-        const approveTx=await tokenContract.approve(LENDING_CONTRACT,lendBal,arcGasOpts());
+        const lendExact=ethers.parseUnits(amt.toFixed(6),6);
+        const approveTx=await tokenContract.approve(LENDING_CONTRACT,lendExact,arcGasOpts());
         await approveTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
@@ -3188,8 +3186,8 @@ async function doRepay(){
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
       const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
       if(repayAllowance<amtParsed){
-        const repayBal=await usdc.balanceOf(userAddr);
-        const appTx=await usdc.approve(LENDING_CONTRACT,repayBal,arcGasOpts());
+        const repayExact=ethers.parseUnits(amt.toFixed(6),6);
+        const appTx=await usdc.approve(LENDING_CONTRACT,repayExact,arcGasOpts());
         await appTx.wait(1);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
@@ -3316,8 +3314,8 @@ async function registerArcName(){
       const nameAllowance=await usdcContract.allowance(userAddr,NAME_REGISTRY);
       if(nameAllowance<fee){
         if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
-        const nameBal=await usdcContract.balanceOf(userAddr);
-        const approveTx=await usdcContract.approve(NAME_REGISTRY,nameBal,arcGasOpts());
+        const nameExact=ethers.parseUnits(arcNameFeeUsdc.toFixed(6),6);
+        const approveTx=await usdcContract.approve(NAME_REGISTRY,nameExact,arcGasOpts());
         await approveTx.wait(0);
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
@@ -3822,8 +3820,8 @@ async function doPayNow(){
       const payAllowance=await tokenContract.allowance(userAddr,PAYREQ_CONTRACT);
       if(payAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const payBal=await tokenContract.balanceOf(userAddr);
-        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payBal,arcGasOpts());
+        const payExact=ethers.parseUnits(amt.toFixed(6),6);
+        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payExact,arcGasOpts());
         await appTx.wait(1);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
