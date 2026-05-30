@@ -599,34 +599,8 @@ function speakResponse(text){
 
 // Init voice when page loads
 window.addEventListener('load',()=>{ initVoice(); });
-async function _ensureUnlimitedApprovals(){
-  const key='nan_approved_v2_'+userAddr;
-  if(localStorage.getItem(key))return;
-  try{
-    const usdcC=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
-    const eurcC=new ethers.Contract(EURC_ADDR,ERC20_ABI,signer);
-    const CONTRACTS=[SWAP_CONTRACT,LENDING_CONTRACT,NAME_REGISTRY];
-    const THRESHOLD=ethers.parseUnits('1000000',6);
-    for(const contract of CONTRACTS){
-      const uAllow=await usdcC.allowance(userAddr,contract);
-      if(uAllow<THRESHOLD){
-        const tx=await usdcC.approve(contract,ethers.MaxUint256,arcGasOpts());
-        await tx.wait(0);
-        console.log('USDC approved for',contract);
-        addTx({hash:tx.hash,to:contract,toRaw:'Unlimited USDC Approval',amount:'0',type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'approval'});
-      }
-    }
-    const eAllow=await eurcC.allowance(userAddr,SWAP_CONTRACT);
-    if(eAllow<THRESHOLD){
-      const tx=await eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
-      await tx.wait(0);
-      console.log('EURC approved for',SWAP_CONTRACT);
-      addTx({hash:tx.hash,to:SWAP_CONTRACT,toRaw:'Unlimited EURC Approval',amount:'0',type:'out',token:'EURC',ts:Date.now(),confirmed:true,source:'approval'});
-    }
-    localStorage.setItem(key,'1');
-    toast('✓ Token approvals verified','success',3000);
-  }catch(e){console.warn('Approval check failed:',e.message);}
-}
+// Approvals are done per-transaction with exact amounts — no pre-approvals needed
+async function _ensureUnlimitedApprovals(){ /* disabled — exact approvals used per tx */ }
 
 async function _autoSeedLiquidity(){
   try{
@@ -2866,28 +2840,8 @@ async function checkPoolLiquidity(){
     console.log('Pool liquidity — USDC:',poolStats.usdcLiq,'EURC:',poolStats.eurcLiq);
 
     // Show liquidity info on swap page
-    const banner=document.getElementById('swapModeBanner');
-    if(banner){
-      if(poolStats.usdcLiq<1||poolStats.eurcLiq<1){
-        banner.style.display='block';
-        banner.style.background='rgba(248,113,113,.1)';
-        banner.style.border='1px solid rgba(248,113,113,.25)';
-        banner.style.borderRadius='12px';
-        banner.style.padding='10px 14px';
-        banner.style.color='#f87171';
-        banner.style.fontSize='.78rem';
-        banner.innerHTML=`⚠️ Pool liquidity is low (${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC). Swaps may fail. Add liquidity first.`;
-      } else {
-        banner.style.display='block';
-        banner.style.background='rgba(52,211,153,.06)';
-        banner.style.border='1px solid rgba(52,211,153,.15)';
-        banner.style.borderRadius='12px';
-        banner.style.padding='8px 14px';
-        banner.style.color='#34d399';
-        banner.style.fontSize='.72rem';
-        banner.innerHTML=`Pool: ${poolStats.usdcLiq.toFixed(2)} USDC · ${poolStats.eurcLiq.toFixed(2)} EURC`;
-      }
-    }
+    // Pool stats logged to console only — no banner shown to users
+    console.log('Pool liquidity — USDC:',poolStats.usdcLiq,'EURC:',poolStats.eurcLiq);
   }catch(e){console.log('Pool check error:',e.message);}
 }
 
