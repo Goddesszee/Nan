@@ -583,6 +583,18 @@ app.get('/api/analytics', async (req, res) => {
   }
 });
 
+
+// Admin auth — password stored in ADMIN_PASSWORD env var
+app.post('/api/admin/auth', (req, res) => {
+  const { password } = req.body || {};
+  const adminPw = process.env.ADMIN_PASSWORD;
+  if (!adminPw) return res.json({ success: false, error: 'Admin not configured' });
+  if (password === adminPw) {
+    return res.json({ success: true });
+  }
+  return res.json({ success: false, error: 'Invalid password' });
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
