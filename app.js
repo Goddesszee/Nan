@@ -2574,14 +2574,20 @@ async function verifyFloatingOTP(){
       const land = document.getElementById('page-land');
       if(land){ land.style.display='none'; land.classList.remove('active'); }
 
-      if(connectType === 'email'){
-        // Show floating OTP modal (page-land is hidden)
+      if(connectType === 'email' || connectType === 'circle'){
+        // Always show floating OTP modal when coming from landing
         const modal = document.getElementById('floatingOtpModal');
         if(modal){
           modal.style.display = 'flex';
           const inp = document.getElementById('floatingEmailInput');
-          if(inp && connectEmail){ inp.value = connectEmail; sendFloatingOTP(); }
-          else if(inp) inp.focus();
+          if(inp){
+            if(connectEmail){
+              inp.value = connectEmail;
+              setTimeout(()=>sendFloatingOTP(), 300);
+            } else {
+              inp.focus();
+            }
+          }
         }
       } else {
         // handles: metamask, walletconnect, coinbase, circle, rabby
@@ -2805,9 +2811,17 @@ async function connectSpecific(walletType){
     return;
   }
   if(walletType==='circle'){
-    toast('Use the email login above for Circle wallet','info',4000);
-    const emailInput=document.getElementById('emailInput');
-    if(emailInput)emailInput.focus();
+    // Show floating OTP modal (works whether page-land is visible or not)
+    const modal=document.getElementById('floatingOtpModal');
+    const landHidden=document.getElementById('page-land')?.style.display==='none';
+    if(modal && landHidden){
+      modal.style.display='flex';
+      setTimeout(()=>document.getElementById('floatingEmailInput')?.focus(),100);
+    } else {
+      // page-land is visible, focus email input there
+      const emailInput=document.getElementById('emailInput');
+      if(emailInput){ emailInput.focus(); emailInput.scrollIntoView({behavior:'smooth'}); }
+    }
     return;
   }
   let detectedWp=null;
