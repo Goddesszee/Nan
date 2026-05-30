@@ -478,10 +478,13 @@ a:hover{color:var(--text);}
 [data-theme="light"] .tx-title{color:#0d1117;font-size:.9rem;font-weight:600;}
 [data-theme="light"] .tx-time{color:#9ca3af;font-size:.75rem;}
 [data-theme="light"] #desktopNav{background:#ffffff;border-right-color:#e2e5ef;}
-[data-theme="light"] .dnav-btn{color:#6b7280;font-size:.85rem;}
-[data-theme="light"] .dnav-btn.active{background:#f0f2f7;color:#0d1117;font-weight:600;}
+[data-theme="light"] .dnav-btn{color:#6b7280;font-size:.88rem;font-weight:500;}
+[data-theme="light"] .dnav-btn.active{background:rgba(124,58,237,.06);color:#0d1117;font-weight:700;}
+[data-theme="light"] .dnav-btn.active::before{background:#7c3aed;}
 [data-theme="light"] .dnav-btn:hover{background:#f5f6fa;color:#344054;}
 [data-theme="light"] .dnav-logo-row{border-bottom-color:#e2e5ef;}
+[data-theme="light"] .dnav-section-label{color:#9ca3af;}
+[data-theme="light"] .dnav-divider{background:#e2e5ef;}
 [data-theme="light"] #globalTopBar{background:rgba(238,240,246,0.97);border-bottom-color:#e2e5ef;}
 [data-theme="light"] .swap-input{color:#0d1117!important;font-size:2.2rem!important;font-weight:700!important;}
 [data-theme="light"] .home-asset-row{background:#ffffff;border-color:#e2e5ef;}
@@ -805,43 +808,67 @@ a:hover{color:var(--text);}
     position:fixed;top:0;left:0;
     width:220px;height:100vh;
     background:#0d0d0d;
-    border-right:1px solid #1e1e1e;
+    border-right:1px solid #1a1a1a;
     padding:0;gap:0;z-index:100;
+    overflow:hidden;
   }
   #desktopNav .dnav-logo-row{
     display:flex;align-items:center;gap:10px;
-    padding:18px 16px 14px;
+    padding:20px 18px 16px;
     border-bottom:1px solid #1a1a1a;
-    margin-bottom:6px;
+    margin-bottom:8px;
+    flex-shrink:0;
   }
   #desktopNav .dnav-logo{
-    width:32px;height:32px;border-radius:9px;
+    width:34px;height:34px;border-radius:10px;
     background:linear-gradient(135deg,#8b5cf6,#7c3aed);
     display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
+    flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.4);
   }
   #desktopNav .dnav-brand{
     font-family:'Inter',sans-serif;
-    font-size:.92rem;font-weight:700;letter-spacing:.02em;color:#ffffff;
+    font-size:.95rem;font-weight:700;letter-spacing:.04em;color:#ffffff;
+  }
+  /* Section labels */
+  #desktopNav .dnav-section-label{
+    font-size:.58rem;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:#374151;
+    padding:8px 20px 4px;
+    font-family:'Inter',sans-serif;
   }
   #desktopNav{padding:0;}
   #desktopNav .dnav-btn{
-    display:flex;align-items:center;gap:10px;
-    padding:9px 12px;border-radius:8px;
-    border:1px solid transparent;background:transparent;
-    color:#666;font-family:'Inter',sans-serif;
-    font-size:.82rem;font-weight:500;cursor:pointer;
+    display:flex;align-items:center;gap:11px;
+    padding:10px 14px;border-radius:10px;
+    border:none;background:transparent;
+    color:#6b7280;font-family:'Inter',sans-serif;
+    font-size:.88rem;font-weight:500;cursor:pointer;
     transition:all .15s;text-align:left;
-    margin:0 10px;width:calc(100% - 20px);
+    margin:1px 10px;width:calc(100% - 20px);
+    position:relative;
   }
-  #desktopNav .dnav-btn svg{flex-shrink:0;opacity:.4;width:15px;height:15px;transition:opacity .15s;}
-  #desktopNav .dnav-btn:hover{background:#1a1a1a;color:#cccccc;border-color:transparent;}
-  #desktopNav .dnav-btn:hover svg{opacity:.7;}
-  #desktopNav .dnav-btn.active{background:#1e1e1e;color:#ffffff;border-color:#2a2a2a;}
+  /* Purple indicator bar on left */
+  #desktopNav .dnav-btn::before{
+    content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);
+    width:3px;height:0;background:#7c3aed;border-radius:0 3px 3px 0;
+    transition:height .2s;
+  }
+  #desktopNav .dnav-btn.active::before{height:20px;}
+  #desktopNav .dnav-btn svg{
+    flex-shrink:0;width:18px;height:18px;
+    opacity:.35;transition:opacity .15s;
+  }
+  #desktopNav .dnav-btn:hover{background:#1a1a1a;color:#d1d5db;}
+  #desktopNav .dnav-btn:hover svg{opacity:.65;}
+  #desktopNav .dnav-btn:hover::before{height:12px;}
+  #desktopNav .dnav-btn.active{background:rgba(124,58,237,.08);color:#ffffff;font-weight:700;}
   #desktopNav .dnav-btn.active svg{opacity:1;}
-  #desktopNav .dnav-btn.dnav-send{background:rgba(124,58,237,.15);color:#a78bfa;border-color:rgba(124,58,237,.25);}
-  #desktopNav .dnav-btn.dnav-send svg{opacity:1;}
-  #desktopNav .dnav-divider{height:1px;background:#1a1a1a;margin:6px 14px;}
+  #desktopNav .dnav-btn.dnav-send{
+    background:rgba(124,58,237,.12);color:#c4b5fd;
+    border:none;
+  }
+  #desktopNav .dnav-btn.dnav-send svg{opacity:.8;}
+  #desktopNav .dnav-divider{height:1px;background:#1a1a1a;margin:8px 16px;}
   #desktopNav > button, #desktopNav .dnav-btn{margin-left:10px;margin-right:10px;width:calc(100% - 20px);}
 
   /* ── Desktop topbar — seamless, no hard border ── */
