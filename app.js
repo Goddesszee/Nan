@@ -220,23 +220,28 @@ function toggleBalCurrency(){
 function updateBalDisplay(){
   const usdc=parseFloat(usdcBal)||0;
   const eurc=parseFloat(eurcBal)||0;
+  const eurcInUsd=eurc*(1/FX);
+  const totalUsd=usdc+eurcInUsd;
   const lbl=document.getElementById('balCurrencyLabel');
   const amt=document.getElementById('balAmt');
   const usd=document.getElementById('balUsd');
   if(balCurrency==='USD'){
-    amt.textContent=usdc.toFixed(2);
-    lbl.textContent='USDC';
-    usd.textContent='≈ $'+usdc.toFixed(2)+' USD · '+eurc.toFixed(2)+' EURC';
+    // Show total USD value (USDC + EURC converted)
+    amt.textContent='$'+totalUsd.toFixed(2);
+    lbl.textContent='';
+    usd.textContent=usdc.toFixed(2)+' USDC · '+eurc.toFixed(2)+' EURC';
   } else if(balCurrency==='EURC'){
     amt.textContent=eurc.toFixed(2);
     lbl.textContent='EURC';
-    usd.textContent='≈ $'+(eurc*(1/FX)).toFixed(2)+' USD';
+    usd.textContent='≈ $'+eurcInUsd.toFixed(2)+' USD';
   } else {
-    const total=usdc+(eurc*(1/FX));
-    amt.textContent=total.toFixed(2);
-    lbl.textContent='USDC';
-    usd.textContent='Total portfolio value';
+    amt.textContent='$'+totalUsd.toFixed(2);
+    lbl.textContent='';
+    usd.textContent='Total · '+usdc.toFixed(2)+' USDC + '+eurc.toFixed(2)+' EURC';
   }
+  // Also update the NGN equivalent
+  const ngnEl=document.getElementById('balNgn');
+  if(ngnEl){const NGN_RATE=1622;ngnEl.textContent='≈ ₦'+Math.round(totalUsd*NGN_RATE).toLocaleString()+' NGN';}
 }
 function showBalSkeleton(){
   document.getElementById('balAmt').innerHTML='<span class="skel skel-bal"></span>';
@@ -2485,7 +2490,15 @@ function toggleAgent(){
   const panel=document.getElementById('agentPanel');
   if(!panel)return;
   if(agentOpen){
-    panel.style.cssText='display:flex!important;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #2a2a2a;border-radius:24px 24px 0 0;z-index:2147483647;overflow:hidden;font-family:Inter,sans-serif;';
+    panel.style.display='flex';
+    panel.style.flexDirection='column';
+    panel.style.position='fixed';
+    panel.style.top='0';
+    panel.style.left='0';
+    panel.style.right='0';
+    panel.style.bottom='0';
+    panel.style.zIndex='2147483647';
+    panel.style.overflow='hidden';
     renderAgentMsgs();renderAgentChips();scrollAgentBottom();
   }else{
     panel.style.display='none';
