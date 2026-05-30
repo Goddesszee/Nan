@@ -62,18 +62,18 @@ export default async function handler(req, res) {
     const supHex = await rpcCall('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
     const usdcSupply = (parseInt(supHex, 16) / 1e6).toFixed(0);
 
-    // Scan last 500k blocks only for speed (NAN launched recently)
-    const scanFrom = Math.max(0, latest - 500000);
+    // Scan all blocks for NAN contract events (few logs = fast)
+    // Only limit USDC transfer scan (can have millions of logs)
     const [hL, sL, lL, nL, pL] = await Promise.all([
-      getLogs(HIST, null, scanFrom, latest),
-      getLogs(SWAP, null, scanFrom, latest),
-      getLogs(LEND, null, scanFrom, latest),
-      getLogs(NAME, null, scanFrom, latest),
-      getLogs(PAYREQ, null, scanFrom, latest),
+      getLogs(HIST, null, 0, latest),
+      getLogs(SWAP, null, 0, latest),
+      getLogs(LEND, null, 0, latest),
+      getLogs(NAME, null, 0, latest),
+      getLogs(PAYREQ, null, 0, latest),
     ]);
 
-    // USDC transfers — last 500k blocks
-    const uFrom = scanFrom;
+    // USDC transfers — last 500k blocks only (too many logs otherwise)
+    const uFrom = Math.max(0, latest - 500000);
     const uL = await getLogs(USDC, [TRANSFER], uFrom, latest);
 
     // Count unique wallets
