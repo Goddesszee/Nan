@@ -2546,16 +2546,35 @@ async function sendFloatingOTP(){
 async function verifyFloatingOTP(){
   const otp = document.getElementById('floatingOtpInput').value.trim();
   if(!otp||otp.length<6){ toast('Enter the 6-digit code','error'); return; }
-  const btn = document.querySelector('#floatingOtpStep button');
+  const btns = document.querySelectorAll('#floatingOtpStep button');
+  const btn = btns[0];
   btn.textContent = 'Verifying…'; btn.disabled = true;
   try{
-    // Use same verify flow as normal OTP
-    document.getElementById('emailInput').value = otpEmail;
-    document.getElementById('otpInput').value = otp;
-    await verifyOTP();
-    document.getElementById('floatingOtpModal').style.display = 'none';
+    // Step 1: Verify OTP
+    const res = await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify',email:otpEmail,otp,token:window._otpToken,expiresAt:window._otpExpiry})});
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error||'Invalid code');
+
+    // Step 2: Get or create Circle wallet
+    btn.textContent = 'Setting up wallet…';
+    const cwRes = await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'getWallet',email:otpEmail})});
+    const cw = await cwRes.json();
+    if(!cw.walletId) throw new Error('Could not create wallet');
+
+    circleWalletId=cw.walletId;
+    circleWalletAddress=cw.address;
+    circleWalletBlockchain=cw.blockchain;
+    circleUserToken=cw.userToken;
+    circleUserId=cw.userId;
+    localStorage.setItem('circleWalletId',cw.walletId);
+    localStorage.setItem('circleWalletAddr',cw.address);
+    document.getElementById('floatingOtpModal').style.display='none';
+    await onConnected(true,false);
   } catch(e){
-    toast('Verification failed: '+e.message,'error');
+    toast('Error: '+e.message,'error');
     btn.textContent = 'Verify & Connect'; btn.disabled = false;
   }
 }
@@ -2597,9 +2616,9 @@ async function verifyFloatingOTP(){
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', () => setTimeout(tryConnect, 800));
+    document.addEventListener('DOMContentLoaded', () => setTimeout(tryConnect, 1200));
   } else {
-    setTimeout(tryConnect, 800);
+    setTimeout(tryConnect, 1200);
   }
 })();
 function resizeAIPanel(){
