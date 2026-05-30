@@ -2522,6 +2522,44 @@ document.addEventListener('DOMContentLoaded', attachAIListeners);
 
 // fix: auto-connect from landing page — calls correct function names
 // connectSpecific() handles metamask/walletconnect/coinbase/circle/rabby
+// ── Floating OTP modal (used when page-land is hidden) ──
+async function sendFloatingOTP(){
+  const email = document.getElementById('floatingEmailInput').value.trim();
+  if(!email||!email.includes('@')){ toast('Enter a valid email','error'); return; }
+  const btn = document.querySelector('#floatingEmailStep button');
+  btn.textContent = 'Sending…'; btn.disabled = true;
+  try{
+    const res = await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'send',email})});
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error||'Failed');
+    window._otpToken = data.token; window._otpExpiry = data.expiresAt;
+    otpEmail = email;
+    document.getElementById('floatingOtpEmailLabel').textContent = email;
+    document.getElementById('floatingEmailStep').style.display = 'none';
+    document.getElementById('floatingOtpStep').style.display = 'block';
+    setTimeout(()=>document.getElementById('floatingOtpInput').focus(), 100);
+  } catch(e){
+    toast('Failed to send code: '+e.message,'error');
+    btn.textContent = 'Send Code →'; btn.disabled = false;
+  }
+}
+async function verifyFloatingOTP(){
+  const otp = document.getElementById('floatingOtpInput').value.trim();
+  if(!otp||otp.length<6){ toast('Enter the 6-digit code','error'); return; }
+  const btn = document.querySelector('#floatingOtpStep button');
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  try{
+    // Use same verify flow as normal OTP
+    document.getElementById('emailInput').value = otpEmail;
+    document.getElementById('otpInput').value = otp;
+    await verifyOTP();
+    document.getElementById('floatingOtpModal').style.display = 'none';
+  } catch(e){
+    toast('Verification failed: '+e.message,'error');
+    btn.textContent = 'Verify & Connect'; btn.disabled = false;
+  }
+}
+
 // sendEmailOTP() handles email — was incorrectly called sendOTP() before
 // emailInput is the correct element id — was incorrectly otpEmail before
 (function(){
@@ -2537,9 +2575,14 @@ document.addEventListener('DOMContentLoaded', attachAIListeners);
       if(land){ land.style.display='none'; land.classList.remove('active'); }
 
       if(connectType === 'email'){
-        const inp = document.getElementById('emailInput');
-        if(inp && connectEmail) inp.value = connectEmail;
-        if(typeof sendEmailOTP === 'function') sendEmailOTP();
+        // Show floating OTP modal (page-land is hidden)
+        const modal = document.getElementById('floatingOtpModal');
+        if(modal){
+          modal.style.display = 'flex';
+          const inp = document.getElementById('floatingEmailInput');
+          if(inp && connectEmail){ inp.value = connectEmail; sendFloatingOTP(); }
+          else if(inp) inp.focus();
+        }
       } else {
         // handles: metamask, walletconnect, coinbase, circle, rabby
         if(typeof connectSpecific === 'function') connectSpecific(connectType);

@@ -1457,6 +1457,39 @@
   </div>
 </div>
 
+<!-- ══ FLOATING EMAIL OTP MODAL (shown when page-land hidden) ══ -->
+<div id="floatingOtpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#0f0f1a;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 24px;width:340px;max-width:90vw;box-shadow:0 24px 60px rgba(0,0,0,.8);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:1rem;font-weight:700;color:#fff;">Connect with Email</div>
+      <button onclick="document.getElementById('floatingOtpModal').style.display='none';window.location.replace('/');" style="background:none;border:none;color:#6b7280;font-size:1.2rem;cursor:pointer;">×</button>
+    </div>
+    <div id="floatingEmailStep">
+      <div style="font-size:.72rem;color:#6b7280;margin-bottom:8px;">Enter your email address</div>
+      <input id="floatingEmailInput" type="email" placeholder="your@email.com"
+        style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:12px 14px;color:#fff;font-size:.9rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:12px;"
+        onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+        onkeydown="if(event.key==='Enter')sendFloatingOTP()"/>
+      <button onclick="sendFloatingOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+        Send Code →
+      </button>
+    </div>
+    <div id="floatingOtpStep" style="display:none;">
+      <div style="font-size:.72rem;color:#6b7280;margin-bottom:4px;">Enter the 6-digit code sent to</div>
+      <div id="floatingOtpEmailLabel" style="font-size:.82rem;color:#a78bfa;font-weight:600;margin-bottom:12px;"></div>
+      <input id="floatingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+        style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:14px;color:#fff;font-size:1.5rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:12px;"
+        onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+        onkeydown="if(event.key==='Enter')verifyFloatingOTP()"/>
+      <button onclick="verifyFloatingOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+        Verify & Connect
+      </button>
+      <button onclick="document.getElementById('floatingOtpStep').style.display='none';document.getElementById('floatingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#6b7280;padding:10px;font-size:.78rem;cursor:pointer;margin-top:4px;">← Change email</button>
+    </div>
+    <div style="text-align:center;font-size:.62rem;color:#374151;margin-top:14px;">Non-custodial · Your keys · Arc Testnet</div>
+  </div>
+</div>
+
 <!-- ══ AI Button ══ -->
 
 
