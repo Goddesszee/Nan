@@ -931,7 +931,7 @@ async function doSend(){
       lastTxHash=data.txHash||data.transactionId;
       const isConfirmed=!!data.txHash&&!data.pending;
       addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:isConfirmed,source:'circle'});
-      setTimeout(()=>resolveCircleTxHash(lastTxHash),5000);
+      setTimeout(()=>resolveCircleTxHash(lastTxHash),30000);
       showSendSuccess(amt,to,lastTxHash);
       if(data.pending&&data.transactionId){
         pollTxStatus(data.transactionId,'',async(confirmedHash)=>{
@@ -1283,7 +1283,7 @@ function flipSwap(){
       toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
       const _swapTxId=d.txHash||d.transactionId||'pending';
       addTx({hash:_swapTxId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
-      setTimeout(()=>resolveCircleTxHash(_swapTxId),5000);
+      setTimeout(()=>resolveCircleTxHash(_swapTxId),30000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       btn.innerHTML='Swap';btn.disabled=false;
       // Poll balance until it changes
@@ -2485,16 +2485,10 @@ function toggleAgent(){
   const panel=document.getElementById('agentPanel');
   if(!panel)return;
   if(agentOpen){
-    panel.style.display='flex';
-    panel.style.flexDirection='column';
-    // Double rAF ensures display:flex is painted before transition starts
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      panel.style.transform='translateY(0)';
-    }));
+    panel.style.cssText='display:flex!important;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #2a2a2a;border-radius:24px 24px 0 0;z-index:2147483647;overflow:hidden;font-family:Inter,sans-serif;';
     renderAgentMsgs();renderAgentChips();scrollAgentBottom();
   }else{
-    panel.style.transform='translateY(100%)';
-    setTimeout(()=>{ panel.style.display='none'; },350);
+    panel.style.display='none';
   }
 }
 
@@ -2954,7 +2948,7 @@ async function doSupply(){
       // Arc confirms in <1s — refresh balance after short delay
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
-      setTimeout(()=>resolveCircleTxHash(supplyHash),5000);
+      setTimeout(()=>resolveCircleTxHash(supplyHash),30000);
       addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       if(supData.pending&&supData.transactionId){
         pollTxStatus(supData.transactionId,'',async()=>{
@@ -3065,7 +3059,7 @@ async function doBorrow(){
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
       toast('✓ Borrow submitted!','success',4000);
-      setTimeout(()=>resolveCircleTxHash(d.txHash||d.transactionId),5000);
+      setTimeout(()=>resolveCircleTxHash(d.txHash||d.transactionId),30000);
       addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();refreshLendPosition();}},0);
 
@@ -3247,7 +3241,7 @@ async function registerArcName(){
       const regD=await regR.json();
       if(!regD.success)throw new Error(regD.error||'Registration failed');
       toast('✓ '+name+'.arc registered on Arc! 🎉','success',7000);
-      setTimeout(()=>resolveCircleTxHash(regD.txHash||regD.transactionId),5000);
+      setTimeout(()=>resolveCircleTxHash(regD.txHash||regD.transactionId),30000);
       addTx({hash:regD.txHash||regD.transactionId,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!regD.txHash,source:'arcname'});
       await refreshBalances();await refreshArcNames();
     }else if(signer){
