@@ -15,7 +15,7 @@ const ZERO   = '0x0000000000000000000000000000000000000000';
 
 let cache = null;
 let cacheTime = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 async function rpcCall(method, params = []) {
   const res = await fetch(RPC, {
@@ -62,17 +62,18 @@ export default async function handler(req, res) {
     const supHex = await rpcCall('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
     const usdcSupply = (parseInt(supHex, 16) / 1e6).toFixed(0);
 
-    // Scan all NAN contracts from block 0
+    // Scan last 500k blocks only for speed (NAN launched recently)
+    const scanFrom = Math.max(0, latest - 500000);
     const [hL, sL, lL, nL, pL] = await Promise.all([
-      getLogs(HIST, null, 0, latest),
-      getLogs(SWAP, null, 0, latest),
-      getLogs(LEND, null, 0, latest),
-      getLogs(NAME, null, 0, latest),
-      getLogs(PAYREQ, null, 0, latest),
+      getLogs(HIST, null, scanFrom, latest),
+      getLogs(SWAP, null, scanFrom, latest),
+      getLogs(LEND, null, scanFrom, latest),
+      getLogs(NAME, null, scanFrom, latest),
+      getLogs(PAYREQ, null, scanFrom, latest),
     ]);
 
-    // USDC transfers — last 1M blocks only
-    const uFrom = Math.max(0, latest - 1000000);
+    // USDC transfers — last 500k blocks
+    const uFrom = scanFrom;
     const uL = await getLogs(USDC, [TRANSFER], uFrom, latest);
 
     // Count unique wallets
