@@ -2521,26 +2521,26 @@ function toggleAgent(){
   }catch(e){console.error('toggleAgent error:',e);}
 }
 
-// AI button — add touchstart for mobile reliability
+// AI button listeners — single source of truth, no onclick in HTML
 function attachAIListeners(){
-  const btn=document.getElementById('aiBtn');
-  const moreBtn=document.getElementById('nanAiMoreBtn');
-  if(btn&&!btn._aiListenerAdded){
-    btn._aiListenerAdded=true;
-    btn.addEventListener('touchstart',function(e){
+  function addToggle(el){
+    if(!el||el._aiListenerAdded)return;
+    el._aiListenerAdded=true;
+    // Use click for desktop, touchend for mobile (prevents double-fire)
+    el.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAgent();
+    });
+    el.addEventListener('touchend',function(e){
       e.preventDefault();
       e.stopPropagation();
       toggleAgent();
     },{passive:false});
   }
-  if(moreBtn&&!moreBtn._aiListenerAdded){
-    moreBtn._aiListenerAdded=true;
-    moreBtn.addEventListener('touchstart',function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      toggleAgent();
-    },{passive:false});
-  }
+  addToggle(document.getElementById('aiBtn'));
+  addToggle(document.getElementById('nanAiMoreBtn'));
+  addToggle(document.getElementById('agentCloseBtn'));
 }
 
 // Attach on load and also expose for after-connect call
