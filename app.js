@@ -2141,8 +2141,13 @@ async function doBulkSend(){
   });
   progressTitle.textContent = `Sending to ${total} recipients in parallel…`;
 
-  // Send all in parallel — much faster on Arc
-  const results = await Promise.allSettled(bulkRecipients.map(async (r, i) => {
+  // Send in batches of 10 — avoids rate limits and nonce conflicts
+  const BATCH_SIZE = 10;
+  for(let batchStart = 0; batchStart < bulkRecipients.length; batchStart += BATCH_SIZE){
+    const batch = bulkRecipients.slice(batchStart, batchStart + BATCH_SIZE);
+    progressTitle.textContent = `Sending batch ${Math.floor(batchStart/BATCH_SIZE)+1} of ${Math.ceil(bulkRecipients.length/BATCH_SIZE)}…`;
+    await Promise.allSettled(batch.map(async (r, bi) => {
+      const i = batchStart + bi;
     try {
       if(isCircleWallet && circleWalletId){
         const res = await fetch('https://nan-production.up.railway.app/api/circle-wallets', {
@@ -2178,7 +2183,13 @@ async function doBulkSend(){
       document.getElementById('bulk-status-'+i).style.color = 'var(--danger)';
       console.error('Bulk send error for', r.addr, e.message);
     }
-  }));
+    }));
+    // Small delay between batches
+    if(batchStart + BATCH_SIZE < bulkRecipients.length){
+      progressTitle.textContent = 'Batch done — starting next batch…';
+      await new Promise(r=>setTimeout(r,1000));
+    }
+  } // end batch loop
 
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
