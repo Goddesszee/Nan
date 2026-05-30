@@ -2537,38 +2537,37 @@ function attachAIListeners(){
 // Attach on load and also expose for after-connect call
 document.addEventListener('DOMContentLoaded', attachAIListeners);
 
-// Handle ?connect= query param from landing page dropdown
+// fix: auto-connect from landing page — calls correct function names
+// connectSpecific() handles metamask/walletconnect/coinbase/circle/rabby
+// sendEmailOTP() handles email — was incorrectly called sendOTP() before
+// emailInput is the correct element id — was incorrectly otpEmail before
 (function(){
   const params = new URLSearchParams(window.location.search);
   const connectType = params.get('connect');
   const connectEmail = params.get('email');
   if(!connectType) return;
 
-  // Wait for DOM + ethers to be ready, then auto-connect
   function tryConnect(){
-    try {
-      if(connectType === 'email' && connectEmail) {
-        const emailInp = document.getElementById('otpEmail');
-        if(emailInp){ emailInp.value = connectEmail; }
-        if(typeof sendOTP === 'function') sendOTP();
-      } else if(connectType === 'metamask') {
-        if(typeof connectMetaMask === 'function') connectMetaMask();
-      } else if(connectType === 'walletconnect') {
-        if(typeof connectWC === 'function') connectWC();
-      } else if(connectType === 'coinbase') {
-        if(typeof connectCoinbase === 'function') connectCoinbase();
-      } else if(connectType === 'circle') {
-        const circleBtn = document.getElementById('connectCircleBtn');
-        if(circleBtn) circleBtn.click();
+    try{
+      // hide landing page immediately in case overlay didn't catch it
+      const land = document.getElementById('page-land');
+      if(land){ land.style.display='none'; land.classList.remove('active'); }
+
+      if(connectType === 'email'){
+        const inp = document.getElementById('emailInput');
+        if(inp && connectEmail) inp.value = connectEmail;
+        if(typeof sendEmailOTP === 'function') sendEmailOTP();
+      } else {
+        // handles: metamask, walletconnect, coinbase, circle, rabby
+        if(typeof connectSpecific === 'function') connectSpecific(connectType);
       }
-    } catch(e) { console.log('Auto-connect error:', e.message); }
+    } catch(e){ console.log('Auto-connect error:', e.message); }
   }
 
-  // Try after DOM ready + short delay for scripts to init
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', () => setTimeout(tryConnect, 600));
+    document.addEventListener('DOMContentLoaded', () => setTimeout(tryConnect, 800));
   } else {
-    setTimeout(tryConnect, 600);
+    setTimeout(tryConnect, 800);
   }
 })();
 function resizeAIPanel(){
