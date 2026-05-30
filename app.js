@@ -2503,6 +2503,7 @@ function toggleAgent(){
   try{
     agentOpen=!agentOpen;
     const panel=document.getElementById('agentPanel');
+    console.log('[NAN AI] toggleAgent called, agentOpen='+agentOpen+', panel='+!!panel);
     if(!panel){console.error('agentPanel not found!');return;}
     panel.style.display=agentOpen?'flex':'none';
     panel.style.flexDirection='column';
