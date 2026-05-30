@@ -288,21 +288,7 @@ app.post('/api/transfer', async (req, res) => {
 });
 
 // ── Transaction Status ──
-app.get('/api/transaction/:txId', async (req, res) => {
-  const { txId } = req.params;
-  const userToken = req.headers['x-user-token'];
-
-  if (!CIRCLE_API_KEY || txId.startsWith('0xdev')) {
-    return res.json({ state: 'CONFIRMED', txHash: txId });
-  }
-
-  try {
-    const result = await circleRequest('GET', `/transactions/${txId}`, null, userToken);
-    res.json(result.data?.data || {});
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Transaction route — handled by the second route below (DCW-based)
 
 // ── Faucet Proxy ──
 app.post('/api/faucet', async (req, res) => {
