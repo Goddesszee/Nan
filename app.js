@@ -3600,11 +3600,35 @@ function doNgnConvert(){
 window.addEventListener('load',()=>{
   initTheme();
   resizeAIPanel();
-  // Only show page-land if no ?connect= param from landing
+  // Always show page-land (connect screen)
   const _lp = new URLSearchParams(window.location.search);
-  if(!_lp.get('connect') && !_lp.get('pay')){
-    const _land = document.getElementById('page-land');
-    if(_land) _land.style.display='flex';
+  const _land = document.getElementById('page-land');
+  if(_land && !_lp.get('pay')) _land.style.display='flex';
+  
+  // If ?connect= param, auto-trigger the right wallet after page renders
+  const _ct = _lp.get('connect');
+  const _em = _lp.get('email');
+  if(_ct){
+    setTimeout(function(){
+      if(_ct==='email'||_ct==='circle'){
+        // Pre-fill email and show OTP section
+        var emailInp=document.getElementById('emailInput');
+        if(emailInp&&_em){ emailInp.value=_em; }
+        // Show email login box
+        var loginBox=document.getElementById('emailLoginBox');
+        if(loginBox) loginBox.style.display='block';
+        // Auto-send OTP if email provided
+        if(_em && typeof sendEmailOTP==='function') sendEmailOTP();
+        // Scroll to email input
+        if(emailInp) emailInp.scrollIntoView({behavior:'smooth',block:'center'});
+      } else if(_ct==='metamask'){
+        if(typeof connectSpecific==='function') connectSpecific('metamask');
+      } else if(_ct==='walletconnect'){
+        if(typeof connectSpecific==='function') connectSpecific('walletconnect');
+      } else if(_ct==='coinbase'){
+        if(typeof connectSpecific==='function') connectSpecific('coinbase');
+      }
+    }, 800);
   }
   initSwapUI();
   fetchLiveFX();

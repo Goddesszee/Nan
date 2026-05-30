@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-  // Run IMMEDIATELY before anything renders
   (function(){
     var params = new URLSearchParams(window.location.search);
     var connectType = params.get('connect');
@@ -11,41 +10,16 @@
     var isDirect = params.get('direct');
     var fromLanding = sessionStorage.getItem('nan_from_landing');
 
-    if(!fromLanding && !connectType && !hasPay && !isDirect){
-      // No valid entry point — send to landing page
-      window.location.replace('/');
-      return;
-    }
-
+    // Always clear old wallet session when connecting fresh
     if(connectType){
-      // Mark as coming from landing
-      sessionStorage.setItem('nan_from_landing', '1');
-      // CLEAR any previous session so auto-restore doesn't kick in
       localStorage.removeItem('circleWalletId');
       localStorage.removeItem('circleWalletAddr');
-      // Inject CSS immediately to hide page-land before it can flash
-      var s = document.createElement('style');
-      s.textContent = '#page-land{display:none!important;}';
-      document.head.appendChild(s);
+      sessionStorage.setItem('nan_from_landing','1');
+    }
 
-      // Show floating modal as soon as DOM is ready
-      if(connectType === 'email' || connectType === 'circle'){
-        var _emailToFill = new URLSearchParams(window.location.search).get('email') || '';
-        document.addEventListener('DOMContentLoaded', function(){
-          var modal = document.getElementById('floatingOtpModal');
-          if(modal){
-            modal.style.display = 'flex';
-            var inp = document.getElementById('floatingEmailInput');
-            if(inp && _emailToFill){
-              inp.value = _emailToFill;
-              // Small delay then auto-send OTP
-              setTimeout(function(){ if(typeof sendFloatingOTP==='function') sendFloatingOTP(); }, 500);
-            } else if(inp){
-              inp.focus();
-            }
-          }
-        });
-      }
+    // Redirect to landing if no valid entry
+    if(!fromLanding && !connectType && !hasPay && !isDirect){
+      window.location.replace('/');
     }
   })();
 </script>
