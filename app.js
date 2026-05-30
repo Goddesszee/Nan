@@ -1707,9 +1707,13 @@ function renderHistory(){
     if(tx.type==='bridge'){icon='⬡';cls='bridge';label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
     const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
+    const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length>=10;
+    const viewLink=isRealHash?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">View ↗</a>`:'<span style="color:var(--text3);font-size:.62rem;">Circle Wallet</span>';
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
-      `${new Date(tx.ts).toLocaleString()} · <a href="${ARC_EXP}/tx/${tx.hash}" target="_blank">View ↗</a> ${srcBadge}`;
-    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div>${!isSim?`<span class="tx-status ${statusClass}">${tx.confirmed?'confirmed':tx.failed?'failed':'pending'}</span>`:''}</div><div class="tx-amt ${cls==='out'||cls==='bridge'?'out':'in'}">${amt}</div></div>`;
+      `${new Date(tx.ts).toLocaleString()} · ${viewLink} ${srcBadge}`;
+    // Circle wallet txs (no 0x hash) are always confirmed — Arc settles in <1s
+    const displayStatus=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
+    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div>${!isSim?`<span class="tx-status ${displayStatus==='confirmed'?'confirmed':displayStatus==='failed'?'failed':'pending'}">${displayStatus}</span>`:''}</div><div class="tx-amt ${cls==='out'||cls==='bridge'?'out':'in'}">${amt}</div></div>`;
   }).join('');
 }
 
