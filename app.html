@@ -764,57 +764,68 @@
 
   <!-- ══ SWAP PAGE ══ -->
   <div class="page" id="page-swap">
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div>
-        <div class="page-title" style="margin-bottom:2px;">Swap</div>
-        <div style="font-size:.82rem;color:var(--text3);">Live FX · 0.1% fee · Gas in USDC</div>
-      </div>
-      <button onclick="fetchLiveFX()" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-size:.82rem;padding:6px 10px;cursor:pointer;font-family:'JetBrains Mono',monospace;">↻ Rate</button>
-    </div>
-    <div class="info-banner" id="swapModeBanner" style="display:none;"></div>
+    <div id="swapModeBanner" style="display:none;"></div>
 
-    <!-- Swap box -->
-    <div class="swap-box-wrap" style="margin-bottom:12px;">
-      <div class="swap-inner top">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Pay</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Bal: <span id="swapFromBal" style="color:var(--text2);">0.00</span> <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:4px;color:var(--accent3);font-size:.72rem;padding:1px 5px;cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="fromToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;" onclick="flipSwap()">
-            <span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.72rem;color:var(--text3);margin-left:2px;">▾</span>
-          </div>
-          <input class="swap-input" id="swapFrom" type="number" placeholder="0.00" oninput="calcSwap()" style="flex:1;text-align:right;font-size:1.8rem;"/>
-        </div>
-        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapFromUSD">0.00</span></div>
+    <!-- Sell box -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px 18px 14px;margin-bottom:3px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span style="font-size:.75rem;color:var(--text3);font-weight:500;">Sell</span>
+        <span style="font-size:.72rem;color:var(--text3);">Bal: <span id="swapFromBal">0.00</span>
+          <button onclick="document.getElementById('swapFrom').value=document.getElementById('swapFromBal').textContent;calcSwap();"
+            style="background:none;border:none;color:var(--accent3);font-size:.7rem;cursor:pointer;padding:0 0 0 4px;font-weight:600;">MAX</button>
+        </span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;position:relative;height:30px;margin:0 -4px;">
-        <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(139,92,246,.1);"></div>
-        <button onclick="flipSwap()" style="position:relative;width:36px;height:36px;border-radius:10px;background:var(--bg);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;">⇅</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;cursor:pointer;flex-shrink:0;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#2775ca;flex-shrink:0;display:inline-block;"></span>
+          <span id="fromTokenLabel" style="font-size:.92rem;font-weight:700;color:var(--text);">USDC</span>
+          <span style="font-size:.7rem;color:var(--text3);">▾</span>
+        </button>
+        <input class="swap-input" id="swapFrom" type="number" placeholder="0" oninput="calcSwap()"
+          style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;min-width:0;"/>
       </div>
-      <div class="swap-inner bottom">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">You Receive</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Bal: <span id="swapToBal" style="color:var(--text2);">0.00</span></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="toToken" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(96,165,250,.25);border-radius:100px;padding:6px 12px;font-size:.88rem;font-weight:600;color:var(--text);white-space:nowrap;">
-            <span class="tok-dot eurc-dot"></span>EURC
-          </div>
-          <input class="swap-input" id="swapTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.8rem;opacity:.5;"/>
-        </div>
-        <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:5px;">≈ $<span id="swapToUSD">0.00</span></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <span style="font-size:.72rem;color:var(--text3);">≈ $<span id="swapFromUSD">0.00</span></span>
       </div>
     </div>
 
-    <!-- Rate row -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:12px;margin-bottom:12px;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);" id="swapRate">1 USDC ≈ 0.9258 EURC &nbsp;·&nbsp; <span style="color:var(--success);font-size:.72rem;">● live</span></span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">⛽ ~0.009 · 0.1%</span>
+    <!-- Flip button -->
+    <div style="display:flex;justify-content:center;position:relative;z-index:1;margin:-1px 0;">
+      <button onclick="flipSwap()" style="width:36px;height:36px;border-radius:10px;background:var(--surface);border:2px solid var(--bg);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">⇅</button>
     </div>
 
-    <button class="btn" id="swapBtn" onclick="doSwap()" style="margin-top:auto;">Swap USDC ↔ EURC</button>
+    <!-- Buy box -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px 18px 14px;margin-top:3px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span style="font-size:.75rem;color:var(--text3);font-weight:500;">Buy</span>
+        <span style="font-size:.72rem;color:var(--text3);">Bal: <span id="swapToBal">0.00</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;flex-shrink:0;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#2b3ed6;flex-shrink:0;display:inline-block;"></span>
+          <span id="toTokenLabel" style="font-size:.92rem;font-weight:700;color:var(--text);">EURC</span>
+        </div>
+        <input class="swap-input" id="swapTo" type="number" placeholder="0" readonly
+          style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--accent3);font-family:'Inter',sans-serif;min-width:0;opacity:.9;"/>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <span style="font-size:.72rem;color:var(--text3);">≈ $<span id="swapToUSD">0.00</span></span>
+      </div>
+    </div>
+
+    <!-- Rate bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;">
+      <span id="swapRate" style="font-size:.75rem;color:var(--text2);font-family:'JetBrains Mono',monospace;">1 USDC ≈ 0.9258 EURC</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:.72rem;color:var(--text3);">⛽ ~0.009</span>
+        <span style="font-size:.72rem;color:var(--text3);">·</span>
+        <span style="font-size:.72rem;color:var(--text3);">0.1%</span>
+        <span style="font-size:.7rem;color:var(--success);display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--success);display:inline-block;"></span>live</span>
+        <button onclick="fetchLiveFX()" style="background:none;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;padding:0;">↻</button>
+      </div>
+    </div>
+
+    <button class="btn" id="swapBtn" onclick="doSwap()" style="width:100%;height:52px;font-size:1rem;font-weight:700;border-radius:16px;">Swap</button>
   </div>
 
   <!-- ══ BRIDGE PAGE ══ -->

@@ -1223,8 +1223,16 @@ function _applyQuote(q){
 function flipSwap(){
   swapFlipped=!swapFlipped;
   _quoteCache={};
-  document.getElementById('fromToken').innerHTML=swapFlipped?'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC':'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC';
-  document.getElementById('toToken').innerHTML=swapFlipped?'<span class="tok-dot usdc-dot" style="margin-right:2px;"></span>USDC':'<span class="tok-dot eurc-dot" style="margin-right:2px;"></span>EURC';
+  // Update labels in new Relay-style UI
+  const fromLbl=document.getElementById('fromTokenLabel');
+  const toLbl=document.getElementById('toTokenLabel');
+  if(fromLbl) fromLbl.textContent=swapFlipped?'EURC':'USDC';
+  if(toLbl) toLbl.textContent=swapFlipped?'USDC':'EURC';
+  // Update dot colors
+  const fromDot=document.querySelector('#fromToken span:first-child');
+  const toDot=document.querySelector('#toToken span:first-child');
+  if(fromDot) fromDot.style.background=swapFlipped?'#2b3ed6':'#2775ca';
+  if(toDot) toDot.style.background=swapFlipped?'#2775ca':'#2b3ed6';
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
