@@ -15,10 +15,7 @@
       localStorage.removeItem('circleWalletId');
       localStorage.removeItem('circleWalletAddr');
       sessionStorage.setItem('nan_from_landing','1');
-    }
-    // Hide page-land immediately if already verified on landing page
-    var verified = params.get('verified');
-    if(connectType && verified === '1'){
+      // Hide page-land for ALL connect types — show loading screen instead
       var s = document.createElement('style');
       s.textContent = '#page-land{display:none!important;}';
       document.head.appendChild(s);

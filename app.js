@@ -3654,11 +3654,27 @@ window.addEventListener('load',()=>{
       }
     }, 600);
   } else if(_ct && _ct!=='email'){
-    // MetaMask/Coinbase — show page-land and auto-trigger
-    if(_land) _land.style.display='flex';
-    setTimeout(function(){
-      if(typeof connectSpecific==='function') connectSpecific(_ct);
-    }, 800);
+    // MetaMask/Coinbase/WalletConnect — skip page-land, show loading + trigger wallet
+    if(_land) _land.style.display='none';
+    // Show minimal connect prompt
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="connectLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">'
+      +'<div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(124,58,237,.5);margin-bottom:4px;">'
+      +'<svg width="24" height="24" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/></svg>'
+      +'</div>'
+      +'<div style="font-size:1rem;font-weight:700;color:var(--text);">Connecting wallet…</div>'
+      +'<div style="font-size:.78rem;color:var(--text3);">Check your wallet for a connection request</div>'
+      +'<button onclick="window.location.replace('/')" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);padding:8px 18px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
+      +'</div>');
+    setTimeout(async function(){
+      try{
+        if(typeof connectSpecific==='function') await connectSpecific(_ct);
+        var l=document.getElementById('connectLoader'); if(l)l.remove();
+      } catch(e){
+        var l=document.getElementById('connectLoader'); if(l)l.remove();
+        if(_land) _land.style.display='flex';
+      }
+    }, 600);
   } else {
     // Normal — show page-land
     if(_land && !_lp.get('pay')) _land.style.display='flex';
