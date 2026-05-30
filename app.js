@@ -766,6 +766,17 @@ async function refreshBalances(){
     if(emptyHint){emptyHint.style.display=(parseFloat(u)===0&&parseFloat(e)===0)?'flex':'none';}
     document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
     document.getElementById('swapToBal').textContent=swapFlipped?u:e;
+    // Update home page balance card
+    const totalUsd=(parseFloat(u)+parseFloat(e)*(1/FX));
+    const NGN_RATE=1622;
+    const homeBalAmt=document.getElementById('homeBalAmt');
+    const homeBalNgn=document.getElementById('homeBalNgn');
+    const homeUsdcBal=document.getElementById('homeUsdcBal');
+    const homeEurcBal=document.getElementById('homeEurcBal');
+    if(homeBalAmt)homeBalAmt.textContent=totalUsd.toFixed(2);
+    if(homeBalNgn)homeBalNgn.textContent='≈ ₦'+Math.round(totalUsd*NGN_RATE).toLocaleString()+' NGN';
+    if(homeUsdcBal)homeUsdcBal.textContent=u+' USDC';
+    if(homeEurcBal)homeEurcBal.textContent=e+' EURC';
     // Update home page asset rows
     const haUsdc=document.getElementById('homeAssetUsdc');
     const haEurc=document.getElementById('homeAssetEurc');
@@ -1718,7 +1729,10 @@ function renderHistory(){
     const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
     const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length>=10;
-    const viewLink=isRealHash?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">View ↗</a>`:'<span style="color:var(--text3);font-size:.62rem;">Circle Wallet</span>';
+    const circleAddr=tx.source==='circle'||tx.source==='lending'||tx.source==='arcname'||tx.source==='payreq'||tx.source==='swap';
+    const viewLink=isRealHash&&!circleAddr
+      ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">View ↗</a>`
+      :`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="color:var(--accent3);">Wallet ↗</a>`;
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
       `${new Date(tx.ts).toLocaleString()} · ${viewLink} ${srcBadge}`;
     // Circle wallet txs (no 0x hash) are always confirmed — Arc settles in <1s
@@ -3338,24 +3352,10 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // CIRCLE TX POLL HELPER
 // ═══════════════════════════════════════════
-// Fetch real on-chain tx hash from Circle in background and update history
-async function resolveCircleTxHash(circleId) {
-  if(!circleId || circleId.startsWith('0x')) return; // already real hash
-  try {
-    const res = await fetch('https://nan-production.up.railway.app/api/transaction/'+circleId);
-    if(!res.ok) return;
-    const data = await res.json();
-    const realHash = data.txHash;
-    if(!realHash || !realHash.startsWith('0x')) return;
-    // Update matching history entry
-    const idx = txHistory.findIndex(t => t.hash === circleId);
-    if(idx >= 0) {
-      txHistory[idx].hash = realHash;
-      txHistory[idx].confirmed = true;
-      saveTxHistory();
-      renderHistory();
-    }
-  } catch(e) { /* silent */ }
+// Circle wallet txs link to wallet address page (stable) not individual tx
+// Individual tx links on arcscan are unreliable - they appear then disappear
+function resolveCircleTxHash(circleId) {
+  // No-op — we link to address page instead which always works
 }
 
 async function waitForCircleTx(txId, label='tx', timeoutMs=90000) {
