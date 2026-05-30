@@ -33,8 +33,9 @@ function generateCode() {
 
 async function sendEmail(to, code) {
   const apiKey  = process.env.SMTP_PASS; // Resend API key
-  const from    = process.env.SMTP_FROM || 'NAN Wallet <onboarding@resend.dev>';
+  const from    = process.env.SMTP_FROM || 'NAN Wallet <noreply@nanarc.xyz>';
 
+  if(!apiKey) throw new Error('SMTP_PASS (Resend API key) not set in environment');
   const r = await fetch('https://api.resend.com/emails', {
     method:  'POST',
     headers: {
@@ -83,7 +84,8 @@ async function sendEmail(to, code) {
   });
 
   const data = await r.json();
-  if (!r.ok) throw new Error(data?.message || data?.name || `Resend error ${r.status}`);
+  console.log('[OTP Resend]', r.status, JSON.stringify(data));
+  if (!r.ok) throw new Error(data?.message || data?.name || `Resend ${r.status}: ${JSON.stringify(data)}`);
   return data;
 }
 
