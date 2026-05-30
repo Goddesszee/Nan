@@ -457,23 +457,41 @@ a:hover{color:var(--text);}
   .stab{font-size:.65rem!important;padding:7px 4px!important;}
 }
 
+[data-theme="light"] body{background:#eef0f6;}
 [data-theme="light"] .bal-card{background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%);}
 [data-theme="light"] .home-bal-card{background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%);}
-[data-theme="light"] .brand-name{color:#101828;}
-[data-theme="light"] .nav-btn{color:#667085;}
-[data-theme="light"] .nav-btn.active{background:rgba(124,58,237,0.08);color:#7c3aed;}
-[data-theme="light"] .card{background:#ffffff;border-color:#e4e7ec;box-shadow:0 1px 3px rgba(16,24,40,0.08);}
-[data-theme="light"] input,[data-theme="light"] select{background:#ffffff;border-color:#d0d5dd;color:#101828;}
-[data-theme="light"] .btn{box-shadow:0 4px 12px rgba(124,58,237,0.25);}
-[data-theme="light"] .more-item{background:#ffffff;border-color:#e4e7ec;}
-[data-theme="light"] .swap-inner,[data-theme="light"] .swap-box-wrap{background:#ffffff;border-color:#e4e7ec;}
-[data-theme="light"] .page-title{color:#101828;}
-[data-theme="light"] .tx-item{background:#f8f9fb;}
-[data-theme="light"] .tx-item:hover{background:#f0f2f5;}
-[data-theme="light"] #desktopNav{background:#ffffff;border-color:#e4e7ec;}
-[data-theme="light"] .dnav-btn{color:#344054;}
-[data-theme="light"] .dnav-btn.active{background:#f0f2f5;color:#101828;}
-[data-theme="light"] .dnav-btn:hover{background:#f8f9fb;}
+[data-theme="light"] .brand-name{color:#0d1117;font-weight:700;}
+[data-theme="light"] .nav-btn{color:#6b7280;background:transparent;border-color:transparent;}
+[data-theme="light"] .nav-btn.active{background:rgba(124,58,237,0.06);color:#7c3aed;border-color:rgba(124,58,237,0.12);}
+[data-theme="light"] .nav-btn:hover{background:#f0f2f7;color:#344054;}
+[data-theme="light"] .card{background:#ffffff;border-color:#e2e5ef;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+[data-theme="light"] input,[data-theme="light"] select{background:#ffffff;border-color:#d0d5dd;color:#0d1117;font-size:15px;}
+[data-theme="light"] input::placeholder{color:#9ca3af;}
+[data-theme="light"] .btn{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 1px 2px rgba(0,0,0,0.1);font-size:15px;font-weight:600;letter-spacing:.01em;}
+[data-theme="light"] .more-item{background:#ffffff;border-color:#e2e5ef;}
+[data-theme="light"] .more-item:hover{background:#f5f6fa;}
+[data-theme="light"] .swap-inner,[data-theme="light"] .swap-box-wrap{background:#ffffff;border-color:#e2e5ef;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+[data-theme="light"] .page-title{color:#0d1117;font-size:1.35rem;font-weight:700;}
+[data-theme="light"] .page-sub{color:#6b7280;font-size:.9rem;}
+[data-theme="light"] .tx-item{background:#ffffff;border-color:#e2e5ef;}
+[data-theme="light"] .tx-item:hover{background:#f5f6fa;}
+[data-theme="light"] .tx-title{color:#0d1117;font-size:.9rem;font-weight:600;}
+[data-theme="light"] .tx-time{color:#9ca3af;font-size:.75rem;}
+[data-theme="light"] #desktopNav{background:#ffffff;border-right-color:#e2e5ef;}
+[data-theme="light"] .dnav-btn{color:#6b7280;font-size:.85rem;}
+[data-theme="light"] .dnav-btn.active{background:#f0f2f7;color:#0d1117;font-weight:600;}
+[data-theme="light"] .dnav-btn:hover{background:#f5f6fa;color:#344054;}
+[data-theme="light"] .dnav-logo-row{border-bottom-color:#e2e5ef;}
+[data-theme="light"] #globalTopBar{background:rgba(238,240,246,0.97);border-bottom-color:#e2e5ef;}
+[data-theme="light"] .swap-input{color:#0d1117!important;font-size:2.2rem!important;font-weight:700!important;}
+[data-theme="light"] .home-asset-row{background:#ffffff;border-color:#e2e5ef;}
+[data-theme="light"] .home-asset-row:hover{background:#f5f6fa;}
+[data-theme="light"] .home-asset-name{color:#0d1117;font-weight:600;font-size:.9rem;}
+[data-theme="light"] .home-asset-sub{color:#6b7280;font-size:.75rem;}
+[data-theme="light"] .home-asset-val{color:#0d1117;font-weight:700;font-size:.95rem;}
+[data-theme="light"] .info-banner{background:#f0f2f7;border-color:#e2e5ef;color:#344054;}
+[data-theme="light"] .topbar-page-name{color:#0d1117;font-weight:600;}
+[data-theme="light"] .page{background:#eef0f6;}
 [data-theme="light"] .more-item:hover{background:rgba(139,92,246,0.1);}
 [data-theme="light"] .bottom-nav{border-top:1px solid rgba(139,92,246,0.15);}
 [data-theme="light"] #globalTopBar{border-bottom:1px solid rgba(139,92,246,0.15);}
