@@ -20,6 +20,9 @@
     if(connectType){
       // Mark as coming from landing
       sessionStorage.setItem('nan_from_landing', '1');
+      // CLEAR any previous session so auto-restore doesn't kick in
+      localStorage.removeItem('circleWalletId');
+      localStorage.removeItem('circleWalletAddr');
       // Inject CSS immediately to hide page-land before it can flash
       var s = document.createElement('style');
       s.textContent = '#page-land{display:none!important;}';
