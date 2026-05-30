@@ -1278,7 +1278,7 @@ function flipSwap(){
       if(!d.success)throw new Error(d.error||'Swap failed');
       const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
       toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
-      addTx({hash:d.txHash||d.transactionId||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:false,source:'swap'});
+      addTx({hash:d.txHash||d.transactionId||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       btn.innerHTML='Swap';btn.disabled=false;
       // Poll balance until it changes
@@ -2865,7 +2865,7 @@ async function doSupply(){
       // Arc confirms in <1s — refresh balance after short delay
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
-      addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:!!supData.txHash&&!supData.pending,source:'lending'});
+      addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       if(supData.pending&&supData.transactionId){
         pollTxStatus(supData.transactionId,'',async()=>{
           txHistory[0].confirmed=true;saveTxHistory();
@@ -2975,7 +2975,7 @@ async function doBorrow(){
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
       toast('✓ Borrow submitted!','success',4000);
-      addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:false,source:'lending'});
+      addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();refreshLendPosition();}},0);
 
     }else if(signer){
@@ -3031,7 +3031,7 @@ async function doRepay(){
       if(!d.success)throw new Error(d.error||'Repay failed');
       toast('✓ Repay submitted!','success',4000);
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
       const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
@@ -3068,7 +3068,7 @@ async function doWithdraw(){
       if(!d.success)throw new Error(d.error||'Withdraw failed');
       toast('✓ Withdraw submitted!','success',4000);
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
+      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
