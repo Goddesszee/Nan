@@ -636,7 +636,7 @@ async function onConnected(isEmail=false, isDev=false){
   land.style.visibility='hidden';
   land.style.zIndex='-1';
   document.getElementById('bottomNav').classList.add('show');
-  showPage('send');
+  showPage('home');
   updateTopBar(true);
   if(typeof updateDesktopNav === 'function') updateDesktopNav();
 
