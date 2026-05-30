@@ -692,28 +692,11 @@ function disconnect(){
   localStorage.removeItem('circleWalletId');
   localStorage.removeItem('circleWalletAddr');
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('bottomNav').classList.remove('show');
-  const landPage=document.getElementById('page-land');
-  landPage.style.display='flex';
-  landPage.style.visibility='visible';
-  landPage.style.zIndex='10';
-  landPage.classList.add('active');
-  // Reset email login box
-  const loginBox=document.getElementById('emailLoginBox');
-  if(loginBox){loginBox.style.display='block';}
-  document.getElementById('connectTopBtn').style.display='none';
-  const _disc=document.getElementById('disconnectTopBtn');
-  if(_disc)_disc.style.display='none';
-  document.getElementById('wrongNetBanner').classList.remove('show');
-  document.getElementById('onboardChecklist').style.display='none';
-  document.getElementById('devBadge').style.display='none';
-  document.getElementById('emailInput').value='';
-  document.getElementById('otpBox').style.display='none';
-  document.getElementById('aiBtn').style.display='none';
-  document.getElementById('agentPanel').style.display='none';
-  agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything — crypto questions, DeFi, staking, gas fees, or your live wallet. Try \"send 10 USDC\" and I'll set it up!"}];
-  toast('Disconnected','info',2000);
+  // Clear landing flag so user goes through landing page again
+  sessionStorage.removeItem('nan_from_landing');
+  // Redirect to landing page
+  toast('Disconnected','info',1500);
+  setTimeout(()=>{ window.location.replace('/'); }, 800);
 }
 
 // ═══════════════════════════════════════════
@@ -3541,7 +3524,11 @@ function doNgnConvert(){
 window.addEventListener('load',()=>{
   initTheme();
   resizeAIPanel();
-  document.getElementById('page-land').style.display='flex';
+  // Only show page-land if not coming from landing with ?connect= param
+  const _lp = new URLSearchParams(window.location.search);
+  if(!_lp.get('connect')){
+    document.getElementById('page-land').style.display='flex';
+  }
   initSwapUI();
   fetchLiveFX();
   setInterval(fetchLiveFX,60000);
