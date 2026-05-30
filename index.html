@@ -30,7 +30,7 @@
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;}
   body::after{content:'';position:fixed;inset:0;background:none;pointer-events:none;z-index:0;}
 
-  nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--card-border,#e2e5ef);padding:0 28px;height:62px;display:flex;align-items:center;}
+  nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;height:62px;display:flex;align-items:center;}
   .nav-inner{max-width:100%;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
   .brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
   .brand-logo{width:34px;height:34px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -227,7 +227,7 @@
     <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
     <p class="hero-sub">Nan is the simplest way to send, swap, lend, borrow, and bridge USDC and EURC on Arc — Circle's stablecoin-native blockchain. Non-custodial. For everyone, everywhere.</p>
     <div class="hero-btns">
-      <button class="btn-primary" onclick="toggleConnectDrop();document.getElementById('connectWrap').scrollIntoView({behavior:'smooth'})">Connect Wallet →</button>
+      <button class="btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(toggleConnectDrop,300)">Connect Wallet →</button>
       <a class="btn-secondary" href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Get Free Tokens</a>
     </div>
   </div>
@@ -385,7 +385,7 @@
   <div class="cta-section reveal">
     <h2>Ready to try <span class="accent">Nan</span>?</h2>
     <p>Connect your wallet or sign in with email and experience stablecoin finance on Arc.</p>
-    <button class="btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(toggleConnectDrop,400)">Connect Wallet →</button>
+    <button class="btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(toggleConnectDrop,350)">Connect Wallet →</button>
   </div>
 
 </main>
