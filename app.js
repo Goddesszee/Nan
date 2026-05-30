@@ -1661,14 +1661,14 @@ function updateRightPanel(){
     const isPos = tx.type==='receive';
     const t = tx.type||'send';
     const time = tx.ts ? new Date(tx.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
-    return \`<div class="rp-tx">
-      <div class="rp-tx-icon \${cls[t]||'send'}" style="font-size:.8rem;">\${icons[t]||'↑'}</div>
+    return `<div class="rp-tx">
+      <div class="rp-tx-icon ${cls[t]||'send'}" style="font-size:.8rem;">${icons[t]||'↑'}</div>
       <div class="rp-tx-info">
-        <div class="rp-tx-name">\${t.charAt(0).toUpperCase()+t.slice(1)} \${tx.token||'USDC'}</div>
-        <div class="rp-tx-time">\${time}</div>
+        <div class="rp-tx-name">${t.charAt(0).toUpperCase()+t.slice(1)} ${tx.token||'USDC'}</div>
+        <div class="rp-tx-time">${time}</div>
       </div>
-      <div class="rp-tx-amt \${isPos?'pos':'neg'}">\${isPos?'+':'-'}\${parseFloat(tx.amount||0).toFixed(2)}</div>
-    </div>\`;
+      <div class="rp-tx-amt ${isPos?'pos':'neg'}">${isPos?'+':'-'}${parseFloat(tx.amount||0).toFixed(2)}</div>
+    </div>`;
   }).join('');
 }
 
