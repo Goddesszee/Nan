@@ -2521,8 +2521,19 @@ function renderAgentMsgs(){
 }
 function renderAgentChips(){
   if(agentMsgs.length>1){document.getElementById('agentChips').innerHTML='';return;}
-  const chips=["What's my balance?","Sell USDC when rate hits","Send 20 USDC on Friday","My pending orders","Cancel all orders","Swap USDC → EURC","Bridge via CCTP"];
-  document.getElementById('agentChips').innerHTML=chips.map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;">${c}</button>`).join('');
+  // Context-aware chips based on current wallet state
+  const chips=[];
+  const usdc=parseFloat(usdcBal||0), eurc=parseFloat(eurcBal||0);
+  if(usdc>0) chips.push("What's my balance?");
+  if(usdc>1) chips.push("Swap USDC → EURC");
+  if(eurc>1) chips.push("Swap EURC → USDC");
+  if(usdc>5) chips.push("Supply USDC to earn");
+  if(usdc>0||eurc>0) chips.push("Send tokens");
+  chips.push("Bridge to Sepolia");
+  chips.push("My pending orders");
+  if(nanOrders.length>0) chips.push("Cancel all orders");
+  chips.push("How does earn work?");
+  document.getElementById('agentChips').innerHTML=chips.slice(0,6).map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -2536,7 +2547,12 @@ async function sendAgentMsg(text){
   agentMsgs.push({role:'assistant',content:'<span class="spinner" style="border-top-color:var(--accent3);"></span>'});
   renderAgentMsgs();scrollAgentBottom();
 
-  const context=`You are NAN AI ✦, a friendly DeFi assistant embedded in NAN Wallet — a stablecoin wallet built on Arc Testnet, Circle's new Layer-1 blockchain.
+  // Build rich context for AI
+  const lendPos=parseFloat(document.getElementById('lendSupplied')?.textContent||'0');
+  const borrowPos=parseFloat(document.getElementById('lendBorrowed')?.textContent||'0');
+  const myNames=arcNames.filter(n=>n.owner===userAddr).map(n=>n.name+'.arc').join(', ')||'none';
+  const pendingOrders=nanOrders.length;
+  const context=`You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
 
 LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddr||'Not connected'}
@@ -2607,7 +2623,7 @@ RULES:
     const res=await fetch('https://nan-production.up.railway.app/api/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        system:context,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
+        system:context+`\n- USDC Supplied: ${lendPos} USDC\n- USDC Borrowed: ${borrowPos} USDC\n- .arc Names: ${myNames}\n- Pending Orders: ${pendingOrders}`,usdcBal:usdcBal,eurcBal:eurcBal,userAddress:userAddr,
         messages:agentMsgs.slice(0,-1).filter(m=>!m.content.includes('spinner')).map(m=>({role:m.role,content:m.content}))
       }),
     });
