@@ -691,7 +691,7 @@ async function onConnected(isEmail=false, isDev=false){
   setTimeout(attachAIListeners, 100); // re-attach after button is visible
   startOrderEngine();
   // Pre-approve all contracts once so users never see repeated approve popups
-  if(!isCircleWallet && signer){ _ensureUnlimitedApprovals(); }
+  // Approvals done per-transaction with exact amounts for security
   renderAgentMsgs();renderAgentChips();
 
   if(!isEmail&&wp?.on){
@@ -1324,7 +1324,8 @@ function flipSwap(){
       // Only approve if allowance is insufficient
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
-        const approveTx=await tokenContract.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        const approveAmt=ethers.parseUnits(fromAmt.toFixed(6),6);
+        const approveTx=await tokenContract.approve(SWAP_CONTRACT,approveAmt,arcGasOpts());
         await approveTx.wait(0);
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
@@ -1412,7 +1413,8 @@ async function doBridge(){
     const usdc=new ethers.Contract(USDC_ADDR,ERC20_ABI,signer);
     const allowance=await usdc.allowance(userAddr,CCTP_TOKEN_MESSENGER);
     if(allowance<amtParsed){
-      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,ethers.MaxUint256,arcGasOpts());
+      const approveAmt=ethers.parseUnits(parsed.toFixed(6),6);
+      const appTx=await usdc.approve(CCTP_TOKEN_MESSENGER,approveAmt,arcGasOpts());
       btn.innerHTML='<span class="spinner"></span>Confirming approval…';
       await appTx.wait(0);
     }
@@ -2499,7 +2501,11 @@ function formatOrderSummary(order){
 let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything — crypto questions, DeFi, staking, CCTP bridging, or your live wallet. Try \"send 10 USDC\" and I'll set it up!"}];
 let agentOpen=false;
 
+let _agentToggleLock=false;
 function toggleAgent(){
+  if(_agentToggleLock)return;
+  _agentToggleLock=true;
+  setTimeout(()=>{_agentToggleLock=false;},400);
   try{
     agentOpen=!agentOpen;
     const panel=document.getElementById('agentPanel');
@@ -3019,7 +3025,8 @@ async function doSupply(){
       const lendAllowance=await tokenContract.allowance(userAddr,LENDING_CONTRACT);
       if(lendAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const approveTx=await tokenContract.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        const lendApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
+        const approveTx=await tokenContract.approve(LENDING_CONTRACT,lendApproveAmt,arcGasOpts());
         await approveTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Supplying on Arc...';
@@ -3178,7 +3185,8 @@ async function doRepay(){
       const amtParsed=ethers.parseUnits(amt.toFixed(6),6);
       const repayAllowance=await usdc.allowance(userAddr,LENDING_CONTRACT);
       if(repayAllowance<amtParsed){
-        const appTx=await usdc.approve(LENDING_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        const repayApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
+        const appTx=await usdc.approve(LENDING_CONTRACT,repayApproveAmt,arcGasOpts());
         await appTx.wait(0);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
@@ -3305,7 +3313,8 @@ async function registerArcName(){
       const nameAllowance=await usdcContract.allowance(userAddr,NAME_REGISTRY);
       if(nameAllowance<fee){
         if(btn)btn.innerHTML='<span class="spinner"></span>Approving…';
-        const approveTx=await usdcContract.approve(NAME_REGISTRY,ethers.MaxUint256,arcGasOpts());
+        const nameApproveAmt=ethers.parseUnits(arcNameFeeUsdc.toFixed(6),6);
+        const approveTx=await usdcContract.approve(NAME_REGISTRY,nameApproveAmt,arcGasOpts());
         await approveTx.wait(0);
       }
       if(btn)btn.innerHTML='<span class="spinner"></span>Registering on Arc...';
@@ -3810,7 +3819,8 @@ async function doPayNow(){
       const payAllowance=await tokenContract.allowance(userAddr,PAYREQ_CONTRACT);
       if(payAllowance<amtParsed){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,ethers.MaxUint256,arcGasOpts());
+        const payApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
+        const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payApproveAmt,arcGasOpts());
         await appTx.wait(0);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
