@@ -982,12 +982,12 @@ function showSendSuccess(amt,to,hash){
   const btn=document.getElementById('confirmSendBtn');
   btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
 }
-function openExplorer(){if(lastTxHash)window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');}
+function openExplorer(){if(lastTxHash&&lastTxHash.startsWith('0x'))window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');else if(lastTxHash)toast('Transaction confirmed on Arc — hash not available for Circle wallet txs','info',4000);}
 
 function shareOnX(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
+  const explorerUrl=(hash&&hash.startsWith('0x'))?ARC_EXP+'/tx/'+hash:ARC_EXP+'/address/'+(userAddr||'');
   const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
@@ -995,7 +995,8 @@ function shareOnX(){
 function showReceipt(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const shortHash=hash?hash.slice(0,10)+'...'+hash.slice(-6):'pending';
+  const isReal=hash&&hash.startsWith('0x');
+  const shortHash=isReal?hash.slice(0,10)+'...'+hash.slice(-6):'Circle Wallet ✓';
   const now=new Date().toLocaleString();
   const modal=document.createElement('div');
   modal.id='receiptModal';
@@ -1048,7 +1049,7 @@ function showReceipt(){
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            <a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>
+            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
           </div>
         </div>
 
