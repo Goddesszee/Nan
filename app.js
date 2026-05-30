@@ -3634,6 +3634,11 @@ window.addEventListener('load',()=>{
         circleWalletBlockchain=walletData.blockchain||'ARC-TESTNET';
         circleUserToken=cw.userToken||null;
         circleUserId=cw.userId||null;
+        // CRITICAL: set userAddr before calling onConnected
+        userAddr=walletAddr;
+        isCircleWallet=true;
+        provider=getArcProvider();
+        onArcNetwork=true;
         localStorage.setItem('circleWalletId',walletId);
         localStorage.setItem('circleWalletAddr',walletAddr);
         localStorage.removeItem('nan_otp_token');
