@@ -173,13 +173,29 @@
 
         <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#0f0f1a;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(124,58,237,.1);z-index:500;">
 
-          <!-- Email -->
-          <div style="padding:10px 8px 6px;">
+          <!-- Email step 1 -->
+          <div id="landingEmailStep" style="padding:10px 8px 6px;">
             <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4b5563;margin-bottom:8px;">Continue with Email</div>
-            <input id="landingEmailInput" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"/>
-            <button onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <input id="landingEmailInput" type="email" placeholder="your@email.com"
+              style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
+              onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
+              onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
+            <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
               Continue with Email →
             </button>
+          </div>
+          <!-- OTP step 2 (hidden initially) -->
+          <div id="landingOtpStep" style="display:none;padding:10px 8px 6px;">
+            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4b5563;margin-bottom:4px;">Enter verification code</div>
+            <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#a78bfa;margin-bottom:10px;"></div>
+            <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+              style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
+              onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
+              onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
+            <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
+              Verify & Connect →
+            </button>
+            <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#6b7280;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
           </div>
 
           <div style="height:1px;background:rgba(255,255,255,.06);margin:8px 0;"></div>
@@ -454,12 +470,49 @@ document.addEventListener('click', function(e){
     if(chevron) chevron.style.transform = 'rotate(0deg)';
   }
 });
-function landingEmailConnect(){
+async function landingEmailConnect(){
   const email = document.getElementById('landingEmailInput').value.trim();
-  if(!email || !email.includes('@')){ alert('Please enter a valid email'); return; }
-  localStorage.setItem('nan_otp_email', email);
-  sessionStorage.setItem('nan_from_landing', '1');
-  window.location.href = '/app.html?connect=email&email=' + encodeURIComponent(email);
+  if(!email||!email.includes('@')){ alert('Please enter a valid email'); return; }
+  const btn = document.getElementById('landingEmailBtn');
+  btn.textContent='Sending code…'; btn.disabled=true;
+  try{
+    const res = await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'send',email})});
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error||'Failed to send');
+    window._landingOtpToken = data.token;
+    window._landingOtpExpiry = data.expiresAt;
+    window._landingEmail = email;
+    document.getElementById('landingOtpEmailLabel').textContent = 'Code sent to '+email;
+    document.getElementById('landingEmailStep').style.display='none';
+    document.getElementById('landingOtpStep').style.display='block';
+    setTimeout(()=>document.getElementById('landingOtpInput').focus(),100);
+  } catch(e){
+    alert('Could not send code: '+e.message);
+    btn.textContent='Continue with Email →'; btn.disabled=false;
+  }
+}
+async function landingVerifyOTP(){
+  const otp = document.getElementById('landingOtpInput').value.trim();
+  if(!otp||otp.length<6){ alert('Enter the 6-digit code'); return; }
+  const btn = document.getElementById('landingVerifyBtn');
+  btn.textContent='Verifying…'; btn.disabled=true;
+  try{
+    const res = await fetch('/api/otp',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify',email:window._landingEmail,otp,
+        token:window._landingOtpToken,expiresAt:window._landingOtpExpiry})});
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error||'Invalid code');
+    // OTP verified — now go to app with verified flag
+    localStorage.setItem('nan_otp_email', window._landingEmail);
+    localStorage.setItem('nan_otp_token', window._landingOtpToken);
+    localStorage.setItem('nan_otp_verified','1');
+    sessionStorage.setItem('nan_from_landing','1');
+    window.location.href='/app.html?connect=email&verified=1&email='+encodeURIComponent(window._landingEmail);
+  } catch(e){
+    alert('Error: '+e.message);
+    btn.textContent='Verify & Connect →'; btn.disabled=false;
+  }
 }
 function landingWalletConnect(type){
   sessionStorage.setItem('nan_from_landing', '1');

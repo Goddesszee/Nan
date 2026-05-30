@@ -10,11 +10,18 @@
     var isDirect = params.get('direct');
     var fromLanding = sessionStorage.getItem('nan_from_landing');
 
-    // Always clear old wallet session when connecting fresh
+    // Clear old session when connecting fresh
     if(connectType){
       localStorage.removeItem('circleWalletId');
       localStorage.removeItem('circleWalletAddr');
       sessionStorage.setItem('nan_from_landing','1');
+    }
+    // Hide page-land immediately if already verified on landing page
+    var verified = params.get('verified');
+    if(connectType && verified === '1'){
+      var s = document.createElement('style');
+      s.textContent = '#page-land{display:none!important;}';
+      document.head.appendChild(s);
     }
 
     // Redirect to landing if no valid entry

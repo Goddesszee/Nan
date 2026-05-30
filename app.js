@@ -3600,35 +3600,46 @@ function doNgnConvert(){
 window.addEventListener('load',()=>{
   initTheme();
   resizeAIPanel();
-  // Always show page-land (connect screen)
   const _lp = new URLSearchParams(window.location.search);
   const _land = document.getElementById('page-land');
-  if(_land && !_lp.get('pay')) _land.style.display='flex';
-  
-  // If ?connect= param, auto-trigger the right wallet after page renders
   const _ct = _lp.get('connect');
   const _em = _lp.get('email');
-  if(_ct){
-    setTimeout(function(){
-      if(_ct==='email'||_ct==='circle'){
-        // Pre-fill email and show OTP section
-        var emailInp=document.getElementById('emailInput');
-        if(emailInp&&_em){ emailInp.value=_em; }
-        // Show email login box
-        var loginBox=document.getElementById('emailLoginBox');
-        if(loginBox) loginBox.style.display='block';
-        // Auto-send OTP if email provided
-        if(_em && typeof sendEmailOTP==='function') sendEmailOTP();
-        // Scroll to email input
-        if(emailInp) emailInp.scrollIntoView({behavior:'smooth',block:'center'});
-      } else if(_ct==='metamask'){
-        if(typeof connectSpecific==='function') connectSpecific('metamask');
-      } else if(_ct==='walletconnect'){
-        if(typeof connectSpecific==='function') connectSpecific('walletconnect');
-      } else if(_ct==='coinbase'){
-        if(typeof connectSpecific==='function') connectSpecific('coinbase');
+  const _verified = _lp.get('verified');
+
+  if(_ct === 'email' && _verified === '1' && _em){
+    // OTP already verified on landing page — skip page-land, go straight to wallet
+    if(_land) _land.style.display='none';
+    setTimeout(async function(){
+      try{
+        otpEmail = _em;
+        const cwRes = await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'getWallet',email:_em})});
+        const cw = await cwRes.json();
+        if(!cw.walletId) throw new Error('Wallet setup failed');
+        circleWalletId=cw.walletId;
+        circleWalletAddress=cw.address;
+        circleWalletBlockchain=cw.blockchain;
+        circleUserToken=cw.userToken;
+        circleUserId=cw.userId;
+        localStorage.setItem('circleWalletId',cw.walletId);
+        localStorage.setItem('circleWalletAddr',cw.address);
+        await onConnected(true,false);
+      } catch(e){
+        // Fallback: show page-land
+        if(_land) _land.style.display='flex';
+        toast('Could not restore wallet: '+e.message,'error');
       }
+    }, 500);
+  } else if(_ct && _ct!=='email'){
+    // MetaMask/Coinbase — show page-land and auto-trigger
+    if(_land) _land.style.display='flex';
+    setTimeout(function(){
+      if(typeof connectSpecific==='function') connectSpecific(_ct);
     }, 800);
+  } else {
+    // Normal — show page-land
+    if(_land && !_lp.get('pay')) _land.style.display='flex';
   }
   initSwapUI();
   fetchLiveFX();
