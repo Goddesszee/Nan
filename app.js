@@ -1646,10 +1646,43 @@ function prefillSend(addr){
 // ═══════════════════════════════════════════
 // HISTORY
 // ═══════════════════════════════════════════
+
+function updateRightPanel(){
+  const list = document.getElementById('rpTxList');
+  if(!list) return;
+  const recent = txHistory.slice(0,5);
+  if(!recent.length){
+    list.innerHTML='<div style="font-size:.75rem;color:rgba(255,255,255,.25);text-align:center;padding:16px 0;">No transactions yet</div>';
+    return;
+  }
+  const icons = { send:'↑', receive:'↓', swap:'⇄', bridge:'⇌', lend:'L', borrow:'B' };
+  const cls   = { send:'send', receive:'receive', swap:'swap', bridge:'bridge', lend:'swap', borrow:'swap' };
+  list.innerHTML = recent.map(tx => {
+    const isPos = tx.type==='receive';
+    const t = tx.type||'send';
+    const time = tx.ts ? new Date(tx.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+    return \`<div class="rp-tx">
+      <div class="rp-tx-icon \${cls[t]||'send'}" style="font-size:.8rem;">\${icons[t]||'↑'}</div>
+      <div class="rp-tx-info">
+        <div class="rp-tx-name">\${t.charAt(0).toUpperCase()+t.slice(1)} \${tx.token||'USDC'}</div>
+        <div class="rp-tx-time">\${time}</div>
+      </div>
+      <div class="rp-tx-amt \${isPos?'pos':'neg'}">\${isPos?'+':'-'}\${parseFloat(tx.amount||0).toFixed(2)}</div>
+    </div>\`;
+  }).join('');
+}
+
+function updateRightPanelFx(rate, token){
+  const el = document.getElementById('rpFxRate');
+  const tm = document.getElementById('rpFxTime');
+  if(el && rate) el.textContent = '1 USDC = '+parseFloat(rate).toFixed(4)+' EURC';
+  if(tm) tm.textContent = 'Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
 function addTx(tx){
   txHistory.unshift(tx);
   saveTxHistory();
   renderHistory();
+  updateRightPanel();
   // Record on-chain in background — don't block UI
   _recordTxOnChain(tx).catch(e=>console.log('History record skipped:',e.message));
 }
