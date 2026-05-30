@@ -3524,10 +3524,11 @@ function doNgnConvert(){
 window.addEventListener('load',()=>{
   initTheme();
   resizeAIPanel();
-  // Only show page-land if not coming from landing with ?connect= param
+  // Only show page-land if no ?connect= param from landing
   const _lp = new URLSearchParams(window.location.search);
-  if(!_lp.get('connect')){
-    document.getElementById('page-land').style.display='flex';
+  if(!_lp.get('connect') && !_lp.get('pay')){
+    const _land = document.getElementById('page-land');
+    if(_land) _land.style.display='flex';
   }
   initSwapUI();
   fetchLiveFX();

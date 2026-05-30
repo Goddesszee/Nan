@@ -3,29 +3,29 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-  // Route users correctly:
-  // - No param, no landing flag → send to landing page
-  // - Has ?connect= → skip page-land, auto-trigger wallet
-  // - Has ?pay= → show payment request
-  // - Came from landing (sessionStorage) → normal app flow
-  var _fromLanding = sessionStorage.getItem('nan_from_landing');
-  var _params = new URLSearchParams(window.location.search);
-  var _connectType = _params.get('connect');
-  var _hasPay = _params.get('pay');
-  var _isDirect = _params.get('direct');
+  // Run IMMEDIATELY before anything renders
+  (function(){
+    var params = new URLSearchParams(window.location.search);
+    var connectType = params.get('connect');
+    var hasPay = params.get('pay');
+    var isDirect = params.get('direct');
+    var fromLanding = sessionStorage.getItem('nan_from_landing');
 
-  if(!_fromLanding && !_connectType && !_hasPay && !_isDirect){
-    // Never visited landing — redirect there first
-    window.location.replace('/');
-  } else if(_connectType){
-    // Coming from landing connect dropdown — mark as visited
-    sessionStorage.setItem('nan_from_landing', '1');
-    // Hide page-land immediately, show loading state
-    document.addEventListener('DOMContentLoaded', function(){
-      var land = document.getElementById('page-land');
-      if(land) land.style.display = 'none';
-    });
-  }
+    if(!fromLanding && !connectType && !hasPay && !isDirect){
+      // No valid entry point — send to landing page
+      window.location.replace('/');
+      return;
+    }
+
+    if(connectType){
+      // Mark as coming from landing
+      sessionStorage.setItem('nan_from_landing', '1');
+      // Inject CSS immediately to hide page-land before it can flash
+      var s = document.createElement('style');
+      s.textContent = '#page-land{display:none!important;}';
+      document.head.appendChild(s);
+    }
+  })();
 </script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
