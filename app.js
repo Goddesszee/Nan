@@ -1728,9 +1728,9 @@ function renderHistory(){
     if(tx.type==='bridge'){icon='⬡';cls='bridge';label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
     const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
-    const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length>=10;
-    const circleAddr=tx.source==='circle'||tx.source==='lending'||tx.source==='arcname'||tx.source==='payreq'||tx.source==='swap';
-    const viewLink=isRealHash&&!circleAddr
+    // Real hash = starts with 0x AND is 66 chars (32 bytes). Circle UUIDs are not 0x hashes.
+    const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
+    const viewLink=isRealHash
       ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">View ↗</a>`
       :`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="color:var(--accent3);">Wallet ↗</a>`;
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
