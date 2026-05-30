@@ -24,6 +24,25 @@
       var s = document.createElement('style');
       s.textContent = '#page-land{display:none!important;}';
       document.head.appendChild(s);
+
+      // Show floating modal as soon as DOM is ready
+      if(connectType === 'email' || connectType === 'circle'){
+        var _emailToFill = new URLSearchParams(window.location.search).get('email') || '';
+        document.addEventListener('DOMContentLoaded', function(){
+          var modal = document.getElementById('floatingOtpModal');
+          if(modal){
+            modal.style.display = 'flex';
+            var inp = document.getElementById('floatingEmailInput');
+            if(inp && _emailToFill){
+              inp.value = _emailToFill;
+              // Small delay then auto-send OTP
+              setTimeout(function(){ if(typeof sendFloatingOTP==='function') sendFloatingOTP(); }, 500);
+            } else if(inp){
+              inp.focus();
+            }
+          }
+        });
+      }
     }
   })();
 </script>
