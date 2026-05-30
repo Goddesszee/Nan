@@ -2536,6 +2536,35 @@ function attachAIListeners(){
 
 // Attach on load and also expose for after-connect call
 document.addEventListener('DOMContentLoaded', attachAIListeners);
+
+// Handle ?connect= query param from landing page dropdown
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const connectType = params.get('connect');
+  const connectEmail = params.get('email');
+  if(!connectType) return;
+  // Auto-trigger connection after page loads
+  setTimeout(async () => {
+    try {
+      if(connectType === 'email' && connectEmail) {
+        // Pre-fill email and trigger OTP
+        const emailInp = document.getElementById('otpEmail');
+        if(emailInp){ emailInp.value = connectEmail; }
+        await sendOTP();
+      } else if(connectType === 'metamask') {
+        await connectMetaMask();
+      } else if(connectType === 'walletconnect') {
+        await connectWC();
+      } else if(connectType === 'coinbase') {
+        await connectCoinbase();
+      } else if(connectType === 'circle') {
+        // Show circle wallet connect UI
+        const circleBtn = document.getElementById('connectCircleBtn');
+        if(circleBtn) circleBtn.click();
+      }
+    } catch(e) { console.log('Auto-connect error:', e.message); }
+  }, 800);
+})();
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');
   if(!btn)return;
