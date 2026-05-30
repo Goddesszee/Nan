@@ -253,6 +253,7 @@ function goPage(name){
   showPage(name);
   if(name==='lend'){initLendUI();}
   if(name==='history')renderHistory();
+  if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();}
   if(name==='arcname'){renderArcDirectory();}
   if(name==='swap')refreshBalances();
 }
@@ -1958,13 +1959,22 @@ function clearBulkRecipients(){
 }
 
 // ── Payroll Groups ──
-function savePayrollGroup(){
+async function savePayrollGroup(){
   if(!bulkRecipients.length){ toast('Add recipients first','error'); return; }
   const name = prompt('Name this payroll group (e.g. Engineering Team, October Payroll):');
   if(!name) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
-  groups[name] = bulkRecipients.map(r=>({addr:r.addr,name:r.name,amount:r.amount}));
-  localStorage.setItem('nan_payroll_groups', JSON.stringify(groups));
+  const groupData = bulkRecipients.map(r=>({addr:r.addr,name:r.name,amount:r.amount}));
+  // Save locally always
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
+  groups[name] = groupData;
+  localStorage.setItem('nan_payroll_groups_'+(userAddr||''), JSON.stringify(groups));
+  // Also save to Railway server for cross-device access
+  try{
+    await fetch('https://nan-production.up.railway.app/api/orders?wallet='+(userAddr||''),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:userAddr,order:{type:'payroll_group',name,recipients:groupData,token:bulkToken,ts:Date.now(),synced:false}})
+    });
+  }catch(e){console.log('Payroll group sync error:',e.message);}
   renderPayrollGroups();
   toast('✓ Group "'+name+'" saved!','success',3000);
 }
@@ -1973,7 +1983,7 @@ function loadPayrollGroup(){
   const sel = document.getElementById('payrollGroupSelect');
   const name = sel.value;
   if(!name) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
   const group = groups[name];
   if(!group) return;
   bulkRecipients = group.map(r=>({...r, status:'pending'}));
@@ -1985,10 +1995,28 @@ function loadPayrollGroup(){
 function renderPayrollGroups(){
   const sel = document.getElementById('payrollGroupSelect');
   if(!sel) return;
-  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups')||'{}');
+  const groups = JSON.parse(localStorage.getItem('nan_payroll_groups_'+(userAddr||''))||'{}');
   const keys = Object.keys(groups);
   sel.innerHTML = '<option value="">— Select saved group —</option>'
     + keys.map(k=>`<option value="${k}">${k} (${groups[k].length} people)</option>`).join('');
+}
+
+function renderPayrollHistory(){
+  const el=document.getElementById('payrollHistory');
+  if(!el)return;
+  const hist=JSON.parse(localStorage.getItem('nan_payroll_history_'+(userAddr||''))||'[]');
+  if(!hist.length){
+    el.innerHTML='<div style="font-size:.75rem;color:var(--text3);text-align:center;padding:12px;">No payroll runs yet</div>';
+    return;
+  }
+  el.innerHTML=hist.map(h=>`
+    <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:.78rem;font-weight:600;color:var(--text);">${new Date(h.date).toLocaleDateString()} · ${new Date(h.date).toLocaleTimeString()}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent3);">${h.total} ${h.token}</span>
+      </div>
+      <div style="font-size:.68rem;color:var(--text3);">${h.sent} sent · ${h.failed} failed · ${h.recipients.length} recipients</div>
+    </div>`).join('');
 }
 
 function schedulePayroll(){
@@ -2081,6 +2109,13 @@ function downloadPayrollReceipt(){
 
 async function doBulkSend(){
   if(!bulkRecipients.length) return;
+
+  // Dry run confirmation
+  const total_amt = bulkRecipients.reduce((s,r)=>s+r.amount,0);
+  const preview = bulkRecipients.slice(0,3).map(r=>`  • ${r.name||r.addr.slice(0,10)}… — ${r.amount} ${bulkToken}`).join('\n');
+  const more = bulkRecipients.length>3?`\n  … and ${bulkRecipients.length-3} more`:'';
+  if(!confirm(`Run Payroll?\n\n${preview}${more}\n\nTotal: ${total_amt.toFixed(2)} ${bulkToken} to ${bulkRecipients.length} recipient${bulkRecipients.length!==1?'s':''}\n\nThis will send real tokens on Arc Testnet.`)) return;
+
   const btn = document.getElementById('bulkSendBtn');
   const progress = document.getElementById('bulkProgress');
   const progressTitle = document.getElementById('bulkProgressTitle');
@@ -2097,16 +2132,17 @@ async function doBulkSend(){
   const tokenAddr = bulkToken === 'USDC' ? USDC_ADDR : EURC_ADDR;
   const decimals = bulkToken === 'USDC' ? USDC_DECIMALS : EURC_DECIMALS;
 
-  for(let i = 0; i < bulkRecipients.length; i++){
-    const r = bulkRecipients[i];
-    progressTitle.textContent = `Sending ${i+1} of ${total}...`;
-    progressBar.style.width = (i/total*100) + '%';
-
+  // Render all status rows first
+  bulkRecipients.forEach((r, i) => {
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.72rem;';
     item.innerHTML = `<span style="color:var(--text3);font-family:'JetBrains Mono',monospace;">${r.name||r.addr.slice(0,12)}…</span><span id="bulk-status-${i}" style="color:var(--text3);">⏳</span>`;
     progressList.appendChild(item);
+  });
+  progressTitle.textContent = `Sending to ${total} recipients in parallel…`;
 
+  // Send all in parallel — much faster on Arc
+  const results = await Promise.allSettled(bulkRecipients.map(async (r, i) => {
     try {
       if(isCircleWallet && circleWalletId){
         const res = await fetch('https://nan-production.up.railway.app/api/circle-wallets', {
@@ -2122,11 +2158,11 @@ async function doBulkSend(){
         });
         const data = await res.json();
         if(!data.success) throw new Error(data.error || 'Transfer failed');
-        addTx({hash:data.txHash||data.transactionId,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:!!data.txHash,source:'circle'});
+        addTx({hash:data.txHash||data.transactionId,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:true,source:'circle'});
       } else if(signer){
         const c = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
         const tx = await c.transfer(r.addr, ethers.parseUnits(r.amount.toFixed(decimals), decimals), arcGasOpts());
-        await tx.wait(0);
+        await tx.wait(1);
         addTx({hash:tx.hash,to:r.addr,toRaw:r.name||r.addr,amount:r.amount.toFixed(6),type:'out',token:bulkToken,ts:Date.now(),confirmed:true,source:'metamask'});
       } else {
         throw new Error('No wallet connected');
@@ -2135,16 +2171,14 @@ async function doBulkSend(){
       document.getElementById('bulk-status-'+i).textContent = '✓';
       document.getElementById('bulk-status-'+i).style.color = 'var(--success)';
       done++;
+      progressBar.style.width = (done/total*100)+'%';
     } catch(e) {
       r.status = 'failed';
-      document.getElementById('bulk-status-'+i).textContent = '✗';
+      document.getElementById('bulk-status-'+i).textContent = '✗ '+e.message.slice(0,30);
       document.getElementById('bulk-status-'+i).style.color = 'var(--danger)';
       console.error('Bulk send error for', r.addr, e.message);
     }
-
-    progressBar.style.width = ((i+1)/total*100) + '%';
-    await new Promise(res => setTimeout(res, 500));
-  }
+  }));
 
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
@@ -2154,6 +2188,24 @@ async function doBulkSend(){
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
   lastPayrollTxs = [...bulkRecipients];
+
+  // Save payroll history
+  try{
+    const histKey='nan_payroll_history_'+(userAddr||'');
+    const hist=JSON.parse(localStorage.getItem(histKey)||'[]');
+    hist.unshift({
+      date:new Date().toISOString(),
+      total:bulkRecipients.reduce((s,r)=>s+(r.status==='done'?r.amount:0),0).toFixed(2),
+      token:bulkToken,
+      sent:done,
+      failed:total-done,
+      recipients:bulkRecipients.map(r=>({name:r.name||r.addr.slice(0,10),addr:r.addr,amount:r.amount,status:r.status}))
+    });
+    // Keep last 20 payroll runs
+    localStorage.setItem(histKey,JSON.stringify(hist.slice(0,20)));
+    renderPayrollHistory();
+  }catch(e){console.warn('Payroll history save error:',e.message);}
+
   bulkRecipients = bulkRecipients.filter(r => r.status !== 'done');
   setTimeout(() => {
     renderBulkRecipients();

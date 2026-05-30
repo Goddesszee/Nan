@@ -1139,6 +1139,10 @@
 
     <!-- Payroll actions -->
     <button class="btn" id="bulkSendBtn" onclick="doBulkSend()" disabled style="margin-bottom:8px;">Run Payroll</button>
+    <div style="margin-top:18px;">
+      <div style="font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:8px;">Payroll History</div>
+      <div id="payrollHistory"></div>
+    </div>
     <div style="display:flex;gap:6px;margin-bottom:8px;">
       <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
       <button onclick="downloadPayrollReceipt()" style="flex:1;padding:10px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">🧾 Last Receipt</button>
