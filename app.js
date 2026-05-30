@@ -2861,9 +2861,9 @@ async function doSupply(){
           params:[amtAtomic]})});
       const supData=await supRes.json();
       if(!supData.success)throw new Error(supData.error||'Supply failed — check NANLendingPool is deployed & you have enough USDC');
-      btn.innerHTML='<span class="spinner"></span>Confirming supply…';
-      if(supData.transactionId){await waitForCircleTx(supData.transactionId,'supply');}
-      toast('✓ Supplied '+amt.toFixed(2)+' '+lendAsset+' on Arc!','success',5000);
+      toast('✓ Supply submitted!','success',4000);
+      // Arc confirms in <1s — refresh balance after short delay
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
       addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:!!supData.txHash&&!supData.pending,source:'lending'});
       if(supData.pending&&supData.transactionId){
@@ -2974,11 +2974,9 @@ async function doBorrow(){
           contractAddress:LENDING_CONTRACT,functionSignature:'borrow(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
-      toast('✓ Borrow submitted — confirming on Arc…','info',4000);
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'borrow');}
-      toast('✓ Borrowed '+amt.toFixed(2)+' USDC on Arc!','success',5000);
-      addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
-      setTimeout(()=>{refreshBalances();refreshLendPosition();},6000);
+      toast('✓ Borrow submitted!','success',4000);
+      addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:false,source:'lending'});
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();refreshLendPosition();}},0);
 
     }else if(signer){
       const lendContract=new ethers.Contract(LENDING_CONTRACT,LENDING_ABI,signer);
@@ -3031,9 +3029,8 @@ async function doRepay(){
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'repay(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Repay failed');
-      btn.innerHTML='<span class="spinner"></span>Confirming repay…';
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'repay');}
-      toast('✓ Repaid '+amt.toFixed(2)+' USDC on-chain!','success',5000);
+      toast('✓ Repay submitted!','success',4000);
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Repay',amount:amt.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
@@ -3069,9 +3066,8 @@ async function doWithdraw(){
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,contractAddress:LENDING_CONTRACT,functionSignature:'withdraw(uint256)',params:[amtAtomic]})});
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Withdraw failed');
-      btn.innerHTML='<span class="spinner"></span>Confirming withdrawal…';
-      if(d.transactionId){await waitForCircleTx(d.transactionId,'withdraw');}
-      toast('✓ Withdrew '+amt.toFixed(2)+' USDC + interest on-chain!','success',5000);
+      toast('✓ Withdraw submitted!','success',4000);
+      setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       addTx({hash:d.txHash||d.transactionId,to:LENDING_CONTRACT,toRaw:'NANLendingPool Withdraw',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:!!d.txHash,source:'lending'});
       setTimeout(()=>{refreshBalances();refreshLendPosition();},8000);
     }else if(signer){
