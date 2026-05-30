@@ -1321,13 +1321,13 @@ function flipSwap(){
       const tokenAddr=isUSDCtoEURC?USDC_ADDR:EURC_ADDR;
       const tokenContract=new ethers.Contract(tokenAddr,ERC20_ABI,signer);
       const amtIn=ethers.parseUnits(fromAmt.toFixed(6),6);
-      // Only approve if allowance is insufficient
+      // Only approve if allowance is insufficient for this swap
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
         btn.innerHTML='<span class="spinner"></span>Approving…';
-        // Approve full token balance — safe (not unlimited) but avoids repeat approvals
-        const fullBal=await tokenContract.balanceOf(userAddr);
-        const approveTx=await tokenContract.approve(SWAP_CONTRACT,fullBal,arcGasOpts());
+        // Approve 1,000,000 tokens once — covers all future swaps, safe cap for testnet
+        const bigApproval=ethers.parseUnits('1000000',6);
+        const approveTx=await tokenContract.approve(SWAP_CONTRACT,bigApproval,arcGasOpts());
         await approveTx.wait(1);
         btn.innerHTML='<span class="spinner"></span>Swapping…';
       }
