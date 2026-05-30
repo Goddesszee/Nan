@@ -3872,13 +3872,26 @@ function closeAdmin(){
   document.getElementById('adminOverlay').style.display='none';
   _adminUnlocked=false;
 }
-function checkAdminPw(){
-  if(document.getElementById('adminPwInput').value==='Arike@2022'){
-    _adminUnlocked=true;
-    document.getElementById('adminAuth').style.display='none';
-    document.getElementById('adminDash').style.display='block';
-    loadAdminStats();
-  }else{
+async function checkAdminPw(){
+  const pw = document.getElementById('adminPwInput').value;
+  if(!pw) return;
+  try {
+    const res = await fetch('https://nan-production.up.railway.app/api/admin/auth', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if(data.success){
+      _adminUnlocked=true;
+      document.getElementById('adminAuth').style.display='none';
+      document.getElementById('adminDash').style.display='block';
+      loadAdminStats();
+    } else {
+      document.getElementById('adminPwErr').style.display='block';
+      document.getElementById('adminPwInput').value='';
+    }
+  } catch(e) {
     document.getElementById('adminPwErr').style.display='block';
     document.getElementById('adminPwInput').value='';
   }
