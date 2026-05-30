@@ -807,67 +807,65 @@ a:hover{color:var(--text);}
     flex-direction:column;
     position:fixed;top:0;left:0;
     width:220px;height:100vh;
-    background:#0d0d0d;
-    border-right:1px solid #1a1a1a;
+    background:var(--bg);
+    border-right:1px solid var(--border);
     padding:0;gap:0;z-index:100;
     overflow:hidden;
   }
   #desktopNav .dnav-logo-row{
-    display:flex;align-items:center;gap:10px;
-    padding:20px 18px 16px;
-    border-bottom:1px solid #1a1a1a;
-    margin-bottom:8px;
+    display:flex;align-items:center;gap:11px;
+    padding:24px 20px 20px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:12px;
     flex-shrink:0;
   }
   #desktopNav .dnav-logo{
-    width:34px;height:34px;border-radius:10px;
-    background:linear-gradient(135deg,#8b5cf6,#7c3aed);
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg,#8b5cf6,#6d28d9);
     display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.4);
+    flex-shrink:0;box-shadow:0 0 14px rgba(124,58,237,.4);
   }
   #desktopNav .dnav-brand{
     font-family:'Inter',sans-serif;
-    font-size:.95rem;font-weight:700;letter-spacing:.04em;color:#ffffff;
+    font-size:1.05rem;font-weight:800;letter-spacing:.04em;color:var(--text);
   }
-  /* Section labels */
   #desktopNav .dnav-section-label{
-    font-size:.58rem;font-weight:700;letter-spacing:.12em;
-    text-transform:uppercase;color:#374151;
-    padding:8px 20px 4px;
+    font-size:.6rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--text3);
+    padding:12px 20px 4px;
     font-family:'Inter',sans-serif;
   }
   #desktopNav{padding:0;}
   #desktopNav .dnav-btn{
-    display:flex;align-items:center;gap:11px;
-    padding:10px 14px;border-radius:10px;
+    display:flex;align-items:center;gap:13px;
+    padding:13px 18px;border-radius:12px;
     border:none;background:transparent;
-    color:#6b7280;font-family:'Inter',sans-serif;
-    font-size:.88rem;font-weight:500;cursor:pointer;
+    color:var(--text3);font-family:'Inter',sans-serif;
+    font-size:1rem;font-weight:600;cursor:pointer;
     transition:all .15s;text-align:left;
-    margin:1px 10px;width:calc(100% - 20px);
+    margin:2px 8px;width:calc(100% - 16px);
     position:relative;
   }
-  /* Purple indicator bar on left */
   #desktopNav .dnav-btn::before{
-    content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);
-    width:3px;height:0;background:#7c3aed;border-radius:0 3px 3px 0;
+    content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+    width:4px;height:0;background:#7c3aed;border-radius:0 4px 4px 0;
     transition:height .2s;
   }
-  #desktopNav .dnav-btn.active::before{height:20px;}
+  #desktopNav .dnav-btn.active::before{height:24px;}
   #desktopNav .dnav-btn svg{
-    flex-shrink:0;width:18px;height:18px;
+    flex-shrink:0;width:22px;height:22px;
     opacity:.35;transition:opacity .15s;
   }
-  #desktopNav .dnav-btn:hover{background:#1a1a1a;color:#d1d5db;}
+  #desktopNav .dnav-btn:hover{background:var(--card2);color:var(--text2);}
   #desktopNav .dnav-btn:hover svg{opacity:.65;}
-  #desktopNav .dnav-btn:hover::before{height:12px;}
-  #desktopNav .dnav-btn.active{background:rgba(124,58,237,.08);color:#ffffff;font-weight:700;}
+  #desktopNav .dnav-btn:hover::before{height:14px;}
+  #desktopNav .dnav-btn.active{background:rgba(124,58,237,.1);color:var(--text);font-weight:800;}
   #desktopNav .dnav-btn.active svg{opacity:1;}
   #desktopNav .dnav-btn.dnav-send{color:#a78bfa;}
   #desktopNav .dnav-btn.dnav-send svg{opacity:.6;}
   #desktopNav .dnav-btn.dnav-send.active{background:rgba(124,58,237,.15);color:#c4b5fd;}
-  #desktopNav .dnav-divider{height:1px;background:#1a1a1a;margin:8px 16px;}
-  #desktopNav > button, #desktopNav .dnav-btn{margin-left:10px;margin-right:10px;width:calc(100% - 20px);}
+  #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 16px;}
+  #desktopNav > button, #desktopNav .dnav-btn{margin-left:8px;margin-right:8px;width:calc(100% - 16px);}
 
   /* ── Desktop topbar — seamless, no hard border ── */
   #globalTopBar{
