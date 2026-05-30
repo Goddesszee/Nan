@@ -370,13 +370,13 @@
 
   <!-- ══ SEND PAGE ══ -->
   <div class="page" id="page-send">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div>
-        <div class="page-title" style="margin-bottom:2px;">Send</div>
-        <div style="font-size:.78rem;color:var(--text3);">USDC &amp; EURC · Gas paid in USDC</div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--text);">Send</div>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:2px;">USDC &amp; EURC · Gas paid in USDC</div>
       </div>
-      <a href="https://testnet.arcscan.app" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);">Explorer ↗</a>
-      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.28);border-radius:8px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;padding:5px 12px;cursor:pointer;white-space:nowrap;">💧 Free Tokens</button>
+      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;padding:5px 12px;cursor:pointer;">💧 Faucet</button>
     </div>
     <div id="onboardChecklist" style="display:none;"></div>
     <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
@@ -480,6 +480,7 @@
       </div>
     </div>
 
+    </div><!-- end send unified card -->
     <!-- Confirm -->
     <div class="confirm-wrap" id="confirmCard">
       <div class="confirm-title">⚡ Confirm Transaction</div>
@@ -513,7 +514,7 @@
 
   <!-- ══ EARN PAGE ══ -->
   <div class="page" id="page-lend">
-
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
     <!-- Header -->
     <div style="margin-bottom:16px;">
       <div class="page-title" style="margin-bottom:3px;">Earn</div>
@@ -678,8 +679,10 @@
     </div>
   </div>
 
+    </div><!-- end earn unified card -->
   <!-- ══ MORE PAGE ══ -->
   <div class="page" id="page-more">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
 
     <div style="margin-bottom:22px;">
       <div class="page-title" style="margin-bottom:3px;">More</div>
@@ -786,8 +789,10 @@
 
   </div>
 
+    </div><!-- end more unified card -->
   <!-- ══ SWAP PAGE ══ -->
   <div class="page" id="page-swap">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
     <div id="swapModeBanner" style="display:none;"></div>
 
     <!-- Sell box -->
@@ -852,8 +857,12 @@
     <button class="btn" id="swapBtn" onclick="doSwap()" style="width:100%;height:52px;font-size:1rem;font-weight:700;border-radius:16px;">Swap</button>
   </div>
 
+    </div><!-- end swap unified card -->
   <!-- ══ BRIDGE PAGE ══ -->
   <div class="page" id="page-bridge">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
+    <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">Bridge</div>
+    <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Cross-chain USDC via Circle CCTP</div>
     <div class="page-title">Bridge</div>
     <div class="page-sub">Send USDC to any blockchain — fast &amp; easy</div>
 
@@ -921,8 +930,12 @@
     </div>
   </div>
 
+    </div><!-- end bridge unified card -->
   <!-- ══ ARC NAME PAGE ══ -->
   <div class="page" id="page-arcname">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
+    <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">.arc Name</div>
+    <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Register your on-chain identity</div>
     <div class="page-title" style="display:flex;align-items:center;gap:8px;">
       <svg width="22" height="22" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg>
       Arc Name
@@ -962,6 +975,7 @@
     </div>
   </div>
 
+    </div><!-- end arcname unified card -->
   <!-- ══ NAIRA PAGE ══ -->
   <div class="page" id="page-naira">
     <div class="page-title" style="display:flex;align-items:center;gap:8px;">
@@ -1195,6 +1209,8 @@
 
   <!-- ══ HISTORY PAGE ══ -->
   <div class="page" id="page-history">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
+    <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:16px;">History</div>
     <div class="history-header">
       <div><div class="page-title">Activity</div><div class="page-sub">Your on-chain transactions</div></div>
       <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
@@ -1210,6 +1226,7 @@
     <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
   </div>
 
+    </div><!-- end history unified card -->
   <!-- ══ PAYMENT REQUESTS PAGE ══ -->
   <div class="page" id="page-payreq">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
