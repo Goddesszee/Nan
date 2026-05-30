@@ -571,6 +571,18 @@ app.post('/api/appkit/bridge', async (req, res) => {
 });
 
 
+
+// Analytics route
+app.get('/api/analytics', async (req, res) => {
+  try {
+    const mod = await import('../api/analytics.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[analytics]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
