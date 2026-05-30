@@ -997,3 +997,119 @@ a:hover{color:var(--text);}
   .home-bal-num{font-size:3rem;}
   #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
 }
+
+
+/* ── Mobile polish (max-width:480px) ── */
+@media(max-width:480px){
+
+  /* Prevent horizontal scroll */
+  body,#app-root{overflow-x:hidden !important;}
+
+  /* Fix NaN text showing during balance load */
+  #homeBalAmt:empty::before,
+  #homeBalAmt[data-loading]::before{content:'—';color:rgba(255,255,255,.3);}
+
+  /* Better touch targets for all buttons */
+  button{min-height:44px;}
+
+  /* Send/swap/bridge amount inputs — no iOS zoom */
+  input[type="text"],input[type="number"],input[type="email"]{
+    font-size:16px !important;
+  }
+
+  /* Balance card — tighter but readable */
+  .home-bal-card{
+    padding:16px 14px !important;
+    border-radius:18px !important;
+  }
+
+  /* Token pills wrap properly */
+  .home-bal-pills{
+    flex-wrap:wrap !important;
+    gap:6px !important;
+  }
+
+  /* Action buttons — even spacing */
+  .home-actions-top{
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+    gap:8px !important;
+  }
+
+  /* Asset rows — proper padding */
+  .home-asset-row{
+    padding:12px 10px !important;
+    border-radius:12px !important;
+  }
+
+  /* Swap page — full width inputs */
+  .swap-from-card,.swap-to-card{
+    border-radius:16px !important;
+    padding:14px !important;
+  }
+
+  /* Send page — recipient input */
+  #sendAddr{
+    font-size:13px !important;
+    word-break:break-all !important;
+  }
+
+  /* Bridge page — chain selector */
+  #bridgeChainSel{
+    font-size:14px !important;
+    width:100% !important;
+  }
+
+  /* History items — readable on small screen */
+  .tx-row{
+    padding:10px 12px !important;
+    gap:10px !important;
+  }
+  .tx-row .tx-hash{
+    font-size:.65rem !important;
+    max-width:120px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Toast — full width on mobile */
+  #toast{
+    left:12px !important;
+    right:12px !important;
+    bottom:80px !important;
+    transform:none !important;
+    width:auto !important;
+    max-width:none !important;
+    text-align:center !important;
+  }
+
+  /* Modal / confirm sheets — full width */
+  .conf-sheet,.modal-sheet{
+    border-radius:20px 20px 0 0 !important;
+    padding:20px 16px !important;
+  }
+
+  /* Earn page — pool stats stack */
+  .earn-stats{
+    grid-template-columns:1fr 1fr !important;
+    gap:8px !important;
+  }
+
+  /* More page items */
+  .more-grid{
+    grid-template-columns:1fr 1fr !important;
+    gap:8px !important;
+  }
+
+  /* Right panel — hidden on mobile */
+  #desktopRightPanel{display:none !important;}
+}
+
+/* ── Very small phones (360px) ── */
+@media(max-width:360px){
+  .home-bal-num{font-size:2rem !important;}
+  .home-action-label{font-size:.6rem !important;}
+  .nav-btn span{font-size:.6rem !important;}
+  .brand-name{font-size:.8rem !important;}
+  .home-actions-top{grid-template-columns:repeat(3,1fr) !important;gap:5px !important;}
+}
