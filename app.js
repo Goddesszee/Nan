@@ -2520,8 +2520,27 @@ function toggleAgent(){
   }catch(e){console.error('toggleAgent error:',e);}
 }
 
-// AI button — onclick is set directly in HTML, nothing needed here
-function attachAIListeners(){ /* onclick handled in HTML */ }
+// AI button — add touchstart for mobile reliability
+function attachAIListeners(){
+  const btn=document.getElementById('aiBtn');
+  const moreBtn=document.getElementById('nanAiMoreBtn');
+  if(btn&&!btn._aiListenerAdded){
+    btn._aiListenerAdded=true;
+    btn.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAgent();
+    },{passive:false});
+  }
+  if(moreBtn&&!moreBtn._aiListenerAdded){
+    moreBtn._aiListenerAdded=true;
+    moreBtn.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAgent();
+    },{passive:false});
+  }
+}
 
 // Attach on load and also expose for after-connect call
 document.addEventListener('DOMContentLoaded', attachAIListeners);
