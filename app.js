@@ -1268,7 +1268,7 @@ function flipSwap(){
         // Wait 2s for Arc to confirm approve (sub-second finality + Circle processing)
         await new Promise(r=>setTimeout(r,2000));
       }
-      // Submit swap
+      // Submit swap — non-blocking, Arc confirms in <1s
       const swapRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
           contractAddress:SWAP_CONTRACT,
@@ -1276,16 +1276,19 @@ function flipSwap(){
           params:[Math.floor(fromAmt*1_000_000).toString()]})});
       const d=await swapRes.json();
       if(!d.success)throw new Error(d.error||'Swap failed');
-      // Wait for swap confirmation
-      if(d.transactionId)await waitForCircleTx(d.transactionId,'swap');
       const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
       toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
-      addTx({hash:d.txHash||d.transactionId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      addTx({hash:d.txHash||d.transactionId||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:false,source:'swap'});
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       btn.innerHTML='Swap';btn.disabled=false;
-      await refreshBalances();
-      setTimeout(()=>refreshBalances(),3000);
-      setTimeout(()=>refreshBalances(),8000);return;
+      // Poll balance until it changes
+      setTimeout(async()=>{
+        for(let i=0;i<6;i++){
+          await new Promise(r=>setTimeout(r,3000));
+          await refreshBalances();
+        }
+      },0);
+      return;
     }catch(err){
       toast('Swap failed: '+err.message.slice(0,120),'error',7000);
       btn.innerHTML='Swap';btn.disabled=false;return;
@@ -3725,6 +3728,37 @@ async function loadAdminStats(){
     loading.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#888;text-align:center;padding:20px;line-height:2;">${msg}</div>`;
   }
 
+  // Try server-side analytics first (fast)
+  try{
+    setMsg('Loading NAN analytics…');
+    const res=await fetch('/api/analytics');
+    if(res.ok){
+      const d=await res.json();
+      if(!d.error&&d.wallets!==undefined){
+        document.getElementById('statBlock').textContent=(d.block||0).toLocaleString();
+        document.getElementById('statSupply').textContent=parseInt(d.usdcSupply||0).toLocaleString('en')+' USDC';
+        document.getElementById('statWallets').textContent=(d.wallets||0).toLocaleString();
+        document.getElementById('statTxns').textContent=(d.transactions||0).toLocaleString();
+        document.getElementById('statSwaps').textContent=(d.swaps||0).toLocaleString();
+        document.getElementById('statBridges').textContent=(d.bridges||0).toLocaleString();
+        document.getElementById('statLends').textContent=(d.lends||0).toLocaleString();
+        const ne=document.getElementById('statNames');if(ne)ne.textContent=(d.arcNames||0).toLocaleString();
+        const pe=document.getElementById('statPayreqs');if(pe)pe.textContent=(d.payRequests||0).toLocaleString();
+        const recEl=document.getElementById('statRecentWallets');
+        const wallets=d.recentWallets||[];
+        recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+        document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
+        loading.style.display='none';
+        statsEl.style.display='block';
+        loadAdminPoolStats();
+        return;
+      }
+    }
+  }catch(e){ console.warn('Server analytics failed, falling back to RPC scan:', e.message); }
+
+  // Fallback: browser RPC scan
+  setMsg('Server unavailable — scanning blockchain…');
   const RPC='https://rpc.testnet.arc.network';
   const SWAP  ='0x5cE359b74BE53b1B370641571cBef157dD575c79';
   const LEND  ='0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
