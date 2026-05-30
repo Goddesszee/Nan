@@ -2668,7 +2668,7 @@ async function depositToGateway() {
     const r = await fetch('https://nan-production.up.railway.app/api/gateway-deposit', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ walletId: _wId, amount }),
+      body: JSON.stringify({ walletId: _wId, walletAddress: circleWalletAddress, amount }),
     });
     const data = await r.json();
     if (!data.success) return toast(data.error || 'Deposit failed','error');
