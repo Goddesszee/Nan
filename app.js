@@ -1693,14 +1693,16 @@ async function loadOnChainHistory(){
 }
 
 function renderHistory(){
-  // Update stats
-  const m=getMetrics();
-  const ss=document.getElementById('statSends');
-  const sw=document.getElementById('statSwaps');
-  const sb=document.getElementById('statBridges');
-  if(ss) ss.textContent=m.totalSends||txHistory.filter(t=>t.source!=='swap'&&t.type==='out').length||0;
-  if(sw) sw.textContent=m.totalSwaps||txHistory.filter(t=>t.source==='swap').length||0;
-  if(sb) sb.textContent=m.totalBridges||txHistory.filter(t=>t.source==='cctp').length||0;
+  // Update stats — skip if admin dashboard is open (server data takes priority)
+  if(!_adminUnlocked){
+    const m=getMetrics();
+    const ss=document.getElementById('statSends');
+    const sw=document.getElementById('statSwaps');
+    const sb=document.getElementById('statBridges');
+    if(ss) ss.textContent=m.totalSends||txHistory.filter(t=>t.source!=='swap'&&t.type==='out').length||0;
+    if(sw) sw.textContent=m.totalSwaps||txHistory.filter(t=>t.source==='swap').length||0;
+    if(sb) sb.textContent=m.totalBridges||txHistory.filter(t=>t.source==='cctp').length||0;
+  }
   const list=document.getElementById('txList');
   if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.72rem;color:var(--text3);">Send or swap to get started.</span></div></div>';return;}
   list.innerHTML=txHistory.map(tx=>{
