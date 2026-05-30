@@ -2543,27 +2543,33 @@ document.addEventListener('DOMContentLoaded', attachAIListeners);
   const connectType = params.get('connect');
   const connectEmail = params.get('email');
   if(!connectType) return;
-  // Auto-trigger connection after page loads
-  setTimeout(async () => {
+
+  // Wait for DOM + ethers to be ready, then auto-connect
+  function tryConnect(){
     try {
       if(connectType === 'email' && connectEmail) {
-        // Pre-fill email and trigger OTP
         const emailInp = document.getElementById('otpEmail');
         if(emailInp){ emailInp.value = connectEmail; }
-        await sendOTP();
+        if(typeof sendOTP === 'function') sendOTP();
       } else if(connectType === 'metamask') {
-        await connectMetaMask();
+        if(typeof connectMetaMask === 'function') connectMetaMask();
       } else if(connectType === 'walletconnect') {
-        await connectWC();
+        if(typeof connectWC === 'function') connectWC();
       } else if(connectType === 'coinbase') {
-        await connectCoinbase();
+        if(typeof connectCoinbase === 'function') connectCoinbase();
       } else if(connectType === 'circle') {
-        // Show circle wallet connect UI
         const circleBtn = document.getElementById('connectCircleBtn');
         if(circleBtn) circleBtn.click();
       }
     } catch(e) { console.log('Auto-connect error:', e.message); }
-  }, 800);
+  }
+
+  // Try after DOM ready + short delay for scripts to init
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', () => setTimeout(tryConnect, 600));
+  } else {
+    setTimeout(tryConnect, 600);
+  }
 })();
 function resizeAIPanel(){
   const btn=document.getElementById('aiBtn');

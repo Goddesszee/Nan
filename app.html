@@ -3,13 +3,28 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-  // Allow direct access to /app - only redirect if explicitly no landing visit
-  // Use localStorage so it persists across page loads on mobile
-  var _visited = localStorage.getItem('nan_visited_landing') || sessionStorage.getItem('nan_visited_landing');
-  if (!_visited && !window.location.search.includes('direct')) {
-    // Set a flag so we don't loop
-    localStorage.setItem('nan_visited_landing', '1');
+  // Route users correctly:
+  // - No param, no landing flag → send to landing page
+  // - Has ?connect= → skip page-land, auto-trigger wallet
+  // - Has ?pay= → show payment request
+  // - Came from landing (sessionStorage) → normal app flow
+  var _fromLanding = sessionStorage.getItem('nan_from_landing');
+  var _params = new URLSearchParams(window.location.search);
+  var _connectType = _params.get('connect');
+  var _hasPay = _params.get('pay');
+  var _isDirect = _params.get('direct');
+
+  if(!_fromLanding && !_connectType && !_hasPay && !_isDirect){
+    // Never visited landing — redirect there first
     window.location.replace('/');
+  } else if(_connectType){
+    // Coming from landing connect dropdown — mark as visited
+    sessionStorage.setItem('nan_from_landing', '1');
+    // Hide page-land immediately, show loading state
+    document.addEventListener('DOMContentLoaded', function(){
+      var land = document.getElementById('page-land');
+      if(land) land.style.display = 'none';
+    });
   }
 </script>
 
