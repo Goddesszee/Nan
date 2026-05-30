@@ -1324,9 +1324,11 @@ function flipSwap(){
       // Only approve if allowance is insufficient
       const currentAllowance=await tokenContract.allowance(userAddr,SWAP_CONTRACT);
       if(currentAllowance<amtIn){
+        btn.innerHTML='<span class="spinner"></span>Approving…';
         const approveAmt=ethers.parseUnits(fromAmt.toFixed(6),6);
         const approveTx=await tokenContract.approve(SWAP_CONTRACT,approveAmt,arcGasOpts());
-        await approveTx.wait(0);
+        await approveTx.wait(1); // wait for confirmation before swapping
+        btn.innerHTML='<span class="spinner"></span>Swapping…';
       }
       const swapTx=isUSDCtoEURC?await swapContract.swapUSDCtoEURC(amtIn):await swapContract.swapEURCtoUSDC(amtIn);
       await swapTx.wait(1);
@@ -3187,7 +3189,7 @@ async function doRepay(){
       if(repayAllowance<amtParsed){
         const repayApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
         const appTx=await usdc.approve(LENDING_CONTRACT,repayApproveAmt,arcGasOpts());
-        await appTx.wait(0);
+        await appTx.wait(1);
       }
       const tx=await lendContract.repay(amtParsed,arcGasOpts());
       await tx.wait(0);
@@ -3821,7 +3823,7 @@ async function doPayNow(){
         btn.innerHTML='<span class="spinner"></span>Approving…';
         const payApproveAmt=ethers.parseUnits(amt.toFixed(6),6);
         const appTx=await tokenContract.approve(PAYREQ_CONTRACT,payApproveAmt,arcGasOpts());
-        await appTx.wait(0);
+        await appTx.wait(1);
       }
       btn.innerHTML='<span class="spinner"></span>Paying…';
       const c=new ethers.Contract(PAYREQ_CONTRACT,PAYREQ_ABI,signer);
