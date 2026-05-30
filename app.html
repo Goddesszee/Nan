@@ -1375,35 +1375,10 @@
 </div>
 
 <!-- ══ AI Button ══ -->
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:110px;right:16px;z-index:2147483647;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
-  <span>✦</span>
-  <span style="font-size:.68rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
-</button>
+
 
 <!-- ══ AI Panel ══ -->
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #2a2a2a;border-radius:24px 24px 0 0;z-index:2147483647;font-family:'Inter',sans-serif;overflow:hidden;">
-  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
-    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
-    <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
-        <div style="font-size:.82rem;color:var(--text3);margin-top:2px;">Live wallet data · Groq AI powered</div>
-      </div>
-      <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;">✕</button>
-    </div>
-  </div>
-  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
-    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
-      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;"/>
-      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
-    </div>
-    <div id="voiceStatus" style="display:none;text-align:center;font-size:.82rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
-    <div style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:6px;">Powered by Groq · Live on-chain data · 🎤 Voice enabled</div>
-  </div>
-</div>
+
 
 <!-- ══ Toast ══ -->
 <div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center;"></div>
@@ -1592,6 +1567,33 @@ function pickBank(name){
   </div>
 </div>
 
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:110px;right:16px;z-index:2147483647;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:2px solid rgba(196,181,253,.2);color:#ede9fe;font-size:.9rem;cursor:pointer;box-shadow:0 4px 24px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
+  <span>✦</span>
+  <span style="font-size:.68rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
+</button>
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #2a2a2a;border-radius:24px 24px 0 0;z-index:2147483647;font-family:'Inter',sans-serif;overflow:hidden;">
+  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
+    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
+    <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
+        <div style="font-size:.82rem;color:var(--text3);margin-top:2px;">Live wallet data · Groq AI powered</div>
+      </div>
+      <button onclick="toggleAgent()" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,.2);color:var(--text3);cursor:pointer;font-size:15px;">✕</button>
+    </div>
+  </div>
+  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.3) transparent;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(139,92,246,.12);background:var(--bg);">
+    <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
+      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;"/>
+      <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
+    </div>
+    <div id="voiceStatus" style="display:none;text-align:center;font-size:.82rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
+    <div style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:6px;">Powered by Groq · Live on-chain data · 🎤 Voice enabled</div>
+  </div>
+</div>
 </body>
 </html>
 
