@@ -2503,20 +2503,9 @@ function toggleAgent(){
   agentOpen=!agentOpen;
   const panel=document.getElementById('agentPanel');
   if(!panel)return;
-  if(agentOpen){
-    panel.style.display='flex';
-    panel.style.flexDirection='column';
-    panel.style.position='fixed';
-    panel.style.top='0';
-    panel.style.left='0';
-    panel.style.right='0';
-    panel.style.bottom='0';
-    panel.style.zIndex='2147483647';
-    panel.style.overflow='hidden';
-    renderAgentMsgs();renderAgentChips();scrollAgentBottom();
-  }else{
-    panel.style.display='none';
-  }
+  panel.style.display=agentOpen?'flex':'none';
+  panel.style.flexDirection='column';
+  if(agentOpen){renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
 }
 
 // AI button — onclick is set directly in HTML, nothing needed here
@@ -2778,8 +2767,14 @@ async function depositToGateway() {
     });
     const data = await r.json();
     if (!data.success) return toast(data.error || 'Deposit failed','error');
-    toast(`✅ Depositing ${amount} USDC to Gateway — refreshing balance...`,'success');
-    setTimeout(() => refreshGatewayBalance(), 10000);
+    toast('✅ Deposit submitted! Gateway balance updates in up to 20 mins per Circle docs','success',8000);
+    // Poll gateway balance every 2 min for up to 20 min
+    let polls=0;
+    const gp=setInterval(async()=>{
+      polls++;
+      await refreshGatewayBalance();
+      if(polls>=10)clearInterval(gp);
+    },120000);
   } catch(err) {
     toast('Gateway deposit error: ' + err.message,'error');
   }
