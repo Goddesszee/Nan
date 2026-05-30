@@ -931,6 +931,7 @@ async function doSend(){
       lastTxHash=data.txHash||data.transactionId;
       const isConfirmed=!!data.txHash&&!data.pending;
       addTx({hash:lastTxHash,to,toRaw:raw,amount:amt.toFixed(6),type:'out',token:sendToken,ts:Date.now(),confirmed:isConfirmed,source:'circle'});
+      setTimeout(()=>resolveCircleTxHash(lastTxHash),5000);
       showSendSuccess(amt,to,lastTxHash);
       if(data.pending&&data.transactionId){
         pollTxStatus(data.transactionId,'',async(confirmedHash)=>{
@@ -1280,7 +1281,9 @@ function flipSwap(){
       if(!d.success)throw new Error(d.error||'Swap failed');
       const amtOut=(fromAmt*(isUSDCtoEURC?FX:(1/FX))*0.999).toFixed(4);
       toast('✓ Swapped '+fromAmt.toFixed(2)+' '+tokenIn+' → '+amtOut+' '+tokenOut+'!','success',6000);
-      addTx({hash:d.txHash||d.transactionId||'pending',to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      const _swapTxId=d.txHash||d.transactionId||'pending';
+      addTx({hash:_swapTxId,to:SWAP_CONTRACT,toRaw:'NANSwap',amount:fromAmt.toFixed(6),fromToken:tokenIn,toToken:tokenOut,outAmount:amtOut,type:'swap',token:tokenIn,ts:Date.now(),confirmed:true,source:'swap'});
+      setTimeout(()=>resolveCircleTxHash(_swapTxId),5000);
       document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
       btn.innerHTML='Swap';btn.disabled=false;
       // Poll balance until it changes
@@ -2933,6 +2936,7 @@ async function doSupply(){
       // Arc confirms in <1s — refresh balance after short delay
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();}},0);
       const supplyHash=supData.txHash||supData.transactionId||'pending';
+      setTimeout(()=>resolveCircleTxHash(supplyHash),5000);
       addTx({hash:supplyHash,to:LENDING_CONTRACT,toRaw:'NANLendingPool',amount:amt.toFixed(6),type:'out',token:lendAsset,ts:Date.now(),confirmed:true,source:'lending'});
       if(supData.pending&&supData.transactionId){
         pollTxStatus(supData.transactionId,'',async()=>{
@@ -3043,6 +3047,7 @@ async function doBorrow(){
       const d=await r.json();
       if(!d.success)throw new Error(d.error||'Borrow failed');
       toast('✓ Borrow submitted!','success',4000);
+      setTimeout(()=>resolveCircleTxHash(d.txHash||d.transactionId),5000);
       addTx({hash:d.txHash||d.transactionId||'pending',to:LENDING_CONTRACT,toRaw:'Borrow',amount:amt.toFixed(6),type:'in',token:'USDC',ts:Date.now(),confirmed:true,source:'lending'});
       setTimeout(async()=>{for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,3000));await refreshBalances();refreshLendPosition();}},0);
 
@@ -3224,6 +3229,7 @@ async function registerArcName(){
       const regD=await regR.json();
       if(!regD.success)throw new Error(regD.error||'Registration failed');
       toast('✓ '+name+'.arc registered on Arc! 🎉','success',7000);
+      setTimeout(()=>resolveCircleTxHash(regD.txHash||regD.transactionId),5000);
       addTx({hash:regD.txHash||regD.transactionId,to:NAME_REGISTRY,toRaw:'Registered '+name+'.arc',amount:arcNameFeeUsdc.toFixed(6),type:'out',token:'USDC',ts:Date.now(),confirmed:!!regD.txHash,source:'arcname'});
       await refreshBalances();await refreshArcNames();
     }else if(signer){
@@ -3307,6 +3313,26 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // CIRCLE TX POLL HELPER
 // ═══════════════════════════════════════════
+// Fetch real on-chain tx hash from Circle in background and update history
+async function resolveCircleTxHash(circleId) {
+  if(!circleId || circleId.startsWith('0x')) return; // already real hash
+  try {
+    const res = await fetch('https://nan-production.up.railway.app/api/transaction/'+circleId);
+    if(!res.ok) return;
+    const data = await res.json();
+    const realHash = data.txHash;
+    if(!realHash || !realHash.startsWith('0x')) return;
+    // Update matching history entry
+    const idx = txHistory.findIndex(t => t.hash === circleId);
+    if(idx >= 0) {
+      txHistory[idx].hash = realHash;
+      txHistory[idx].confirmed = true;
+      saveTxHistory();
+      renderHistory();
+    }
+  } catch(e) { /* silent */ }
+}
+
 async function waitForCircleTx(txId, label='tx', timeoutMs=90000) {
   if(!txId) return true;
   const start = Date.now();
