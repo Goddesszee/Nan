@@ -2487,11 +2487,13 @@ function toggleAgent(){
   if(agentOpen){
     panel.style.display='flex';
     panel.style.flexDirection='column';
-    panel.style.zIndex='2147483647';
-    requestAnimationFrame(()=>{ panel.style.transform='translate(-50%,0)'; });
+    // Double rAF ensures display:flex is painted before transition starts
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      panel.style.transform='translateY(0)';
+    }));
     renderAgentMsgs();renderAgentChips();scrollAgentBottom();
   }else{
-    panel.style.transform='translate(-50%,100%)';
+    panel.style.transform='translateY(100%)';
     setTimeout(()=>{ panel.style.display='none'; },350);
   }
 }
