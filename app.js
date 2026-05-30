@@ -2500,12 +2500,24 @@ let agentMsgs=[{role:'assistant',content:"Hey! I'm NAN AI ✦  Ask me anything �
 let agentOpen=false;
 
 function toggleAgent(){
-  agentOpen=!agentOpen;
-  const panel=document.getElementById('agentPanel');
-  if(!panel)return;
-  panel.style.display=agentOpen?'flex':'none';
-  panel.style.flexDirection='column';
-  if(agentOpen){renderAgentMsgs();renderAgentChips();scrollAgentBottom();}
+  try{
+    agentOpen=!agentOpen;
+    const panel=document.getElementById('agentPanel');
+    if(!panel){console.error('agentPanel not found!');return;}
+    panel.style.display=agentOpen?'flex':'none';
+    panel.style.flexDirection='column';
+    panel.style.position='fixed';
+    panel.style.top='0';
+    panel.style.left='0';
+    panel.style.right='0';
+    panel.style.bottom='0';
+    panel.style.zIndex='999999999';
+    if(agentOpen){
+      try{renderAgentMsgs();}catch(e){console.error('renderAgentMsgs error:',e);}
+      try{renderAgentChips();}catch(e){console.error('renderAgentChips error:',e);}
+      try{scrollAgentBottom();}catch(e){}
+    }
+  }catch(e){console.error('toggleAgent error:',e);}
 }
 
 // AI button — onclick is set directly in HTML, nothing needed here
