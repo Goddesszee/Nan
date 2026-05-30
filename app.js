@@ -3609,28 +3609,45 @@ window.addEventListener('load',()=>{
   if(_ct === 'email' && _verified === '1' && _em){
     // OTP already verified on landing page — skip page-land, go straight to wallet
     if(_land) _land.style.display='none';
+    // Show loading indicator
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="verifiedLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">'
+      +'<div style="width:44px;height:44px;border:3px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
+      +'<div style="color:var(--text3);font-size:.85rem;">Setting up your wallet…</div>'
+      +'</div>');
     setTimeout(async function(){
       try{
         otpEmail = _em;
+        // Get Circle wallet using stored OTP verification data
+        const storedToken = localStorage.getItem('nan_otp_token');
         const cwRes = await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
           method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'getWallet',email:_em})});
+          body:JSON.stringify({action:'getWallet',email:_em,otpToken:storedToken})});
         const cw = await cwRes.json();
-        if(!cw.walletId) throw new Error('Wallet setup failed');
-        circleWalletId=cw.walletId;
-        circleWalletAddress=cw.address;
-        circleWalletBlockchain=cw.blockchain;
-        circleUserToken=cw.userToken;
-        circleUserId=cw.userId;
-        localStorage.setItem('circleWalletId',cw.walletId);
-        localStorage.setItem('circleWalletAddr',cw.address);
+        // Server returns { success, wallet: { id, address, blockchain } }
+        const walletData = cw.wallet || cw;
+        const walletId = walletData.id || walletData.walletId;
+        const walletAddr = walletData.address;
+        if(!walletId) throw new Error(cw.error||'Wallet setup failed');
+        circleWalletId=walletId;
+        circleWalletAddress=walletAddr;
+        circleWalletBlockchain=walletData.blockchain||'ARC-TESTNET';
+        circleUserToken=cw.userToken||null;
+        circleUserId=cw.userId||null;
+        localStorage.setItem('circleWalletId',walletId);
+        localStorage.setItem('circleWalletAddr',walletAddr);
+        localStorage.removeItem('nan_otp_token');
+        localStorage.removeItem('nan_otp_verified');
+        const loader=document.getElementById('verifiedLoader');
+        if(loader) loader.remove();
         await onConnected(true,false);
       } catch(e){
-        // Fallback: show page-land
+        const loader=document.getElementById('verifiedLoader');
+        if(loader) loader.remove();
         if(_land) _land.style.display='flex';
-        toast('Could not restore wallet: '+e.message,'error');
+        toast('Could not set up wallet: '+e.message,'error');
       }
-    }, 500);
+    }, 600);
   } else if(_ct && _ct!=='email'){
     // MetaMask/Coinbase — show page-land and auto-trigger
     if(_land) _land.style.display='flex';
