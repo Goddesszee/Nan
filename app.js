@@ -1731,7 +1731,7 @@ function renderHistory(){
     // Real hash = starts with 0x AND is 66 chars (32 bytes). Circle UUIDs are not 0x hashes.
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const viewLink=isRealHash
-      ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);">View ↗</a>`
+      ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);" onclick="verifyTx('${tx.hash}',event)">View ↗</a>`
       :`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="color:var(--accent3);">Wallet ↗</a>`;
     const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
       `${new Date(tx.ts).toLocaleString()} · ${viewLink} ${srcBadge}`;
@@ -3354,6 +3354,30 @@ function renderArcDirectory(){
 // ═══════════════════════════════════════════
 // Poll Circle API until tx is COMPLETE and we have the real txHash
 // Then update history entry with real hash so View link works on arcscan
+// Verify tx exists on Arc RPC before opening arcscan
+// Arcscan indexing can lag — RPC is always accurate
+async function verifyTx(hash, event) {
+  try {
+    event.preventDefault();
+    const rpc = 'https://rpc.testnet.arc.network';
+    const r = await fetch(rpc, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0',method:'eth_getTransactionReceipt',params:[hash],id:1})
+    });
+    const data = await r.json();
+    if(data.result && data.result.transactionHash) {
+      // Tx confirmed on RPC — open arcscan
+      window.open(ARC_EXP+'/tx/'+hash, '_blank');
+    } else {
+      // Not yet indexed on RPC either — show message
+      toast('Transaction is confirming on Arc — try again in a few seconds','info',4000);
+    }
+  } catch(e) {
+    // RPC error — just open arcscan anyway
+    window.open(ARC_EXP+'/tx/'+hash, '_blank');
+  }
+}
+
 async function resolveCircleTxHash(circleId) {
   if(!circleId||circleId.startsWith('0x')||circleId==='pending'||circleId==='ok') return;
   const MAX_ATTEMPTS=15; // poll up to 15 times
