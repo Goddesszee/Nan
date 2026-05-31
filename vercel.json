@@ -4,18 +4,6 @@
   "outputDirectory": ".",
   "rewrites": [
     {
-      "source": "/app.js",
-      "destination": "/app.js"
-    },
-    {
-      "source": "/ui.js",
-      "destination": "/ui.js"
-    },
-    {
-      "source": "/style.css",
-      "destination": "/style.css"
-    },
-    {
       "source": "/app",
       "destination": "/app.html"
     },
@@ -34,7 +22,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache"
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     }
