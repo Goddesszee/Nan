@@ -1159,7 +1159,10 @@ function validateSend(){
   const uF=parseFloat(usdcBal)||0,eF=parseFloat(eurcBal)||0;
   const btn=document.getElementById('sendBtn');
   if(!isCircleWallet&&!onArcNetwork){
-    btn.disabled=true;btn.textContent='Switch to Arc Testnet';return;
+    btn.disabled=false;
+    btn.textContent='Switch to Arc Testnet';
+    btn.onclick=async()=>{await switchToArc();btn.onclick=null;showConfirm();};
+    return;
   }
   if(!addr){btn.disabled=true;btn.textContent='Enter address & amount';return;}
   if(!amt||amt<=0){btn.disabled=true;btn.textContent='Enter an amount';return;}
