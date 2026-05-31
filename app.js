@@ -203,45 +203,10 @@ function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(t
 // ═══════════════════════════════════════════
 let _tt;
 function toast(msg,type='info',ms=4000){
-  let el=document.getElementById('toast');
-  if(!el){
-    el=document.createElement('div');
-    el.id='toast';
-    document.body.appendChild(el);
-  }
-  const colors={
-    success:{bg:'#0a2318',border:'rgba(52,211,153,.5)',color:'#34d399'},
-    error:{bg:'#280a0a',border:'rgba(248,113,113,.5)',color:'#f87171'},
-    info:{bg:'#150e28',border:'rgba(167,139,250,.5)',color:'#a78bfa'},
-    warning:{bg:'#281a05',border:'rgba(251,191,36,.5)',color:'#fbbf24'},
-  };
-  const c=colors[type]||colors.info;
-  el.textContent=msg;
-  // Position relative to app-root center, not full viewport
-  const appRoot=document.getElementById('app-root');
-  const appRect=appRoot?appRoot.getBoundingClientRect():{left:0,width:window.innerWidth};
-  const centerX=appRect.left+(appRect.width/2);
-  el.style.cssText=`
-    position:fixed;bottom:28px;
-    left:${centerX}px;
-    transform:translateX(-50%) translateY(20px);
-    background:${c.bg};border:1px solid ${c.border};color:${c.color};
-    border-radius:14px;padding:13px 24px;
-    font-family:Inter,sans-serif;font-size:.88rem;font-weight:600;
-    max-width:min(380px,${appRect.width-32}px);text-align:center;line-height:1.4;
-    z-index:2147483647;pointer-events:none;
-    box-shadow:0 8px 32px rgba(0,0,0,.6);
-    opacity:0;transition:transform .3s ease,opacity .25s ease;
-    word-break:break-word;
-  `;
-  void el.offsetHeight;
-  el.style.opacity='1';
-  el.style.transform='translateX(-50%) translateY(0)';
-  clearTimeout(_tt);
-  _tt=setTimeout(()=>{
-    el.style.opacity='0';
-    el.style.transform='translateX(-50%) translateY(20px)';
-  },ms);
+  const el=document.getElementById('toast');
+  if(!el)return;
+  el.textContent=msg;el.className='show '+type;
+  clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
@@ -1371,8 +1336,7 @@ function toggleCCTP(){
   arrow.textContent = open ? '▾' : '▴';
 }
 async function doBridge(){
-  const chainSel=document.getElementById('chainPickerSelect');
-  const destChain=chainSel?chainSel.value:document.getElementById('bridgeDestChain').value;
+  const destChain=document.getElementById('bridgeDestChain').value;
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
@@ -2634,21 +2598,6 @@ async function verifyFloatingOTP(){
     toast('Error: '+e.message,'error');
     btn.textContent = 'Verify & Connect'; btn.disabled = false;
   }
-}
-
-// Native select helpers for chain and bank pickers
-function pickChainFromSelect(sel){
-  const val = sel.value;
-  const label = sel.options[sel.selectedIndex].text.replace(/^[^\s]+\s/,'');
-  const inp = document.getElementById('bridgeDestChain');
-  if(inp) inp.value = val;
-}
-function pickBankFromSelect(sel){
-  const val = sel.value;
-  const inp = document.getElementById('ngnBankName');
-  const lbl = document.getElementById('bankPickerLabel');
-  if(inp) inp.value = val;
-  if(lbl) lbl.textContent = val || 'Select bank';
 }
 
 // sendEmailOTP() handles email — was incorrectly called sendOTP() before
