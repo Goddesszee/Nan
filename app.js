@@ -1187,10 +1187,15 @@ function showConfirm(){
   document.getElementById('confAmt').textContent=amt.toFixed(6)+' '+sendToken;
   document.getElementById('confTo').textContent=short(actualTo)+(recipType!=='address'?' ('+raw+')':'');
   document.getElementById('confVia').textContent=via;
-  document.getElementById('sendCard').style.display='none';
+  const sc=document.getElementById('sendCard')||document.getElementById('tab-send');
+  if(sc) sc.style.display='none';
   document.getElementById('confirmCard').classList.add('show');
 }
-function cancelConfirm(){document.getElementById('confirmCard').classList.remove('show');document.getElementById('sendCard').style.display='block';}
+function cancelConfirm(){
+  document.getElementById('confirmCard').classList.remove('show');
+  const sc=document.getElementById('sendCard')||document.getElementById('tab-send');
+  if(sc) sc.style.display='block';
+}
 
 async function doSend(){
   const raw=document.getElementById('recipInput').value.trim();
@@ -1478,7 +1483,7 @@ function downloadReceipt(){
 }
 function resetSend(){
   document.getElementById('successCard').classList.remove('show');
-  document.getElementById('sendCard').style.display='block';
+  const _sc=document.getElementById('sendCard')||document.getElementById('tab-send');if(_sc)_sc.style.display='block';
   document.getElementById('recipInput').value='';document.getElementById('amtInput').value='';
   hideRes();resolvedTo=null;lastResolvedInput='';lastTxHash=null;
   validateSend();document.getElementById('page-send').scrollTop=0;
