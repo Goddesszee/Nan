@@ -1498,33 +1498,6 @@
 
 <!-- ══ Toast ══ -->
 
-<style>
-#toast{
-  position:fixed;top:16px;left:50%;
-  transform:translateX(-50%) translateY(-100px);
-  opacity:0;
-  z-index:2147483647;
-  background:#1a1a2a;
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:12px;
-  padding:12px 20px;
-  font-family:'Inter',sans-serif;
-  font-size:.88rem;font-weight:600;
-  color:#fff;
-  min-width:200px;max-width:88vw;
-  text-align:left;
-  pointer-events:auto;
-  box-shadow:0 8px 32px rgba(0,0,0,.7);
-  transition:transform .3s ease, opacity .25s ease;
-  display:block;
-}
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-#toast.success{background:#0a2318;border-color:rgba(52,211,153,.5);}
-#toast.error{background:#280a0a;border-color:rgba(248,113,113,.5);}
-#toast.info{background:#150e28;border-color:rgba(139,92,246,.5);}
-#toast.warning{background:#281a05;border-color:rgba(251,191,36,.5);}
-</style>
-
 <!-- ══ Scripts ══ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1729,10 +1702,15 @@ function pickBank(name){
   </div>
 </div>
 </div>
-<div id="toast" style="cursor:pointer;" onclick="this.className=''">
-  <span id="toastIconBadge" style="margin-right:6px;"></span>
-  <span id="toastTitle"></span>
-  <span id="toastMsg" style="opacity:.7;margin-left:6px;font-size:.82rem;"></span>
+<div id="toast" onclick="this.classList.remove('show')">
+  <div id="toastIconBadge"></div>
+  <div class="toast-copy">
+    <div id="toastTitle"></div>
+    <div id="toastMsg"></div>
+    <div id="toastAction" style="display:none;">
+      <a id="toastActionBtn" href="#" target="_blank" rel="noopener">View Transaction</a>
+    </div>
+  </div>
 </div>
 </body>
 </html>
