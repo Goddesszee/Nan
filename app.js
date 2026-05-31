@@ -473,7 +473,7 @@ function toast(msg, type='info', ms=4500, opts={}){
   const btnEl = document.getElementById('toastActionBtn');
 
   if(titleEl) titleEl.textContent = titles[type] || 'Info';
-  if(msgEl) msgEl.textContent = String(msg || '').replace(/^✓\s{0,}/, '').replace(/^✅\s{0,}/, '');
+  if(msgEl) msgEl.textContent = String(msg || '').replace(/^[^a-zA-Z0-9]+/, ''); //(/^✓\s{0,}/, '').replace(/^✅\s{0,}/, '');
 
   const txHash = opts.txHash || (typeof lastTxHash !== 'undefined' ? lastTxHash : null);
   if(actionEl && btnEl && txHash && String(txHash).startsWith('0x')){
