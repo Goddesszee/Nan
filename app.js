@@ -1360,9 +1360,8 @@ async function doBridge(){
           abiFunctionSignature:'approve(address,uint256)',
           abiParameters:[CCTP_TOKEN_MESSENGER,amtAtomic]})});
       const approveData=await approveRes.json();
-      if(!approveData.success&&!approveData.id&&!approveData.txHash)throw new Error(approveData.error||'Approval failed');
+      if(!approveData.success)throw new Error(approveData.error||'Approval failed');
       await new Promise(r=>setTimeout(r,3000));
-      // Step 2: Call depositForBurn on CCTP Token Messenger
       btn.innerHTML='<span class="spinner"></span>Step 2: Burning USDC…';
       const burnRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
         method:'POST',headers:{'Content-Type':'application/json'},
@@ -1371,8 +1370,8 @@ async function doBridge(){
           abiFunctionSignature:'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint64,uint32)',
           abiParameters:[amtAtomic,String(destDomain),mintRecipient,USDC_ADDR,destinationCaller,'1000','1000']})});
       const burnData=await burnRes.json();
-      if(!burnData.success&&!burnData.id&&!burnData.txHash)throw new Error(burnData.error||'Bridge failed');
-      const txId=burnData.id||burnData.txHash||'pending';
+      if(!burnData.success)throw new Error(burnData.error||'Bridge failed');
+      const txId=burnData.transactionId||burnData.id||burnData.txHash||'pending';
       addTx({hash:txId,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:false,source:'circle',destChain});
       toast('✓ Bridge submitted! CCTP processing — USDC arriving on '+destChain+' in ~20 mins','success',10000);
       await refreshBalances();
@@ -2892,7 +2891,7 @@ let gatewayBalance={total:'0.00',balances:{}};
 
 async function depositToGateway() {
   if (!userAddr) return toast('Connect wallet first','error');
-  if (!circleWalletId && !signer) return toast('Connect wallet to deposit to Gateway','error');
+  if (!circleWalletId) return toast('Gateway deposit is for Circle email wallet only','warning',5000);
   const _wId = circleWalletId;
   const amount = document.getElementById('gatewayDepositAmt')?.value;
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
