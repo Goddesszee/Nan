@@ -922,10 +922,14 @@
       <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
       <div class="field"><div class="flbl">To Chain</div>
         <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
-        <button type="button" id="chainPickerBtn" onclick="openChainPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
-          <span id="chainPickerLabel">Ethereum Sepolia</span>
-          <span style="color:var(--accent3);font-size:.8rem;">▾</span>
-        </button>
+        <select id="chainPickerSelect" onchange="pickChainFromSelect(this)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;box-sizing:border-box;-webkit-appearance:auto;appearance:auto;outline:none;">
+          <option value="ETH-SEPOLIA">⟠ Ethereum Sepolia</option>
+          <option value="AVAX-FUJI">🔺 Avalanche Fuji</option>
+          <option value="BASE-SEPOLIA">🔵 Base Sepolia</option>
+          <option value="ARB-SEPOLIA">🔷 Arbitrum Sepolia</option>
+          <option value="OP-SEPOLIA">🔴 OP Sepolia</option>
+          <option value="POLYGON-AMOY">🟣 Polygon Amoy</option>
+        </select>
       </div>
       <div class="field"><div class="flbl">Recipient Address</div>
         <input id="bridgeDestAddr" type="text" placeholder="0x... wallet address on destination"/>
@@ -1082,10 +1086,14 @@
       </div>
       <div class="field"><div class="flbl">Bank</div>
         <input type="hidden" id="ngnBankName" value=""/>
-        <button type="button" id="bankPickerBtn" onclick="openBankPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
-          <span id="bankPickerLabel" style="color:var(--text3);">Select bank</span>
-          <span style="color:var(--accent3);font-size:.8rem;">▾</span>
-        </button>
+        <select id="ngnBankSelect" onchange="pickBankFromSelect(this)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;box-sizing:border-box;-webkit-appearance:auto;appearance:auto;outline:none;">
+          <option value="">-- Select Bank --</option>
+          <option>Access Bank</option><option>GTBank</option><option>First Bank</option>
+          <option>Zenith Bank</option><option>UBA</option><option>Kuda Bank</option>
+          <option>OPay</option><option>PalmPay</option><option>Stanbic IBTC</option>
+          <option>Fidelity Bank</option><option>Sterling Bank</option><option>Wema Bank</option>
+          <option>Polaris Bank</option><option>Jaiz Bank</option><option>Moniepoint</option>
+        </select>
       </div>
       <div class="field"><div class="flbl">Account Number</div><input id="ngnAcctNum" type="text" inputmode="numeric" maxlength="10" placeholder="0123456789" oninput="verifyNgnAcct()"/></div>
       <div id="ngnAcctNameBar" style="display:none;" class="res-bar ok"><span id="ngnAcctNameTxt"></span></div>

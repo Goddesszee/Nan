@@ -1366,7 +1366,8 @@ function toggleCCTP(){
   arrow.textContent = open ? '▾' : '▴';
 }
 async function doBridge(){
-  const destChain=document.getElementById('bridgeDestChain').value;
+  const chainSel=document.getElementById('chainPickerSelect');
+  const destChain=chainSel?chainSel.value:document.getElementById('bridgeDestChain').value;
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
@@ -2630,6 +2631,21 @@ async function verifyFloatingOTP(){
   }
 }
 
+// Native select helpers for chain and bank pickers
+function pickChainFromSelect(sel){
+  const val = sel.value;
+  const label = sel.options[sel.selectedIndex].text.replace(/^[^\s]+\s/,'');
+  const inp = document.getElementById('bridgeDestChain');
+  if(inp) inp.value = val;
+}
+function pickBankFromSelect(sel){
+  const val = sel.value;
+  const inp = document.getElementById('ngnBankName');
+  const lbl = document.getElementById('bankPickerLabel');
+  if(inp) inp.value = val;
+  if(lbl) lbl.textContent = val || 'Select bank';
+}
+
 // sendEmailOTP() handles email — was incorrectly called sendOTP() before
 // emailInput is the correct element id — was incorrectly otpEmail before
 (function(){
@@ -2921,7 +2937,8 @@ let lendDuration=1, lendFee=2;
 let gatewayBalance={total:'0.00',balances:{}};
 
 async function depositToGateway() {
-  if (!circleWalletId) return toast('Connect with email wallet to deposit to Gateway','warning');
+  if (!userAddr) return toast('Connect wallet first','error');
+  if (!circleWalletId && !signer) return toast('Connect wallet to deposit to Gateway','error');
   const _wId = circleWalletId;
   const amount = document.getElementById('gatewayDepositAmt')?.value;
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
