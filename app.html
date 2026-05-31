@@ -298,7 +298,7 @@
     <!-- Actions card -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:0;padding:14px 8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
       <div style="display:flex;justify-content:space-around;">
-        <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
+        <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:8px 10px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;">
           <div style="width:48px;height:48px;border-radius:14px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
           </div>
@@ -470,7 +470,7 @@
       <div style="font-size:1rem;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Amount</div>
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:16px;" id="amtWrap">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0"
+          <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0" inputmode="decimal"
             oninput="validateSend()"
             style="flex:1;background:none;border:none;outline:none;font-size:2rem;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
@@ -597,7 +597,7 @@
     <div class="stake-panel active" id="lp-supply">
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0"
+          <input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0" inputmode="decimal"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
@@ -622,7 +622,7 @@
     <div class="stake-panel" id="lp-withdraw">
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0"
+          <input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0" inputmode="decimal"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
@@ -651,7 +651,7 @@
       </div>
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0" oninput="updateBorrowPreview()"
+          <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0" oninput="updateBorrowPreview()" inputmode="decimal"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
@@ -673,7 +673,7 @@
       </div>
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0"
+          <input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0" inputmode="decimal"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
@@ -943,7 +943,7 @@
       <div style="font-size:.875rem;color:var(--text);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Amount</div>
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0"
+          <input id="bridgeAmt" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0"
             style="flex:1;background:none;border:none;outline:none;font-size:1rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
