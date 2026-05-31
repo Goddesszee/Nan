@@ -202,13 +202,56 @@ function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(t
 // UI UTILITIES
 // ═══════════════════════════════════════════
 let _tt;
-function toast(msg,type='info',ms=4000){
-  const el=document.getElementById('toast');
-  if(!el)return;
-  el.textContent=msg;
-  el.className='show '+type;
+function toast(msg, type='info', ms=4500, opts={}){
+  const el = document.getElementById('toast');
+  if(!el) return;
+
+  const ICONS = { success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
+  const TITLES = { success:'Success', error:'Error', info:'Info', warning:'Warning' };
+
+  // Support extended call: toast(title, subtitle, type, ms, {txHash})
+  let title = opts.title || TITLES[type] || 'Info';
+  let body  = msg;
+
+  // If msg looks like a title (short, no spaces in first word), split it
+  // e.g. toast('✓ Swapped 10 USDC → 9.22 EURC on Arc!', 'success', 8000)
+  // We keep it simple: title = first sentence, body = rest
+  if(msg.includes(' — ')){
+    const parts = msg.split(' — ');
+    title = parts[0].replace(/^[✓✕⚠ℹ]\s*/,'');
+    body  = parts.slice(1).join(' — ');
+  } else if(msg.startsWith('✓ ')){
+    title = TITLES[type];
+    body  = msg.replace(/^✓\s*/,'');
+  } else if(msg.startsWith('❌ ')){
+    title = 'Error';
+    body  = msg.replace(/^❌\s*/,'');
+  }
+
+  const iconEl   = document.getElementById('toastIcon');
+  const titleEl  = document.getElementById('toastTitle');
+  const msgEl    = document.getElementById('toastMsg');
+  const actionEl = document.getElementById('toastAction');
+  const btnEl    = document.getElementById('toastActionBtn');
+
+  if(iconEl)  iconEl.textContent  = ICONS[type] || 'ℹ';
+  if(titleEl) titleEl.textContent = title;
+  if(msgEl)   msgEl.textContent   = body;
+
+  // Show "View Transaction" button if txHash provided
+  if(actionEl && btnEl){
+    if(opts.txHash){
+      const explorer = 'https://testnet.arcscan.app/tx/' + opts.txHash;
+      btnEl.href = explorer;
+      actionEl.style.display = 'block';
+    } else {
+      actionEl.style.display = 'none';
+    }
+  }
+
+  el.className = 'show ' + type;
   clearTimeout(_tt);
-  _tt=setTimeout(()=>{el.classList.remove('show');},ms);
+  _tt = setTimeout(() => { el.classList.remove('show'); }, ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
