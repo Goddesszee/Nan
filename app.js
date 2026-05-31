@@ -203,6 +203,207 @@ function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(t
 // ═══════════════════════════════════════════
 let _tt;
 function toast(msg, type='info', ms=4500, opts={}){
+  const validtypes = ['success','error','info','warning'];
+
+  if(!validtypes.includes(type)){
+    opts = arguments[4] || {};
+    ms = arguments[3] || 4500;
+    type = validtypes.includes(arguments[2]) ? arguments[2] : 'info';
+    msg = [msg, arguments[1]].filter(boolean).join(' — ');
+  }
+
+  const el = document.getelementbyid('toast');
+  if(!el) return;
+
+  const icons = {
+    success: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m5 13l4 4l19 7" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:   '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m18 6l6 18m6 6l12 12" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    info:    '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentcolor" stroke-width="2"/><path d="m12 8v4m0 4h.01" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+    warning: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m12 9v4m0 4h.01m10.29 3.86l1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3l13.71 3.86a2 2 0 00-3.42 0z" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+  };
+
+  const titles = { success:'successful!', error:'failed', info:'info', warning:'warning' };
+  let title = opts.title || titles[type] || 'info';
+  let body = string(msg || '');
+
+  if(body.includes(' — ')){
+    const parts = body.split(' — ');
+    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    body = parts.slice(1).join(' — ');
+  } else if(body.startswith('✓ ') || body.startswith('✅ ')){
+    body = body.replace(/^[✓✅]\s*/, '');
+  } else if(body.startswith('❌ ')){
+    title = 'error';
+    body = body.replace(/^❌\s*/, '');
+  }
+
+  const iconel = document.getelementbyid('toasticonbadge');
+  const titleel = document.getelementbyid('toasttitle');
+  const msgel = document.getelementbyid('toastmsg');
+  const actionel = document.getelementbyid('toastaction');
+  const btnel = document.getelementbyid('toastactionbtn');
+
+  if(iconel) iconel.innerhtml = icons[type] || icons.info;
+  if(titleel) titleel.textcontent = title;
+  if(msgel) msgel.textcontent = body;
+
+  const latesthash =
+    opts.txhash ||
+    (typeof lasttxhash !== 'undefined' && lasttxhash) ||
+    (array.isarray(window.txhistory) && window.txhistory[0] && window.txhistory[0].hash);
+
+  const canviewtx = latesthash && string(latesthash).startswith('0x') && string(latesthash).length === 66;
+
+  if(actionel && btnel){
+    if(canviewtx){
+      btnel.href = 'https://testnet.arcscan.app/tx/' + latesthash;
+      actionel.style.display = 'block';
+    } else {
+      actionel.style.display = 'none';
+      btnel.removeattribute('href');
+    }
+  }
+
+  el.classlist.remove('success','error','info','warning');
+  el.classlist.add(type, 'show');
+
+  cleartimeout(_tt);
+  _tt = settimeout(() => el.classlist.remove('show'), ms);
+}
+  const validtypes = ['success','error','info','warning'];
+
+  if(!validtypes.includes(type)){
+    opts = arguments[4] || {};
+    ms = arguments[3] || 4500;
+    type = validtypes.includes(arguments[2]) ? arguments[2] : 'info';
+    msg = [msg, arguments[1]].filter(boolean).join(' — ');
+  }
+
+  const el = document.getelementbyid('toast');
+  if(!el) return;
+
+  const icons = {
+    success: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m5 13l4 4l19 7" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:   '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m18 6l6 18m6 6l12 12" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    info:    '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentcolor" stroke-width="2"/><path d="m12 8v4m0 4h.01" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+    warning: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m12 9v4m0 4h.01m10.29 3.86l1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3l13.71 3.86a2 2 0 00-3.42 0z" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+  };
+
+  const titles = { success:'successful!', error:'failed', info:'info', warning:'warning' };
+  let title = opts.title || titles[type] || 'info';
+  let body = string(msg || '');
+
+  if(body.includes(' — ')){
+    const parts = body.split(' — ');
+    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    body = parts.slice(1).join(' — ');
+  } else if(body.startswith('✓ ') || body.startswith('✅ ')){
+    body = body.replace(/^[✓✅]\s*/, '');
+  } else if(body.startswith('❌ ')){
+    title = 'error';
+    body = body.replace(/^❌\s*/, '');
+  }
+
+  const iconel = document.getelementbyid('toasticonbadge');
+  const titleel = document.getelementbyid('toasttitle');
+  const msgel = document.getelementbyid('toastmsg');
+  const actionel = document.getelementbyid('toastaction');
+  const btnel = document.getelementbyid('toastactionbtn');
+
+  if(iconel) iconel.innerhtml = icons[type] || icons.info;
+  if(titleel) titleel.textcontent = title;
+  if(msgel) msgel.textcontent = body;
+
+  const latesthash =
+    opts.txhash ||
+    (typeof lasttxhash !== 'undefined' && lasttxhash) ||
+    (array.isarray(window.txhistory) && window.txhistory[0] && window.txhistory[0].hash);
+
+  const canviewtx = latesthash && string(latesthash).startswith('0x') && string(latesthash).length === 66;
+
+  if(actionel && btnel){
+    if(canviewtx){
+      btnel.href = 'https://testnet.arcscan.app/tx/' + latesthash;
+      actionel.style.display = 'block';
+    } else {
+      actionel.style.display = 'none';
+      btnel.removeattribute('href');
+    }
+  }
+
+  el.classlist.remove('success','error','info','warning');
+  el.classlist.add(type, 'show');
+
+  cleartimeout(_tt);
+  _tt = settimeout(() => el.classlist.remove('show'), ms);
+}
+  const validtypes = ['success','error','info','warning'];
+
+  if(!validtypes.includes(type)){
+    opts = arguments[4] || {};
+    ms = arguments[3] || 4500;
+    type = validtypes.includes(arguments[2]) ? arguments[2] : 'info';
+    msg = [msg, arguments[1]].filter(boolean).join(' — ');
+  }
+
+  const el = document.getelementbyid('toast');
+  if(!el) return;
+
+  const icons = {
+    success: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m5 13l4 4l19 7" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:   '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m18 6l6 18m6 6l12 12" stroke="currentcolor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    info:    '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentcolor" stroke-width="2"/><path d="m12 8v4m0 4h.01" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+    warning: '<svg width="14" height="14" viewbox="0 0 24 24" fill="none"><path d="m12 9v4m0 4h.01m10.29 3.86l1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3l13.71 3.86a2 2 0 00-3.42 0z" stroke="currentcolor" stroke-width="2" stroke-linecap="round"/></svg>',
+  };
+
+  const titles = { success:'successful!', error:'failed', info:'info', warning:'warning' };
+  let title = opts.title || titles[type] || 'info';
+  let body = string(msg || '');
+
+  if(body.includes(' — ')){
+    const parts = body.split(' — ');
+    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    body = parts.slice(1).join(' — ');
+  } else if(body.startswith('✓ ') || body.startswith('✅ ')){
+    body = body.replace(/^[✓✅]\s*/, '');
+  } else if(body.startswith('❌ ')){
+    title = 'error';
+    body = body.replace(/^❌\s*/, '');
+  }
+
+  const iconel = document.getelementbyid('toasticonbadge');
+  const titleel = document.getelementbyid('toasttitle');
+  const msgel = document.getelementbyid('toastmsg');
+  const actionel = document.getelementbyid('toastaction');
+  const btnel = document.getelementbyid('toastactionbtn');
+
+  if(iconel) iconel.innerhtml = icons[type] || icons.info;
+  if(titleel) titleel.textcontent = title;
+  if(msgel) msgel.textcontent = body;
+
+  const latesthash =
+    opts.txhash ||
+    (typeof lasttxhash !== 'undefined' && lasttxhash) ||
+    (array.isarray(window.txhistory) && window.txhistory[0] && window.txhistory[0].hash);
+
+  const canviewtx = latesthash && string(latesthash).startswith('0x') && string(latesthash).length === 66;
+
+  if(actionel && btnel){
+    if(canviewtx){
+      btnel.href = 'https://testnet.arcscan.app/tx/' + latesthash;
+      actionel.style.display = 'block';
+    } else {
+      actionel.style.display = 'none';
+      btnel.removeattribute('href');
+    }
+  }
+
+  el.classlist.remove('success','error','info','warning');
+  el.classlist.add(type, 'show');
+
+  cleartimeout(_tt);
+  _tt = settimeout(() => el.classlist.remove('show'), ms);
+}
   const el = document.getElementById('toast');
   if(!el) return;
 
