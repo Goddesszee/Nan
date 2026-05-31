@@ -202,6 +202,7 @@ function saveTxHistory(){localStorage.setItem('arcTx_'+userAddr,JSON.stringify(t
 // UI UTILITIES
 // ═══════════════════════════════════════════
 let _tt;
+/*
 function toast(msg, type='info', ms=4500, opts={}){
   const validtypes = ['success','error','info','warning'];
 
@@ -459,6 +460,33 @@ function toast(msg, type='info', ms=4500, opts={}){
   clearTimeout(_tt);
   _tt = setTimeout(() => { el.classList.remove('show'); }, ms);
 }
+*/
+function toast(msg, type='info', ms=4500, opts={}){
+  const el = document.getElementById('toast');
+  if(!el) return;
+
+  const titles = { success:'Successful!', error:'Failed', info:'Info', warning:'Warning' };
+  const titleEl = document.getElementById('toastTitle');
+  const msgEl = document.getElementById('toastMsg');
+  const actionEl = document.getElementById('toastAction');
+  const btnEl = document.getElementById('toastActionBtn');
+
+  if(titleEl) titleEl.textContent = titles[type] || 'Info';
+  if(msgEl) msgEl.textContent = String(msg || '').replace(/^✓\s*/, '').replace(/^✅\s*/, '');
+
+  const txHash = opts.txHash || (typeof lastTxHash !== 'undefined' ? lastTxHash : null);
+  if(actionEl && btnEl && txHash && String(txHash).startsWith('0x')){
+    btnEl.href = 'https://testnet.arcscan.app/tx/' + txHash;
+    actionEl.style.display = 'block';
+  } else if(actionEl && btnEl){
+    actionEl.style.display = 'none';
+  }
+
+  el.className = 'show ' + type;
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), ms);
+}
+
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
 function toggleBalCurrency(){
