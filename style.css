@@ -340,11 +340,11 @@ a:hover{color:var(--text);}
 /* ── Toast ── */
 #toast{
   position:fixed;
-  bottom:28px;
-  right:24px;
-  left:auto;
-  top:auto;
-  transform:translateY(20px);
+  top:18px !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:translateX(-50%) translateY(-20px);
   background:#18182a;
   border:1px solid rgba(255,255,255,.1);
   border-radius:16px;
@@ -363,7 +363,7 @@ a:hover{color:var(--text);}
   opacity:1 !important;
   visibility:visible !important;
   pointer-events:auto !important;
-  transform:translatey(0) !important;
+  transform:translatex(-50%) translatey(0) !important;
 }
 #toastIconBadge{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;float:left;margin-right:12px;}
 #toastTitle{font-weight:800;font-size:.86rem;margin-bottom:2px;}
@@ -1045,7 +1045,7 @@ a:hover{color:var(--text);}
   .wallet-modal{border-radius:22px !important;max-width:420px !important;}
 
   /* Toast centered in content area */
-  #toast{bottom:36px !important;left:calc(220px + (100vw - 220px) / 2) !important;max-width:380px !important;width:auto !important;min-width:180px !important;padding:10px 24px !important;}
+  #toast{top:18px !important;left:50% !important;right:auto !important;bottom:auto !important;transform:translatex(-50%) translatey(-20px) !important;max-width:380px !important;width:auto !important;min-width:180px !important;padding:10px 24px !important;}
 
   /* Pickers as centered modals */
   #chainPickerSheet,#bankPickerSheet{
@@ -1067,7 +1067,7 @@ a:hover{color:var(--text);}
   .page{left:240px !important;}
   .page > *{max-width:600px !important;}
   .home-bal-num{font-size:3rem;}
-  #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
+  #toast{left:50% !important;}
 }
 
 
