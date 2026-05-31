@@ -4,11 +4,12 @@
 
 // ── Page routing — maps new tab names to existing page IDs ──
 function goBack(){
-  if(window._prevPage&&window._prevPage!==currentPage)goPage(window._prevPage);
+  if(window._prevPage) goPage(window._prevPage);
   else goPage('home');
 }
 function goPage(name) {
-  window._prevPage = currentPage;
+  window._prevPage = window._currentPage || 'home';
+  window._currentPage = name;
   if (!userAddr) { toast('Connect wallet first', 'error'); return; }
 
   // Hide all pages
