@@ -660,11 +660,9 @@ async function _autoSeedLiquidity(){
 }
 
 async function onConnected(isEmail=false, isDev=false){
+  if(!isEmail) localStorage.setItem('nan_metamask_was_connected','1');
   const land = document.getElementById('page-land');
-  land.classList.remove('active');
-  land.style.display='none';
-  land.style.visibility='hidden';
-  land.style.zIndex='-1';
+  if(land){land.classList.remove('active');land.style.display='none';land.style.visibility='hidden';land.style.zIndex='-1';}
   document.getElementById('bottomNav').classList.add('show');
   showPage('home');
   updateTopBar(true);
@@ -724,6 +722,7 @@ function disconnect(){
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   // Clear landing flag so user goes through landing page again
   sessionStorage.removeItem('nan_from_landing');
+  localStorage.removeItem('nan_metamask_was_connected');
   // Redirect to landing page
   toast('Disconnected','info',1500);
   setTimeout(()=>{ window.location.replace('/'); }, 800);

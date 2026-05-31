@@ -21,9 +21,16 @@
       document.head.appendChild(s);
     }
 
-    // Redirect to landing if no valid entry
-    if(!fromLanding && !connectType && !hasPay && !isDirect){
+    // Redirect to landing if no valid entry AND no existing wallet session
+    var hasWallet = localStorage.getItem('circleWalletId') || localStorage.getItem('nan_metamask_was_connected');
+    if(!fromLanding && !connectType && !hasPay && !isDirect && !hasWallet){
       window.location.replace('/');
+    }
+    // Hide page-land if wallet already exists (returning user)
+    if(hasWallet && !connectType){
+      var s=document.createElement('style');
+      s.textContent='#page-land{display:none!important;}';
+      document.head.appendChild(s);
     }
   })();
 </script>
@@ -1509,8 +1516,8 @@
 <!-- ══ Scripts ══ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://nan-production.up.railway.app/app.js"></script>
-<script src="https://nan-production.up.railway.app/ui.js"></script>
+<script src="/app.js"></script>
+<script src="/ui.js"></script>
 
 
 <!-- ══ ADMIN OVERLAY ══ -->
