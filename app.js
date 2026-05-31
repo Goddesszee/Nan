@@ -1323,7 +1323,7 @@ function showReceipt(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
   modal.innerHTML=`
     <div style="max-width:360px;width:100%;position:relative;">
-      <div id="receiptCard" style="background:linear-gradient(135deg,#07081a 0%,#0e1030 50%,#07081a 100%);border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(139,92,246,.3);">
+      <div id="receiptCard" style="background:linear-gradient(135deg,#000000 0%,#000000 50%,#000000 100%);border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(139,92,246,.3);">
         <!-- Background glow -->
         <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(139,92,246,.25) 0%,transparent 70%);pointer-events:none;"></div>
         <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(109,40,217,.2) 0%,transparent 70%);pointer-events:none;"></div>
@@ -1339,7 +1339,7 @@ function showReceipt(){
           </div>
           <div style="text-align:right;">
             <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;">RECEIPT</div>
-            <div style="font-size:.65rem;color:#6b5fa0;font-family:monospace;">${now}</div>
+            <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;">${now}</div>
           </div>
         </div>
 
@@ -1356,19 +1356,19 @@ function showReceipt(){
         <!-- Details -->
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
             <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#a78bfa;border-radius:50%;display:inline-block;box-shadow:0 0 4px #a78bfa;"></span>Arc Testnet</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
             <span style="font-size:.72rem;color:#10b981;font-family:monospace;">● Confirmed</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
             <span style="font-size:.72rem;color:#ede9fe;font-family:monospace;">~0.009 USDC</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#6b5fa0;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
+            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
             ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
           </div>
         </div>
@@ -1378,12 +1378,12 @@ function showReceipt(){
 
         <!-- Powered by -->
         <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:.65rem;color:#6b5fa0;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
+          <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
             <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Circle USDC</span>
-            <span style="color:#6b5fa0;">·</span>
+            <span style="color:#a78bfa;">·</span>
             <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Arc Network</span>
-            <span style="color:#6b5fa0;">·</span>
+            <span style="color:#a78bfa;">·</span>
             <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">NAN Wallet</span>
           </div>
         </div>
@@ -1391,7 +1391,7 @@ function showReceipt(){
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
           <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #333;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
+          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #1a1a1a;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
           <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
@@ -1422,7 +1422,7 @@ function downloadReceipt(){
 
   // Background gradient
   const bg=ctx.createLinearGradient(0,0,600,400);
-  bg.addColorStop(0,'#07081a');bg.addColorStop(0.5,'#0e1030');bg.addColorStop(1,'#07081a');
+  bg.addColorStop(0,'#000000');bg.addColorStop(0.5,'#000000');bg.addColorStop(1,'#000000');
   ctx.fillStyle=bg;ctx.fillRect(0,0,600,400);
 
   // Purple glow
@@ -1453,7 +1453,7 @@ function downloadReceipt(){
   ctx.fillText('ARC TESTNET',82,63);
 
   // Date
-  ctx.fillStyle='#6b5fa0';ctx.font='10px JetBrains Mono, monospace';
+  ctx.fillStyle='#a78bfa';ctx.font='10px JetBrains Mono, monospace';
   ctx.textAlign='right';ctx.fillText(now,580,45);
 
   // Check circle
@@ -1485,7 +1485,7 @@ function downloadReceipt(){
   ];
   details.forEach(([label,value],i)=>{
     const y=290+i*22;
-    ctx.fillStyle='#6b5fa0';ctx.font='11px JetBrains Mono, monospace';
+    ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
     ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
     ctx.fillStyle=label==='Status'?'#10b981':'#ede9fe';
     ctx.textAlign='right';ctx.fillText(value,560,y);
@@ -1576,8 +1576,8 @@ function flipSwap(){
   // Update dot colors
   const fromDot=document.querySelector('#fromToken span:first-child');
   const toDot=document.querySelector('#toToken span:first-child');
-  if(fromDot) fromDot.style.background=swapFlipped?'#2b3ed6':'#2775ca';
-  if(toDot) toDot.style.background=swapFlipped?'#2775ca':'#2b3ed6';
+  if(fromDot) fromDot.style.background=swapFlipped?'#7c3aed':'#7c3aed';
+  if(toDot) toDot.style.background=swapFlipped?'#7c3aed':'#7c3aed';
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
@@ -1772,7 +1772,7 @@ function openChainPicker(){
 
   const dropdown = document.createElement('div');
   dropdown.id = 'chainPickerDropdown';
-  dropdown.style.cssText = 'position:absolute;z-index:9999;background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);';
+  dropdown.style.cssText = 'position:absolute;z-index:9999;background:#141414;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);';
 
   const rect = btn.getBoundingClientRect();
   dropdown.style.top = (rect.bottom + window.scrollY + 6) + 'px';
@@ -1961,7 +1961,7 @@ async function pollIrisAttestation(txHash, destChain) {
           const destName = destConfig?.chainName || destChain;
           const transmitterAddr = destConfig?.transmitter || '—';
           mintEl.innerHTML = `
-            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:14px;">
+            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #141414;border-radius:12px;padding:14px;">
               <div style="font-weight:700;color:#fff;margin-bottom:8px;">✅ Burn complete — mint on ${destName}</div>
               <div style="font-size:.72rem;color:#888;line-height:1.7;margin-bottom:10px;">
                 Your USDC is burned on Arc. To receive it on <strong style="color:#ccc;">${destName}</strong>, complete the mint using the attestation below.
@@ -1973,8 +1973,8 @@ async function pollIrisAttestation(txHash, destChain) {
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Attestation:</div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:12px;word-break:break-all;">${attestation}</div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
-                <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #333;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
+                <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
+                <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
                 <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7c3aed;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
               </div>
             </div>`;
@@ -2162,14 +2162,14 @@ function renderHistory(){
     return;
   }
   const ICONS={
-    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
     in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
     swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
     bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
     stake:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
   };
-  const ICO_BG={out:'rgba(248,113,113,.1)',in:'rgba(16,185,129,.1)',swap:'rgba(124,58,237,.1)',bridge:'rgba(167,139,250,.1)',stake:'rgba(251,191,36,.1)'};
-  const ICO_BD={out:'rgba(248,113,113,.2)',in:'rgba(16,185,129,.2)',swap:'rgba(124,58,237,.2)',bridge:'rgba(167,139,250,.2)',stake:'rgba(251,191,36,.2)'};
+  const ICO_BG={out:'rgba(124,58,237,.1)',in:'rgba(16,185,129,.1)',swap:'rgba(124,58,237,.1)',bridge:'rgba(124,58,237,.1)',stake:'rgba(16,185,129,.1)'};
+  const ICO_BD={out:'rgba(124,58,237,.2)',in:'rgba(16,185,129,.2)',swap:'rgba(124,58,237,.2)',bridge:'rgba(124,58,237,.2)',stake:'rgba(16,185,129,.2)'};
 
   function dateGroup(ts){
     const d=new Date(ts),now=new Date();
@@ -2192,14 +2192,14 @@ function renderHistory(){
     if(isSim) return `<span style="font-size:.55rem;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 7px;">simulated</span>`;
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const st=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
-    const map={confirmed:['rgba(16,185,129,.1)','#10b981','rgba(16,185,129,.2)'],failed:['rgba(248,113,113,.1)','#f87171','rgba(248,113,113,.2)'],pending:['rgba(251,191,36,.1)','#fbbf24','rgba(251,191,36,.2)']};
+    const map={confirmed:['rgba(16,185,129,.1)','#10b981','rgba(16,185,129,.2)'],failed:['rgba(124,58,237,.1)','#a78bfa','rgba(124,58,237,.2)'],pending:['rgba(124,58,237,.08)','#8b5cf6','rgba(124,58,237,.15)']};
     const [bg,col,bd]=map[st];
     return `<span style="font-size:.55rem;background:${bg};color:${col};border:1px solid ${bd};border-radius:100px;padding:2px 7px;font-weight:600;">${st}</span>`;
   }
   function renderTxRow(tx){
     const isSim=tx.hash?.startsWith('sim-');
     const type=tx.type||'out';
-    let label='',amt='',amtColor='#f87171';
+    let label='',amt='',amtColor='#ffffff';
     if(type==='out'){label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
     else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#10b981';}
     else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#a78bfa';}
@@ -2276,7 +2276,7 @@ function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
   const isDark=document.documentElement.getAttribute('data-theme')!=='light';
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#07081a':'#1e1040',colorLight:'#ffffff'});}
+  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#000000':'#000000',colorLight:'#ffffff'});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 function copyAddr(){
@@ -2586,7 +2586,7 @@ function downloadPayrollReceipt(){
 
   // Background
   const bg = ctx.createLinearGradient(0,0,600,canvas.height);
-  bg.addColorStop(0,'#07081a'); bg.addColorStop(1,'#0e1030');
+  bg.addColorStop(0,'#000000'); bg.addColorStop(1,'#000000');
   ctx.fillStyle = bg; ctx.fillRect(0,0,600,canvas.height);
   ctx.strokeStyle = 'rgba(139,92,246,0.5)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.roundRect(10,10,580,canvas.height-20,16); ctx.stroke();
@@ -2596,7 +2596,7 @@ function downloadPayrollReceipt(){
   ctx.textAlign = 'left'; ctx.fillText('NAN Payroll Receipt', 28, 48);
   ctx.fillStyle = '#a78bfa'; ctx.font = '12px monospace';
   ctx.fillText(now, 28, 68);
-  ctx.fillStyle = '#6b5fa0'; ctx.font = '11px monospace';
+  ctx.fillStyle = '#a78bfa'; ctx.font = '11px monospace';
   ctx.textAlign = 'right';
   ctx.fillText(lastPayrollTxs.length+' recipients · '+total.toFixed(2)+' '+bulkToken+' total', 572, 68);
 
@@ -2612,7 +2612,7 @@ function downloadPayrollReceipt(){
     ctx.fillRect(18, y-16, 564, 40);
     ctx.fillStyle = '#ede9fe'; ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'left'; ctx.fillText(r.name||r.addr.slice(0,16)+'…', 28, y+4);
-    ctx.fillStyle = '#6b5fa0'; ctx.font = '10px monospace';
+    ctx.fillStyle = '#a78bfa'; ctx.font = '10px monospace';
     ctx.fillText(r.addr.slice(0,18)+'…', 28, y+18);
     ctx.fillStyle = r.status==='done'?'#10b981':'#f87171';
     ctx.font = 'bold 13px monospace'; ctx.textAlign = 'right';
@@ -2722,7 +2722,7 @@ async function doBulkSend(){
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
   progressBar.style.width = '100%';
-  progressBar.style.background = done===total ? 'linear-gradient(90deg,#10b981,#10b981)' : 'linear-gradient(90deg,#f87171,#ef4444)';
+  progressBar.style.background = done===total ? 'linear-gradient(90deg,#10b981,#10b981)' : 'linear-gradient(90deg,#f87171,#f87171)';
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
@@ -4416,7 +4416,7 @@ function viewPaymentRequest(id){
   document.getElementById('prViewLink').textContent=link;
   const qrBox=document.getElementById('prViewQR');
   qrBox.innerHTML='';
-  try{new QRCode(qrBox,{text:link,width:120,height:120,colorDark:'#1e1040',colorLight:'#ffffff'});}catch{}
+  try{new QRCode(qrBox,{text:link,width:120,height:120,colorDark:'#000000',colorLight:'#ffffff'});}catch{}
   document.getElementById('prMarkPaidBtn').style.display=pr.status==='paid'?'none':'block';
   goPage('payreq-view');
 }
@@ -4567,7 +4567,7 @@ function deletePR(){
       if(amtInput)amtInput.style.display=dl.amt?'none':'block';
       document.getElementById('payNowAddrDisplay').textContent=dl.to||'';
       const qrBox=document.getElementById('payNowQR');
-      if(qrBox){qrBox.innerHTML='';try{new QRCode(qrBox,{text:dl.to||'',width:120,height:120,colorDark:'#1e1040',colorLight:'#ffffff'});}catch{}}
+      if(qrBox){qrBox.innerHTML='';try{new QRCode(qrBox,{text:dl.to||'',width:120,height:120,colorDark:'#000000',colorLight:'#ffffff'});}catch{}}
       goPage('pay-now');
       if(dl.lbl)toast('💸 Pay: '+dl.lbl,'info',5000);
       window._prDeepLink=null;
@@ -4652,7 +4652,7 @@ async function loadAdminStats(){
         const recEl=document.getElementById('statRecentWallets');
         const wallets=d.recentWallets||[];
         recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
         document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
         loading.style.display='none';
         statsEl.style.display='block';
@@ -4764,7 +4764,7 @@ async function loadAdminStats(){
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
 
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
@@ -4773,7 +4773,7 @@ async function loadAdminStats(){
 
   }catch(err){
     console.error('Admin error:',err);
-    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#141414;border:1px solid #1a1a1a;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
   }
 }
 
