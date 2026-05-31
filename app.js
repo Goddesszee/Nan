@@ -2119,7 +2119,6 @@ async function loadOnChainHistory(){
 }
 
 function renderHistory(){
-  // Update stats — skip if admin dashboard is open (server data takes priority)
   if(!_adminUnlocked){
     const m=getMetrics();
     const ss=document.getElementById('statSends');
@@ -2130,29 +2129,95 @@ function renderHistory(){
     if(sb) sb.textContent=m.totalBridges||txHistory.filter(t=>t.source==='cctp').length||0;
   }
   const list=document.getElementById('txList');
-  if(!txHistory.length){list.innerHTML='<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.72rem;color:var(--text3);">Send or swap to get started.</span></div></div>';return;}
-  list.innerHTML=txHistory.map(tx=>{
+  if(!list) return;
+  if(!txHistory.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px 20px;"><div style="font-size:2rem;margin-bottom:12px;">◎</div><div style="font-size:.82rem;color:var(--text3);line-height:1.6;">No transactions yet.<br/>Send or swap to get started.</div></div>`;
+    return;
+  }
+  const ICONS={
+    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
+    swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+    bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
+    stake:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
+  };
+  const ICO_BG={out:'rgba(248,113,113,.1)',in:'rgba(52,211,153,.1)',swap:'rgba(96,165,250,.1)',bridge:'rgba(167,139,250,.1)',stake:'rgba(251,191,36,.1)'};
+  const ICO_BD={out:'rgba(248,113,113,.2)',in:'rgba(52,211,153,.2)',swap:'rgba(96,165,250,.2)',bridge:'rgba(167,139,250,.2)',stake:'rgba(251,191,36,.2)'};
+
+  function dateGroup(ts){
+    const d=new Date(ts),now=new Date();
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const yest=new Date(today-86400000);
+    const txDay=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    if(txDay.getTime()===today.getTime()) return 'Today';
+    if(txDay.getTime()===yest.getTime()) return 'Yesterday';
+    return d.toLocaleDateString('en',{month:'long',year:'numeric'});
+  }
+  function timeLabel(ts){
+    const d=new Date(ts),now=new Date();
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const txDay=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    if(txDay>=new Date(today-86400000)) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return d.toLocaleDateString('en',{month:'short',day:'numeric'});
+  }
+  function statusBadge(tx){
     const isSim=tx.hash?.startsWith('sim-');
-    let icon='↑',cls='out',label='',amt='';
-    if(tx.type==='out'){icon='↑';cls='out';label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    if(tx.type==='in'){icon='↓';cls='in';label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    if(tx.type==='swap'){icon='⇄';cls='swap';label=parseFloat(tx.amount).toFixed(2)+' '+tx.fromToken+' → '+parseFloat(tx.outAmount).toFixed(2)+' '+tx.toToken;amt='Swap';}
-    if(tx.type==='stake'){icon='◈';cls='stake';label='Staked '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Stake';}
-    if(tx.type==='bridge'){icon='⬡';cls='bridge';label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
-    const srcBadge=tx.source==='circle'?'<span style="color:var(--accent3);font-size:.65rem;">●Circle</span>':tx.source==='cctp'?'<span style="color:#60a5fa;font-size:.65rem;">●CCTP</span>':tx.source==='sim'?'<span style="color:var(--warning);font-size:.65rem;">⚗sim</span>':'';
-    const statusClass=tx.confirmed?'confirmed':tx.failed?'failed':'pending';
-    // Real hash = starts with 0x AND is 66 chars (32 bytes). Circle UUIDs are not 0x hashes.
+    if(isSim) return `<span style="font-size:.55rem;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 7px;">simulated</span>`;
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
-    const viewLink=isRealHash
-      ?`<a href="${ARC_EXP}/tx/${tx.hash}" target="_blank" style="color:var(--accent3);" onclick="verifyTx('${tx.hash}',event)">View ↗</a>`
-      :`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="color:var(--accent3);">Wallet ↗</a>`;
-    const timeStr=isSim?`<span class="tx-status sim">simulated</span>`:
-      `${new Date(tx.ts).toLocaleString()} · ${viewLink} ${srcBadge}`;
-    // Circle wallet txs (no 0x hash) are always confirmed — Arc settles in <1s
-    const displayStatus=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
-    return `<div class="tx-item"><div class="tx-ico ${cls}">${icon}</div><div class="tx-info"><div class="tx-title">${label}</div><div class="tx-time">${timeStr}</div>${!isSim?`<span class="tx-status ${displayStatus==='confirmed'?'confirmed':displayStatus==='failed'?'failed':'pending'}">${displayStatus}</span>`:''}</div><div class="tx-amt ${cls==='out'||cls==='bridge'?'out':'in'}">${amt}</div></div>`;
-  }).join('');
+    const st=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
+    const map={confirmed:['rgba(52,211,153,.1)','#34d399','rgba(52,211,153,.2)'],failed:['rgba(248,113,113,.1)','#f87171','rgba(248,113,113,.2)'],pending:['rgba(251,191,36,.1)','#fbbf24','rgba(251,191,36,.2)']};
+    const [bg,col,bd]=map[st];
+    return `<span style="font-size:.55rem;background:${bg};color:${col};border:1px solid ${bd};border-radius:100px;padding:2px 7px;font-weight:600;">${st}</span>`;
+  }
+  function renderTxRow(tx){
+    const isSim=tx.hash?.startsWith('sim-');
+    const type=tx.type||'out';
+    let label='',amt='',amtColor='#f87171';
+    if(type==='out'){label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
+    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#34d399';}
+    else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#60a5fa';}
+    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#34d399';}
+    else if(type==='bridge'){label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
+    const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
+    const href=isRealHash?`${ARC_EXP}/tx/${tx.hash}`:`${ARC_EXP}/address/${userAddr}`;
+    const viewLink=!isSim?(isRealHash
+      ?`<a href="${href}" target="_blank" onclick="verifyTx('${tx.hash}',event)" style="font-size:.58rem;color:var(--accent3);text-decoration:none;">View ↗</a>`
+      :`<a href="${href}" target="_blank" style="font-size:.58rem;color:var(--accent3);text-decoration:none;">Wallet ↗</a>`):'';
+    const ico=ICONS[type]||ICONS.out;
+    return `<div style="display:flex;align-items:center;gap:12px;background:var(--card);border-bottom:1px solid var(--border);padding:13px 14px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(124,58,237,.04)'" onmouseout="this.style.background='var(--card)'">
+      <div style="width:38px;height:38px;border-radius:12px;background:${ICO_BG[type]||ICO_BG.out};border:1px solid ${ICO_BD[type]||ICO_BD.out};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ico}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
+          <span style="font-size:.6rem;color:var(--text3);">${timeLabel(tx.ts)}</span>
+          ${statusBadge(tx)}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:${amtColor};">${amt}</div>
+        ${viewLink}
+      </div>
+    </div>`;
+  }
+
+  // Group transactions
+  const groups={};
+  txHistory.forEach(tx=>{
+    const g=dateGroup(tx.ts);
+    if(!groups[g]) groups[g]=[];
+    groups[g].push(tx);
+  });
+
+  let html='';
+  Object.keys(groups).forEach(group=>{
+    html+=`<div style="margin-bottom:8px;">
+      <div style="font-size:.58rem;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin:10px 2px 6px;">${group}</div>
+      <div style="border-radius:14px;overflow:hidden;border:1px solid var(--border);">${groups[group].map(renderTxRow).join('')}</div>
+    </div>`;
+  });
+  list.innerHTML=html;
 }
+
 
 // ═══════════════════════════════════════════
 // FAUCET
