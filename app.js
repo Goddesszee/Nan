@@ -250,17 +250,14 @@ function showBalSkeleton(){
   document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';
 }
 function showPage(name){
-  // Handled by ui.js — this is a no-op stub to prevent conflicts
-  if(typeof goPage === 'function') goPage(name);
-}
-function goPage(name){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  showPage(name);
-  if(name==='lend'){initLendUI();}
-  if(name==='history')renderHistory();
-  if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();}
-  if(name==='arcname'){renderArcDirectory();}
-  if(name==='swap')refreshBalances();
+  // Delegate to ui.js goPage which handles actual DOM visibility
+  if(window._uiGoPage) window._uiGoPage(name);
+  // Extra page init
+  if(name==='lend'){try{initLendUI();}catch(e){}}
+  if(name==='history'){try{renderHistory();}catch(e){}}
+  if(name==='bulk'){try{renderPayrollGroups();renderPayrollHistory();}catch(e){}}
+  if(name==='arcname'){try{renderArcDirectory();}catch(e){}}
+  if(name==='swap'){try{refreshBalances();}catch(e){}}
 }
 function toggleTheme(){
   const root=document.documentElement;
