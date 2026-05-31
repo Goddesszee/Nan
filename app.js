@@ -229,13 +229,13 @@ function toast(msg, type='info', ms=4500, opts={}){
 
   if(body.includes(' — ')){
     const parts = body.split(' — ');
-    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    title = parts[0].replace(/^[^a-za-z0-9]+/, '');
     body = parts.slice(1).join(' — ');
   } else if(body.startswith('✓ ') || body.startswith('✅ ')){
-    body = body.replace(/^[✓✅]\s*/, '');
+    body = body.replace(/^[^a-za-z0-9]+/, '');
   } else if(body.startswith('❌ ')){
     title = 'error';
-    body = body.replace(/^❌\s*/, '');
+    body = body.replace(/^[^a-za-z0-9]+/, '');
   }
 
   const iconel = document.getelementbyid('toasticonbadge');
