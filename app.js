@@ -205,8 +205,10 @@ let _tt;
 function toast(msg,type='info',ms=4000){
   const el=document.getElementById('toast');
   if(!el)return;
-  el.textContent=msg;el.className='show '+type;
-  clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
+  el.textContent=msg;
+  el.className='show '+type;
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>{el.classList.remove('show');},ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
