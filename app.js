@@ -1352,26 +1352,48 @@ async function doBridge(){
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
   if(isCircleWallet){
-  if(!circleWalletAddress){toast('Wallet not ready — log in again','error');return;}
-  const btn=document.getElementById('bridgeBtn');
-  btn.innerHTML='<span class="spinner"></span>Bridging via App Kit…';btn.disabled=true;
-  try{
-    const r=await fetch('https://nan-production.up.railway.app/api/appkit/bridge',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({walletAddress:circleWalletAddress,destChain,destAddr,amount:amt.toString()})});
-    const data=await r.json();
-    if(!data.success)throw new Error(data.error||'Bridge failed');
-    const txHash=data.burnTxHash||null;
-    addTx({hash:txHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:data.state==='success',source:'appkit-bridge',destChain});
-    if(data.state==='success'){toast('✅ Bridge complete! USDC arrived on '+destChain,'success',8000);}
-    else{toast('✓ Bridge submitted via App Kit — CCTP processing…','success',6000);}
-    await refreshBalances();
-  }catch(err){
-    toast((err?.message||'Bridge failed').slice(0,140),'error',8000);
-  }finally{
-    btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;
-  }
-  return;
-}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
+    if(!circleWalletId){toast('Wallet not ready — log in again','error');return;}
+    if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
+    if(!amt||amt<=0){toast('Enter an amount','error');return;}
+    const destDomain=CCTP_DEST_DOMAIN[destChain];
+    if(destDomain===undefined){toast('Unsupported destination chain','error');return;}
+    const btn=document.getElementById('bridgeBtn');
+    btn.innerHTML='<span class="spinner"></span>Step 1: Approving…';btn.disabled=true;
+    try{
+      const amtAtomic=ethers.parseUnits(amt.toFixed(6),6).toString();
+      const mintRecipient='0x'+destAddr.replace('0x','').toLowerCase().padStart(64,'0');
+      const destinationCaller='0x'+'0'.repeat(64);
+      // Step 1: Approve CCTP Token Messenger
+      const approveRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:USDC_ADDR,
+          abiFunctionSignature:'approve(address,uint256)',
+          abiParameters:[CCTP_TOKEN_MESSENGER,amtAtomic]})});
+      const approveData=await approveRes.json();
+      if(!approveData.success&&!approveData.id&&!approveData.txHash)throw new Error(approveData.error||'Approval failed');
+      await new Promise(r=>setTimeout(r,3000));
+      // Step 2: Call depositForBurn on CCTP Token Messenger
+      btn.innerHTML='<span class="spinner"></span>Step 2: Burning USDC…';
+      const burnRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
+          contractAddress:CCTP_TOKEN_MESSENGER,
+          abiFunctionSignature:'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint64,uint32)',
+          abiParameters:[amtAtomic,String(destDomain),mintRecipient,USDC_ADDR,destinationCaller,'1000','1000']})});
+      const burnData=await burnRes.json();
+      if(!burnData.success&&!burnData.id&&!burnData.txHash)throw new Error(burnData.error||'Bridge failed');
+      const txId=burnData.id||burnData.txHash||'pending';
+      addTx({hash:txId,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:false,source:'circle',destChain});
+      toast('✓ Bridge submitted! CCTP processing — USDC arriving on '+destChain+' in ~20 mins','success',10000);
+      await refreshBalances();
+    }catch(err){
+      toast('Bridge failed: '+(err?.message||'Unknown error').slice(0,100),'error',8000);
+    }finally{
+      btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;
+    }
+    return;
+  }if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
