@@ -340,11 +340,9 @@ a:hover{color:var(--text);}
 /* ── Toast ── */
 #toast{
   position:fixed;
-  top:18px !important;
-  left:50% !important;
-  right:auto !important;
-  bottom:auto !important;
-  transform:translateX(-50%) translateY(-20px);
+  top:16px;
+  left:50%;
+  transform:translateX(-50%) translateY(-100px);
   background:#18182a;
   border:1px solid rgba(255,255,255,.1);
   border-radius:16px;
@@ -353,24 +351,12 @@ a:hover{color:var(--text);}
   max-width:min(380px,92vw);
   text-align:left;
   z-index:2147483647;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s;
   opacity:0;pointer-events:none;color:var(--text);
   box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
   backdrop-filter:blur(24px);
 }
-#toast.show{
-  display:flex !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-  transform:translatex(-50%) translatey(0) !important;
-}
-#toastIconBadge{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;float:left;margin-right:12px;}
-#toastTitle{font-weight:800;font-size:.86rem;margin-bottom:2px;}
-#toastMsg{font-size:.78rem;color:var(--text2);line-height:1.35;}
-#toastAction{margin-top:8px;}
-#toastActionBtn{display:inline-flex;align-items:center;font-size:.72rem;font-weight:800;color:var(--accent4);text-decoration:none;}
-#toastActionBtn:hover{color:var(--text);}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 
 /* Type variants */
 #toast.success{
@@ -524,7 +510,7 @@ a:hover{color:var(--text);}
   .tx-amt{font-size:.7rem!important;}
 
   /* Toast */
-  #toast{font-size:.75rem!important;top:18px!important;bottom:auto!important;max-width:88%!important;}
+  #toast{font-size:.75rem!important;bottom:76px!important;max-width:88%!important;}
 
   /* Wallet modal slides up */
   .wallet-modal{border-radius:22px 22px 0 0!important;padding:18px 14px 36px!important;max-height:88vh;overflow-y:auto;}
@@ -1045,7 +1031,7 @@ a:hover{color:var(--text);}
   .wallet-modal{border-radius:22px !important;max-width:420px !important;}
 
   /* Toast centered in content area */
-  #toast{top:18px !important;left:50% !important;right:auto !important;bottom:auto !important;transform:translatex(-50%) translatey(-20px) !important;max-width:380px !important;width:auto !important;min-width:180px !important;padding:10px 24px !important;}
+  #toast{bottom:36px !important;left:calc(220px + (100vw - 220px) / 2) !important;max-width:380px !important;width:auto !important;min-width:180px !important;padding:10px 24px !important;}
 
   /* Pickers as centered modals */
   #chainPickerSheet,#bankPickerSheet{
@@ -1067,7 +1053,7 @@ a:hover{color:var(--text);}
   .page{left:240px !important;}
   .page > *{max-width:600px !important;}
   .home-bal-num{font-size:3rem;}
-  #toast{left:50% !important;}
+  #toast{left:calc(240px + (100vw - 240px) / 2) !important;}
 }
 
 
@@ -1146,11 +1132,10 @@ a:hover{color:var(--text);}
 
   /* Toast — full width on mobile */
   #toast{
-    top:18px !important;
     left:12px !important;
     right:12px !important;
-    bottom:auto !important;
-    transform:translatey(-20px) !important;
+    bottom:80px !important;
+    transform:none !important;
     width:auto !important;
     max-width:none !important;
     text-align:center !important;

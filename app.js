@@ -540,17 +540,15 @@ function showBalSkeleton(){
   document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';
 }
 function showPage(name){
-  // Handled by ui.js — this is a no-op stub to prevent conflicts
-  if(typeof goPage === 'function') goPage(name);
-}
-function goPage(name){
-  if(!userAddr){toast('Connect wallet first','error');return;}
-  showPage(name);
-  if(name==='lend'){initLendUI();}
-  if(name==='history')renderHistory();
-  if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();}
-  if(name==='arcname'){renderArcDirectory();}
-  if(name==='swap')refreshBalances();
+  // Use ui.js goPage directly via window reference to avoid circular call
+  if(window._uiGoPage) { window._uiGoPage(name); }
+  else if(window.goPage && window.goPage !== showPage) { window.goPage(name); }
+  // Extra page init
+  try{ if(name==='lend') initLendUI(); } catch(e){}
+  try{ if(name==='history') renderHistory(); } catch(e){}
+  try{ if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();} } catch(e){}
+  try{ if(name==='arcname') renderArcDirectory(); } catch(e){}
+  try{ if(name==='swap') refreshBalances(); } catch(e){}
 }
 function toggleTheme(){
   const root=document.documentElement;
@@ -982,9 +980,8 @@ function disconnect(){
   localStorage.removeItem('circleWalletId');
   localStorage.removeItem('circleWalletAddr');
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
-  // Clear landing flag so user goes through landing page again
   sessionStorage.removeItem('nan_from_landing');
-  // Redirect to landing page
+  localStorage.removeItem('nan_metamask_was_connected');
   toast('Disconnected','info',1500);
   setTimeout(()=>{ window.location.replace('/'); }, 800);
 }
@@ -1608,6 +1605,17 @@ function flipSwap(){
 
 
 
+function initBridgeUI(){
+  const amtInp=document.getElementById('bridgeAmt');
+  const addrInp=document.getElementById('bridgeDestAddr');
+  const chainSel=document.getElementById('bridgeChainSelect');
+  if(amtInp) amtInp.addEventListener('input',updateBridgeSummary);
+  if(addrInp) addrInp.addEventListener('input',updateBridgeSummary);
+  if(chainSel) chainSel.addEventListener('change',function(){
+    document.getElementById('bridgeDestChain').value=this.value;
+    updateBridgeSummary();
+  });
+}
 function initSwapUI(){
   document.getElementById('swapModeBanner').style.display='none';
   document.getElementById('swapBtn').textContent='Swap USDC ↔ EURC';
@@ -1616,7 +1624,49 @@ function initSwapUI(){
 // ═══════════════════════════════════════════
 // BRIDGE — CCTP
 // ═══════════════════════════════════════════
-function setBridgeMax(){document.getElementById('bridgeAmt').value=Math.max(0,parseFloat(usdcBal)-GAS_USDC*2).toFixed(6);}
+function setBridgeMax(){
+  const max=Math.max(0,parseFloat(usdcBal)-GAS_USDC*2).toFixed(6);
+  document.getElementById('bridgeAmt').value=max;
+  updateBridgeSummary();
+}
+
+function toggleBridgeAddr(){
+  const on=document.getElementById('bridgeAddrToggle').checked;
+  document.getElementById('bridgeAddrWrap').style.display=on?'block':'none';
+  const track=document.getElementById('bridgeAddrTrack');
+  const knob=document.getElementById('bridgeAddrKnob');
+  if(track) track.style.background=on?'rgba(124,58,237,.5)':'var(--surface)';
+  if(track) track.style.borderColor=on?'var(--accent3)':'var(--border)';
+  if(knob) knob.style.left=on?'21px':'3px';
+  updateBridgeSummary();
+}
+
+function updateBridgeSummary(){
+  const chain=document.getElementById('bridgeChainSelect')?.value||document.getElementById('bridgeDestChain')?.value||'';
+  const amt=parseFloat(document.getElementById('bridgeAmt')?.value)||0;
+  const addrOn=document.getElementById('bridgeAddrToggle')?.checked;
+  const addr=document.getElementById('bridgeDestAddr')?.value?.trim()||'';
+  const addrOk=!addrOn||(addr.length>=10);
+  const NAMES={'ETH-SEPOLIA':'Ethereum Sepolia','BASE-SEPOLIA':'Base Sepolia','ARB-SEPOLIA':'Arbitrum Sepolia','OP-SEPOLIA':'OP Sepolia','AVAX-FUJI':'Avalanche Fuji','POLYGON-AMOY':'Polygon Amoy'};
+  // Update ngn estimate
+  const ngnEl=document.getElementById('bridgeNgnEst');
+  if(ngnEl) ngnEl.textContent='≈ ₦'+(amt*fxNGN).toLocaleString('en',{maximumFractionDigits:0});
+  // Update available balance
+  const balEl=document.getElementById('bridgeAvailBal');
+  if(balEl) balEl.textContent=(parseFloat(usdcBal)||0).toFixed(2)+' USDC';
+  // Show summary if ready
+  const ready=chain&&amt>0&&amt<=(parseFloat(usdcBal)||0)&&addrOk;
+  const sumEl=document.getElementById('bridgeSummary');
+  if(sumEl) sumEl.style.display=ready?'block':'none';
+  if(ready){
+    const sc=document.getElementById('bridgeSumChain');
+    const sa=document.getElementById('bridgeSumAddr');
+    const sm=document.getElementById('bridgeSumAmt');
+    if(sc) sc.textContent=NAMES[chain]||chain;
+    if(sa) sa.textContent=addrOn?(addr.slice(0,6)+'...'+addr.slice(-4)):'Your connected wallet';
+    if(sm) sm.textContent=amt.toFixed(2)+' USDC';
+  }
+}
 
 function toggleCCTP(){
   const panel = document.getElementById('cctpPanel');
@@ -4025,6 +4075,7 @@ window.addEventListener('load',()=>{
     if(_land && !_lp.get('pay')) _land.style.display='flex';
   }
   initSwapUI();
+  initBridgeUI();
   fetchLiveFX();
   setInterval(fetchLiveFX,60000);
   setInterval(async()=>{
