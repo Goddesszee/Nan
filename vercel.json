@@ -4,6 +4,18 @@
   "outputDirectory": ".",
   "rewrites": [
     {
+      "source": "/app.js",
+      "destination": "/app.js"
+    },
+    {
+      "source": "/ui.js",
+      "destination": "/ui.js"
+    },
+    {
+      "source": "/style.css",
+      "destination": "/style.css"
+    },
+    {
       "source": "/app",
       "destination": "/app.html"
     },
