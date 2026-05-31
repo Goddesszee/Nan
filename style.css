@@ -339,26 +339,35 @@ a:hover{color:var(--text);}
 
 /* ── Toast ── */
 #toast{
-  position:fixed;bottom:32px;left:50%;
-  transform:translateX(-50%) translateY(16px);
-  background:#1a1a2a;
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.92);
+  background:#1c1c2e;
   border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;padding:12px 22px;
-  font-size:.88rem;font-weight:600;
-  max-width:min(360px,90vw);
-  text-align:center;line-height:1.4;
-  word-break:break-word;
+  border-radius:20px;
+  padding:24px 24px 20px;
+  min-width:min(320px,88vw);
+  max-width:min(380px,92vw);
+  text-align:center;
   z-index:2147483647;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
-  pointer-events:none;
-  box-shadow:0 8px 32px rgba(0,0,0,.5);
-  opacity:0;color:#fff;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .25s;
+  opacity:0;pointer-events:none;color:var(--text);
+  box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);
 }
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-#toast.success{background:#0d2b1f;border-color:rgba(52,211,153,.4);color:#34d399;}
-#toast.error{background:#2b0d0d;border-color:rgba(248,113,113,.4);color:#f87171;}
-#toast.info{background:#1a1030;border-color:rgba(139,92,246,.4);color:#a78bfa;}
-#toast.warning{background:#2b1f0d;border-color:rgba(251,191,36,.4);color:#fbbf24;}
+#toast.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+#toast.success{background:rgba(10,20,14,.97);border-color:rgba(52,211,153,.3);}
+#toast.success #toastIcon{color:#34d399;}
+#toast.success #toastTitle{color:#34d399;}
+#toast.error{background:rgba(22,8,8,.97);border-color:rgba(248,113,113,.3);}
+#toast.error #toastIcon{color:#f87171;}
+#toast.error #toastTitle{color:#f87171;}
+#toast.info{background:rgba(12,10,28,.97);border-color:rgba(139,92,246,.3);}
+#toast.info #toastIcon{color:#a78bfa;}
+#toast.info #toastTitle{color:#a78bfa;}
+#toast.warning{background:rgba(20,16,6,.97);border-color:rgba(251,191,36,.3);}
+#toast.warning #toastIcon{color:#fbbf24;}
+#toast.warning #toastTitle{color:#fbbf24;}
 
 /* ── Spinner ── */
 .spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(237,233,254,.3);border-top-color:#ede9fe;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:5px;}
