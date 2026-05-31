@@ -1556,6 +1556,32 @@
 <!-- ══ Toast ══ -->
 
 <!-- ══ Scripts ══ -->
+<script>
+// Patch goPage to handle payreq-new before ui.js loads (Railway may serve old ui.js)
+window._patchGoPage = function(){
+  const orig = window.goPage;
+  if(!orig) return;
+  window.goPage = function(name){
+    // Ensure payreq-new is handled
+    if(name === 'payreq-new'){
+      document.querySelectorAll('.page:not(.page-land)').forEach(p=>p.classList.remove('active'));
+      const p = document.getElementById('page-payreq-new');
+      if(p){ p.classList.add('active'); }
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      const nb = document.getElementById('nav-more');
+      if(nb) nb.classList.add('active');
+      window._currentPage = 'payreq-new';
+      window._prevPage = window._currentPage || 'payreq';
+      if(typeof initNewPRForm==='function') initNewPRForm();
+      return;
+    }
+    orig.apply(this, arguments);
+  };
+};
+// Try to patch immediately and also after load
+window._patchGoPage();
+window.addEventListener('load', window._patchGoPage);
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://nan-production.up.railway.app/app.js"></script>
