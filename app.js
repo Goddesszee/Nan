@@ -217,13 +217,18 @@ function toast(msg,type='info',ms=4000){
   };
   const c=colors[type]||colors.info;
   el.textContent=msg;
+  // Position relative to app-root center, not full viewport
+  const appRoot=document.getElementById('app-root');
+  const appRect=appRoot?appRoot.getBoundingClientRect():{left:0,width:window.innerWidth};
+  const centerX=appRect.left+(appRect.width/2);
   el.style.cssText=`
-    position:fixed;bottom:28px;left:50%;
+    position:fixed;bottom:28px;
+    left:${centerX}px;
     transform:translateX(-50%) translateY(20px);
     background:${c.bg};border:1px solid ${c.border};color:${c.color};
     border-radius:14px;padding:13px 24px;
     font-family:Inter,sans-serif;font-size:.88rem;font-weight:600;
-    max-width:min(380px,90vw);text-align:center;line-height:1.4;
+    max-width:min(380px,${appRect.width-32}px);text-align:center;line-height:1.4;
     z-index:2147483647;pointer-events:none;
     box-shadow:0 8px 32px rgba(0,0,0,.6);
     opacity:0;transition:transform .3s ease,opacity .25s ease;
