@@ -405,7 +405,7 @@ function toast(msg, type='info', ms=4500, opts={}){
   cleartimeout(_tt);
   _tt = settimeout(() => el.classlist.remove('show'), ms);
 }
-  const el = document.getElementById('toast');
+  const el = document.getElementById('toast'); if(el && !document.getElementById('toastTitle')) el.innerHTML = '<div id="toastIconBadge"></div><div class="toast-copy"><div id="toastTitle"></div><div id="toastMsg"></div><div id="toastAction" style="display:none;"><a id="toastActionBtn" href="#" target="_blank" rel="noopener">View Transaction</a></div></div>';
   if(!el) return;
 
   const ICONS = {
