@@ -524,7 +524,7 @@ a:hover{color:var(--text);}
   .tx-amt{font-size:.7rem!important;}
 
   /* Toast */
-  #toast{font-size:.75rem!important;bottom:76px!important;max-width:88%!important;}
+  #toast{font-size:.75rem!important;top:18px!important;bottom:auto!important;max-width:88%!important;}
 
   /* Wallet modal slides up */
   .wallet-modal{border-radius:22px 22px 0 0!important;padding:18px 14px 36px!important;max-height:88vh;overflow-y:auto;}
@@ -1146,10 +1146,11 @@ a:hover{color:var(--text);}
 
   /* Toast — full width on mobile */
   #toast{
+    top:18px !important;
     left:12px !important;
     right:12px !important;
-    bottom:80px !important;
-    transform:none !important;
+    bottom:auto !important;
+    transform:translatey(-20px) !important;
     width:auto !important;
     max-width:none !important;
     text-align:center !important;
