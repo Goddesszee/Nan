@@ -9,20 +9,20 @@
 <style>
   :root,[data-theme="dark"]{
     --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#a78bfa;
-    --violet-border:#2a2a2a;--violet-border-strong:#3a3a3a;
-    --bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;
-    --text:#ffffff;--muted:#888888;--faint:rgba(255,255,255,0.04);
+    --violet-border:#1a1a1a;--violet-border-strong:#1a1a1a;
+    --bg:#000000;--surface:#141414;--surface2:#141414;
+    --text:#ffffff;--muted:#9ca3af;--faint:rgba(255,255,255,0.04);
     --success:#10b981;--gold:#fbbf24;--danger:#f87171;
     --nav-bg:rgba(10,10,10,.98);--grid-line:rgba(255,255,255,.025);
   }
   [data-theme="light"]{
     --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#6d28d9;
     --violet-border:rgba(109,40,217,0.2);--violet-border-strong:rgba(109,40,217,0.45);
-    --bg:#eef0f6;--surface:#ffffff;--surface2:#f5f6fa;
-    --text:#0d1117;--muted:#6b7280;--faint:rgba(124,58,237,0.05);
-    --success:#059669;--gold:#d97706;--danger:#dc2626;
-    --nav-bg:rgba(238,240,246,.97);--grid-line:rgba(0,0,0,.03);
-    --card-bg:#ffffff;--card-border:#e2e5ef;
+    --bg:#ffffff;--surface:#ffffff;--surface2:#ffffff;
+    --text:#0f0f0f;--muted:#9ca3af;--faint:rgba(124,58,237,0.05);
+    --success:#059669;--gold:#fbbf24;--danger:#f87171;
+    --nav-bg:rgba(0,0,0,.97);--grid-line:rgba(0,0,0,.03);
+    --card-bg:#ffffff;--card-border:#ffffff;
   }
   *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,border-color .3s,color .3s;}
   html{scroll-behavior:smooth;}
@@ -37,7 +37,7 @@
   .brand-logo svg{width:18px;height:18px;display:block;}
   .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .nav-right{display:flex;align-items:center;gap:12px;}
-  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#e2e5ef);padding:5px 13px;border-radius:100px;background:#111;display:flex;align-items:center;gap:6px;}
+  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#111;display:flex;align-items:center;gap:6px;}
   .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
   .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text);}
@@ -47,7 +47,7 @@
   main{position:relative;z-index:1;max-width:100%;margin:0 auto;padding:0 28px;}
 
   .hero{text-align:center;padding:104px 24px 76px;}
-  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#e2e5ef);border-radius:6px;padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#ffffff);border-radius:6px;padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
   .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
   .hero h1 .accent{color:var(--violet-light);}
   .hero-sub{font-size:1.05rem;color:#888;line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
@@ -76,9 +76,9 @@
   .feat-desc{font-size:.81rem;color:#888;line-height:1.68;}
   .feat-badge{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--success);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:4px;padding:2px 7px;letter-spacing:.08em;}
 
-  .how-section{background:var(--surface);border:1px solid var(--card-border,#e2e5ef);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
+  .how-section{background:var(--surface);border:1px solid var(--card-border,#ffffff);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
   .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
-  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid #1e1e1e;}
+  .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid #141414;}
   .step:last-child{border-bottom:none;padding-bottom:0;}
   .step:first-child{padding-top:0;}
   .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#ede9fe;flex-shrink:0;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(139,92,246,.35);}
@@ -86,7 +86,7 @@
   .step-desc{font-size:.81rem;color:#888;line-height:1.68;}
   .step-desc strong{color:var(--text);}
   .wallets-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-  .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--card-border,#e2e5ef);border-radius:100px;padding:4px 11px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);}
+  .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--card-border,#ffffff);border-radius:100px;padding:4px 11px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);}
 
   .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:12px;overflow:hidden;}
   .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
@@ -97,13 +97,13 @@
   .tok-meta{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#888;margin-top:4px;}
   .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
 
-  .circle-section{background:var(--surface);border:1px solid var(--card-border,#e2e5ef);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
+  .circle-section{background:var(--surface);border:1px solid var(--card-border,#ffffff);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
   .circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;}
-  .circle-item{background:var(--surface2);border:1px solid var(--card-border,#e2e5ef);border-radius:10px;padding:18px 20px;}
+  .circle-item{background:var(--surface2);border:1px solid var(--card-border,#ffffff);border-radius:10px;padding:18px 20px;}
   .circle-item-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:7px;}
   .circle-item-desc{font-size:.75rem;color:#888;line-height:1.6;}
 
-  .cta-section{background:var(--surface);border:1px solid var(--card-border,#e2e5ef);border-top:2px solid var(--violet);border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;position:relative;overflow:hidden;}
+  .cta-section{background:var(--surface);border:1px solid var(--card-border,#ffffff);border-top:2px solid var(--violet);border-radius:14px;padding:72px 40px;text-align:center;margin:72px 0;position:relative;overflow:hidden;}
   .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 350px at 50% 0%,rgba(139,92,246,.12) 0%,transparent 65%);pointer-events:none;}
   .cta-section h2{font-size:2.3rem;font-weight:700;letter-spacing:-.7px;margin-bottom:14px;position:relative;color:var(--text);}
   .cta-section h2 .accent{color:var(--violet-light);}
@@ -171,13 +171,13 @@
           <svg id="connectChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
 
-        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#0f0f1a;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(124,58,237,.1);z-index:500;">
+        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#000000;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(124,58,237,.1);z-index:500;">
 
           <!-- Email step 1 -->
           <div id="landingEmailStep" style="padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4b5563;margin-bottom:8px;">Continue with Email</div>
+            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Continue with Email</div>
             <input id="landingEmailInput" type="email" placeholder="your@email.com"
-              style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
+              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
               onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
             <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -186,50 +186,50 @@
           </div>
           <!-- OTP step 2 (hidden initially) -->
           <div id="landingOtpStep" style="display:none;padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4b5563;margin-bottom:4px;">Enter verification code</div>
+            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Enter verification code</div>
             <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#a78bfa;margin-bottom:10px;"></div>
-            <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
-              style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
+            <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#000000"
+              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
               onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
             <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
               Verify & Connect →
             </button>
-            <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#6b7280;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
+            <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#9ca3af;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
           </div>
 
           <div style="height:1px;background:rgba(255,255,255,.06);margin:8px 0;"></div>
-          <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#374151;padding:2px 8px 6px;">Or connect wallet</div>
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b7280;padding:2px 8px 6px;">Or connect wallet</div>
 
           <!-- MetaMask -->
           <div onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#f6851b;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">M</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#e0e0ff;">MetaMask</div><div style="font-size:.62rem;color:#6b7280;margin-top:1px;">Browser extension</div></div>
-            <span style="color:#374151;font-size:.85rem;">›</span>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">M</div>
+            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">MetaMask</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Browser extension</div></div>
+            <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- WalletConnect -->
           <div onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#3b99fc;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">W</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#e0e0ff;">WalletConnect</div><div style="font-size:.62rem;color:#6b7280;margin-top:1px;">Scan QR code</div></div>
-            <span style="color:#374151;font-size:.85rem;">›</span>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">W</div>
+            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">WalletConnect</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Scan QR code</div></div>
+            <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- Coinbase -->
           <div onclick="landingWalletConnect('coinbase')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#1652f0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">C</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#e0e0ff;">Coinbase Wallet</div><div style="font-size:.62rem;color:#6b7280;margin-top:1px;">Mobile or extension</div></div>
-            <span style="color:#374151;font-size:.85rem;">›</span>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">C</div>
+            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">Coinbase Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Mobile or extension</div></div>
+            <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- Circle -->
           <div onclick="landingWalletConnect('circle')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
             <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">◎</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#e0e0ff;">Circle Wallet</div><div style="font-size:.62rem;color:#6b7280;margin-top:1px;">Connect with email →</div></div>
-            <span style="color:#374151;font-size:.85rem;">›</span>
+            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">Circle Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Connect with email →</div></div>
+            <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
-          <div style="padding:8px 10px 4px;font-size:.6rem;color:#374151;text-align:center;">Non-custodial · Your keys · Arc Testnet</div>
+          <div style="padding:8px 10px 4px;font-size:.6rem;color:#6b7280;text-align:center;">Non-custodial · Your keys · Arc Testnet</div>
         </div>
       </div>
     </div>
@@ -378,7 +378,7 @@
     <p class="section-sub">NAN supports the leading Circle stablecoins on Arc Testnet.</p>
     <div class="tok-grid">
       <div class="tok-card">
-        <div class="tok-dot" style="background:#2775ca;box-shadow:0 0 8px rgba(39,117,202,.4);"></div>
+        <div class="tok-dot" style="background:#7c3aed;box-shadow:0 0 8px rgba(124,58,237,.4);"></div>
         <div>
           <div class="tok-name">USDC</div>
           <div class="tok-desc">USD Coin — issued by Circle</div>
@@ -387,7 +387,7 @@
         <div class="tok-bal">Live ✓</div>
       </div>
       <div class="tok-card">
-        <div class="tok-dot" style="background:#1a9fff;box-shadow:0 0 8px rgba(26,159,255,.4);"></div>
+        <div class="tok-dot" style="background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.4);"></div>
         <div>
           <div class="tok-name">EURC</div>
           <div class="tok-desc">Euro Coin — issued by Circle</div>

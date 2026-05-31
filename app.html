@@ -32,7 +32,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="theme-color" content="#07081a"/>
+<meta name="theme-color" content="#000000"/>
 <title>NAN — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -221,7 +221,7 @@
                 <div><div style="font-size:1rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:1rem;color:var(--text);">Enter the 6-digit code below</div></div>
               </div>
               <div style="display:flex;gap:7px;">
-                <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'JetBrains Mono',monospace;box-sizing:border-box;"/>
+                <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#000000" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'JetBrains Mono',monospace;box-sizing:border-box;"/>
                 <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:11px 16px;cursor:pointer;">Verify →</button>
               </div>
             </div>
@@ -238,17 +238,17 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
             <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#f97316;">M</div>
+              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#10b981;">M</div>
               MetaMask
             </button>
             <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(59,153,252,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#3b99fc;">W</div>
+              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(124,58,237,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#7c3aed;">W</div>
               WalletConnect
             </button>
             <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
               <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(22,82,240,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#1652f0;">C</div>
+              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(124,58,237,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#7c3aed;">C</div>
               Coinbase
             </button>
             <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
@@ -272,7 +272,7 @@
     <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;">
 
     <!-- Balance card -->
-    <div style="background:linear-gradient(145deg,#12102a,#0e0c22);padding:22px 20px 20px;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(145deg,#111111,#0f0f0f);padding:22px 20px 20px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:-40px;left:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.08),transparent 70%);pointer-events:none;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -326,7 +326,7 @@
     </div>
 
     <!-- Earn promo -->
-    <div style="background:linear-gradient(135deg,#031a0f,#041e11);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:linear-gradient(135deg,#0a1a0f,#0a1a0f);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:.875rem;color:rgba(16,185,129,.75);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
         <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--success);line-height:1;">4.80% <span style="font-size:1rem;font-weight:500;color:rgba(16,185,129,.75);">/ year</span></div>
@@ -339,7 +339,7 @@
     <div style="background:transparent;overflow:hidden;">
 
       <div style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
-        <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2775ca,#1a56db);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>U</div>'"/>
+        <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>U</div>'"/>
         <div style="flex:1;">
           <div style="font-size:1rem;font-weight:700;color:var(--text);">USDC</div>
           <div style="font-size:1rem;color:var(--text);margin-top:2px;">USD Coin</div>
@@ -351,7 +351,7 @@
       </div>
 
       <div style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
-        <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#2b3ed6);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>E</div>'"/>
+        <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>E</div>'"/>
         <div style="flex:1;">
           <div style="font-size:1rem;font-weight:700;color:var(--text);">EURC</div>
           <div style="font-size:1rem;color:var(--text);margin-top:2px;">Euro Coin</div>
@@ -363,13 +363,13 @@
       </div>
 
       <div onclick="goPage('naira')" style="display:flex;align-items:center;gap:13px;padding:13px 16px;cursor:pointer;" onmouseover="this.style.background='rgba(124,58,237,.04)'" onmouseout="this.style.background='transparent'">
-        <div style="width:40px;height:40px;border-radius:50%;background:rgba(212,175,55,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#d4af37;flex-shrink:0;">₦</div>
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(212,175,55,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fbbf24;flex-shrink:0;">₦</div>
         <div style="flex:1;">
           <div style="font-size:1rem;font-weight:700;color:var(--text);">Naira</div>
           <div style="font-size:1rem;color:var(--text);margin-top:2px;">NGN · Deposit · Withdraw</div>
         </div>
         <div style="text-align:right;">
-          <div id="homeAssetNgn" style="font-size:1rem;font-weight:700;color:#d4af37;">Coming Soon</div>
+          <div id="homeAssetNgn" style="font-size:1rem;font-weight:700;color:#fbbf24;">Coming Soon</div>
         </div>
       </div>
 
@@ -411,7 +411,7 @@
     </div>
 
     <!-- Balance strip -->
-    <div style="background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(17,14,54,.9));border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:linear-gradient(135deg,rgba(20,20,20,.9),rgba(17,14,54,.9));border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:.875rem;color:rgba(255,255,255,.9);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
         <div style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:1rem;color:rgba(225,210,255,.8);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
@@ -419,11 +419,11 @@
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
-          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/>
+          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7c3aed;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/>
           <span style="font-size:1rem;color:rgba(255,255,255,.85);" id="usdcBal2">0.00</span>
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
-          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/>
+          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7c3aed;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/>
           <span style="font-size:1rem;color:rgba(255,255,255,.85);" id="eurcBal2">0.00</span>
         </div>
       </div>
@@ -458,11 +458,11 @@
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <button id="topt-usdc" onclick="setSendTokenDirect('USDC',this)"
           style="flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(124,58,237,.5);background:rgba(124,58,237,.08);color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
-          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/> USDC
+          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7c3aed;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/> USDC
         </button>
         <button id="topt-eurc" onclick="setSendTokenDirect('EURC',this)"
           style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
-          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/> EURC
+          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7c3aed;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/> EURC
         </button>
       </div>
 
@@ -474,7 +474,7 @@
             oninput="validateSend()"
             style="flex:1;background:none;border:none;outline:none;font-size:2rem;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;" id="sendTokenLabel">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;" id="sendTokenLabel">USDC</div>
             <button onclick="setMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -559,7 +559,7 @@
     </div>
 
     <!-- APY Hero -->
-    <div style="background:linear-gradient(135deg,#031a0f,#052016);border:1px solid rgba(16,185,129,.3);border-radius:18px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0a1a0f,#0a1a0f);border:1px solid rgba(16,185,129,.3);border-radius:18px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.15),transparent 70%);pointer-events:none;"></div>
       <div style="font-size:.875rem;color:rgba(16,185,129,.75);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;">Annual interest rate</div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;">
@@ -577,7 +577,7 @@
       <div>
         <div style="font-size:.875rem;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Your savings</div>
         <div style="font-size:1.3rem;font-weight:800;color:var(--success);" id="suppliedAmt">0.00 USDC</div>
-        <div style="font-size:1rem;color:rgba(16,185,129,.75);margin-top:3px;" id="accruedInterest">+0.000000 earned</div>
+        <div style="font-size:1rem;color:rgba(16,185,129,.75);margin-top:3px;" id="accruedInterest">+0.#000000 earned</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:.875rem;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Borrowed</div>
@@ -600,7 +600,7 @@
           <input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
             <button onclick="setSupplyMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -625,7 +625,7 @@
           <input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
             <button onclick="setWithdrawMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -654,7 +654,7 @@
           <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0" oninput="updateBorrowPreview()"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
             <button onclick="setBorrowMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -667,7 +667,7 @@
     <div class="stake-panel" id="lp-repay">
       <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;font-size:.875rem;padding:3px 0;"><span style="color:var(--text);">Borrowed</span><span style="color:var(--danger);" id="repayBorrowed">0.00 USDC</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:.875rem;padding:3px 0;"><span style="color:var(--text);">Interest owed</span><span style="color:var(--danger);" id="repayInterest">0.000000 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.875rem;padding:3px 0;"><span style="color:var(--text);">Interest owed</span><span style="color:var(--danger);" id="repayInterest">0.#000000 USDC</span></div>
         <div style="height:1px;background:rgba(248,113,113,.15);margin:8px 0;"></div>
         <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:600;"><span style="color:var(--text);">Total to repay</span><span style="color:var(--text);" id="repayTotal">0.00 USDC</span></div>
       </div>
@@ -676,7 +676,7 @@
           <input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0"
             style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
             <button onclick="setRepayMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -700,8 +700,8 @@
     <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:16px;">More</div>
 
     <!-- Profile card -->
-    <div style="background:linear-gradient(145deg,#12102a,#0e0c22);border:1px solid rgba(124,58,237,.2);border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
-      <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;" id="moreAvatar">?</div>
+    <div style="background:linear-gradient(145deg,#111111,#0f0f0f);border:1px solid rgba(124,58,237,.2);border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;" id="moreAvatar">?</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:1rem;font-weight:700;color:var(--text);" id="moreName">—</div>
         <div style="font-size:1rem;color:var(--text);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="moreAddr">Connect wallet</div>
@@ -827,7 +827,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;cursor:pointer;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#2775ca;flex-shrink:0;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#7c3aed;flex-shrink:0;display:inline-block;"></span>
           <span id="fromTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">USDC</span>
           <span style="font-size:1rem;color:var(--text);">▾</span>
         </button>
@@ -852,7 +852,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#2b3ed6;flex-shrink:0;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#7c3aed;flex-shrink:0;display:inline-block;"></span>
           <span id="toTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">EURC</span>
         </div>
         <input class="swap-input" id="swapTo" type="number" placeholder="0" readonly
@@ -946,7 +946,7 @@
           <input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0"
             style="flex:1;background:none;border:none;outline:none;font-size:1rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
+            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:4px 10px;font-size:1rem;color:#10b981;">USDC</div>
             <button onclick="setBridgeMax()" style="background:none;border:none;font-size:1rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
@@ -1494,10 +1494,10 @@
     <div class="wallet-modal-title">Connect Wallet</div>
     <div class="wallet-modal-sub">Choose your preferred wallet to connect to Arc Testnet</div>
     <div class="wallet-logos-row">
-      <div class="wallet-logo-icon" style="background:#f6851b;" onclick="connectSpecific('metamask')" title="MetaMask">🦊</div>
-      <div class="wallet-logo-icon" style="background:#3b99fc;" onclick="connectSpecific('walletconnect')" title="WalletConnect">🔗</div>
-      <div class="wallet-logo-icon" style="background:#1652f0;" onclick="connectSpecific('coinbase')" title="Coinbase Wallet">🔵</div>
-      <div class="wallet-logo-icon" style="background:#e94f37;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
+      <div class="wallet-logo-icon" style="background:#7c3aed;" onclick="connectSpecific('metamask')" title="MetaMask">🦊</div>
+      <div class="wallet-logo-icon" style="background:#7c3aed;" onclick="connectSpecific('walletconnect')" title="WalletConnect">🔗</div>
+      <div class="wallet-logo-icon" style="background:#7c3aed;" onclick="connectSpecific('coinbase')" title="Coinbase Wallet">🔵</div>
+      <div class="wallet-logo-icon" style="background:#f87171;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
       <div class="wallet-logo-icon" style="background:#8b5cf6;" onclick="connectSpecific('circle')" title="Circle Wallet">⭕</div>
     </div>
     <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()" style="border:1.5px solid rgba(139,92,246,.5);background:rgba(139,92,246,.06);margin-bottom:10px;">
@@ -1505,9 +1505,9 @@
       <div><div class="wallet-opt-name">Email — instant wallet</div><div class="wallet-opt-desc">Fastest · No extension · Free</div></div>
       <span class="wallet-opt-badge" style="background:rgba(139,92,246,.15);color:var(--accent3);border:1px solid rgba(139,92,246,.3);">Recommended</span>
     </div>
-    <div class="wallet-opt" onclick="connectSpecific('metamask')"><div class="wallet-opt-icon" style="background:#f6851b20;">🦊</div><div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div><span class="wallet-opt-badge" style="background:rgba(139,92,246,.1);color:var(--accent3);border:1px solid rgba(139,92,246,.2);">Popular</span></div>
-    <div class="wallet-opt" onclick="connectSpecific('walletconnect')"><div class="wallet-opt-icon" style="background:#3b99fc20;">🔗</div><div><div class="wallet-opt-name">WalletConnect</div><div class="wallet-opt-desc">Scan QR with mobile wallet</div></div></div>
-    <div class="wallet-opt" onclick="connectSpecific('coinbase')"><div class="wallet-opt-icon" style="background:#1652f020;">🔵</div><div><div class="wallet-opt-name">Coinbase Wallet</div><div class="wallet-opt-desc">Mobile & browser extension</div></div></div>
+    <div class="wallet-opt" onclick="connectSpecific('metamask')"><div class="wallet-opt-icon" style="background:#7c3aed20;">🦊</div><div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div><span class="wallet-opt-badge" style="background:rgba(139,92,246,.1);color:var(--accent3);border:1px solid rgba(139,92,246,.2);">Popular</span></div>
+    <div class="wallet-opt" onclick="connectSpecific('walletconnect')"><div class="wallet-opt-icon" style="background:#7c3aed20;">🔗</div><div><div class="wallet-opt-name">WalletConnect</div><div class="wallet-opt-desc">Scan QR with mobile wallet</div></div></div>
+    <div class="wallet-opt" onclick="connectSpecific('coinbase')"><div class="wallet-opt-icon" style="background:#7c3aed20;">🔵</div><div><div class="wallet-opt-name">Coinbase Wallet</div><div class="wallet-opt-desc">Mobile & browser extension</div></div></div>
     <div class="wallet-opt" onclick="connectSpecific('circle')"><div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">⭕</div><div><div class="wallet-opt-name">Circle Programmable Wallet</div><div class="wallet-opt-desc">Embedded wallet via Circle</div></div><span class="wallet-opt-badge" style="background:rgba(16,185,129,.08);color:var(--success);border:1px solid rgba(16,185,129,.2);">New</span></div>
     <div class="wallet-divider"><span>or sign in with email</span></div>
     <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()"><div class="wallet-opt-icon" style="background:rgba(139,92,246,.1);">✉</div><div><div class="wallet-opt-name">Email Login</div><div class="wallet-opt-desc">Creates a secure wallet in your browser</div></div></div>
@@ -1516,15 +1516,15 @@
 
 <!-- ══ FLOATING EMAIL OTP MODAL (shown when page-land hidden) ══ -->
 <div id="floatingOtpModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;flex-direction:column;">
-  <div style="background:#0f0f1a;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 24px;width:340px;max-width:90vw;box-shadow:0 24px 60px rgba(0,0,0,.8);">
+  <div style="background:#000000;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 24px;width:340px;max-width:90vw;box-shadow:0 24px 60px rgba(0,0,0,.8);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div style="font-size:1rem;font-weight:700;color:#fff;">Connect with Email</div>
-      <button onclick="document.getElementById('floatingOtpModal').style.display='none';window.location.replace('/');" style="background:none;border:none;color:#6b7280;font-size:1.2rem;cursor:pointer;">×</button>
+      <button onclick="document.getElementById('floatingOtpModal').style.display='none';window.location.replace('/');" style="background:none;border:none;color:#9ca3af;font-size:1.2rem;cursor:pointer;">×</button>
     </div>
     <div id="floatingEmailStep">
-      <div style="font-size:.875rem;color:#6b7280;margin-bottom:8px;">Enter your email address</div>
+      <div style="font-size:.875rem;color:#9ca3af;margin-bottom:8px;">Enter your email address</div>
       <input id="floatingEmailInput" type="email" placeholder="your@email.com"
-        style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:12px 14px;color:#fff;font-size:1rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:12px;"
+        style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:12px 14px;color:#fff;font-size:1rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:12px;"
         onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
         onkeydown="if(event.key==='Enter')sendFloatingOTP()"/>
       <button onclick="sendFloatingOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:13px;border-radius:11px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -1532,18 +1532,18 @@
       </button>
     </div>
     <div id="floatingOtpStep" style="display:none;">
-      <div style="font-size:.875rem;color:#6b7280;margin-bottom:4px;">Enter the 6-digit code sent to</div>
+      <div style="font-size:.875rem;color:#9ca3af;margin-bottom:4px;">Enter the 6-digit code sent to</div>
       <div id="floatingOtpEmailLabel" style="font-size:.875rem;color:#a78bfa;font-weight:600;margin-bottom:12px;"></div>
-      <input id="floatingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
-        style="width:100%;background:#1a1a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:14px;color:#fff;font-size:1.5rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:12px;"
+      <input id="floatingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#000000"
+        style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:14px;color:#fff;font-size:1.5rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:12px;"
         onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
         onkeydown="if(event.key==='Enter')verifyFloatingOTP()"/>
       <button onclick="verifyFloatingOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:13px;border-radius:11px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
         Verify & Connect
       </button>
-      <button onclick="document.getElementById('floatingOtpStep').style.display='none';document.getElementById('floatingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#6b7280;padding:10px;font-size:1rem;cursor:pointer;margin-top:4px;">← Change email</button>
+      <button onclick="document.getElementById('floatingOtpStep').style.display='none';document.getElementById('floatingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#9ca3af;padding:10px;font-size:1rem;cursor:pointer;margin-top:4px;">← Change email</button>
     </div>
-    <div style="text-align:center;font-size:1rem;color:#374151;margin-top:14px;">Non-custodial · Your keys · Arc Testnet</div>
+    <div style="text-align:center;font-size:1rem;color:#6b7280;margin-top:14px;">Non-custodial · Your keys · Arc Testnet</div>
   </div>
 </div>
 
@@ -1773,7 +1773,7 @@ function pickBank(name){
   <span>✦</span>
   <span style="font-size:1rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
-<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #2a2a2a;border-radius:24px 24px 0 0;z-index:2147483647;font-family:'Inter',sans-serif;overflow:hidden;">
+<div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #1a1a1a;border-radius:24px 24px 0 0;z-index:2147483647;font-family:'Inter',sans-serif;overflow:hidden;">
   <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(139,92,246,.15);z-index:2;">
     <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(139,92,246,.3);"></div></div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
