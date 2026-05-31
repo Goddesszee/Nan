@@ -915,7 +915,7 @@
       <div style="text-align:center;font-size:1.1rem;color:var(--accent3);margin:4px 0;">↓</div>
       <div class="field"><div class="flbl">To Chain</div>
         <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
-        <button type="button" id="chainPickerBtn" onclick="openChainPicker()" ontouchstart="openChainPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
+        <button type="button" id="chainPickerBtn" onclick="openChainPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
           <span id="chainPickerLabel">Ethereum Sepolia</span>
           <span style="color:var(--accent3);font-size:.8rem;">▾</span>
         </button>
@@ -1075,7 +1075,7 @@
       </div>
       <div class="field"><div class="flbl">Bank</div>
         <input type="hidden" id="ngnBankName" value=""/>
-        <button type="button" id="bankPickerBtn" onclick="openBankPicker()" ontouchstart="openBankPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
+        <button type="button" id="bankPickerBtn" onclick="openBankPicker()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;text-align:left;">
           <span id="bankPickerLabel" style="color:var(--text3);">Select bank</span>
           <span style="color:var(--accent3);font-size:.8rem;">▾</span>
         </button>
@@ -1671,6 +1671,7 @@ const BANK_OPTIONS = [
 function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
 
 function openChainPicker(){
+  if(document.getElementById('chainPickerSheet').style.display==='block') return;
   const cur = document.getElementById('bridgeDestChain').value;
   document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
     <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
@@ -1694,6 +1695,7 @@ function pickChain(val,label){
 
 /* ── Bank picker ── */
 function openBankPicker(){
+  if(document.getElementById('bankPickerSheet').style.display==='block') return;
   const cur = document.getElementById('ngnBankName').value;
   document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
     <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
@@ -1715,31 +1717,7 @@ function pickBank(name){
   closeBankPicker();
 }
 
-// Attach listeners directly after DOM ready — bypass onclick attribute issues
-document.addEventListener('DOMContentLoaded', function(){
-  var chainBtn = document.getElementById('chainPickerBtn');
-  var bankBtn = document.getElementById('bankPickerBtn');
-  if(chainBtn){
-    chainBtn.addEventListener('click', function(e){
-      e.preventDefault(); e.stopPropagation();
-      openChainPicker();
-    });
-    chainBtn.addEventListener('touchend', function(e){
-      e.preventDefault(); e.stopPropagation();
-      openChainPicker();
-    }, {passive:false});
-  }
-  if(bankBtn){
-    bankBtn.addEventListener('click', function(e){
-      e.preventDefault(); e.stopPropagation();
-      openBankPicker();
-    });
-    bankBtn.addEventListener('touchend', function(e){
-      e.preventDefault(); e.stopPropagation();
-      openBankPicker();
-    }, {passive:false});
-  }
-});
+// onclick handlers on buttons handle all interactions
 </script>
 </body>
 </html>
