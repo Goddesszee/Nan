@@ -1386,6 +1386,61 @@ function toggleCCTP(){
   panel.style.display = open ? 'none' : 'block';
   arrow.textContent = open ? '▾' : '▴';
 }
+
+// Chain picker for bridge
+const CHAIN_OPTIONS = [
+  { value:'ETH-SEPOLIA',  label:'Ethereum Sepolia',  icon:'Ξ' },
+  { value:'AVAX-FUJI',    label:'Avalanche Fuji',    icon:'▲' },
+  { value:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵' },
+  { value:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷' },
+  { value:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴' },
+  { value:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣' },
+];
+
+function openChainPicker(){
+  // Remove existing picker if open
+  const existing = document.getElementById('chainPickerDropdown');
+  if(existing){ existing.remove(); return; }
+
+  const btn = document.getElementById('chainPickerBtn');
+  if(!btn) return;
+
+  const dropdown = document.createElement('div');
+  dropdown.id = 'chainPickerDropdown';
+  dropdown.style.cssText = 'position:absolute;z-index:9999;background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);';
+
+  const rect = btn.getBoundingClientRect();
+  dropdown.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+  dropdown.style.left = rect.left + 'px';
+
+  CHAIN_OPTIONS.forEach(chain => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.style.cssText = 'width:100%;background:none;border:none;color:#fff;padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.88rem;font-family:Inter,sans-serif;text-align:left;';
+    item.innerHTML = '<span style="width:20px;text-align:center;">' + chain.icon + '</span><span>' + chain.label + '</span>';
+    item.onmouseenter = () => item.style.background = 'rgba(139,92,246,.15)';
+    item.onmouseleave = () => item.style.background = 'none';
+    item.onclick = () => {
+      document.getElementById('bridgeDestChain').value = chain.value;
+      document.getElementById('chainPickerLabel').textContent = chain.label;
+      dropdown.remove();
+    };
+    dropdown.appendChild(item);
+  });
+
+  document.body.appendChild(dropdown);
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function closePicker(e){
+      if(!dropdown.contains(e.target) && e.target !== btn){
+        dropdown.remove();
+        document.removeEventListener('click', closePicker);
+      }
+    });
+  }, 100);
+}
+
 async function doBridge(){
   const destChain=document.getElementById('bridgeDestChain').value;
   const destAddr=document.getElementById('bridgeDestAddr').value.trim();
