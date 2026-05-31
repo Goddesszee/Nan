@@ -206,8 +206,13 @@ function toast(msg, type='info', ms=4500, opts={}){
   const el = document.getElementById('toast');
   if(!el) return;
 
-  const ICONS = { success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
-  const TITLES = { success:'Success', error:'Error', info:'Info', warning:'Warning' };
+  const ICONS = {
+    success: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    info:    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    warning: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  };
+  const TITLES = { success:'Successful!', error:'Failed', info:'Info', warning:'Warning' };
 
   // Support extended call: toast(title, subtitle, type, ms, {txHash})
   let title = opts.title || TITLES[type] || 'Info';
@@ -228,13 +233,13 @@ function toast(msg, type='info', ms=4500, opts={}){
     body  = msg.replace(/^❌\s*/,'');
   }
 
-  const iconEl   = document.getElementById('toastIcon');
+  const iconEl   = document.getElementById('toastIconBadge');
   const titleEl  = document.getElementById('toastTitle');
   const msgEl    = document.getElementById('toastMsg');
   const actionEl = document.getElementById('toastAction');
   const btnEl    = document.getElementById('toastActionBtn');
 
-  if(iconEl)  iconEl.textContent  = ICONS[type] || 'ℹ';
+  if(iconEl)  iconEl.innerHTML   = ICONS[type] || ICONS.info;
   if(titleEl) titleEl.textContent = title;
   if(msgEl)   msgEl.textContent   = body;
 
