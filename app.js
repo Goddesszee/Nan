@@ -1096,6 +1096,9 @@ function setType(type,el){
 }
 async function onRecipInput(){
   const val=document.getElementById('recipInput').value.trim();
+  // Auto-detect type from input
+  if(val.startsWith('0x')) recipType='address';
+  else if(val.endsWith('.arc')||(!val.includes('.')&&val.length>0&&!val.includes('@'))) recipType='arcname';
   if(val!==lastResolvedInput){resolvedTo=null;lastResolvedInput='';}
   hideRes();
   if(!val){validateSend();return;}
@@ -1160,10 +1163,13 @@ function validateSend(){
   const btn=document.getElementById('sendBtn');
   if(!isCircleWallet&&!onArcNetwork){
     btn.disabled=false;
-    btn.textContent='Switch to Arc Testnet';
-    btn.onclick=async()=>{await switchToArc();btn.onclick=null;showConfirm();};
+    btn.style.opacity='1';
+    btn.textContent='⚡ Switch to Arc Testnet';
+    btn.onclick=async function(){await switchToArc();btn.onclick=null;validateSend();};
     return;
   }
+  // Reset onclick to default when on correct network
+  btn.onclick=showConfirm;
   if(!addr){btn.disabled=true;btn.textContent='Enter address & amount';return;}
   if(!amt||amt<=0){btn.disabled=true;btn.textContent='Enter an amount';return;}
   if(recipType==='address'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Enter a valid 0x address';return;}
