@@ -342,7 +342,7 @@ input:disabled{opacity:.5;cursor:not-allowed;}
 .tx-group-wrap{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;}
 /* stats */
 .hist-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 12px;text-align:center;}
-.hist-stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent3);}
+.hist-stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#ffffff;}
 .hist-stat-lbl{font-size:.95rem;color:var(--text3);margin-top:4px;letter-spacing:.08em;text-transform:uppercase;}
 .history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
 .clear-hist-btn{background:transparent;border:1px solid rgba(248,113,113,.22);border-radius:6px;color:var(--danger);font-family:'Inter',sans-serif;font-size:1rem;padding:3px 9px;cursor:pointer;opacity:.7;}
