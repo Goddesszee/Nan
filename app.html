@@ -890,9 +890,10 @@
       <!-- From -->
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">From</div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:11px 14px;margin-bottom:10px;">
-        <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:6px;"><rect width="100" height="100" rx="20" fill="#0a0a14"/><circle cx="50" cy="50" r="36" stroke="#2775ca" stroke-width="4" fill="none"/><text x="50" y="57" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="32" font-weight="900" fill="#ffffff">A</text></svg>
+        <img src="https://cdn.prod.website-files.com/685311a976e7c248b5dfde95/68f7db43ed18dd6af955fb82_circle.png" width="22" height="22" style="border-radius:6px;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none';this.nextSibling.style.display='flex'"/>
+        <span style="display:none;width:22px;height:22px;border-radius:6px;background:#1a1a2e;border:1px solid #2775ca;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:#fff;flex-shrink:0;">A</span>
         <div>
-          <div style="font-size:.88rem;font-weight:700;color:var(--text);">Arc</div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--text);">Arc Testnet</div>
           <div style="font-size:.6rem;color:var(--success);margin-top:2px;">● Live</div>
         </div>
       </div>
@@ -902,8 +903,7 @@
       <!-- To network -->
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">To network</div>
       <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
-      <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value"
-        style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:16px;outline:none;cursor:pointer;-webkit-appearance:auto;appearance:auto;margin-bottom:14px;">
+      <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value;updateBridgeSummary()" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;cursor:pointer;margin-bottom:14px;display:block;">
         <option value="ETH-SEPOLIA">⟠ Ethereum Sepolia</option>
         <option value="BASE-SEPOLIA">🔵 Base Sepolia</option>
         <option value="ARB-SEPOLIA">🔷 Arbitrum Sepolia</option>
@@ -944,9 +944,8 @@
             <button onclick="setBridgeMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:.63rem;color:var(--text3);">
+        <div style="margin-top:8px;font-size:.63rem;color:var(--text3);">
           <span id="bridgeNgnEst">≈ ₦0</span>
-          <span style="color:var(--success);">Fee: ~$0.01</span>
         </div>
       </div>
     </div>
@@ -957,7 +956,7 @@
       <div style="display:flex;justify-content:space-between;font-size:.7rem;padding:2px 0;"><span style="color:var(--text3);">Recipient</span><span style="color:var(--text);font-weight:500;" id="bridgeSumAddr">Your wallet</span></div>
       <div style="height:1px;background:rgba(52,211,153,.15);margin:8px 0;"></div>
       <div style="display:flex;justify-content:space-between;font-size:.7rem;padding:2px 0;"><span style="color:var(--text3);">Amount</span><span style="color:var(--text);font-weight:500;" id="bridgeSumAmt">—</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:.7rem;padding:2px 0;"><span style="color:var(--text3);">Fee</span><span style="color:var(--success);">~$0.01</span></div>
+
       <div style="display:flex;justify-content:space-between;font-size:.7rem;padding:2px 0;"><span style="color:var(--text3);">Arrives in</span><span style="color:var(--text);">~20 minutes</span></div>
     </div>
 
