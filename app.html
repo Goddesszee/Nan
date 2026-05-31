@@ -1259,28 +1259,31 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;">Activity</div>
-      <button class="clear-hist-btn" onclick="clearHistory()" style="font-size:.65rem;color:#f87171;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.15);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif;">Clear all</button>
+      <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
     </div>
 
     <!-- Stats -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
-        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statSends">0</div>
-        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Sends</div>
+      <div class="hist-stat">
+        <div class="hist-stat-num" id="statSends">0</div>
+        <div class="hist-stat-lbl">Sends</div>
       </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
-        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statSwaps">0</div>
-        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Swaps</div>
+      <div class="hist-stat">
+        <div class="hist-stat-num" id="statSwaps">0</div>
+        <div class="hist-stat-lbl">Swaps</div>
       </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
-        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statBridges">0</div>
-        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Bridges</div>
+      <div class="hist-stat">
+        <div class="hist-stat-num" id="statBridges">0</div>
+        <div class="hist-stat-lbl">Bridges</div>
       </div>
     </div>
 
     <!-- TX list -->
     <div id="txList">
-      <div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.72rem;color:var(--text3);">Send or swap to get started.</span></div></div>
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:2rem;margin-bottom:12px;">◎</div>
+        <div style="font-size:.82rem;color:var(--text3);line-height:1.6;">No transactions yet.<br/>Send or swap to get started.</div>
+      </div>
     </div>
 
     </div><!-- end history unified card -->
