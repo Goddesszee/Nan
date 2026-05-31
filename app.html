@@ -1671,49 +1671,65 @@ const BANK_OPTIONS = [
 function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
 
 function openChainPicker(){
-  if(document.getElementById('chainPickerSheet').style.display==='block') return;
-  const cur = document.getElementById('bridgeDestChain').value;
-  document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
-      <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${c.label}</span>
-      ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
-    </div>`).join('');
-  document.getElementById('chainPickerOverlay').style.display='block';
-  document.getElementById('chainPickerSheet').style.display='block';
+  var sheet=document.getElementById('chainPickerSheet');
+  var overlay=document.getElementById('chainPickerOverlay');
+  if(!sheet||!overlay) return;
+  var cur=document.getElementById('bridgeDestChain')?document.getElementById('bridgeDestChain').value:'';
+  var html='';
+  CHAIN_OPTIONS.forEach(function(c){
+    html+='<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06);'+(c.val===cur?'background:rgba(124,58,237,.12);':'')+'" onclick="pickChain(''+c.val+'',''+c.label+'')">';
+    html+='<span style="font-size:1.4rem;width:28px;text-align:center;">'+c.icon+'</span>';
+    html+='<span style="font-size:.92rem;color:#f0f0ff;flex:1;">'+c.label+'</span>';
+    if(c.val===cur) html+='<span style="color:#a78bfa;">✓</span>';
+    html+='</div>';
+  });
+  document.getElementById('chainPickerOptions').innerHTML=html;
+  overlay.style.cssText='display:block;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:99998;';
+  sheet.style.cssText='display:block;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#0f0f1a;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;max-height:70vh;overflow-y:auto;padding-bottom:20px;';
 }
 function closeChainPicker(){
-  document.getElementById('chainPickerOverlay').style.display='none';
-  document.getElementById('chainPickerSheet').style.display='none';
+  var s=document.getElementById('chainPickerSheet');
+  var o=document.getElementById('chainPickerOverlay');
+  if(s) s.style.display='none';
+  if(o) o.style.display='none';
 }
 function pickChain(val,label){
-  document.getElementById('bridgeDestChain').value=val;
-  document.getElementById('chainPickerLabel').textContent=label;
-  document.getElementById('chainPickerLabel').style.color='var(--text)';
+  var inp=document.getElementById('bridgeDestChain');
+  var lbl=document.getElementById('chainPickerLabel');
+  if(inp) inp.value=val;
+  if(lbl){lbl.textContent=label;lbl.style.color='var(--text)';}
   closeChainPicker();
 }
 
 /* ── Bank picker ── */
 function openBankPicker(){
-  if(document.getElementById('bankPickerSheet').style.display==='block') return;
-  const cur = document.getElementById('ngnBankName').value;
-  document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
-      <span style="font-size:1.3rem;">🏦</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${b}</span>
-      ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
-    </div>`).join('');
-  document.getElementById('bankPickerOverlay').style.display='block';
-  document.getElementById('bankPickerSheet').style.display='block';
+  var sheet=document.getElementById('bankPickerSheet');
+  var overlay=document.getElementById('bankPickerOverlay');
+  if(!sheet||!overlay) return;
+  var cur=document.getElementById('ngnBankName')?document.getElementById('ngnBankName').value:'';
+  var html='';
+  BANK_OPTIONS.forEach(function(b){
+    html+='<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06);'+(b===cur?'background:rgba(124,58,237,.12);':'')+'" onclick="pickBank(''+b+'')">';
+    html+='<span style="font-size:1.3rem;">🏦</span>';
+    html+='<span style="font-size:.92rem;color:#f0f0ff;flex:1;">'+b+'</span>';
+    if(b===cur) html+='<span style="color:#a78bfa;">✓</span>';
+    html+='</div>';
+  });
+  document.getElementById('bankPickerOptions').innerHTML=html;
+  overlay.style.cssText='display:block;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:99998;';
+  sheet.style.cssText='display:block;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#0f0f1a;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;max-height:75vh;overflow-y:auto;padding-bottom:20px;';
 }
 function closeBankPicker(){
-  document.getElementById('bankPickerOverlay').style.display='none';
-  document.getElementById('bankPickerSheet').style.display='none';
+  var s=document.getElementById('bankPickerSheet');
+  var o=document.getElementById('bankPickerOverlay');
+  if(s) s.style.display='none';
+  if(o) o.style.display='none';
 }
 function pickBank(name){
-  document.getElementById('ngnBankName').value=name;
-  document.getElementById('bankPickerLabel').textContent=name;
-  document.getElementById('bankPickerLabel').style.color='var(--text)';
+  var inp=document.getElementById('ngnBankName');
+  var lbl=document.getElementById('bankPickerLabel');
+  if(inp) inp.value=name;
+  if(lbl){lbl.textContent=name;lbl.style.color='var(--text)';}
   closeBankPicker();
 }
 
