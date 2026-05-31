@@ -875,7 +875,7 @@
     </div><!-- end swap unified card -->
   <!-- ══ BRIDGE PAGE ══ -->
   <div class="page" id="page-bridge">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;position:relative;z-index:1;">
     <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">Bridge</div>
     <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Cross-chain USDC via Circle CCTP</div>
     <div class="page-title">Bridge</div>
@@ -993,7 +993,7 @@
     </div><!-- end arcname unified card -->
   <!-- ══ NAIRA PAGE ══ -->
   <div class="page" id="page-naira">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;position:relative;z-index:1;">
     <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">Naira — NGN</div>
     <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Deposit · Withdraw · Convert NGN</div>
     <div class="page-title" style="display:flex;align-items:center;gap:8px;">
@@ -1714,6 +1714,32 @@ function pickBank(name){
   document.getElementById('bankPickerLabel').style.color='var(--text)';
   closeBankPicker();
 }
+
+// Attach listeners directly after DOM ready — bypass onclick attribute issues
+document.addEventListener('DOMContentLoaded', function(){
+  var chainBtn = document.getElementById('chainPickerBtn');
+  var bankBtn = document.getElementById('bankPickerBtn');
+  if(chainBtn){
+    chainBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      openChainPicker();
+    });
+    chainBtn.addEventListener('touchend', function(e){
+      e.preventDefault(); e.stopPropagation();
+      openChainPicker();
+    }, {passive:false});
+  }
+  if(bankBtn){
+    bankBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      openBankPicker();
+    });
+    bankBtn.addEventListener('touchend', function(e){
+      e.preventDefault(); e.stopPropagation();
+      openBankPicker();
+    }, {passive:false});
+  }
+});
 </script>
 </body>
 </html>
