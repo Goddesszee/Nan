@@ -885,17 +885,17 @@
     <span id="bridgeAvailBal" style="display:none;"></span>
 
     <!-- Route card -->
-    <div class="card" style="margin-bottom:10px;">
+    <div class="card" style="margin-bottom:10px;overflow:visible;">
 
       <!-- From -->
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">From</div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:11px 14px;margin-bottom:10px;">
-        <img src="https://cdn.prod.website-files.com/685311a976e7c248b5dfde95/68f7db43ed18dd6af955fb82_circle.png" width="22" height="22" style="border-radius:6px;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none';this.nextSibling.style.display='flex'"/>
-        <span style="display:none;width:22px;height:22px;border-radius:6px;background:#1a1a2e;border:1px solid #2775ca;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:#fff;flex-shrink:0;">A</span>
-        <div>
-          <div style="font-size:.88rem;font-weight:700;color:var(--text);">Arc Testnet</div>
-          <div style="font-size:.6rem;color:var(--success);margin-top:2px;">● Live</div>
-        </div>
+        <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:8px;">
+          <rect width="44" height="44" fill="#000000"/>
+          <path d="M8 32 Q22 8 36 32" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <circle cx="22" cy="32" r="2.5" fill="#ffffff"/>
+        </svg>
+        <div style="font-size:.88rem;font-weight:700;color:var(--text);">Arc Testnet</div>
       </div>
 
       <div style="text-align:center;font-size:1rem;color:var(--text3);margin:2px 0 10px;">↓</div>
@@ -903,7 +903,7 @@
       <!-- To network -->
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">To network</div>
       <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
-      <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value;updateBridgeSummary()" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;cursor:pointer;margin-bottom:14px;display:block;">
+      <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value;updateBridgeSummary()" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;cursor:pointer;margin-bottom:14px;">
         <option value="ETH-SEPOLIA">⟠ Ethereum Sepolia</option>
         <option value="BASE-SEPOLIA">🔵 Base Sepolia</option>
         <option value="ARB-SEPOLIA">🔷 Arbitrum Sepolia</option>
@@ -944,9 +944,7 @@
             <button onclick="setBridgeMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
           </div>
         </div>
-        <div style="margin-top:8px;font-size:.63rem;color:var(--text3);">
-          <span id="bridgeNgnEst">≈ ₦0</span>
-        </div>
+        <span id="bridgeNgnEst" style="display:none;"></span>
       </div>
     </div>
 
