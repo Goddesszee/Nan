@@ -358,7 +358,13 @@ a:hover{color:var(--text);}
   box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
   backdrop-filter:blur(24px);
 }
-#toast.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+#toast.show{
+  display:flex !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transform:translatey(0) !important;
+}
 #toastIconBadge{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;float:left;margin-right:12px;}
 #toastTitle{font-weight:800;font-size:.86rem;margin-bottom:2px;}
 #toastMsg{font-size:.78rem;color:var(--text2);line-height:1.35;}
