@@ -483,7 +483,8 @@ function toast(msg, type='info', ms=4500, opts={}){
     actionEl.style.display = 'none';
   }
 
-  el.className = 'show ' + type;
+  el.classList.remove('success','error','info','warning');
+el.classList.add(type, 'show');
   clearTimeout(_tt);
   _tt = setTimeout(() => el.classList.remove('show'), ms);
 }
