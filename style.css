@@ -359,6 +359,12 @@ a:hover{color:var(--text);}
   backdrop-filter:blur(24px);
 }
 #toast.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+#toastIconBadge{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;float:left;margin-right:12px;}
+#toastTitle{font-weight:800;font-size:.86rem;margin-bottom:2px;}
+#toastMsg{font-size:.78rem;color:var(--text2);line-height:1.35;}
+#toastAction{margin-top:8px;}
+#toastActionBtn{display:inline-flex;align-items:center;font-size:.72rem;font-weight:800;color:var(--accent4);text-decoration:none;}
+#toastActionBtn:hover{color:var(--text);}
 
 /* Type variants */
 #toast.success{
