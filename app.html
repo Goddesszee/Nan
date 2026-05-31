@@ -1326,7 +1326,7 @@
         <div style="font-size:1rem;color:var(--text);">Total</div>
       </div>
       <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
-        <div style="font-size:1.1rem;font-weight:700;color:#ffffff;font-family:'JetBrains Mono',monospace;" id="prStatPaid">0</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;" id="prStatPaid">0</div>
         <div style="font-size:1rem;color:var(--text);">Paid</div>
       </div>
       <div style="text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;">
@@ -1371,8 +1371,8 @@
       <div style="font-size:.875rem;color:var(--text);font-family:'JetBrains Mono',monospace;">or pay with NAN wallet</div>
       <div style="flex:1;height:1px;background:rgba(139,92,246,.12);"></div>
     </div>
-    <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
-      <div style="font-size:.875rem;font-weight:700;color:#ffffff;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-bottom:10px;">Step 1 — Scan or copy address</div>
+    <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
+      <div style="font-size:.875rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-bottom:10px;">Step 1 — Scan or copy address</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(139,92,246,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
       <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
@@ -1420,11 +1420,11 @@
       <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
       <div style="display:flex;gap:8px;">
         <button onclick="copyPRLink()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
-        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:10px;color:#ffffff;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">↗ Share</button>
+        <button onclick="sharePRLink()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">↗ Share</button>
       </div>
     </div>
     <div style="display:flex;gap:8px;">
-      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:10px;color:#ffffff;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
+      <button id="prMarkPaidBtn" onclick="markPRAsPaid()" style="flex:1;padding:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;color:var(--success);font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">✓ Mark as Paid</button>
       <button onclick="deletePR()" style="padding:9px 12px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-family:'Inter',sans-serif;font-size:.875rem;cursor:pointer;">🗑</button>
     </div>
   </div>
