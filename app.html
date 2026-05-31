@@ -882,16 +882,7 @@
       <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;">Bridge</div>
     </div>
 
-    <!-- Balance pill -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:14px;">
-      <div>
-        <div style="font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;">Available to bridge</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text);" id="bridgeAvailBal">— USDC</div>
-      </div>
-      <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:100px;padding:5px 12px;font-size:.68rem;color:#60a5fa;display:flex;align-items:center;gap:5px;">
-        <span style="width:6px;height:6px;border-radius:50%;background:#2775ca;display:inline-block;"></span>USDC
-      </div>
-    </div>
+    <span id="bridgeAvailBal" style="display:none;"></span>
 
     <!-- Route card -->
     <div class="card" style="margin-bottom:10px;">
@@ -899,7 +890,7 @@
       <!-- From -->
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">From</div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:11px 14px;margin-bottom:10px;">
-        <svg width="22" height="22" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:6px;"><rect width="72" height="72" rx="14" fill="#8b5cf6"/><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="22" x2="45" y2="50" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg>
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:6px;"><rect width="100" height="100" rx="20" fill="#0a0a14"/><circle cx="50" cy="50" r="36" stroke="#2775ca" stroke-width="4" fill="none"/><text x="50" y="57" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="32" font-weight="900" fill="#ffffff">A</text></svg>
         <div>
           <div style="font-size:.88rem;font-weight:700;color:var(--text);">Arc</div>
           <div style="font-size:.6rem;color:var(--success);margin-top:2px;">● Live</div>
@@ -912,7 +903,7 @@
       <div style="font-size:.58rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">To network</div>
       <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
       <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value"
-        style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg width%3D%2212%22 height%3D%228%22 viewBox%3D%220 0 12 8%22 fill%3D%22none%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath d%3D%22M1 1l5 5 5-5%22 stroke%3D%22%23a78bfa%22 stroke-width%3D%221.5%22 stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;transition:border-color .15s;margin-bottom:14px;">
+        style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:16px;outline:none;cursor:pointer;-webkit-appearance:auto;appearance:auto;margin-bottom:14px;">
         <option value="ETH-SEPOLIA">⟠ Ethereum Sepolia</option>
         <option value="BASE-SEPOLIA">🔵 Base Sepolia</option>
         <option value="ARB-SEPOLIA">🔷 Arbitrum Sepolia</option>
@@ -947,7 +938,7 @@
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <input id="bridgeAmt" type="number" min="0.01" step="0.01" placeholder="0"
-            style="flex:1;background:none;border:none;outline:none;font-size:1.3rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
+            style="flex:1;background:none;border:none;outline:none;font-size:.95rem;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
             <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;">USDC</div>
             <button onclick="setBridgeMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
@@ -973,11 +964,7 @@
     <!-- Bridge button -->
     <button class="btn" id="bridgeBtn" onclick="doBridge()" style="margin-bottom:10px;">Bridge USDC →</button>
 
-    <!-- Info note -->
-    <div style="display:flex;gap:9px;padding:11px 13px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.1);border-radius:12px;margin-bottom:10px;">
-      <span style="font-size:.85rem;flex-shrink:0;">🔒</span>
-      <p style="font-size:.62rem;color:var(--text3);line-height:1.6;">Powered by <span style="color:var(--accent3);">Circle CCTP V2</span> — your USDC is burned on Arc and minted natively on the destination. Always 1:1, no wrapped tokens.</p>
-    </div>
+
 
     <!-- Status card (kept for JS compatibility) -->
     <div class="card" id="bridgeStatusCard" style="display:none;">
