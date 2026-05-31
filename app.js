@@ -206,9 +206,17 @@ function toast(msg,type='info',ms=4000){
   const el=document.getElementById('toast');
   if(!el)return;
   el.textContent=msg;
+  el.style.opacity='0';
+  el.className=type;
+  // Force reflow then show
+  void el.offsetHeight;
   el.className='show '+type;
+  el.style.opacity='';
   clearTimeout(_tt);
-  _tt=setTimeout(()=>{el.classList.remove('show');},ms);
+  _tt=setTimeout(()=>{
+    el.classList.remove('show');
+    el.className='';
+  },ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
