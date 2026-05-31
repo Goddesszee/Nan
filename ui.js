@@ -20,17 +20,19 @@ function goPage(name) {
 
   // Map tab → page
   const pageMap = {
-    home:    'page-home',
-    send:    'page-send',
-    earn:    'page-lend',
-    more:    'page-more',
-    swap:    'page-swap',
-    bridge:  'page-bridge',
-    arcname: 'page-arcname',
-    bulk:    'page-bulk',
-    naira:   'page-naira',
-    history: 'page-history',
-    lend:    'page-lend',
+    home:       'page-home',
+    send:       'page-send',
+    earn:       'page-lend',
+    more:       'page-more',
+    swap:       'page-swap',
+    bridge:     'page-bridge',
+    arcname:    'page-arcname',
+    bulk:       'page-bulk',
+    naira:      'page-naira',
+    history:    'page-history',
+    lend:       'page-lend',
+    payreq:     'page-payreq',
+    'payreq-new': 'page-payreq-new',
   };
 
   const navMap = {
@@ -43,9 +45,11 @@ function goPage(name) {
     bridge:  'nav-more',
     arcname: 'nav-more',
     bulk:    'nav-more',
-    naira:   'nav-more',
-    history: 'nav-history',
-    lend:    'nav-earn',
+    naira:      'nav-more',
+    history:    'nav-history',
+    lend:       'nav-earn',
+    payreq:     'nav-more',
+    'payreq-new': 'nav-more',
   };
 
   const pageId = pageMap[name] || ('page-' + name);
@@ -63,7 +67,7 @@ function goPage(name) {
     lend: 'dnav-earn', swap: 'dnav-swap', bridge: 'dnav-bridge',
     history: 'dnav-history',
     more: 'dnav-more', arcname: 'dnav-more', bulk: 'dnav-more',
-    naira: 'dnav-more', payreq: 'dnav-more',
+    naira: 'dnav-more', payreq: 'dnav-more', 'payreq-new': 'dnav-more',
   };
   document.querySelectorAll('#desktopNav .dnav-btn').forEach(b => b.classList.remove('active'));
   const dnavId = desktopNavMap[name] || 'dnav-more';
