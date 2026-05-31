@@ -269,97 +269,110 @@
 
   <!-- ══ HOME PAGE ══ -->
   <div class="page" id="page-home">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;">
 
-      <!-- Balance -->
-      <div style="background:linear-gradient(145deg,#12102a,#0e0c22);padding:16px 18px 14px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.15),transparent 70%);pointer-events:none;"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="font-size:.58rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3);">Total Balance</div>
-          <div style="display:flex;align-items:center;gap:4px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.18);padding:3px 9px;border-radius:100px;font-size:.58rem;color:#34d399;font-weight:700;">
-            <span style="width:4px;height:4px;border-radius:50%;background:#34d399;display:inline-block;"></span>Arc Testnet
-          </div>
-        </div>
-        <div style="font-size:2.2rem;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.05;margin-bottom:3px;">$<span id="homeBalAmt">—</span></div>
-        <div id="homeBalNgn" style="font-size:.72rem;color:rgba(196,181,253,.4);margin-bottom:14px;">≈ ₦0 NGN</div>
-        <div style="display:flex;gap:7px;">
-          <div class="tok" style="padding:5px 11px;font-size:.74rem;font-weight:600;display:flex;align-items:center;gap:5px;"><img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/><span id="homeUsdcBal">0.00 USDC</span></div>
-          <div class="tok" style="padding:5px 11px;font-size:.74rem;font-weight:600;display:flex;align-items:center;gap:5px;"><img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/><span id="homeEurcBal">0.00 EURC</span></div>
+    <!-- Balance card -->
+    <div style="background:linear-gradient(145deg,#12102a,#0e0c22);border:1px solid rgba(124,58,237,.2);border-radius:22px;padding:22px 20px 20px;position:relative;overflow:hidden;margin-bottom:10px;">
+      <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-40px;left:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.08),transparent 70%);pointer-events:none;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);">Total Balance</div>
+        <div style="display:flex;align-items:center;gap:4px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.18);padding:4px 10px;border-radius:100px;font-size:.58rem;color:#34d399;font-weight:700;">
+          <span style="width:5px;height:5px;border-radius:50%;background:#34d399;display:inline-block;"></span>Arc Testnet
         </div>
       </div>
+      <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:#fff;letter-spacing:-.05em;line-height:1;margin-bottom:5px;">$<span id="homeBalAmt">—</span></div>
+      <div id="homeBalNgn" style="font-size:.75rem;color:rgba(196,181,253,.4);margin-bottom:18px;">≈ ₦0 NGN</div>
+      <div style="display:flex;gap:7px;">
+        <div class="tok" style="padding:5px 11px;font-size:.72rem;font-weight:500;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:rgba(255,255,255,.6);">
+          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
+          <span id="homeUsdcBal">0.00 USDC</span>
+        </div>
+        <div class="tok" style="padding:5px 11px;font-size:.72rem;font-weight:500;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:rgba(255,255,255,.6);">
+          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
+          <span id="homeEurcBal">0.00 EURC</span>
+        </div>
+      </div>
+    </div>
 
-      <!-- Divider -->
-      <div style="height:1px;background:var(--border);"></div>
-
-      <!-- Actions -->
-      <div style="display:flex;justify-content:space-around;padding:12px 8px;">
-        <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:0 14px;">
-          <div style="width:44px;height:44px;border-radius:13px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;">
+    <!-- Actions card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 8px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-around;">
+        <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
           </div>
-          <span style="font-size:.85rem;font-weight:700;color:var(--text);">Send</span>
+          <span style="font-size:.82rem;font-weight:700;color:var(--text);">Send</span>
         </div>
-        <div onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:0 14px;">
-          <div style="width:44px;height:44px;border-radius:13px;background:rgba(52,211,153,.1);display:flex;align-items:center;justify-content:center;">
+        <div onclick="goPage('send');setTimeout(()=>setSendTab('receive'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(52,211,153,.1);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
           </div>
-          <span style="font-size:.85rem;font-weight:700;color:var(--text);">Receive</span>
+          <span style="font-size:.82rem;font-weight:700;color:var(--text);">Receive</span>
         </div>
-        <div onclick="goPage('swap')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:0 14px;">
-          <div style="width:44px;height:44px;border-radius:13px;background:rgba(96,165,250,.1);display:flex;align-items:center;justify-content:center;">
+        <div onclick="goPage('swap')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(96,165,250,.1);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
           </div>
-          <span style="font-size:.85rem;font-weight:700;color:var(--text);">Swap</span>
+          <span style="font-size:.82rem;font-weight:700;color:var(--text);">Swap</span>
         </div>
-        <div onclick="goPage('bridge')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:0 14px;">
-          <div style="width:44px;height:44px;border-radius:13px;background:rgba(251,191,36,.08);display:flex;align-items:center;justify-content:center;">
+        <div onclick="goPage('bridge')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(251,191,36,.08);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><path d="M4 4h16"/><path d="M4 8h16"/><path d="M4 12h8"/><circle cx="18" cy="16" r="4"/><path d="M18 14v4M16 16h4"/></svg>
           </div>
-          <span style="font-size:.85rem;font-weight:700;color:var(--text);">Bridge</span>
+          <span style="font-size:.82rem;font-weight:700;color:var(--text);">Bridge</span>
         </div>
       </div>
+    </div>
 
-      <!-- Divider -->
-      <div style="height:1px;background:var(--border);"></div>
+    <!-- Earn promo -->
+    <div style="background:linear-gradient(135deg,#031a0f,#041e11);border:1px solid rgba(52,211,153,.2);border-radius:18px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:.58rem;color:rgba(52,211,153,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--success);line-height:1;">4.80% <span style="font-size:.85rem;font-weight:500;color:rgba(52,211,153,.5);">/ year</span></div>
+        <div style="font-size:.62rem;color:rgba(52,211,153,.4);margin-top:4px;">Withdraw anytime · No lockup</div>
+      </div>
+      <button onclick="goPage('lend')" style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);border-radius:11px;color:var(--success);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap;">Start saving →</button>
+    </div>
 
-      <!-- Assets -->
-      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);">
-        <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="42" height="42" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2775ca,#1a56db);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>U</div>'"/>
+    <!-- Assets card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;">
+
+      <div style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
+        <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2775ca,#1a56db);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>U</div>'"/>
         <div style="flex:1;">
           <div style="font-size:.92rem;font-weight:700;color:var(--text);">USDC</div>
-          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">USD Coin</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px;">USD Coin</div>
         </div>
         <div style="text-align:right;">
           <div id="homeAssetUsdc" style="font-size:1rem;font-weight:700;color:var(--text);">0.00</div>
-          <div id="homeAssetUsdcSub" style="font-size:.68rem;color:var(--text3);margin-top:2px;">Arc Testnet</div>
+          <div id="homeAssetUsdcSub" style="font-size:.68rem;color:var(--text3);margin-top:2px;">≈ $0.00</div>
         </div>
       </div>
 
-      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;">
-        <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="42" height="42" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#2b3ed6);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>E</div>'"/>
+      <div style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
+        <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#2b3ed6);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>E</div>'"/>
         <div style="flex:1;">
           <div style="font-size:.92rem;font-weight:700;color:var(--text);">EURC</div>
-          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">Euro Coin</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px;">Euro Coin</div>
         </div>
         <div style="text-align:right;">
           <div id="homeAssetEurc" style="font-size:1rem;font-weight:700;color:var(--text);">0.00</div>
-          <div id="homeAssetEurcSub" style="font-size:.68rem;color:var(--text3);margin-top:2px;">Arc Testnet</div>
+          <div id="homeAssetEurcSub" style="font-size:.68rem;color:var(--text3);margin-top:2px;">≈ $0.00</div>
         </div>
       </div>
 
-      <!-- Naira row -->
-      <div onclick="goPage('naira')" style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--border);cursor:pointer;">
-        <div style="width:42px;height:42px;border-radius:50%;background:rgba(251,191,36,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#d4af37;flex-shrink:0;">₦</div>
+      <div onclick="goPage('naira')" style="display:flex;align-items:center;gap:13px;padding:13px 16px;cursor:pointer;" onmouseover="this.style.background='rgba(124,58,237,.04)'" onmouseout="this.style.background='transparent'">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(212,175,55,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#d4af37;flex-shrink:0;">₦</div>
         <div style="flex:1;">
           <div style="font-size:.92rem;font-weight:700;color:var(--text);">Naira</div>
-          <div style="font-size:.7rem;color:var(--text3);margin-top:2px;">NGN · Deposit · Withdraw</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px;">NGN · Deposit · Withdraw</div>
         </div>
         <div style="text-align:right;">
-          <div id="homeAssetNgn" style="font-size:.78rem;font-weight:700;color:#d4af37;">Coming Soon</div>
+          <div id="homeAssetNgn" style="font-size:.75rem;font-weight:700;color:#d4af37;">Coming Soon</div>
         </div>
       </div>
 
-    </div><!-- end unified card -->
+    </div><!-- end assets card -->
 
     <!-- Hidden elements for JS compatibility -->
     <div style="display:none;">
@@ -368,7 +381,6 @@
       <div id="homeGreet" class="home-greeting"></div>
       <div id="homeGreetName" class="home-name"></div>
       <div id="skel-bal"></div>
-      <div id="homeAssetNgn"></div>
       <div onclick="goPage('naira')" id="nairaRow"></div>
     </div>
   </div>
@@ -1242,24 +1254,38 @@
     </div><!-- end bulk unified card -->
   <!-- ══ HISTORY PAGE ══ -->
   <div class="page" id="page-history">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
-    <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:16px;">History</div>
-    <div class="history-header">
-      <div><div class="page-title">Activity</div><div class="page-sub">Your on-chain transactions</div></div>
-      <button class="clear-hist-btn" onclick="clearHistory()">Clear all</button>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;padding:20px;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;">Activity</div>
+      <button class="clear-hist-btn" onclick="clearHistory()" style="font-size:.65rem;color:#f87171;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.15);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif;">Clear all</button>
     </div>
-    <div class="card" style="margin-bottom:10px;">
-      <div class="card-title" style="font-size:.88rem;margin-bottom:10px;">📊 Your NAN Activity</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="statsGrid">
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSends">0</div><div style="font-size:.72rem;color:var(--text3);">Sends</div></div>
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statSwaps">0</div><div style="font-size:.72rem;color:var(--text3);">Swaps</div></div>
-        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;"><div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="statBridges">0</div><div style="font-size:.72rem;color:var(--text3);">Bridges</div></div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statSends">0</div>
+        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Sends</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statSwaps">0</div>
+        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Swaps</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent3);" id="statBridges">0</div>
+        <div style="font-size:.58rem;color:var(--text3);margin-top:3px;letter-spacing:.06em;">Bridges</div>
       </div>
     </div>
-    <div class="card"><div id="txList"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet.</div></div></div></div>
-  </div>
+
+    <!-- TX list -->
+    <div id="txList">
+      <div class="empty"><div class="empty-icon">◎</div><div class="empty-text">No transactions yet.<br/><span style="font-size:.72rem;color:var(--text3);">Send or swap to get started.</span></div></div>
+    </div>
 
     </div><!-- end history unified card -->
+  </div>
+
   <!-- ══ PAYMENT REQUESTS PAGE ══ -->
   <div class="page" id="page-payreq">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
