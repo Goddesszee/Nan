@@ -10,10 +10,10 @@
   :root,[data-theme="dark"]{
     --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#a78bfa;
     --violet-border:#1a1a1a;--violet-border-strong:#1a1a1a;
-    --bg:#000000;--surface:#141414;--surface2:#141414;
-    --text:#ffffff;--muted:#9ca3af;--faint:rgba(255,255,255,0.04);
+    --bg:#0f0f0f;--surface:#141414;--surface2:#141414;
+    --text:#f0f0f0;--muted:#9ca3af;--faint:rgba(255,255,255,0.04);
     --success:#7c3aed;--gold:#fbbf24;--danger:#f87171;
-    --nav-bg:#000000;--grid-line:rgba(255,255,255,.025);
+    --nav-bg:#0f0f0f;--grid-line:rgba(255,255,255,.025);
   }
   [data-theme="light"]{
     --violet:#7c3aed;--violet-dark:#6d28d9;--violet-light:#6d28d9;
@@ -37,7 +37,7 @@
   .brand-logo svg{width:18px;height:18px;display:block;}
   .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .nav-right{display:flex;align-items:center;gap:12px;}
-  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#000000;display:flex;align-items:center;gap:6px;}
+  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#0f0f0f;display:flex;align-items:center;gap:6px;}
   .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
   .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text);}
@@ -171,16 +171,16 @@
           <svg id="connectChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
 
-        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#000000;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(124,58,237,.1);z-index:500;">
+        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#0f0f0f;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(124,58,237,.1);z-index:500;">
 
           <!-- Email step 1 -->
           <div id="landingEmailStep" style="padding:10px 8px 6px;">
             <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Continue with Email</div>
             <input id="landingEmailInput" type="email" placeholder="your@email.com"
-              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
+              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#f0f0f0;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
               onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
-            <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+            <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
               Continue with Email →
             </button>
           </div>
@@ -189,10 +189,10 @@
             <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Enter verification code</div>
             <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#a78bfa;margin-bottom:10px;"></div>
             <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#000000"
-              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
+              style="width:100%;background:#141414;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#f0f0f0;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
               onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
-            <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
+            <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
               Verify & Connect →
             </button>
             <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#9ca3af;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
@@ -203,28 +203,28 @@
 
           <!-- MetaMask -->
           <div onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">M</div>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">M</div>
             <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">MetaMask</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Browser extension</div></div>
             <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- WalletConnect -->
           <div onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">W</div>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">W</div>
             <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">WalletConnect</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Scan QR code</div></div>
             <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- Coinbase -->
           <div onclick="landingWalletConnect('coinbase')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">C</div>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">C</div>
             <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">Coinbase Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Mobile or extension</div></div>
             <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
 
           <!-- Circle -->
           <div onclick="landingWalletConnect('circle')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0;">◎</div>
+            <div style="width:34px;height:34px;border-radius:9px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">◎</div>
             <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#ede9fe;">Circle Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Connect with email →</div></div>
             <span style="color:#6b7280;font-size:.85rem;">›</span>
           </div>
