@@ -4419,3 +4419,4 @@ async function adminSeedPool(){
     btn.disabled=false;btn.textContent='Seed Pool';
   }
 }
+// Railway redeploy trigger Sun May 31 08:32:21 UTC 2026
