@@ -1129,6 +1129,17 @@ function updateSendAvailable(){
   // Update token switcher badge
   document.getElementById('sendTokenLabel').textContent=sendToken;
 }
+function setSendTokenDirect(tok,el){
+  sendToken=tok;
+  const uBtn=document.getElementById('topt-usdc');
+  const eBtn=document.getElementById('topt-eurc');
+  if(uBtn){uBtn.style.borderColor=tok==='USDC'?'rgba(124,58,237,.5)':'var(--border)';uBtn.style.background=tok==='USDC'?'rgba(124,58,237,.08)':'none';uBtn.style.color=tok==='USDC'?'var(--text)':'var(--text3)';}
+  if(eBtn){eBtn.style.borderColor=tok==='EURC'?'rgba(124,58,237,.5)':'var(--border)';eBtn.style.background=tok==='EURC'?'rgba(124,58,237,.08)':'none';eBtn.style.color=tok==='EURC'?'var(--text)':'var(--text3)';}
+  const lbl=document.getElementById('sendTokenLabel');if(lbl)lbl.textContent=tok;
+  const bal=tok==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
+  const av=document.getElementById('sendAvailable');if(av)av.textContent='Available: '+(bal||0).toFixed(2)+' '+tok;
+  validateSend();
+}
 function setMax(){document.getElementById('amtInput').value=(sendToken==='USDC'?Math.max(0,parseFloat(usdcBal)-GAS_USDC):Math.max(0,parseFloat(eurcBal))).toFixed(6);validateSend();}
 function validateSend(){
   const addr=document.getElementById('recipInput').value.trim();
@@ -1452,6 +1463,22 @@ function resetSend(){
   validateSend();document.getElementById('page-send').scrollTop=0;
 }
 function setSendTab(tab){
+  const sendBtn=document.getElementById('tab-send-btn');
+  const recvBtn=document.getElementById('tab-recv-btn');
+  const title=document.getElementById('sendPageTitle');
+  if(tab==='send'){
+    if(sendBtn){sendBtn.style.background='var(--accent)';sendBtn.style.color='#fff';}
+    if(recvBtn){recvBtn.style.background='none';recvBtn.style.color='var(--text3)';}
+    if(title) title.textContent='Send';
+  } else {
+    if(recvBtn){recvBtn.style.background='var(--accent)';recvBtn.style.color='#fff';}
+    if(sendBtn){sendBtn.style.background='none';sendBtn.style.color='var(--text3)';}
+    if(title) title.textContent='Receive';
+  }
+  // original logic below:
+  _setSendTabOrig(tab);
+}
+function _setSendTabOrig(tab){
   document.getElementById('tab-send').style.display=tab==='send'?'block':'none';
   document.getElementById('tab-recv').style.display=tab==='receive'?'block':'none';
   document.getElementById('tab-send-btn').classList.toggle('active',tab==='send');

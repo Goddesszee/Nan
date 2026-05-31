@@ -385,127 +385,129 @@
 
   <!-- ══ SEND PAGE ══ -->
   <div class="page" id="page-send">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div>
-        <div style="font-size:1.1rem;font-weight:800;color:var(--text);">Send</div>
-        <div style="font-size:.72rem;color:var(--text3);margin-top:2px;">USDC &amp; EURC · Gas paid in USDC</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;padding:20px;">
+
+    <!-- Header + tabs -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;" id="sendPageTitle">Send</div>
+      <div style="display:flex;gap:3px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:4px;">
+        <button id="tab-send-btn" onclick="setSendTab('send')" style="padding:7px 16px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">↑ Send</button>
+        <button id="tab-recv-btn" onclick="setSendTab('receive')" style="padding:7px 16px;border-radius:9px;border:none;background:none;color:var(--text3);font-family:'Inter',sans-serif;font-size:.78rem;cursor:pointer;">↓ Receive</button>
       </div>
-      <button onclick="claimFaucet()" id="faucetBtn" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:8px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;padding:5px 12px;cursor:pointer;">💧 Faucet</button>
     </div>
+
+    <!-- Status banners (kept for JS) -->
     <div id="onboardChecklist" style="display:none;"></div>
     <div class="wrong-net" id="wrongNetBanner">⚠ Wrong network — switch to Arc Testnet. <button class="switch-net-btn" onclick="switchToArc()">Switch Now</button></div>
     <div class="rpc-error" id="rpcError" style="display:none;">⚠ Could not fetch balances. <a href="#" onclick="refreshBalances();return false;" style="margin-left:6px;">Retry</a></div>
     <div class="tx-polling" id="txPolling" style="display:none;">
       <span class="spinner" style="border-top-color:var(--accent3);"></span>
-      <span id="txPollingMsg">Confirming transaction on-chain…</span>
+      <span id="txPollingMsg">Confirming transaction…</span>
     </div>
 
-    <!-- Slim balance strip -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(17,14,54,.9));border:1px solid rgba(139,92,246,.35);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
+    <!-- Balance strip -->
+    <div style="background:linear-gradient(135deg,rgba(28,16,96,.9),rgba(17,14,54,.9));border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.38);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
-        <div style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:.82rem;color:rgba(196,181,253,.5);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(196,181,253,.45);margin-top:3px;" id="balUsd">≈ $0.00 USD</div>
+        <div style="font-size:.58rem;color:rgba(255,255,255,.35);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
+        <div style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:.78rem;color:rgba(196,181,253,.4);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
+        <div style="font-size:.62rem;color:rgba(196,181,253,.4);margin-top:3px;" id="balUsd">≈ $0.00</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-        <div style="display:flex;gap:5px;">
-          <div class="tok"><span class="tok-dot usdc-dot"></span><span id="usdcBal2">0.00</span></div>
-          <div class="tok"><span class="tok-dot eurc-dot"></span><span id="eurcBal2">0.00</span></div>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
+          <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/>
+          <span style="font-size:.65rem;color:rgba(255,255,255,.5);" id="usdcBal2">0.00</span>
         </div>
-        <button onclick="toggleBalCurrency()" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent3);cursor:pointer;" id="balCurrencyBtn">USD</button>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
+          <img src="https://cryptologos.cc/logos/euro-coin-eurc-logo.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/>
+          <span style="font-size:.65rem;color:rgba(255,255,255,.5);" id="eurcBal2">0.00</span>
+        </div>
       </div>
     </div>
-    <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.82rem;color:var(--text2);align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.82rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
-    <div id="walletSourceBadge" style="display:none;"></div>
 
-    <!-- Hidden elements needed by JS -->
+    <div id="emptyBalHint" style="display:none;margin-bottom:8px;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.82rem;color:var(--text2);display:none;align-items:center;justify-content:space-between;"><span>💧 Wallet empty — get free USDC to start</span><button onclick="claimFaucet()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:6px;color:#ede9fe;font-size:.82rem;font-weight:700;padding:5px 10px;cursor:pointer;">Get Tokens</button></div>
+    <div id="walletSourceBadge" style="display:none;"></div>
     <div style="display:none;"></div>
 
-    <!-- Send / Receive card -->
-    <div class="card" id="sendCard" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
-      <div class="send-tabs" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:3px;margin-bottom:14px;">
-        <button class="stab active" id="tab-send-btn" onclick="setSendTab('send')" style="border-radius:8px;">↑ Send</button>
-        <button class="stab" id="tab-recv-btn" onclick="setSendTab('receive')" style="border-radius:8px;">↓ Receive</button>
+    <!-- SEND tab -->
+    <div id="tab-send">
+
+      <!-- To -->
+      <div style="font-size:.6rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Send to</div>
+      <div style="position:relative;margin-bottom:12px;">
+        <input id="recipInput" type="text" placeholder="Wallet address or .arc name"
+          oninput="onRecipInput()"
+          style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 54px 14px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem;outline:none;transition:border-color .15s;"/>
+        <button onclick="navigator.clipboard.readText().then(t=>{document.getElementById('recipInput').value=t;onRecipInput()}).catch(()=>document.getElementById('recipInput').focus())"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.2);border-radius:8px;color:var(--accent3);font-size:.62rem;padding:5px 9px;cursor:pointer;font-family:'Inter',sans-serif;">Paste</button>
       </div>
-      <div id="tab-send" style="display:flex;flex-direction:column;flex:1;">
-        <div class="field">
-          <div class="flbl">Send To</div>
-          <div style="display:flex;gap:5px;margin-bottom:8px;">
-            <button class="topt active" id="topt-address" onclick="setType('address',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.78rem;"><span>💳</span><span>Wallet</span></button>
-            <button class="topt" id="topt-arcname" onclick="setType('arcname',this)" style="flex:1;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:.78rem;"><span>◎</span><span>Arc Name</span></button>
-          </div>
-          <input id="recipInput" type="text" placeholder="0x... wallet address" oninput="onRecipInput()"/>
-          <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
-        </div>
-        <div class="field">
-          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Amount</span>
-            <span class="amt-token-badge" id="tokenSwitcher" onclick="toggleSendToken()"><span id="sendTokenLabel">USDC</span> ▾</span>
-            <span id="sendAvailable" style="display:none;"></span>
-          </div>
-          <div class="amt-row">
-            <div class="field" style="margin-bottom:0;flex:1;">
-              <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="validateSend()"/>
-            </div>
-            <button class="max-btn" onclick="setMax()">MAX</button>
-          </div>
-        </div>
-        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span id="gasFeeDisplay">~0.009 USDC</span></div>
-        <button class="btn" id="sendBtn" disabled onclick="showConfirm()" style="margin-top:auto;">Send</button>
+      <div class="res-bar" id="resolvedBar"><span id="resolvedTxt"></span></div>
+
+      <!-- Token -->
+      <div style="font-size:.6rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Token</div>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <button id="topt-usdc" onclick="setSendTokenDirect('USDC',this)"
+          style="flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(124,58,237,.5);background:rgba(124,58,237,.08);color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+          <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>$</span>'"/> USDC
+        </button>
+        <button id="topt-eurc" onclick="setSendTokenDirect('EURC',this)"
+          style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text3);font-family:'Inter',sans-serif;font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+          <img src="https://cryptologos.cc/logos/euro-coin-eurc-logo.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#2775ca;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff;flex-shrink:0;&quot;>€</span>'"/> EURC
+        </button>
       </div>
-      <div id="tab-recv" style="display:none;flex-direction:column;align-items:center;">
 
-        <!-- Network badge -->
-        <div style="display:flex;align-items:center;gap:6px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
-          <span style="width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);display:inline-block;"></span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);">Arc Testnet</span>
+      <!-- Amount -->
+      <div style="font-size:.6rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Amount</div>
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:16px;" id="amtWrap">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input id="amtInput" type="number" min="0.01" step="0.01" placeholder="0"
+            oninput="validateSend()"
+            style="flex:1;background:none;border:none;outline:none;font-size:2rem;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;width:0;"/>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;" id="sendTokenLabel">USDC</div>
+            <button onclick="setMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
+          </div>
         </div>
+        <div style="font-size:.62rem;color:var(--text3);margin-top:8px;" id="sendAvailable">Available: — USDC</div>
+      </div>
 
-        <!-- QR centered with glow -->
-        <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-          <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none;"></div>
-          <div style="background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(139,92,246,.2);" id="qrBox"></div>
-        </div>
+      <button class="btn" id="sendBtn" disabled onclick="showConfirm()">Send →</button>
+    </div>
 
-        <!-- Address box -->
-        <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Your Wallet Address</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);word-break:break-all;line-height:1.6;" id="recvAddr">Connect wallet to see your address</div>
-        </div>
-
-        <!-- Action buttons -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;">
-          <button class="btn" onclick="copyAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy
-          </button>
-          <button class="btn btn-outline" onclick="shareAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Share
-          </button>
-        </div>
-
-        <!-- Info note -->
-        <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:12px;width:100%;">
-          <span style="font-size:.85rem;flex-shrink:0;">💡</span>
-          <span style="font-size:.72rem;color:var(--text3);line-height:1.5;">Only send <strong style="color:var(--text2);">USDC or EURC</strong> on <strong style="color:var(--text2);">Arc Testnet</strong> to this address. Sending other tokens may result in permanent loss.</span>
-        </div>
-
+    <!-- RECEIVE tab -->
+    <div id="tab-recv" style="display:none;flex-direction:column;align-items:center;">
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);">Arc Testnet</span>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none;"></div>
+        <div style="background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.4);" id="qrBox"></div>
+      </div>
+      <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+        <div style="font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Your wallet address</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);word-break:break-all;line-height:1.6;" id="recvAddr">Connect wallet to see your address</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;">
+        <button class="btn" onclick="copyAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">📋 Copy</button>
+        <button class="btn btn-outline" onclick="shareAddr()" style="padding:13px;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:7px;">↗ Share</button>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:12px;width:100%;">
+        <span style="font-size:.85rem;flex-shrink:0;">💡</span>
+        <span style="font-size:.72rem;color:var(--text3);line-height:1.5;">Only send <strong style="color:var(--text2);">USDC or EURC</strong> on <strong style="color:var(--text2);">Arc Testnet</strong> to this address.</span>
       </div>
     </div>
 
     </div><!-- end send unified card -->
-    <!-- Confirm -->
+
+    <!-- Confirm card -->
     <div class="confirm-wrap" id="confirmCard">
-      <div class="confirm-title">⚡ Confirm Transaction</div>
-      <div class="confirm-sub">Real on-chain transfer — cannot be undone.</div>
+      <div class="confirm-title">Confirm send</div>
+      <div class="confirm-sub">This cannot be undone.</div>
       <div class="conf-rows">
         <div class="conf-row"><span class="conf-lbl">Sending</span><span class="conf-val big" id="confAmt">—</span></div>
         <div class="conf-row"><span class="conf-lbl">To</span><span class="conf-val" id="confTo">—</span></div>
         <div class="conf-row"><span class="conf-lbl">Via</span><span class="conf-val" id="confVia">—</span></div>
-        <div class="conf-row"><span class="conf-lbl">Gas paid in</span><span class="conf-val" style="color:var(--success);">USDC (Paymaster)</span></div>
-        <div class="conf-row"><span class="conf-lbl">Network fee</span><span class="conf-val warn" id="confFee">~0.009 USDC</span></div>
+        <div class="conf-row"><span class="conf-lbl">Arrives</span><span class="conf-val" style="color:var(--success);">In under 1 second</span></div>
       </div>
       <div class="conf-btns">
         <button class="btn btn-outline" onclick="cancelConfirm()">Cancel</button>
@@ -513,20 +515,20 @@
       </div>
     </div>
 
-    <!-- Success -->
+    <!-- Success card -->
     <div class="success-wrap" id="successCard">
       <div class="success-circle">✓</div>
-      <div class="success-title">Transaction Sent!</div>
+      <div class="success-title">Sent!</div>
       <div class="success-sub" id="successMsg">Submitted to Arc Testnet.</div>
       <div class="success-hash" id="successHash"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
         <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="openExplorer()">View on Explorer ↗</button>
-        <button class="btn" style="width:auto;padding:9px 18px;" onclick="showReceipt()">🧾 Receipt</button>
         <button class="btn btn-outline" style="width:auto;padding:9px 18px;" onclick="resetSend()">Send another</button>
       </div>
     </div>
   </div>
 
+  <!-- ══ EARN PAGE ══ -->
   <!-- ══ EARN PAGE ══ -->
   <div class="page" id="page-lend">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;padding:20px;">
