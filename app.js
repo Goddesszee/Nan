@@ -1002,6 +1002,13 @@ function disconnect(){
 // BALANCE REFRESH
 // ═══════════════════════════════════════════
 async function refreshBalances(){
+  // Show skeleton while loading
+  const skelWrap=document.getElementById('balSkelWrap');
+  const realWrap=document.getElementById('balRealWrap');
+  if(skelWrap&&realWrap&&(document.getElementById('homeBalAmt').textContent==='—')){
+    skelWrap.style.display='block';
+    realWrap.style.display='none';
+  }
   if(!userAddr||balancesLoading)return;
   balancesLoading=true;
   document.getElementById('rpcError').classList.remove('show');
@@ -1030,6 +1037,9 @@ async function refreshBalances(){
     const homeUsdcBal=document.getElementById('homeUsdcBal');
     const homeEurcBal=document.getElementById('homeEurcBal');
     if(homeBalAmt)homeBalAmt.textContent=isNaN(totalUsd)?'0.00':totalUsd.toFixed(2);
+    // Hide skeleton, show balance
+    const _sk=document.getElementById('balSkelWrap');const _rw=document.getElementById('balRealWrap');
+    if(_sk)_sk.style.display='none';if(_rw)_rw.style.display='block';
     if(homeBalNgn)homeBalNgn.textContent='≈ ₦'+(isNaN(totalUsd)?'0':Math.round(totalUsd*NGN_RATE).toLocaleString())+' NGN';
     if(homeUsdcBal)homeUsdcBal.textContent=u+' USDC';
     if(homeEurcBal)homeEurcBal.textContent=e+' EURC';
@@ -1170,13 +1180,13 @@ function validateSend(){
   }
   // Reset onclick to default when on correct network
   btn.onclick=showConfirm;
-  if(!addr){btn.disabled=true;btn.textContent='Enter address & amount';return;}
-  if(!amt||amt<=0){btn.disabled=true;btn.textContent='Enter an amount';return;}
-  if(recipType==='address'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Enter a valid 0x address';return;}
+  if(!addr){btn.disabled=true;btn.textContent='Send →';return;}
+  if(!amt||amt<=0){btn.disabled=true;btn.textContent='Send →';return;}
+  if(recipType==='address'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Validating address…';return;}
   if(recipType==='arcname'&&(!resolvedTo||lastResolvedInput!==addr)){btn.disabled=true;btn.textContent='Arc name not found';return;}
-  if(sendToken==='USDC'&&amt+GAS_USDC>uF){btn.disabled=true;btn.textContent='Insufficient USDC (inc. gas)';return;}
-  if(sendToken==='EURC'){if(amt>eF){btn.disabled=true;btn.textContent='Insufficient EURC';return;}if(uF<GAS_USDC){btn.disabled=true;btn.textContent='Need USDC for gas';return;}}
-  btn.disabled=false;btn.textContent='Send '+amt.toFixed(2)+' '+sendToken;
+  if(sendToken==='USDC'&&amt+GAS_USDC>uF){btn.disabled=true;btn.textContent='Insufficient balance';return;}
+  if(sendToken==='EURC'){if(amt>eF){btn.disabled=true;btn.textContent='Insufficient balance';return;}if(uF<GAS_USDC){btn.disabled=true;btn.textContent='Need USDC for gas';return;}}
+  btn.disabled=false;btn.textContent='Send '+amt.toFixed(2)+' '+sendToken+' →';
 }
 function showConfirm(){
   const raw=document.getElementById('recipInput').value.trim();
@@ -1184,7 +1194,7 @@ function showConfirm(){
   const actualTo=(resolvedTo&&lastResolvedInput===raw)?resolvedTo:null;
   if(!actualTo){toast('Recipient not resolved','error');return;}
   const via=recipType==='address'?'Wallet address':recipType==='x'?'Twitter handle':'Discord handle';
-  document.getElementById('confAmt').textContent=amt.toFixed(6)+' '+sendToken;
+  document.getElementById('confAmt').textContent=amt.toFixed(2)+' '+sendToken;
   document.getElementById('confTo').textContent=short(actualTo)+(recipType!=='address'?' ('+raw+')':'');
   document.getElementById('confVia').textContent=via;
   const sc=document.getElementById('sendCard')||document.getElementById('tab-send');
@@ -1274,11 +1284,23 @@ async function doSend(){
 
 function showSendSuccess(amt,to,hash){
   document.getElementById('confirmCard').classList.remove('show');
-  document.getElementById('successMsg').textContent=amt.toFixed(2)+' '+sendToken+' sent to '+short(to);
-  document.getElementById('successHash').textContent=hash||'';
+  // Cash App style — populate success card
+  const amtEl=document.getElementById('successAmt');
+  const toEl=document.getElementById('successTo');
+  const timeEl=document.getElementById('successTime');
+  const hashEl=document.getElementById('successHash');
+  if(amtEl) amtEl.textContent=amt.toFixed(2)+' '+sendToken;
+  if(toEl) toEl.textContent=to&&to.endsWith&&to.endsWith('.arc')?to:short(to);
+  if(timeEl) timeEl.textContent='Arrived in under 1 second';
+  // Keep successMsg for share/receipt compat
+  const msgEl=document.getElementById('successMsg');
+  if(msgEl) msgEl.textContent=amt.toFixed(2)+' '+sendToken+' sent to '+short(to);
+  if(hashEl) hashEl.textContent='';
   document.getElementById('successCard').classList.add('show');
+  // Scroll to top of send card
+  try{document.getElementById('page-send').scrollTop=0;}catch(e){}
   const btn=document.getElementById('confirmSendBtn');
-  btn.innerHTML='✓ Confirm & Send';btn.disabled=false;
+  if(btn){btn.innerHTML='✓ Confirm & Send';btn.disabled=false;}
 }
 function openExplorer(){if(lastTxHash&&lastTxHash.startsWith('0x'))window.open(ARC_EXP+'/tx/'+lastTxHash,'_blank');else if(lastTxHash)toast('Transaction confirmed on Arc — hash not available for Circle wallet txs','info',4000);}
 
