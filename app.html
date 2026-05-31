@@ -269,9 +269,10 @@
 
   <!-- ══ HOME PAGE ══ -->
   <div class="page" id="page-home">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;">
 
     <!-- Balance card -->
-    <div style="background:linear-gradient(145deg,#12102a,#0e0c22);border:1px solid rgba(124,58,237,.2);border-radius:22px;padding:22px 20px 20px;position:relative;overflow:hidden;margin-bottom:10px;">
+    <div style="background:linear-gradient(145deg,#12102a,#0e0c22);padding:22px 20px 20px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:-40px;left:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.08),transparent 70%);pointer-events:none;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -295,7 +296,7 @@
     </div>
 
     <!-- Actions card -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 8px;margin-bottom:10px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:0;padding:14px 8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
       <div style="display:flex;justify-content:space-around;">
         <div onclick="goPage('send');setTimeout(()=>setSendTab('send'),100)" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;">
           <div style="width:48px;height:48px;border-radius:14px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;">
@@ -325,7 +326,7 @@
     </div>
 
     <!-- Earn promo -->
-    <div style="background:linear-gradient(135deg,#031a0f,#041e11);border:1px solid rgba(52,211,153,.2);border-radius:18px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <div style="background:linear-gradient(135deg,#031a0f,#041e11);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:.58rem;color:rgba(52,211,153,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
         <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--success);line-height:1;">4.80% <span style="font-size:.85rem;font-weight:500;color:rgba(52,211,153,.5);">/ year</span></div>
@@ -335,7 +336,7 @@
     </div>
 
     <!-- Assets card -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;">
+    <div style="background:transparent;overflow:hidden;">
 
       <div style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
         <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2775ca,#1a56db);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;&quot;>U</div>'"/>
@@ -373,6 +374,8 @@
       </div>
 
     </div><!-- end assets card -->
+
+    </div><!-- end unified card -->
 
     <!-- Hidden elements for JS compatibility -->
     <div style="display:none;">
