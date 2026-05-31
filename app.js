@@ -3655,6 +3655,8 @@ window.addEventListener('load',()=>{
         localStorage.removeItem('nan_otp_verified');
         const loader=document.getElementById('verifiedLoader');
         if(loader) loader.remove();
+        // Clear URL params so refresh doesn't re-trigger OTP
+        window.history.replaceState({},'','/app.html');
         await onConnected(true,false);
       } catch(e){
         const loader=document.getElementById('verifiedLoader');
@@ -3678,6 +3680,8 @@ window.addEventListener('load',()=>{
       +'</div>');
     setTimeout(async function(){
       try{
+        // Clear URL params before connecting so refresh doesn't re-trigger
+        window.history.replaceState({},'','/app.html');
         if(typeof connectSpecific==='function') await connectSpecific(_ct);
         var l=document.getElementById('connectLoader'); if(l)l.remove();
       } catch(e){
