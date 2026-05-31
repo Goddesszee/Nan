@@ -4,7 +4,6 @@
 
 // ── Page routing — maps new tab names to existing page IDs ──
 function goPage(name) {
-  window._uiGoPage = goPage; // register for app.js to call
   if (!userAddr) { toast('Connect wallet first', 'error'); return; }
 
   // Hide all pages
@@ -202,6 +201,3 @@ function updateTopbarPageInfo(page) {
     pillEl.style.cssText = 'display:inline-block;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);color:#34d399;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   }
 }
-
-// Register goPage immediately
-window._uiGoPage = goPage;

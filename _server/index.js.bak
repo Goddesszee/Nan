@@ -288,7 +288,21 @@ app.post('/api/transfer', async (req, res) => {
 });
 
 // ── Transaction Status ──
-// Transaction route — handled by the second route below (DCW-based)
+app.get('/api/transaction/:txId', async (req, res) => {
+  const { txId } = req.params;
+  const userToken = req.headers['x-user-token'];
+
+  if (!CIRCLE_API_KEY || txId.startsWith('0xdev')) {
+    return res.json({ state: 'CONFIRMED', txHash: txId });
+  }
+
+  try {
+    const result = await circleRequest('GET', `/transactions/${txId}`, null, userToken);
+    res.json(result.data?.data || {});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ── Faucet Proxy ──
 app.post('/api/faucet', async (req, res) => {
@@ -321,13 +335,46 @@ app.post('/api/faucet', async (req, res) => {
 
 // ── Groq AI Chat ──
 app.post('/api/chat', async (req, res) => {
-  // Proxy to Vercel api/chat.js handler — it handles Groq, rate limiting, ACTION parsing
+  const { system, messages } = req.body;
+  const { default: fetch } = await import('node-fetch');
+
+  if (!GROQ_API_KEY) {
+    const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
+    let reply = "I'm NAN AI ✦ — running in dev mode. Add GROQ_API_KEY to enable real AI responses.";
+    if (lastMsg.includes('balance')) reply = "Your balance info is shown in the wallet card above.";
+    if (lastMsg.includes('send') || lastMsg.includes('transfer')) reply = "To send tokens, use the Send tab. <ACTION>{\"action\":\"navigate\",\"tab\":\"send\"}</ACTION>";
+    if (lastMsg.includes('stake')) reply = "You can stake USDC to earn 5.20% APY. <ACTION>{\"action\":\"navigate\",\"tab\":\"stake\"}</ACTION>";
+    if (lastMsg.includes('swap')) reply = "Swap between USDC and EURC at live exchange rates. <ACTION>{\"action\":\"navigate\",\"tab\":\"swap\"}</ACTION>";
+    if (lastMsg.includes('bridge')) reply = "Bridge USDC cross-chain via Circle CCTP. <ACTION>{\"action\":\"navigate\",\"tab\":\"bridge\"}</ACTION>";
+    return res.json({ reply });
+  }
+
   try {
-    const mod = await import('../api/chat.js');
-    return mod.default(req, res);
-  } catch(e) {
-    console.error('[chat]', e.message);
-    res.status(500).json({ reply: 'AI unavailable — ' + e.message.slice(0,80) });
+    const groqMessages = [
+      { role: 'system', content: system || 'You are NAN AI, a helpful wallet assistant.' },
+      ...(messages || []),
+    ];
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 512,
+        temperature: 0.7,
+        messages: groqMessages,
+      }),
+    });
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
+    res.json({ reply });
+  } catch (err) {
+    console.error('Groq API error:', err);
+    res.status(500).json({ reply: "Connection error — please try again." });
   }
 });
 
@@ -446,7 +493,7 @@ async function getAppKit() {
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
-  return { kit: new AppKit(), adapter };
+  return { kit: new AppKit({ adapter }), adapter };
 }
 
 // POST /api/appkit/send
@@ -521,12 +568,10 @@ app.post('/api/appkit/swap', async (req, res) => {
     if (!walletAddress)
       return res.json({ success: false, error: 'walletAddress required for swap' });
 
-    // Non-blocking — return immediately, swap runs in background
-    // Frontend polls balance every 8s until it changes
-    res.json({ success: true, pending: true, message: 'Swap submitted' });
-    kit.swap(swapParams)
-      .then(r => console.log('[swap] done:', r.txHash))
-      .catch(e => console.error('[swap] err:', e.message));
+    // Non-blocking — swap can take 90s+ on testnet
+    res.json({ success: true, pending: true, message: 'Swap submitted — balance will update shortly' });
+    kit.swap(swapParams).then(r => console.log('[swap] done:', r.txHash)).catch(e => console.error('[swap] err:', e.message));
+    return;
   } catch (err) {
     console.error('[appkit/swap]', err.message);
     if (err.message.includes('not supported') || err.message.includes('Arc'))
@@ -551,17 +596,11 @@ app.post('/api/appkit/bridge', async (req, res) => {
     // Non-blocking — CCTP bridge takes 3-20 mins on testnet
     // Return immediately so frontend doesn't timeout
     res.json({ success: true, pending: true, state: 'pending', message: 'Bridge submitted via CCTP — USDC arriving on destination chain' });
-    // useForwarder: true = Circle's Forwarding Service mints on destination
-    // Recipient pays NO native gas on destination chain
     kit.bridge({
       from: { adapter, chain: APPKIT_CHAIN, address: walletAddress },
-      to: {
-        recipientAddress: destAddr || walletAddress,
-        chain: destChainName,
-        useForwarder: true,
-      },
+      to:   { adapter, chain: destChainName, address: destAddr || walletAddress },
       amount: parsed.toFixed(2),
-      token: 'USDC',
+      token:  'USDC',
     }).then(r => console.log('[bridge] complete, state:', r.state))
       .catch(e => console.error('[bridge] background error:', e.message));
   } catch (err) {
@@ -570,30 +609,6 @@ app.post('/api/appkit/bridge', async (req, res) => {
   }
 });
 
-
-
-// Analytics route
-app.get('/api/analytics', async (req, res) => {
-  try {
-    const mod = await import('../api/analytics.js');
-    return mod.default(req, res);
-  } catch(e) {
-    console.error('[analytics]', e.message);
-    res.status(500).json({ error: e.message });
-  }
-});
-
-
-// Admin auth — password stored in ADMIN_PASSWORD env var
-app.post('/api/admin/auth', (req, res) => {
-  const { password } = req.body || {};
-  const adminPw = process.env.ADMIN_PASSWORD;
-  if (!adminPw) return res.json({ success: false, error: 'Admin not configured' });
-  if (password === adminPw) {
-    return res.json({ success: true });
-  }
-  return res.json({ success: false, error: 'Invalid password' });
-});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));

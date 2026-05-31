@@ -205,8 +205,10 @@ let _tt;
 function toast(msg,type='info',ms=4000){
   const el=document.getElementById('toast');
   if(!el)return;
-  el.textContent=msg;el.className='show '+type;
-  clearTimeout(_tt);_tt=setTimeout(()=>{el.className='';},ms);
+  el.textContent=msg;
+  el.className='show '+type;
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>{el.classList.remove('show');},ms);
 }
 let balCurrency='USD'; // USD, EURC, USDC
 function short(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
@@ -250,14 +252,17 @@ function showBalSkeleton(){
   document.getElementById('eurcBal2').innerHTML='<span class="skel skel-small"></span>';
 }
 function showPage(name){
-  // Delegate to ui.js goPage which handles actual DOM visibility
-  if(window._uiGoPage) window._uiGoPage(name);
-  // Extra page init
-  if(name==='lend'){try{initLendUI();}catch(e){}}
-  if(name==='history'){try{renderHistory();}catch(e){}}
-  if(name==='bulk'){try{renderPayrollGroups();renderPayrollHistory();}catch(e){}}
-  if(name==='arcname'){try{renderArcDirectory();}catch(e){}}
-  if(name==='swap'){try{refreshBalances();}catch(e){}}
+  // Handled by ui.js — this is a no-op stub to prevent conflicts
+  if(typeof goPage === 'function') goPage(name);
+}
+function goPage(name){
+  if(!userAddr){toast('Connect wallet first','error');return;}
+  showPage(name);
+  if(name==='lend'){initLendUI();}
+  if(name==='history')renderHistory();
+  if(name==='bulk'){renderPayrollGroups();renderPayrollHistory();}
+  if(name==='arcname'){renderArcDirectory();}
+  if(name==='swap')refreshBalances();
 }
 function toggleTheme(){
   const root=document.documentElement;
@@ -627,9 +632,11 @@ async function _autoSeedLiquidity(){
 }
 
 async function onConnected(isEmail=false, isDev=false){
-  if(!isEmail) localStorage.setItem('nan_metamask_was_connected','1');
   const land = document.getElementById('page-land');
-  if(land){land.classList.remove('active');land.style.display='none';land.style.visibility='hidden';land.style.zIndex='-1';}
+  land.classList.remove('active');
+  land.style.display='none';
+  land.style.visibility='hidden';
+  land.style.zIndex='-1';
   document.getElementById('bottomNav').classList.add('show');
   showPage('home');
   updateTopBar(true);
@@ -689,7 +696,6 @@ function disconnect(){
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   // Clear landing flag so user goes through landing page again
   sessionStorage.removeItem('nan_from_landing');
-  localStorage.removeItem('nan_metamask_was_connected');
   // Redirect to landing page
   toast('Disconnected','info',1500);
   setTimeout(()=>{ window.location.replace('/'); }, 800);
@@ -1338,47 +1344,26 @@ async function doBridge(){
   const amt=parseFloat(document.getElementById('bridgeAmt').value);
   if(!userAddr){toast('Connect wallet first','error');return;}
   if(isCircleWallet){
-    if(!circleWalletId){toast('Wallet not ready — log in again','error');return;}
-    if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
-    if(!amt||amt<=0){toast('Enter an amount','error');return;}
-    const destDomain=CCTP_DEST_DOMAIN[destChain];
-    if(destDomain===undefined){toast('Unsupported destination chain','error');return;}
-    const btn=document.getElementById('bridgeBtn');
-    btn.innerHTML='<span class="spinner"></span>Step 1: Approving…';btn.disabled=true;
-    try{
-      const amtAtomic=ethers.parseUnits(amt.toFixed(6),6).toString();
-      const mintRecipient='0x'+destAddr.replace('0x','').toLowerCase().padStart(64,'0');
-      const destinationCaller='0x'+'0'.repeat(64);
-      // Step 1: Approve CCTP Token Messenger
-      const approveRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:USDC_ADDR,
-          abiFunctionSignature:'approve(address,uint256)',
-          abiParameters:[CCTP_TOKEN_MESSENGER,amtAtomic]})});
-      const approveData=await approveRes.json();
-      if(!approveData.success)throw new Error(approveData.error||'Approval failed');
-      await new Promise(r=>setTimeout(r,3000));
-      btn.innerHTML='<span class="spinner"></span>Step 2: Burning USDC…';
-      const burnRes=await fetch('https://nan-production.up.railway.app/api/circle-wallets',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'contractCall',walletId:circleWalletId,
-          contractAddress:CCTP_TOKEN_MESSENGER,
-          abiFunctionSignature:'depositForBurn(uint256,uint32,bytes32,address,bytes32,uint64,uint32)',
-          abiParameters:[amtAtomic,String(destDomain),mintRecipient,USDC_ADDR,destinationCaller,'1000','1000']})});
-      const burnData=await burnRes.json();
-      if(!burnData.success)throw new Error(burnData.error||'Bridge failed');
-      const txId=burnData.transactionId||burnData.id||burnData.txHash||'pending';
-      addTx({hash:txId,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:false,source:'circle',destChain});
-      toast('✓ Bridge submitted! CCTP processing — USDC arriving on '+destChain+' in ~20 mins','success',10000);
-      await refreshBalances();
-    }catch(err){
-      toast('Bridge failed: '+(err?.message||'Unknown error').slice(0,100),'error',8000);
-    }finally{
-      btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;
-    }
-    return;
-  }if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
+  if(!circleWalletAddress){toast('Wallet not ready — log in again','error');return;}
+  const btn=document.getElementById('bridgeBtn');
+  btn.innerHTML='<span class="spinner"></span>Bridging via App Kit…';btn.disabled=true;
+  try{
+    const r=await fetch('https://nan-production.up.railway.app/api/appkit/bridge',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({walletAddress:circleWalletAddress,destChain,destAddr,amount:amt.toString()})});
+    const data=await r.json();
+    if(!data.success)throw new Error(data.error||'Bridge failed');
+    const txHash=data.burnTxHash||null;
+    addTx({hash:txHash,to:destAddr,toRaw:'Bridge→'+destChain,amount:amt.toFixed(6),type:'bridge',token:'USDC',ts:Date.now(),confirmed:data.state==='success',source:'appkit-bridge',destChain});
+    if(data.state==='success'){toast('✅ Bridge complete! USDC arrived on '+destChain,'success',8000);}
+    else{toast('✓ Bridge submitted via App Kit — CCTP processing…','success',6000);}
+    await refreshBalances();
+  }catch(err){
+    toast((err?.message||'Bridge failed').slice(0,140),'error',8000);
+  }finally{
+    btn.innerHTML='Bridge USDC via CCTP';btn.disabled=false;
+  }
+  return;
+}if(!signer){toast('Connect MetaMask to use the bridge','error');return;}
   if(!onArcNetwork&&!isCircleWallet){toast('Switch to Arc Testnet first','error');return;}
   if(!destAddr||!ethers.isAddress(destAddr)){toast('Enter a valid destination address','error');return;}
   if(!amt||amt<=0){toast('Enter an amount','error');return;}
@@ -2887,8 +2872,7 @@ let lendDuration=1, lendFee=2;
 let gatewayBalance={total:'0.00',balances:{}};
 
 async function depositToGateway() {
-  if (!userAddr) return toast('Connect wallet first','error');
-  if (!circleWalletId) return toast('Gateway deposit is for Circle email wallet only','warning',5000);
+  if (!circleWalletId) return toast('Connect with email wallet to deposit to Gateway','warning');
   const _wId = circleWalletId;
   const amount = document.getElementById('gatewayDepositAmt')?.value;
   if (!amount || parseFloat(amount) < 1) return toast('Enter at least 1 USDC','warning');
@@ -3663,8 +3647,6 @@ window.addEventListener('load',()=>{
         localStorage.removeItem('nan_otp_verified');
         const loader=document.getElementById('verifiedLoader');
         if(loader) loader.remove();
-        // Clear URL params so refresh doesn't re-trigger OTP
-        window.history.replaceState({},'','/app.html');
         await onConnected(true,false);
       } catch(e){
         const loader=document.getElementById('verifiedLoader');
@@ -3688,8 +3670,6 @@ window.addEventListener('load',()=>{
       +'</div>');
     setTimeout(async function(){
       try{
-        // Clear URL params before connecting so refresh doesn't re-trigger
-        window.history.replaceState({},'','/app.html');
         if(typeof connectSpecific==='function') await connectSpecific(_ct);
         var l=document.getElementById('connectLoader'); if(l)l.remove();
       } catch(e){

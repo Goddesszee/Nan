@@ -21,16 +21,9 @@
       document.head.appendChild(s);
     }
 
-    // Redirect to landing if no valid entry AND no existing wallet session
-    var hasWallet = localStorage.getItem('circleWalletId') || localStorage.getItem('nan_metamask_was_connected');
-    if(!fromLanding && !connectType && !hasPay && !isDirect && !hasWallet){
+    // Redirect to landing if no valid entry
+    if(!fromLanding && !connectType && !hasPay && !isDirect){
       window.location.replace('/');
-    }
-    // Hide page-land if wallet already exists (returning user)
-    if(hasWallet && !connectType){
-      var s=document.createElement('style');
-      s.textContent='#page-land{display:none!important;}';
-      document.head.appendChild(s);
     }
   })();
 </script>
@@ -882,7 +875,7 @@
     </div><!-- end swap unified card -->
   <!-- ══ BRIDGE PAGE ══ -->
   <div class="page" id="page-bridge">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;position:relative;z-index:1;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
     <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">Bridge</div>
     <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Cross-chain USDC via Circle CCTP</div>
     <div class="page-title">Bridge</div>
@@ -1000,7 +993,7 @@
     </div><!-- end arcname unified card -->
   <!-- ══ NAIRA PAGE ══ -->
   <div class="page" id="page-naira">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:visible;padding:20px;position:relative;z-index:1;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
     <div style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;">Naira — NGN</div>
     <div style="font-size:.72rem;color:var(--text3);margin-bottom:16px;">Deposit · Withdraw · Convert NGN</div>
     <div class="page-title" style="display:flex;align-items:center;gap:8px;">
@@ -1516,10 +1509,90 @@
 <!-- ══ Scripts ══ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="/api/app-js"></script>
-<script src="/api/ui-js"></script>
+<script src="https://nan-production.up.railway.app/app.js"></script>
+<script src="https://nan-production.up.railway.app/ui.js"></script>
 
+<!-- ══ BANK PICKER MODAL ══ -->
+<div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
+<div id="bankPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:75vh;overflow-y:auto;">
+  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
+  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
+  <div id="bankPickerOptions"></div>
+  <div style="height:16px;"></div>
+</div>
 
+<!-- ══ CHAIN PICKER MODAL ══ -->
+<div id="chainPickerOverlay" onclick="closeChainPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
+<div id="chainPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;">
+  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
+  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Destination Chain</div>
+  <div id="chainPickerOptions"></div>
+  <div style="height:16px;"></div>
+</div>
+
+<script>
+/* ── Chain picker ── */
+const CHAIN_OPTIONS = [
+  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia', icon:'⟠'},
+  {val:'AVAX-FUJI',    label:'Avalanche Fuji',   icon:'🔺'},
+  {val:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵'},
+  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷'},
+  {val:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴'},
+  {val:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣'},
+];
+const BANK_OPTIONS = [
+  'Access Bank','GTBank','First Bank','Zenith Bank','UBA',
+  'Kuda Bank','OPay','PalmPay','Stanbic IBTC','Fidelity Bank',
+  'Sterling Bank','Wema Bank','Polaris Bank','Jaiz Bank','Moniepoint'
+];
+
+function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
+
+function openChainPicker(){
+  const cur = document.getElementById('bridgeDestChain').value;
+  document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
+      <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${c.label}</span>
+      ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('chainPickerOverlay').style.display='block';
+  document.getElementById('chainPickerSheet').style.display='block';
+}
+function closeChainPicker(){
+  document.getElementById('chainPickerOverlay').style.display='none';
+  document.getElementById('chainPickerSheet').style.display='none';
+}
+function pickChain(val,label){
+  document.getElementById('bridgeDestChain').value=val;
+  document.getElementById('chainPickerLabel').textContent=label;
+  document.getElementById('chainPickerLabel').style.color='var(--text)';
+  closeChainPicker();
+}
+
+/* ── Bank picker ── */
+function openBankPicker(){
+  const cur = document.getElementById('ngnBankName').value;
+  document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
+      <span style="font-size:1.3rem;">🏦</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${b}</span>
+      ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('bankPickerOverlay').style.display='block';
+  document.getElementById('bankPickerSheet').style.display='block';
+}
+function closeBankPicker(){
+  document.getElementById('bankPickerOverlay').style.display='none';
+  document.getElementById('bankPickerSheet').style.display='none';
+}
+function pickBank(name){
+  document.getElementById('ngnBankName').value=name;
+  document.getElementById('bankPickerLabel').textContent=name;
+  document.getElementById('bankPickerLabel').style.color='var(--text)';
+  closeBankPicker();
+}
+</script>
 <!-- ══ ADMIN OVERLAY ══ -->
 <div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Inter',sans-serif;overflow-y:auto;">
   <div id="adminAuth" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;">
@@ -1637,92 +1710,6 @@
   </div>
 </div>
 </div>
-<div id="toast"></div>
-
-<!-- ══ BANK PICKER MODAL ══ -->
-<div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
-<div id="bankPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:75vh;overflow-y:auto;">
-  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
-  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Bank</div>
-  <div id="bankPickerOptions"></div>
-  <div style="height:16px;"></div>
-</div>
-
-
-<!-- ══ CHAIN PICKER MODAL ══ -->
-<div id="chainPickerOverlay" onclick="closeChainPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
-<div id="chainPickerSheet" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:99999;background:var(--bg);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;">
-  <div style="text-align:center;padding:12px 0 4px;"><div style="width:36px;height:4px;border-radius:4px;background:var(--border2);display:inline-block;"></div></div>
-  <div style="font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 20px 12px;">Select Destination Chain</div>
-  <div id="chainPickerOptions"></div>
-  <div style="height:16px;"></div>
-</div>
-
-
-<script>
-/* ── Chain picker ── */
-const CHAIN_OPTIONS = [
-  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia', icon:'⟠'},
-  {val:'AVAX-FUJI',    label:'Avalanche Fuji',   icon:'🔺'},
-  {val:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵'},
-  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷'},
-  {val:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴'},
-  {val:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣'},
-];
-const BANK_OPTIONS = [
-  'Access Bank','GTBank','First Bank','Zenith Bank','UBA',
-  'Kuda Bank','OPay','PalmPay','Stanbic IBTC','Fidelity Bank',
-  'Sterling Bank','Wema Bank','Polaris Bank','Jaiz Bank','Moniepoint'
-];
-
-function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(139,92,246,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
-
-function openChainPicker(){
-  const cur = document.getElementById('bridgeDestChain').value;
-  document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
-      <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${c.label}</span>
-      ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
-    </div>`).join('');
-  document.getElementById('chainPickerOverlay').style.display='block';
-  document.getElementById('chainPickerSheet').style.display='block';
-}
-function closeChainPicker(){
-  document.getElementById('chainPickerOverlay').style.display='none';
-  document.getElementById('chainPickerSheet').style.display='none';
-}
-function pickChain(val,label){
-  document.getElementById('bridgeDestChain').value=val;
-  document.getElementById('chainPickerLabel').textContent=label;
-  document.getElementById('chainPickerLabel').style.color='var(--text)';
-  closeChainPicker();
-}
-
-/* ── Bank picker ── */
-function openBankPicker(){
-  const cur = document.getElementById('ngnBankName').value;
-  document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(139,92,246,.12);':''}" ontouchstart="this.style.background='rgba(139,92,246,.15)'" ontouchend="this.style.background='${b===cur?'rgba(139,92,246,.12)':'transparent'}'" onclick="pickBank('${b}')">
-      <span style="font-size:1.3rem;">🏦</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);flex:1;">${b}</span>
-      ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
-    </div>`).join('');
-  document.getElementById('bankPickerOverlay').style.display='block';
-  document.getElementById('bankPickerSheet').style.display='block';
-}
-function closeBankPicker(){
-  document.getElementById('bankPickerOverlay').style.display='none';
-  document.getElementById('bankPickerSheet').style.display='none';
-}
-function pickBank(name){
-  document.getElementById('ngnBankName').value=name;
-  document.getElementById('bankPickerLabel').textContent=name;
-  document.getElementById('bankPickerLabel').style.color='var(--text)';
-  closeBankPicker();
-}
-
-// onclick handlers on buttons handle all interactions
-</script>
+<div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:14px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;z-index:2147483647;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:92vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);"></div>
 </body>
 </html>
