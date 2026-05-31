@@ -927,6 +927,18 @@ async function onConnected(isEmail=false, isDev=false){
   showPage('home');
   updateTopBar(true);
   if(typeof updateDesktopNav === 'function') updateDesktopNav();
+  // Update More page profile card
+  try{
+    const addr = userAddr||'';
+    const short = addr?addr.slice(0,6)+'...'+addr.slice(-4):'—';
+    const initials = isEmail&&otpEmail?otpEmail.slice(0,2).toUpperCase():(addr?addr.slice(2,4).toUpperCase():'?');
+    const el_name = document.getElementById('moreName');
+    const el_addr = document.getElementById('moreAddr');
+    const el_avatar = document.getElementById('moreAvatar');
+    if(el_name) el_name.textContent = isEmail&&otpEmail ? otpEmail.split('@')[0] : short;
+    if(el_addr) el_addr.textContent = short;
+    if(el_avatar) el_avatar.textContent = initials;
+  }catch(e){}
 
   document.getElementById('walAddr').textContent=short(userAddr);
   document.getElementById('walAddr').title=userAddr;
