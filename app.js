@@ -296,13 +296,13 @@ function toast(msg, type='info', ms=4500, opts={}){
 
   if(body.includes(' — ')){
     const parts = body.split(' — ');
-    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s{0,}/, '');
     body = parts.slice(1).join(' — ');
   } else if(body.startswith('✓ ') || body.startswith('✅ ')){
-    body = body.replace(/^[✓✅]\s*/, '');
+    body = body.replace(/^[✓✅]\s{0,}/, '');
   } else if(body.startswith('❌ ')){
     title = 'error';
-    body = body.replace(/^❌\s*/, '');
+    body = body.replace(/^❌\s{0,}/, '');
   }
 
   const iconel = document.getelementbyid('toasticonbadge');
@@ -363,13 +363,13 @@ function toast(msg, type='info', ms=4500, opts={}){
 
   if(body.includes(' — ')){
     const parts = body.split(' — ');
-    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s*/, '');
+    title = parts[0].replace(/^[✓✕⚠ℹ✅❌🎉]\s{0,}/, '');
     body = parts.slice(1).join(' — ');
   } else if(body.startswith('✓ ') || body.startswith('✅ ')){
-    body = body.replace(/^[✓✅]\s*/, '');
+    body = body.replace(/^[✓✅]\s{0,}/, '');
   } else if(body.startswith('❌ ')){
     title = 'error';
-    body = body.replace(/^❌\s*/, '');
+    body = body.replace(/^❌\s{0,}/, '');
   }
 
   const iconel = document.getelementbyid('toasticonbadge');
@@ -425,14 +425,14 @@ function toast(msg, type='info', ms=4500, opts={}){
   // We keep it simple: title = first sentence, body = rest
   if(msg.includes(' — ')){
     const parts = msg.split(' — ');
-    title = parts[0].replace(/^[✓✕⚠ℹ]\s*/,'');
+    title = parts[0].replace(/^[✓✕⚠ℹ]\s{0,}/,'');
     body  = parts.slice(1).join(' — ');
   } else if(msg.startsWith('✓ ')){
     title = TITLES[type];
-    body  = msg.replace(/^✓\s*/,'');
+    body  = msg.replace(/^✓\s{0,}/,'');
   } else if(msg.startsWith('❌ ')){
     title = 'Error';
-    body  = msg.replace(/^❌\s*/,'');
+    body  = msg.replace(/^❌\s{0,}/,'');
   }
 
   const iconEl   = document.getElementById('toastIconBadge');
@@ -473,7 +473,7 @@ function toast(msg, type='info', ms=4500, opts={}){
   const btnEl = document.getElementById('toastActionBtn');
 
   if(titleEl) titleEl.textContent = titles[type] || 'Info';
-  if(msgEl) msgEl.textContent = String(msg || '').replace(/^✓\s*/, '').replace(/^✅\s*/, '');
+  if(msgEl) msgEl.textContent = String(msg || '').replace(/^✓\s{0,}/, '').replace(/^✅\s{0,}/, '');
 
   const txHash = opts.txHash || (typeof lastTxHash !== 'undefined' ? lastTxHash : null);
   if(actionEl && btnEl && txHash && String(txHash).startsWith('0x')){
