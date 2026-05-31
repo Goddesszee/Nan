@@ -529,170 +529,147 @@
 
   <!-- ══ EARN PAGE ══ -->
   <div class="page" id="page-lend">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;padding:20px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;padding:20px;">
+
     <!-- Header -->
     <div style="margin-bottom:16px;">
-      <div class="page-title" style="margin-bottom:3px;">Earn</div>
-      <div style="font-size:.78rem;color:var(--text3);line-height:1.5;">Supply USDC · Earn interest · Borrow against your balance</div>
+      <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;">Earn</div>
+      <div style="font-size:.65rem;color:var(--text3);margin-top:3px;">Save your USDC and earn interest daily</div>
     </div>
 
     <!-- APY Hero -->
-    <div style="background:linear-gradient(135deg,#052016,#0a2a1c);border:1px solid rgba(52,211,153,.3);border-radius:18px;padding:20px;margin-bottom:10px;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#031a0f,#052016);border:1px solid rgba(52,211,153,.3);border-radius:18px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.15),transparent 70%);pointer-events:none;"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(52,211,153,.55);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;">Supply APY</div>
+      <div style="font-size:.58rem;color:rgba(52,211,153,.5);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;">Annual interest rate</div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;">
-        <div style="font-size:3rem;font-weight:800;color:var(--success);letter-spacing:-2px;line-height:1;">4.80%</div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 9px;border-radius:100px;">No lockup</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 9px;border-radius:100px;">Powered by Arc</div>
+        <div style="font-size:2.8rem;font-weight:800;color:var(--success);letter-spacing:-.04em;line-height:1;">4.80%</div>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
+          <div style="font-size:.6rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 10px;border-radius:100px;">Withdraw anytime</div>
+          <div style="font-size:.6rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--success);padding:3px 10px;border-radius:100px;">No lockup</div>
         </div>
       </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.4);margin-top:8px;">Earn on every dollar you supply · Withdraw anytime</div>
+      <div style="font-size:.6rem;color:rgba(52,211,153,.4);margin-top:8px;">On every dollar you save</div>
     </div>
 
-    <!-- 3 stat pills -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px;">
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Borrow APR</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--warning);">7.20%</div>
+    <!-- Your savings -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Your savings</div>
+        <div style="font-size:1.3rem;font-weight:800;color:var(--success);" id="suppliedAmt">0.00 USDC</div>
+        <div style="font-size:.6rem;color:rgba(52,211,153,.5);margin-top:3px;" id="accruedInterest">+0.000000 earned</div>
       </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Supplied</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--text);" id="totalSupplied">—</div>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:11px 12px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);letter-spacing:.08em;margin-bottom:5px;">Utilization</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--accent3);" id="utilizationRate">—</div>
-      </div>
-    </div>
-
-    <!-- Positions header -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <div style="width:22px;height:22px;border-radius:7px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);">Your Positions</div>
-    </div>
-
-    <!-- Positions 2x2 grid -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;">
-      <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Supplied</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--success);line-height:1;" id="suppliedAmt">0.00</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.5);margin-top:4px;">USDC</div>
-      </div>
-      <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:14px;padding:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Borrowed</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--danger);line-height:1;" id="borrowedAmt">0.00</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(248,113,113,.5);margin-top:4px;">USDC</div>
-      </div>
-      <div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15);border-radius:14px;padding:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Accrued Interest</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--gold);line-height:1;" id="accruedInterest">0.000000</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(251,191,36,.5);margin-top:4px;">USDC</div>
-      </div>
-      <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:14px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);margin-bottom:6px;">Health Factor</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--success);line-height:1;" id="healthFactor">—</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(52,211,153,.5);margin-top:4px;">Safe</div>
+      <div style="text-align:right;">
+        <div style="font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Borrowed</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--danger);" id="borrowedAmt">0.00 USDC</div>
       </div>
     </div>
 
     <!-- Tabs -->
-    <div class="card">
-      <div class="send-tabs" style="background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:13px;padding:4px;gap:3px;margin-bottom:12px;">
-        <button class="stab active" onclick="setLendTab('supply',this)">Supply</button>
-        <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
-        <button class="stab" onclick="setLendTab('repay',this)">Repay</button>
-        <button class="stab" onclick="setLendTab('withdraw',this)">Withdraw</button>
-      </div>
-      <div class="stake-panel active" id="lp-supply">
-        <div class="field"><div class="flbl">Asset</div>
-          <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-            <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
-            <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
-          </div>
-        </div>
-        <div class="field"><div class="flbl">Amount</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setSupplyMax()">MAX</button></div>
-        </div>
-        <div class="gas-row"><span class="gas-icon">📈</span><span style="flex:1;">Estimated APY</span><span style="color:var(--success);">4.80%</span></div>
-        <div class="gas-row"><span class="gas-icon">⛽</span><span style="flex:1;">Network fee</span><span>~0.009 USDC</span></div>
-        <button class="btn" onclick="doSupply()">Supply USDC</button>
-      </div>
-      <div class="stake-panel" id="lp-borrow">
-
-        <!-- What is borrowing — simple explanation -->
-        <div style="background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-          <div style="font-size:.82rem;font-weight:700;color:#60a5fa;margin-bottom:4px;">💡 How borrowing works</div>
-          <div style="font-size:.78rem;color:var(--text3);line-height:1.65;">Keep USDC in your wallet → borrow up to 75% of it at 7.20% APR → your wallet USDC is locked as collateral until you repay. Separately, supply USDC to earn 4.80% APY.</div>
-        </div>
-
-        <!-- Asset selector -->
-        <div class="field"><div class="flbl">What to borrow</div>
-          <div class="type-sel" style="grid-template-columns:1fr 1fr;">
-            <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
-            <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
-          </div>
-        </div>
-
-        <!-- Max borrow indicator -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:11px;margin-bottom:10px;">
-          <div>
-            <div style="font-size:.72rem;color:var(--text3);margin-bottom:2px;">Available to borrow</div>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace;" id="borrowMaxDisplay">—</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:.72rem;color:var(--text3);margin-bottom:2px;">Interest rate</div>
-            <div style="font-size:1rem;font-weight:700;color:var(--warning);">7.20% APR</div>
-          </div>
-        </div>
-
-        <!-- Amount input -->
-        <div class="field">
-          <div class="flbl" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Amount to borrow</span>
-            <span id="borrowMaxHint" style="font-size:.72rem;color:var(--accent3);font-weight:600;"></span>
-          </div>
-          <div class="amt-row">
-            <div class="field" style="margin-bottom:0;">
-              <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="updateBorrowPreview()"/>
-            </div>
-            <button class="max-btn" onclick="setBorrowMax()">MAX</button>
-          </div>
-        </div>
-
-        <!-- Interest preview -->
-        <div id="borrowPreview" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 12px;margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:.78rem;color:var(--text3);">You'll receive</span>
-            <span style="font-size:.82rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;" id="borrowReceiveAmt">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;">
-            <span style="font-size:.78rem;color:var(--text3);">Interest per day</span>
-            <span style="font-size:.78rem;color:var(--warning);font-family:'JetBrains Mono',monospace;" id="borrowDailyInterest">—</span>
-          </div>
-        </div>
-
-        <div class="gas-row" style="margin-bottom:10px;"><span class="gas-icon">⛽</span><span style="flex:1;">Gas paid in USDC</span><span>~0.009 USDC</span></div>
-        <button class="btn" onclick="doBorrow()" id="borrowBtn">Borrow USDC</button>
-      </div>
-      <div class="stake-panel" id="lp-repay">
-        <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--danger);" id="repayDisplay">0.00 USDC</div><div style="font-size:.82rem;color:var(--text3);">Outstanding debt</div></div>
-        <div class="field"><div class="flbl">Amount to Repay</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setRepayMax()">MAX</button></div>
-        </div>
-        <button class="btn btn-outline" onclick="doRepay()">Repay Debt</button>
-      </div>
-      <div class="stake-panel" id="lp-withdraw">
-        <div style="text-align:center;padding:9px 0;"><div style="font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--success);" id="withdrawDisplay">0.00 USDC</div><div style="font-size:.82rem;color:var(--text3);">Available to withdraw</div></div>
-        <div class="field"><div class="flbl">Amount to Withdraw</div>
-          <div class="amt-row"><div class="field" style="margin-bottom:0;"><input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0.00"/></div><button class="max-btn" onclick="setWithdrawMax()">MAX</button></div>
-        </div>
-        <button class="btn btn-green" onclick="doWithdraw()">Withdraw + Interest</button>
-      </div>
+    <div class="send-tabs" style="background:rgba(255,255,255,.03);border:1px solid rgba(139,92,246,.14);border-radius:13px;padding:4px;gap:3px;margin-bottom:12px;">
+      <button class="stab active" onclick="setLendTab('supply',this)">Save</button>
+      <button class="stab" onclick="setLendTab('withdraw',this)">Withdraw</button>
+      <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
+      <button class="stab" onclick="setLendTab('repay',this)">Repay</button>
     </div>
-  </div>
+
+    <!-- SAVE panel -->
+    <div class="stake-panel active" id="lp-supply">
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input id="supplyAmt" type="number" min="0.01" step="0.01" placeholder="0"
+            style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;">USDC</div>
+            <button onclick="setSupplyMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.62rem;color:var(--text3);">
+          <span>Available: <span id="supplyAvail">—</span> USDC</span>
+          <span style="color:var(--success);">+4.80% / year</span>
+        </div>
+      </div>
+      <div class="field"><div class="flbl" style="display:none;">Asset</div>
+        <div class="type-sel" style="grid-template-columns:1fr 1fr;display:none;">
+          <button class="topt active" onclick="setLendAsset('USDC',this)"><span class="oi">💵</span><span>USDC</span></button>
+          <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
+        </div>
+      </div>
+      <button class="btn" onclick="doSupply()" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 20px rgba(5,150,105,.3);">Start Saving →</button>
+    </div>
+
+    <!-- WITHDRAW panel -->
+    <div class="stake-panel" id="lp-withdraw">
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input id="withdrawAmt" type="number" min="0.01" step="0.01" placeholder="0"
+            style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;">USDC</div>
+            <button onclick="setWithdrawMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:.62rem;color:var(--text3);">
+          <span>Saved: <span id="withdrawAvail">0.00</span> USDC</span>
+        </div>
+      </div>
+      <button class="btn" onclick="doWithdraw()">Withdraw Savings</button>
+    </div>
+
+    <!-- BORROW panel -->
+    <div class="stake-panel" id="lp-borrow">
+      <div style="background:rgba(96,165,250,.05);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <div style="font-size:.75rem;color:var(--text3);line-height:1.65;">Save USDC first, then borrow up to <strong style="color:#60a5fa;">75%</strong> of what you've saved. Your savings keep earning interest while you borrow.</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">You can borrow up to</div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);" id="borrowMaxDisplay">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">Interest rate</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--warning);">7.20%</div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input id="borrowAmt" type="number" min="0.01" step="0.01" placeholder="0" oninput="updateBorrowPreview()"
+            style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;">USDC</div>
+            <button onclick="setBorrowMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
+          </div>
+        </div>
+      </div>
+      <div id="borrowPreview" style="display:none;margin-bottom:12px;"></div>
+      <button class="btn" onclick="doBorrow()">Borrow USDC</button>
+    </div>
+
+    <!-- REPAY panel -->
+    <div class="stake-panel" id="lp-repay">
+      <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;padding:3px 0;"><span style="color:var(--text3);">Borrowed</span><span style="color:var(--danger);" id="repayBorrowed">0.00 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;padding:3px 0;"><span style="color:var(--text3);">Interest owed</span><span style="color:var(--danger);" id="repayInterest">0.000000 USDC</span></div>
+        <div style="height:1px;background:rgba(248,113,113,.15);margin:8px 0;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:600;"><span style="color:var(--text);">Total to repay</span><span style="color:var(--text);" id="repayTotal">0.00 USDC</span></div>
+      </div>
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input id="repayAmt" type="number" min="0.01" step="0.01" placeholder="0"
+            style="flex:1;background:none;border:none;outline:none;font-size:1.6rem;font-weight:700;color:var(--text);width:0;"/>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <div style="background:rgba(39,117,202,.1);border:1px solid rgba(39,117,202,.2);border-radius:8px;padding:4px 10px;font-size:.68rem;color:#60a5fa;">USDC</div>
+            <button onclick="setRepayMax()" style="background:none;border:none;font-size:.6rem;color:var(--accent3);cursor:pointer;font-family:'JetBrains Mono',monospace;">MAX</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="doRepay()" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 20px rgba(5,150,105,.3);">Repay Loan</button>
+    </div>
+
+    <!-- Hidden elements kept for JS compatibility -->
+    <span id="totalSupplied" style="display:none;"></span>
+    <span id="utilizationRate" style="display:none;"></span>
+    <span id="healthFactor" style="display:none;"></span>
+    <span id="borrowMaxHint" style="display:none;"></span>
 
     </div><!-- end earn unified card -->
   <!-- ══ MORE PAGE ══ -->

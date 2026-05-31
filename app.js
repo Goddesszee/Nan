@@ -3411,19 +3411,36 @@ function setRepayMax(){document.getElementById('repayAmt').value=lendPositions.b
 function setWithdrawMax(){document.getElementById('withdrawAmt').value=lendPositions.supplied.toFixed(6);}
 
 function updateLendPositions(){
-  document.getElementById('suppliedAmt').textContent=lendPositions.supplied.toFixed(2)+' USDC';
-  document.getElementById('borrowedAmt').textContent=lendPositions.borrowed.toFixed(2)+' USDC';
-  document.getElementById('accruedInterest').textContent=lendPositions.interest.toFixed(6)+' USDC';
-  const hf=lendPositions.borrowed>0?(lendPositions.supplied*0.8/lendPositions.borrowed).toFixed(2):'—';
+  // Update savings card
+  const supEl=document.getElementById('suppliedAmt');
+  if(supEl) supEl.textContent=lendPositions.supplied.toFixed(2)+' USDC';
+  const borEl=document.getElementById('borrowedAmt');
+  if(borEl) borEl.textContent=lendPositions.borrowed.toFixed(2)+' USDC';
+  const intEl=document.getElementById('accruedInterest');
+  if(intEl) intEl.textContent='+'+lendPositions.interest.toFixed(6)+' earned';
+  // Update repay panel
+  const rbEl=document.getElementById('repayBorrowed');
+  if(rbEl) rbEl.textContent=lendPositions.borrowed.toFixed(2)+' USDC';
+  const riEl=document.getElementById('repayInterest');
+  if(riEl) riEl.textContent=lendPositions.interest.toFixed(6)+' USDC';
+  const rtEl=document.getElementById('repayTotal');
+  if(rtEl) rtEl.textContent=(lendPositions.borrowed+lendPositions.interest).toFixed(2)+' USDC';
+  // Update withdraw available
+  const waEl=document.getElementById('withdrawAvail');
+  if(waEl) waEl.textContent=lendPositions.supplied.toFixed(2);
+  // Update supply available
+  const saEl=document.getElementById('supplyAvail');
+  if(saEl) saEl.textContent=parseFloat(usdcBal||0).toFixed(2);
+  // Update borrow max
+  const bmEl=document.getElementById('borrowMaxDisplay');
+  if(bmEl) bmEl.textContent=(lendPositions.supplied*0.75).toFixed(2)+' USDC';
+  // Hidden compat elements
   const hfEl=document.getElementById('healthFactor');
-  hfEl.textContent=hf;
-  hfEl.style.color=hf==='—'?'var(--text3)':parseFloat(hf)>1.5?'var(--success)':parseFloat(hf)>1.1?'var(--warning)':'var(--danger)';
-  document.getElementById('repayDisplay').textContent=lendPositions.borrowed.toFixed(2)+' USDC';
-  document.getElementById('withdrawDisplay').textContent=lendPositions.supplied.toFixed(2)+' USDC';
-  const total=lendPositions.supplied>0?'$'+lendPositions.supplied.toFixed(2):'—';
-  document.getElementById('totalSupplied').textContent=total;
-  const util=lendPositions.supplied>0?((lendPositions.borrowed/lendPositions.supplied)*100).toFixed(1)+'%':'—';
-  document.getElementById('utilizationRate').textContent=util;
+  if(hfEl){const hf=lendPositions.borrowed>0?(lendPositions.supplied*0.8/lendPositions.borrowed).toFixed(2):'—';hfEl.textContent=hf;}
+  const tsEl=document.getElementById('totalSupplied');
+  if(tsEl) tsEl.textContent=lendPositions.supplied>0?'$'+lendPositions.supplied.toFixed(2):'—';
+  const urEl=document.getElementById('utilizationRate');
+  if(urEl) urEl.textContent=lendPositions.supplied>0?((lendPositions.borrowed/lendPositions.supplied)*100).toFixed(1)+'%':'—';
 }
 
 async function doSupply(){
