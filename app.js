@@ -463,8 +463,17 @@ el.classList.add(type, 'show');
 }
 */
 function toast(msg, type='info', ms=4500, opts={}){
-  const el = document.getElementById('toast');
-  if(!el) return;
+  let el = document.getElementById('toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toast';
+  }
+  if(el.parentElement !== document.body){
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<div id="toastIconBadge"></div><div class="toast-copy"><div id="toastTitle"></div><div id="toastMsg"></div><div id="toastAction" style="display:none;"><a id="toastActionBtn" href="#" target="_blank" rel="noopener">View Transaction</a></div></div>';
+  el.onclick = function(){ this.classList.remove('show'); };
+  el.style.cssText += ';display:flex!important;position:fixed!important;top:18px!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translateX(-50%) translateY(0)!important;z-index:2147483647!important;';
 
   const titles = { success:'Successful!', error:'Failed', info:'Info', warning:'Warning' };
   const titleEl = document.getElementById('toastTitle');
