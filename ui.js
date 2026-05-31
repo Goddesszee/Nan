@@ -199,7 +199,7 @@ function updateTopbarPageInfo(page) {
     pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'earn' || page === 'lend') {
     pillEl.textContent = 'APY 4.80%';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);color:#10b981;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#7c3aed;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'swap') {
     pillEl.textContent = 'USDC ↔ EURC';
     pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
@@ -208,6 +208,6 @@ function updateTopbarPageInfo(page) {
     pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#a78bfa;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'history') {
     pillEl.textContent = 'On-chain';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);color:#10b981;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#7c3aed;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   }
 }

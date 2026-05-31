@@ -585,7 +585,7 @@ function updateTopBar(connected){
         const orig=btn.textContent;
         btn.textContent='✓ Copied!';
         btn.style.color='var(--success)';
-        btn.style.borderColor='rgba(16,185,129,.4)';
+        btn.style.borderColor='rgba(124,58,237,.4)';
         setTimeout(()=>{btn.textContent=orig;btn.style.color='';btn.style.borderColor='';},1800);
       });
     };
@@ -1345,7 +1345,7 @@ function showReceipt(){
 
         <!-- Success check -->
         <div style="text-align:center;margin-bottom:20px;">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.1));border:2px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(16,185,129,.2);">✓</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(124,58,237,.1));border:2px solid rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(124,58,237,.2);">✓</div>
           <div style="font-size:1.3rem;font-weight:700;color:#ede9fe;margin-bottom:4px;">Transaction Confirmed</div>
           <div style="font-size:.75rem;color:#a78bfa;">${msg}</div>
         </div>
@@ -1361,7 +1361,7 @@ function showReceipt(){
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
-            <span style="font-size:.72rem;color:#10b981;font-family:monospace;">● Confirmed</span>
+            <span style="font-size:.72rem;color:#7c3aed;font-family:monospace;">● Confirmed</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
@@ -1457,11 +1457,11 @@ function downloadReceipt(){
   ctx.textAlign='right';ctx.fillText(now,580,45);
 
   // Check circle
-  ctx.fillStyle='rgba(16,185,129,0.15)';
+  ctx.fillStyle='rgba(124,58,237,0.15)';
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(16,185,129,0.4)';ctx.lineWidth=2;
+  ctx.strokeStyle='rgba(124,58,237,0.4)';ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#10b981';ctx.font='36px sans-serif';
+  ctx.fillStyle='#7c3aed';ctx.font='36px sans-serif';
   ctx.textAlign='center';ctx.fillText('✓',300,168);
 
   // Transaction confirmed
@@ -1487,7 +1487,7 @@ function downloadReceipt(){
     const y=290+i*22;
     ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
     ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
-    ctx.fillStyle=label==='Status'?'#10b981':'#ede9fe';
+    ctx.fillStyle=label==='Status'?'#7c3aed':'#ede9fe';
     ctx.textAlign='right';ctx.fillText(value,560,y);
   });
 
@@ -2163,13 +2163,13 @@ function renderHistory(){
   }
   const ICONS={
     out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
-    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
+    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
     swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
     bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
     stake:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
   };
-  const ICO_BG={out:'rgba(124,58,237,.1)',in:'rgba(16,185,129,.1)',swap:'rgba(124,58,237,.1)',bridge:'rgba(124,58,237,.1)',stake:'rgba(16,185,129,.1)'};
-  const ICO_BD={out:'rgba(124,58,237,.2)',in:'rgba(16,185,129,.2)',swap:'rgba(124,58,237,.2)',bridge:'rgba(124,58,237,.2)',stake:'rgba(16,185,129,.2)'};
+  const ICO_BG={out:'rgba(124,58,237,.1)',in:'rgba(124,58,237,.1)',swap:'rgba(124,58,237,.1)',bridge:'rgba(124,58,237,.1)',stake:'rgba(124,58,237,.1)'};
+  const ICO_BD={out:'rgba(124,58,237,.2)',in:'rgba(124,58,237,.2)',swap:'rgba(124,58,237,.2)',bridge:'rgba(124,58,237,.2)',stake:'rgba(124,58,237,.2)'};
 
   function dateGroup(ts){
     const d=new Date(ts),now=new Date();
@@ -2192,7 +2192,7 @@ function renderHistory(){
     if(isSim) return `<span style="font-size:.55rem;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 7px;">simulated</span>`;
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const st=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
-    const map={confirmed:['rgba(16,185,129,.1)','#10b981','rgba(16,185,129,.2)'],failed:['rgba(124,58,237,.1)','#a78bfa','rgba(124,58,237,.2)'],pending:['rgba(124,58,237,.08)','#8b5cf6','rgba(124,58,237,.15)']};
+    const map={confirmed:['rgba(124,58,237,.1)','#7c3aed','rgba(124,58,237,.2)'],failed:['rgba(124,58,237,.1)','#a78bfa','rgba(124,58,237,.2)'],pending:['rgba(124,58,237,.08)','#8b5cf6','rgba(124,58,237,.15)']};
     const [bg,col,bd]=map[st];
     return `<span style="font-size:.55rem;background:${bg};color:${col};border:1px solid ${bd};border-radius:100px;padding:2px 7px;font-weight:600;">${st}</span>`;
   }
@@ -2201,9 +2201,9 @@ function renderHistory(){
     const type=tx.type||'out';
     let label='',amt='',amtColor='#ffffff';
     if(type==='out'){label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#10b981';}
+    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#7c3aed';}
     else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#a78bfa';}
-    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#10b981';}
+    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#7c3aed';}
     else if(type==='bridge'){label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const href=isRealHash?`${ARC_EXP}/tx/${tx.hash}`:`${ARC_EXP}/address/${userAddr}`;
@@ -2614,10 +2614,10 @@ function downloadPayrollReceipt(){
     ctx.textAlign = 'left'; ctx.fillText(r.name||r.addr.slice(0,16)+'…', 28, y+4);
     ctx.fillStyle = '#a78bfa'; ctx.font = '10px monospace';
     ctx.fillText(r.addr.slice(0,18)+'…', 28, y+18);
-    ctx.fillStyle = r.status==='done'?'#10b981':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#7c3aed':'#f87171';
     ctx.font = 'bold 13px monospace'; ctx.textAlign = 'right';
     ctx.fillText(r.amount.toFixed(2)+' '+bulkToken, 572, y+4);
-    ctx.fillStyle = r.status==='done'?'#10b981':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#7c3aed':'#f87171';
     ctx.font = '10px monospace';
     ctx.fillText(r.status==='done'?'✓ Sent':'✗ Failed', 572, y+18);
   });
@@ -2722,7 +2722,7 @@ async function doBulkSend(){
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
   progressBar.style.width = '100%';
-  progressBar.style.background = done===total ? 'linear-gradient(90deg,#10b981,#10b981)' : 'linear-gradient(90deg,#f87171,#f87171)';
+  progressBar.style.background = done===total ? 'linear-gradient(90deg,#7c3aed,#7c3aed)' : 'linear-gradient(90deg,#f87171,#f87171)';
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
@@ -3865,7 +3865,7 @@ async function checkArcName(){
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,provider);
       const available=await nameContract.isAvailable(val);
       if(available){
-        res.style.background='rgba(16,185,129,.07)';res.style.border='1px solid rgba(16,185,129,.22)';res.style.color='var(--success)';
+        res.style.background='rgba(124,58,237,.07)';res.style.border='1px solid rgba(124,58,237,.22)';res.style.color='var(--success)';
         res.textContent='✓ '+val+'.arc is available!';
       }else{
         const owner=await nameContract.resolve(val);
@@ -3875,8 +3875,8 @@ async function checkArcName(){
     } else {
       // Fallback local check
       const taken=arcNames.find(n=>n.name===val);
-      res.style.background=taken?'rgba(248,113,113,.07)':'rgba(16,185,129,.07)';
-      res.style.border=taken?'1px solid rgba(248,113,113,.22)':'1px solid rgba(16,185,129,.22)';
+      res.style.background=taken?'rgba(248,113,113,.07)':'rgba(124,58,237,.07)';
+      res.style.border=taken?'1px solid rgba(248,113,113,.22)':'1px solid rgba(124,58,237,.22)';
       res.style.color=taken?'var(--danger)':'var(--success)';
       res.textContent=taken?'✗ '+val+'.arc is taken':'✓ '+val+'.arc is available!';
     }
@@ -3976,7 +3976,7 @@ function renderMyArcNames(){
         <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
         <div style="font-size:.65rem;color:var(--text3);">Expires ${n.expires}</div>
       </div>
-      <span style="font-size:.65rem;padding:3px 8px;border-radius:4px;background:rgba(16,185,129,.08);color:var(--success);border:1px solid rgba(16,185,129,.2);">Active</span>
+      <span style="font-size:.65rem;padding:3px 8px;border-radius:4px;background:rgba(124,58,237,.08);color:var(--success);border:1px solid rgba(124,58,237,.2);">Active</span>
     </div>
   `).join('');
 }
@@ -4652,7 +4652,7 @@ async function loadAdminStats(){
         const recEl=document.getElementById('statRecentWallets');
         const wallets=d.recentWallets||[];
         recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7c3aed;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
         document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
         loading.style.display='none';
         statsEl.style.display='block';
@@ -4764,7 +4764,7 @@ async function loadAdminStats(){
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7c3aed;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
 
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
@@ -4795,7 +4795,7 @@ async function loadAdminPoolStats(){
       if(u<10||e<10){
         statusEl.innerHTML='<span style="color:#f87171;">⚠️ Swap pool low — MetaMask swaps may fail. Tap Seed Pool.</span>';
       } else {
-        statusEl.innerHTML='<span style="color:#10b981;">✓ Swap pool healthy.</span>';
+        statusEl.innerHTML='<span style="color:#7c3aed;">✓ Swap pool healthy.</span>';
       }
     }
 
@@ -4811,12 +4811,12 @@ async function loadAdminPoolStats(){
     const lendEl=document.getElementById('adminLendStats');
     if(lendEl){
       const util=ts>0?((tb/ts)*100).toFixed(1):0;
-      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#10b981';
+      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#7c3aed';
       lendEl.innerHTML=`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
-          <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:10px;padding:10px;">
+          <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL SUPPLIED</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#10b981;">${ts.toFixed(2)}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#7c3aed;">${ts.toFixed(2)}</div>
           </div>
           <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL BORROWED</div>
