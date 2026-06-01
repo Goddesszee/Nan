@@ -861,7 +861,7 @@ a:hover{color:var(--text);}
   .home-bal-num { font-size: 2rem !important; }
   .home-actions-top { grid-template-columns: repeat(3,1fr) !important; gap: 5px !important; }
   .home-action-label { font-size: .6rem !important; }
-  .nav-btn span { font-size: .58rem !important; }
+  .nav-btn span { font-size: 1rem !important; font-weight: 700 !important; }
   .bottom-nav { height: 64px !important; }
   .page { bottom: 64px !important; }
   #aiBtn { bottom: 76px !important; }
@@ -1211,7 +1211,7 @@ a:hover{color:var(--text);}
 @media(max-width:360px){
   .home-bal-num{font-size:2rem !important;}
   .home-action-label{font-size:.95rem !important;}
-  .nav-btn span{font-size:.95rem !important;}
+  .nav-btn span{font-size:1rem !important;font-weight:700 !important;}
   .brand-name{font-size:1rem !important;}
   .home-actions-top{grid-template-columns:repeat(3,1fr) !important;gap:5px !important;}
 }
@@ -1864,3 +1864,4 @@ a:hover{color:var(--text);}
   opacity: 1 !important;
   visibility: visible !important;
 }
+
