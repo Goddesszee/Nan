@@ -9,19 +9,19 @@
   --topbar-bg:#111111;--nav-bg:#111111;
 }
 [data-theme="light"]{
-  --bg:#ffffff;
-  --surface:#f5f5f5;
-  --card:#f5f5f5;
-  --card2:#eeeeee;
-  --border:#e8e8e8;
-  --border2:#d0d0d0;
+  --bg:#fafafa;
+  --surface:#f4f4f4;
+  --card:#f4f4f4;
+  --card2:#ebebeb;
+  --border:#e4e4e4;
+  --border2:#cccccc;
   --accent:#7000ff;
   --accent2:#8b00ff;
   --accent3:#7000ff;
   --accent4:#9333ea;
-  --text:#111111;
-  --text2:#444444;
-  --text3:#888888;
+  --text:#1a1a1a;
+  --text2:#555555;
+  --text3:#999999;
   --danger:#ef4444;
   --success:#7000ff;
   --gold:#d97706;
@@ -578,7 +578,7 @@ a:hover{color:var(--text);}
   .stab{font-size:1rem!important;padding:7px 4px!important;}
 }
 
-[data-theme="light"] body{background:#ffffff;}
+[data-theme="light"] body{background:#fafafa;}
 [data-theme="light"] .bal-card{background:#7000ff;}
 [data-theme="light"] .home-bal-card{background:#7000ff;}
 [data-theme="light"] .brand-name{color:#111111;font-weight:700;}
@@ -1490,11 +1490,11 @@ a:hover{color:var(--text);}
 [data-theme="light"] *[style*="color:rgba(255,255,255,.95)"],
 [data-theme="light"] *[style*="color:#ffffff"],
 [data-theme="light"] *[style*="color:#fff"]{
-  color:#111111 !important;
+  color:#1a1a1a !important;
 }
 [data-theme="light"] *[style*="color:#f0f0f0"],
 [data-theme="light"] *[style*="color:#f0f0ff"]{
-  color:#111111 !important;
+  color:#1a1a1a !important;
 }
 [data-theme="light"] *[style*="color:#a0a0a0"],
 [data-theme="light"] *[style*="color:#888899"],
@@ -1515,8 +1515,11 @@ a:hover{color:var(--text);}
 [data-theme="light"] *[style*="background:#111111"],
 [data-theme="light"] *[style*="background:#0f0f0f"],
 [data-theme="light"] *[style*="background:#141414"],
-[data-theme="light"] *[style*="background:#222222"]{
-  background:#f5f5f5 !important;
+[data-theme="light"] *[style*="background:#222222"],
+[data-theme="light"] *[style*="background:#131313"],
+[data-theme="light"] *[style*="background:#1e1e1e"]{
+  background:#f4f4f4 !important;
+  color:#1a1a1a !important;
 }
 
 /* Input fields */
@@ -1524,7 +1527,7 @@ a:hover{color:var(--text);}
 [data-theme="light"] select,
 [data-theme="light"] textarea{
   background:#ffffff !important;
-  color:#111111 !important;
+  color:#1a1a1a !important;
   border-color:#e8e8e8 !important;
 }
 [data-theme="light"] input::placeholder,
@@ -1551,9 +1554,9 @@ a:hover{color:var(--text);}
 [data-theme="light"] *[style*="background:rgba(255,255,255,.05)"],
 [data-theme="light"] *[style*="background:rgba(255,255,255,.04)"],
 [data-theme="light"] *[style*="background:rgba(255,255,255,.03)"]{
-  background:#eeeeee !important;
+  background:#efefef !important;
   border-color:#e0e0e0 !important;
-  color:#444444 !important;
+  color:#555555 !important;
 }
 
 /* Arc testnet badge in light mode */
@@ -1569,11 +1572,11 @@ a:hover{color:var(--text);}
 [data-theme="light"] #globalTopBar,
 [data-theme="light"] .topbar{
   background:#ffffff !important;
-  border-bottom:1px solid #e8e8e8 !important;
+  border-bottom:1px solid #e4e4e4 !important;
 }
 [data-theme="light"] .brand-name,
 [data-theme="light"] *[style*="font-weight:800;color:#ffffff"]{
-  color:#111111 !important;
+  color:#1a1a1a !important;
 }
 
 /* Nav */
@@ -1589,7 +1592,7 @@ a:hover{color:var(--text);}
 /* Earn APY big number */
 [data-theme="light"] *[style*="font-size:2.8rem"],
 [data-theme="light"] *[style*="font-size:1.6rem;font-weight:800"]{
-  color:#111111 !important;
+  color:#1a1a1a !important;
 }
 
 /* More page profile card */
@@ -1608,14 +1611,14 @@ a:hover{color:var(--text);}
   color:#ffffff !important;
 }
 [data-theme="light"] .btn-outline{
-  color:#111111 !important;
+  color:#1a1a1a !important;
   border-color:#e8e8e8 !important;
   background:transparent !important;
 }
 
 /* Page titles */
 [data-theme="light"] *[style*="color:var(--text)"]{
-  color:#111111 !important;
+  color:#1a1a1a !important;
 }
 [data-theme="light"] *[style*="color:var(--text3)"]{
   color:#888888 !important;
