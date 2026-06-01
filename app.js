@@ -585,7 +585,7 @@ function updateTopBar(connected){
         const orig=btn.textContent;
         btn.textContent='✓ Copied!';
         btn.style.color='var(--success)';
-        btn.style.borderColor='rgba(124,58,237,.4)';
+        btn.style.borderColor='rgba(112,0,255,.4)';
         setTimeout(()=>{btn.textContent=orig;btn.style.color='';btn.style.borderColor='';},1800);
       });
     };
@@ -729,8 +729,8 @@ async function sendEmailOTP(){
       else{toast('✓ Code sent to '+email,'success',6000);}
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
-      document.getElementById('stepDot1').style.width='8px';document.getElementById('stepDot1').style.background='rgba(139,92,246,.4)';
-      document.getElementById('stepDot2').style.width='20px';document.getElementById('stepDot2').style.background='#8b5cf6';
+      document.getElementById('stepDot1').style.width='8px';document.getElementById('stepDot1').style.background='rgba(168,85,247,.4)';
+      document.getElementById('stepDot2').style.width='20px';document.getElementById('stepDot2').style.background='#a855f7';
       document.getElementById('stepLabel').textContent='Step 2 of 2 — Enter your code';
       window._otpToken=data.token||null;
       window._otpExpiry=data.expiresAt||Date.now()+600000;
@@ -845,8 +845,8 @@ function stopListening(){
   const btn=document.getElementById('voiceBtn');
   if(btn){
     btn.innerHTML='🎤';
-    btn.style.background='rgba(139,92,246,.1)';
-    btn.style.borderColor='rgba(139,92,246,.3)';
+    btn.style.background='rgba(168,85,247,.1)';
+    btn.style.borderColor='rgba(168,85,247,.3)';
     btn.style.color='var(--accent3)';
   }
   const status=document.getElementById('voiceStatus');
@@ -1158,8 +1158,8 @@ function setSendTokenDirect(tok,el){
   sendToken=tok;
   const uBtn=document.getElementById('topt-usdc');
   const eBtn=document.getElementById('topt-eurc');
-  if(uBtn){uBtn.style.borderColor=tok==='USDC'?'rgba(124,58,237,.5)':'var(--border)';uBtn.style.background=tok==='USDC'?'rgba(124,58,237,.08)':'none';uBtn.style.color=tok==='USDC'?'var(--text)':'var(--text3)';}
-  if(eBtn){eBtn.style.borderColor=tok==='EURC'?'rgba(124,58,237,.5)':'var(--border)';eBtn.style.background=tok==='EURC'?'rgba(124,58,237,.08)':'none';eBtn.style.color=tok==='EURC'?'var(--text)':'var(--text3)';}
+  if(uBtn){uBtn.style.borderColor=tok==='USDC'?'rgba(112,0,255,.5)':'var(--border)';uBtn.style.background=tok==='USDC'?'rgba(112,0,255,.08)':'none';uBtn.style.color=tok==='USDC'?'var(--text)':'var(--text3)';}
+  if(eBtn){eBtn.style.borderColor=tok==='EURC'?'rgba(112,0,255,.5)':'var(--border)';eBtn.style.background=tok==='EURC'?'rgba(112,0,255,.08)':'none';eBtn.style.color=tok==='EURC'?'var(--text)':'var(--text3)';}
   const lbl=document.getElementById('sendTokenLabel');if(lbl)lbl.textContent=tok;
   const bal=tok==='USDC'?parseFloat(usdcBal):parseFloat(eurcBal);
   const av=document.getElementById('sendAvailable');if(av)av.textContent='Available: '+(bal||0).toFixed(2)+' '+tok;
@@ -1323,76 +1323,76 @@ function showReceipt(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
   modal.innerHTML=`
     <div style="max-width:360px;width:100%;position:relative;">
-      <div id="receiptCard" style="background:linear-gradient(135deg,#000000 0%,#000000 50%,#000000 100%);border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(139,92,246,.3);">
+      <div id="receiptCard" style="background:linear-gradient(135deg,#111111 0%,#111111 50%,#111111 100%);border:1px solid rgba(168,85,247,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(168,85,247,.3);">
         <!-- Background glow -->
-        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(139,92,246,.25) 0%,transparent 70%);pointer-events:none;"></div>
-        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(109,40,217,.2) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(168,85,247,.25) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(85,0,204,.2) 0%,transparent 70%);pointer-events:none;"></div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:30px;height:30px;background:#8b5cf6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#ede9fe;box-shadow:0 0 12px rgba(139,92,246,.5);">N</div>
+            <div style="width:30px;height:30px;background:#a855f7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#f3e8ff;box-shadow:0 0 12px rgba(168,85,247,.5);">N</div>
             <div>
-              <div style="font-size:.75rem;font-weight:700;color:#ede9fe;letter-spacing:.08em;">NAN WALLET</div>
-              <div style="font-size:.65rem;color:#a78bfa;letter-spacing:.12em;">ARC TESTNET</div>
+              <div style="font-size:.75rem;font-weight:700;color:#f3e8ff;letter-spacing:.08em;">NAN WALLET</div>
+              <div style="font-size:.65rem;color:#c084fc;letter-spacing:.12em;">ARC TESTNET</div>
             </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;">RECEIPT</div>
-            <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;">${now}</div>
+            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">RECEIPT</div>
+            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">${now}</div>
           </div>
         </div>
 
         <!-- Success check -->
         <div style="text-align:center;margin-bottom:20px;">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(124,58,237,.1));border:2px solid rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(124,58,237,.2);">✓</div>
-          <div style="font-size:1.3rem;font-weight:700;color:#ede9fe;margin-bottom:4px;">Transaction Confirmed</div>
-          <div style="font-size:.75rem;color:#a78bfa;">${msg}</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(112,0,255,.2),rgba(112,0,255,.1));border:2px solid rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(112,0,255,.2);">✓</div>
+          <div style="font-size:1.3rem;font-weight:700;color:#f3e8ff;margin-bottom:4px;">Transaction Confirmed</div>
+          <div style="font-size:.75rem;color:#c084fc;">${msg}</div>
         </div>
 
         <!-- Divider -->
-        <div style="border-top:1px dashed rgba(139,92,246,.25);margin:16px 0;"></div>
+        <div style="border-top:1px dashed rgba(168,85,247,.25);margin:16px 0;"></div>
 
         <!-- Details -->
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
-            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#a78bfa;border-radius:50%;display:inline-block;box-shadow:0 0 4px #a78bfa;"></span>Arc Testnet</span>
+            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
+            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#c084fc;border-radius:50%;display:inline-block;box-shadow:0 0 4px #c084fc;"></span>Arc Testnet</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
-            <span style="font-size:.72rem;color:#7c3aed;font-family:monospace;">● Confirmed</span>
+            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
+            <span style="font-size:.72rem;color:#7000ff;font-family:monospace;">● Confirmed</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
-            <span style="font-size:.72rem;color:#ede9fe;font-family:monospace;">~0.009 USDC</span>
+            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
+            <span style="font-size:.72rem;color:#f3e8ff;font-family:monospace;">~0.009 USDC</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#a78bfa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#8b5cf6;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
+            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
+            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
           </div>
         </div>
 
         <!-- Divider -->
-        <div style="border-top:1px dashed rgba(139,92,246,.25);margin:16px 0;"></div>
+        <div style="border-top:1px dashed rgba(168,85,247,.25);margin:16px 0;"></div>
 
         <!-- Powered by -->
         <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:.65rem;color:#a78bfa;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
+          <div style="font-size:.65rem;color:#c084fc;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
-            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Circle USDC</span>
-            <span style="color:#a78bfa;">·</span>
-            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">Arc Network</span>
-            <span style="color:#a78bfa;">·</span>
-            <span style="font-size:.72rem;color:#a78bfa;font-weight:600;">NAN Wallet</span>
+            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Circle USDC</span>
+            <span style="color:#c084fc;">·</span>
+            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Arc Network</span>
+            <span style="color:#c084fc;">·</span>
+            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">NAN Wallet</span>
           </div>
         </div>
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(109,40,217,.2));border:1px solid rgba(139,92,246,.35);border-radius:10px;color:#a78bfa;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(85,0,204,.2));border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#c084fc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
           <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #1a1a1a;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#a855f7,#7000ff);border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -1422,56 +1422,56 @@ function downloadReceipt(){
 
   // Background gradient
   const bg=ctx.createLinearGradient(0,0,600,400);
-  bg.addColorStop(0,'#000000');bg.addColorStop(0.5,'#000000');bg.addColorStop(1,'#000000');
+  bg.addColorStop(0,'#111111');bg.addColorStop(0.5,'#111111');bg.addColorStop(1,'#111111');
   ctx.fillStyle=bg;ctx.fillRect(0,0,600,400);
 
   // Purple glow
   const glow=ctx.createRadialGradient(550,50,0,550,50,200);
-  glow.addColorStop(0,'rgba(139,92,246,0.3)');glow.addColorStop(1,'rgba(139,92,246,0)');
+  glow.addColorStop(0,'rgba(168,85,247,0.3)');glow.addColorStop(1,'rgba(168,85,247,0)');
   ctx.fillStyle=glow;ctx.fillRect(0,0,600,400);
 
   // Border
-  ctx.strokeStyle='rgba(139,92,246,0.5)';ctx.lineWidth=1.5;
+  ctx.strokeStyle='rgba(168,85,247,0.5)';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.roundRect(10,10,580,380,16);ctx.stroke();
 
   // NAN logo - rounded square like the brand
-  ctx.fillStyle='#8b5cf6';
+  ctx.fillStyle='#a855f7';
   roundRect(ctx,28,28,44,44,10);ctx.fill();
   // NAN network icon - 3 dots + lines
-  ctx.fillStyle='#ede9fe';
+  ctx.fillStyle='#f3e8ff';
   ctx.beginPath();ctx.arc(42,50,3.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(58,42,3.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(58,58,3.5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#ede9fe';ctx.lineWidth=1.5;ctx.lineCap='round';
+  ctx.strokeStyle='#f3e8ff';ctx.lineWidth=1.5;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,43.5);ctx.stroke();
   ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,56.5);ctx.stroke();
 
   // NAN title
-  ctx.fillStyle='#ede9fe';ctx.font='bold 20px Inter, sans-serif';
+  ctx.fillStyle='#f3e8ff';ctx.font='bold 20px Inter, sans-serif';
   ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
-  ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
+  ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
   ctx.fillText('ARC TESTNET',82,63);
 
   // Date
-  ctx.fillStyle='#a78bfa';ctx.font='10px JetBrains Mono, monospace';
+  ctx.fillStyle='#c084fc';ctx.font='10px JetBrains Mono, monospace';
   ctx.textAlign='right';ctx.fillText(now,580,45);
 
   // Check circle
-  ctx.fillStyle='rgba(124,58,237,0.15)';
+  ctx.fillStyle='rgba(112,0,255,0.15)';
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(124,58,237,0.4)';ctx.lineWidth=2;
+  ctx.strokeStyle='rgba(112,0,255,0.4)';ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#7c3aed';ctx.font='36px sans-serif';
+  ctx.fillStyle='#7000ff';ctx.font='36px sans-serif';
   ctx.textAlign='center';ctx.fillText('✓',300,168);
 
   // Transaction confirmed
-  ctx.fillStyle='#ede9fe';ctx.font='bold 22px Inter, sans-serif';
+  ctx.fillStyle='#f3e8ff';ctx.font='bold 22px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
-  ctx.fillStyle='#a78bfa';ctx.font='14px Inter, sans-serif';
+  ctx.fillStyle='#c084fc';ctx.font='14px Inter, sans-serif';
   ctx.fillText(msg,300,250);
 
   // Divider
-  ctx.strokeStyle='rgba(139,92,246,0.2)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(168,85,247,0.2)';ctx.lineWidth=1;
   ctx.setLineDash([5,5]);
   ctx.beginPath();ctx.moveTo(40,268);ctx.lineTo(560,268);ctx.stroke();
   ctx.setLineDash([]);
@@ -1485,15 +1485,15 @@ function downloadReceipt(){
   ];
   details.forEach(([label,value],i)=>{
     const y=290+i*22;
-    ctx.fillStyle='#a78bfa';ctx.font='11px JetBrains Mono, monospace';
+    ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
     ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
-    ctx.fillStyle=label==='Status'?'#7c3aed':'#ede9fe';
+    ctx.fillStyle=label==='Status'?'#7000ff':'#f3e8ff';
     ctx.textAlign='right';ctx.fillText(value,560,y);
   });
 
   // Footer
-  ctx.fillStyle='rgba(139,92,246,0.15)';ctx.fillRect(0,360,600,40);
-  ctx.fillStyle='#a78bfa';ctx.font='11px Inter, sans-serif';
+  ctx.fillStyle='rgba(168,85,247,0.15)';ctx.fillRect(0,360,600,40);
+  ctx.fillStyle='#c084fc';ctx.font='11px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
 
   // Download
@@ -1576,8 +1576,8 @@ function flipSwap(){
   // Update dot colors
   const fromDot=document.querySelector('#fromToken span:first-child');
   const toDot=document.querySelector('#toToken span:first-child');
-  if(fromDot) fromDot.style.background=swapFlipped?'#7c3aed':'#7c3aed';
-  if(toDot) toDot.style.background=swapFlipped?'#7c3aed':'#7c3aed';
+  if(fromDot) fromDot.style.background=swapFlipped?'#7000ff':'#7000ff';
+  if(toDot) toDot.style.background=swapFlipped?'#7000ff':'#7000ff';
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
@@ -1710,7 +1710,7 @@ function toggleBridgeAddr(){
   document.getElementById('bridgeAddrWrap').style.display=on?'block':'none';
   const track=document.getElementById('bridgeAddrTrack');
   const knob=document.getElementById('bridgeAddrKnob');
-  if(track) track.style.background=on?'rgba(124,58,237,.5)':'var(--surface)';
+  if(track) track.style.background=on?'rgba(112,0,255,.5)':'var(--surface)';
   if(track) track.style.borderColor=on?'var(--accent3)':'var(--border)';
   if(knob) knob.style.left=on?'21px':'3px';
   updateBridgeSummary();
@@ -1772,7 +1772,7 @@ function openChainPicker(){
 
   const dropdown = document.createElement('div');
   dropdown.id = 'chainPickerDropdown';
-  dropdown.style.cssText = 'position:absolute;z-index:9999;background:#141414;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);';
+  dropdown.style.cssText = 'position:absolute;z-index:9999;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);';
 
   const rect = btn.getBoundingClientRect();
   dropdown.style.top = (rect.bottom + window.scrollY + 6) + 'px';
@@ -1783,7 +1783,7 @@ function openChainPicker(){
     item.type = 'button';
     item.style.cssText = 'width:100%;background:none;border:none;color:#fff;padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.88rem;font-family:Inter,sans-serif;text-align:left;';
     item.innerHTML = '<span style="width:20px;text-align:center;">' + chain.icon + '</span><span>' + chain.label + '</span>';
-    item.onmouseenter = () => item.style.background = 'rgba(139,92,246,.15)';
+    item.onmouseenter = () => item.style.background = 'rgba(168,85,247,.15)';
     item.onmouseleave = () => item.style.background = 'none';
     item.onclick = () => {
       document.getElementById('bridgeDestChain').value = chain.value;
@@ -1961,13 +1961,13 @@ async function pollIrisAttestation(txHash, destChain) {
           const destName = destConfig?.chainName || destChain;
           const transmitterAddr = destConfig?.transmitter || '—';
           mintEl.innerHTML = `
-            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #141414;border-radius:12px;padding:14px;">
+            <div style="margin-top:10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:12px;padding:14px;">
               <div style="font-weight:700;color:#fff;margin-bottom:8px;">✅ Burn complete — mint on ${destName}</div>
               <div style="font-size:.72rem;color:#888;line-height:1.7;margin-bottom:10px;">
                 Your USDC is burned on Arc. To receive it on <strong style="color:#ccc;">${destName}</strong>, complete the mint using the attestation below.
               </div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:6px;">MessageTransmitter on ${destName}:</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#8b5cf6;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#a855f7;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Message bytes:</div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:6px;word-break:break-all;">${message}</div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Attestation:</div>
@@ -1975,7 +1975,7 @@ async function pollIrisAttestation(txHash, destChain) {
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
                 <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
-                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7c3aed;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
+                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7000ff;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
               </div>
             </div>`;
         }
@@ -2162,14 +2162,14 @@ function renderHistory(){
     return;
   }
   const ICONS={
-    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
-    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
-    swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
-    bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
+    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
+    swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+    bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
     stake:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
   };
-  const ICO_BG={out:'rgba(124,58,237,.1)',in:'rgba(124,58,237,.1)',swap:'rgba(124,58,237,.1)',bridge:'rgba(124,58,237,.1)',stake:'rgba(124,58,237,.1)'};
-  const ICO_BD={out:'rgba(124,58,237,.2)',in:'rgba(124,58,237,.2)',swap:'rgba(124,58,237,.2)',bridge:'rgba(124,58,237,.2)',stake:'rgba(124,58,237,.2)'};
+  const ICO_BG={out:'rgba(112,0,255,.1)',in:'rgba(112,0,255,.1)',swap:'rgba(112,0,255,.1)',bridge:'rgba(112,0,255,.1)',stake:'rgba(112,0,255,.1)'};
+  const ICO_BD={out:'rgba(112,0,255,.2)',in:'rgba(112,0,255,.2)',swap:'rgba(112,0,255,.2)',bridge:'rgba(112,0,255,.2)',stake:'rgba(112,0,255,.2)'};
 
   function dateGroup(ts){
     const d=new Date(ts),now=new Date();
@@ -2192,7 +2192,7 @@ function renderHistory(){
     if(isSim) return `<span style="font-size:.55rem;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 7px;">simulated</span>`;
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const st=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
-    const map={confirmed:['rgba(124,58,237,.1)','#7c3aed','rgba(124,58,237,.2)'],failed:['rgba(124,58,237,.1)','#a78bfa','rgba(124,58,237,.2)'],pending:['rgba(124,58,237,.08)','#8b5cf6','rgba(124,58,237,.15)']};
+    const map={confirmed:['rgba(112,0,255,.1)','#7000ff','rgba(112,0,255,.2)'],failed:['rgba(112,0,255,.1)','#c084fc','rgba(112,0,255,.2)'],pending:['rgba(112,0,255,.08)','#a855f7','rgba(112,0,255,.15)']};
     const [bg,col,bd]=map[st];
     return `<span style="font-size:.55rem;background:${bg};color:${col};border:1px solid ${bd};border-radius:100px;padding:2px 7px;font-weight:600;">${st}</span>`;
   }
@@ -2201,9 +2201,9 @@ function renderHistory(){
     const type=tx.type||'out';
     let label='',amt='',amtColor='#ffffff';
     if(type==='out'){label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#7c3aed';}
-    else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#a78bfa';}
-    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#7c3aed';}
+    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#7000ff';}
+    else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#c084fc';}
+    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#7000ff';}
     else if(type==='bridge'){label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const href=isRealHash?`${ARC_EXP}/tx/${tx.hash}`:`${ARC_EXP}/address/${userAddr}`;
@@ -2211,7 +2211,7 @@ function renderHistory(){
       ?`<a href="${href}" target="_blank" onclick="verifyTx('${tx.hash}',event)" style="font-size:.58rem;color:var(--accent3);text-decoration:none;">View ↗</a>`
       :`<a href="${href}" target="_blank" style="font-size:.58rem;color:var(--accent3);text-decoration:none;">Wallet ↗</a>`):'';
     const ico=ICONS[type]||ICONS.out;
-    return `<div style="display:flex;align-items:center;gap:12px;background:var(--card);border-bottom:1px solid var(--border);padding:13px 14px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(124,58,237,.04)'" onmouseout="this.style.background='var(--card)'">
+    return `<div style="display:flex;align-items:center;gap:12px;background:var(--card);border-bottom:1px solid var(--border);padding:13px 14px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.04)'" onmouseout="this.style.background='var(--card)'">
       <div style="width:38px;height:38px;border-radius:12px;background:${ICO_BG[type]||ICO_BG.out};border:1px solid ${ICO_BD[type]||ICO_BD.out};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ico}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
@@ -2276,7 +2276,7 @@ function renderQR(a){
   const b=document.getElementById('qrBox');b.innerHTML='';
   if(!a)return;
   const isDark=document.documentElement.getAttribute('data-theme')!=='light';
-  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#000000':'#000000',colorLight:'#ffffff'});}
+  try{new QRCode(b,{text:a,width:100,height:100,colorDark:isDark?'#111111':'#111111',colorLight:'#ffffff'});}
   catch{b.innerHTML='<p style="padding:10px;font-size:.7rem;color:#888">QR unavailable</p>';}
 }
 function copyAddr(){
@@ -2312,12 +2312,12 @@ let bulkDefaultAmt = 10;
 
 function setBulkToken(token){
   bulkToken = token;
-  document.getElementById('bulk-usdc').style.background = token==='USDC'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--surface)';
+  document.getElementById('bulk-usdc').style.background = token==='USDC'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--surface)';
   document.getElementById('bulk-usdc').style.border = token==='USDC'?'none':'1px solid var(--border)';
-  document.getElementById('bulk-usdc').style.color = token==='USDC'?'#ede9fe':'var(--text3)';
-  document.getElementById('bulk-eurc').style.background = token==='EURC'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--surface)';
+  document.getElementById('bulk-usdc').style.color = token==='USDC'?'#f3e8ff':'var(--text3)';
+  document.getElementById('bulk-eurc').style.background = token==='EURC'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--surface)';
   document.getElementById('bulk-eurc').style.border = token==='EURC'?'none':'1px solid var(--border)';
-  document.getElementById('bulk-eurc').style.color = token==='EURC'?'#ede9fe':'var(--text3)';
+  document.getElementById('bulk-eurc').style.color = token==='EURC'?'#f3e8ff':'var(--text3)';
   updateBulkSummary();
 }
 
@@ -2402,7 +2402,7 @@ function renderBulkRecipients(){
   }
   el.innerHTML = bulkRecipients.map((r,i) => `
     <div style="display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--surface);border:1px solid var(--border);border-radius:11px;">
-      <div style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--accent3);flex-shrink:0;">${i+1}</div>
+      <div style="width:22px;height:22px;border-radius:50%;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--accent3);flex-shrink:0;">${i+1}</div>
       <div style="flex:1;min-width:0;">
         ${r.name ? `<div style="font-size:.78rem;font-weight:600;color:var(--accent3);">${r.name}</div>` : ''}
         <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.addr.slice(0,10)}…${r.addr.slice(-6)}</div>
@@ -2586,46 +2586,46 @@ function downloadPayrollReceipt(){
 
   // Background
   const bg = ctx.createLinearGradient(0,0,600,canvas.height);
-  bg.addColorStop(0,'#000000'); bg.addColorStop(1,'#000000');
+  bg.addColorStop(0,'#111111'); bg.addColorStop(1,'#111111');
   ctx.fillStyle = bg; ctx.fillRect(0,0,600,canvas.height);
-  ctx.strokeStyle = 'rgba(139,92,246,0.5)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(168,85,247,0.5)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.roundRect(10,10,580,canvas.height-20,16); ctx.stroke();
 
   // Header
-  ctx.fillStyle = '#ede9fe'; ctx.font = 'bold 20px sans-serif';
+  ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 20px sans-serif';
   ctx.textAlign = 'left'; ctx.fillText('NAN Payroll Receipt', 28, 48);
-  ctx.fillStyle = '#a78bfa'; ctx.font = '12px monospace';
+  ctx.fillStyle = '#c084fc'; ctx.font = '12px monospace';
   ctx.fillText(now, 28, 68);
-  ctx.fillStyle = '#a78bfa'; ctx.font = '11px monospace';
+  ctx.fillStyle = '#c084fc'; ctx.font = '11px monospace';
   ctx.textAlign = 'right';
   ctx.fillText(lastPayrollTxs.length+' recipients · '+total.toFixed(2)+' '+bulkToken+' total', 572, 68);
 
   // Divider
-  ctx.strokeStyle = 'rgba(139,92,246,0.2)'; ctx.setLineDash([4,4]);
+  ctx.strokeStyle = 'rgba(168,85,247,0.2)'; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.moveTo(28,82); ctx.lineTo(572,82); ctx.stroke();
   ctx.setLineDash([]);
 
   // Rows
   lastPayrollTxs.forEach((r,i)=>{
     const y = 110 + i*44;
-    ctx.fillStyle = i%2===0?'rgba(139,92,246,0.04)':'transparent';
+    ctx.fillStyle = i%2===0?'rgba(168,85,247,0.04)':'transparent';
     ctx.fillRect(18, y-16, 564, 40);
-    ctx.fillStyle = '#ede9fe'; ctx.font = 'bold 13px sans-serif';
+    ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'left'; ctx.fillText(r.name||r.addr.slice(0,16)+'…', 28, y+4);
-    ctx.fillStyle = '#a78bfa'; ctx.font = '10px monospace';
+    ctx.fillStyle = '#c084fc'; ctx.font = '10px monospace';
     ctx.fillText(r.addr.slice(0,18)+'…', 28, y+18);
-    ctx.fillStyle = r.status==='done'?'#7c3aed':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#7000ff':'#f87171';
     ctx.font = 'bold 13px monospace'; ctx.textAlign = 'right';
     ctx.fillText(r.amount.toFixed(2)+' '+bulkToken, 572, y+4);
-    ctx.fillStyle = r.status==='done'?'#7c3aed':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#7000ff':'#f87171';
     ctx.font = '10px monospace';
     ctx.fillText(r.status==='done'?'✓ Sent':'✗ Failed', 572, y+18);
   });
 
   // Footer
   const fy = canvas.height - 30;
-  ctx.fillStyle = 'rgba(139,92,246,0.15)'; ctx.fillRect(0,fy-14,600,44);
-  ctx.fillStyle = '#a78bfa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(168,85,247,0.15)'; ctx.fillRect(0,fy-14,600,44);
+  ctx.fillStyle = '#c084fc'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
   ctx.fillText('NAN Wallet · Powered by Circle USDC · Arc Testnet', 300, fy+8);
 
   const link = document.createElement('a');
@@ -2722,7 +2722,7 @@ async function doBulkSend(){
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
   progressBar.style.width = '100%';
-  progressBar.style.background = done===total ? 'linear-gradient(90deg,#7c3aed,#7c3aed)' : 'linear-gradient(90deg,#f87171,#f87171)';
+  progressBar.style.background = done===total ? 'linear-gradient(90deg,#7000ff,#7000ff)' : 'linear-gradient(90deg,#f87171,#f87171)';
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
@@ -3169,8 +3169,8 @@ function renderAgentMsgs(){
   if(!el)return;
   el.innerHTML=agentMsgs.map(m=>`
     <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#8b5cf6,#7c3aed)':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
-      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;color:#ede9fe;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
+      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
+      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#7000ff);border:none;color:#f3e8ff;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
     </div>
   `).join('');
 }
@@ -3188,7 +3188,7 @@ function renderAgentChips(){
   chips.push("My pending orders");
   if(nanOrders.length>0) chips.push("Cancel all orders");
   chips.push("How does earn work?");
-  document.getElementById('agentChips').innerHTML=chips.slice(0,6).map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">${c}</button>`).join('');
+  document.getElementById('agentChips').innerHTML=chips.slice(0,6).map(c=>`<button onclick="sendAgentMsg('${c}')" style="font-size:.72rem;color:var(--accent3);background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">${c}</button>`).join('');
 }
 function scrollAgentBottom(){const el=document.getElementById('agentMessages');setTimeout(()=>{el.scrollTop=el.scrollHeight;},50);}
 
@@ -3450,7 +3450,7 @@ async function refreshGatewayBalance(){
         const entries=Object.entries(data.balances||{}).filter(([_,v])=>parseFloat(v)>0);
         chains.innerHTML=entries.length===0
           ?'<div style="font-size:.72rem;color:var(--text3);text-align:center;">No Gateway balance yet — bridge USDC to create one</div>'
-          :entries.map(([chain,amount])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(139,92,246,.06);border-radius:6px;"><span style="font-size:.72rem;color:var(--text2);">${chain.replace(/_/g,' ')}</span><span style="font-size:.72rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span></div>`).join('');
+          :entries.map(([chain,amount])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(168,85,247,.06);border-radius:6px;"><span style="font-size:.72rem;color:var(--text2);">${chain.replace(/_/g,' ')}</span><span style="font-size:.72rem;font-weight:600;color:var(--accent3);">${parseFloat(amount).toFixed(2)} USDC</span></div>`).join('');
       }
     }else{
       if(display) display.textContent='—';
@@ -3858,14 +3858,14 @@ async function checkArcName(){
   const res=document.getElementById('arcNameResult');
   if(!val){res.style.display='none';return;}
   res.style.display='block';
-  res.style.background='rgba(139,92,246,.06)';res.style.border='1px solid rgba(139,92,246,.2)';res.style.color='var(--text2)';
+  res.style.background='rgba(168,85,247,.06)';res.style.border='1px solid rgba(168,85,247,.2)';res.style.color='var(--text2)';
   res.textContent='Checking...';
   try{
     if(provider){
       const nameContract=new ethers.Contract(NAME_REGISTRY,NAME_ABI,provider);
       const available=await nameContract.isAvailable(val);
       if(available){
-        res.style.background='rgba(124,58,237,.07)';res.style.border='1px solid rgba(124,58,237,.22)';res.style.color='var(--success)';
+        res.style.background='rgba(112,0,255,.07)';res.style.border='1px solid rgba(112,0,255,.22)';res.style.color='var(--success)';
         res.textContent='✓ '+val+'.arc is available!';
       }else{
         const owner=await nameContract.resolve(val);
@@ -3875,8 +3875,8 @@ async function checkArcName(){
     } else {
       // Fallback local check
       const taken=arcNames.find(n=>n.name===val);
-      res.style.background=taken?'rgba(248,113,113,.07)':'rgba(124,58,237,.07)';
-      res.style.border=taken?'1px solid rgba(248,113,113,.22)':'1px solid rgba(124,58,237,.22)';
+      res.style.background=taken?'rgba(248,113,113,.07)':'rgba(112,0,255,.07)';
+      res.style.border=taken?'1px solid rgba(248,113,113,.22)':'1px solid rgba(112,0,255,.22)';
       res.style.color=taken?'var(--danger)':'var(--success)';
       res.textContent=taken?'✗ '+val+'.arc is taken':'✓ '+val+'.arc is available!';
     }
@@ -3976,7 +3976,7 @@ function renderMyArcNames(){
         <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--text);">${n.name}.arc</div>
         <div style="font-size:.65rem;color:var(--text3);">Expires ${n.expires}</div>
       </div>
-      <span style="font-size:.65rem;padding:3px 8px;border-radius:4px;background:rgba(124,58,237,.08);color:var(--success);border:1px solid rgba(124,58,237,.2);">Active</span>
+      <span style="font-size:.65rem;padding:3px 8px;border-radius:4px;background:rgba(112,0,255,.08);color:var(--success);border:1px solid rgba(112,0,255,.2);">Active</span>
     </div>
   `).join('');
 }
@@ -4164,7 +4164,7 @@ window.addEventListener('load',()=>{
     // Show loading indicator
     document.body.insertAdjacentHTML('beforeend',
       '<div id="verifiedLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">'
-      +'<div style="width:44px;height:44px;border:3px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
+      +'<div style="width:44px;height:44px;border:3px solid rgba(112,0,255,.2);border-top-color:#7000ff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
       +'<div style="color:var(--text3);font-size:.85rem;">Setting up your wallet…</div>'
       +'</div>');
     setTimeout(async function(){
@@ -4211,8 +4211,8 @@ window.addEventListener('load',()=>{
     // Show minimal connect prompt
     document.body.insertAdjacentHTML('beforeend',
       '<div id="connectLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">'
-      +'<div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(124,58,237,.5);margin-bottom:4px;">'
-      +'<svg width="24" height="24" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="5" fill="#ede9fe"/><circle cx="50" cy="20" r="5" fill="#ede9fe"/><circle cx="50" cy="52" r="5" fill="#ede9fe"/><line x1="27" y1="36" x2="45" y2="22" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#ede9fe" stroke-width="2.5" stroke-linecap="round"/></svg>'
+      +'<div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#a855f7,#5500cc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(112,0,255,.5);margin-bottom:4px;">'
+      +'<svg width="24" height="24" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="5" fill="#f3e8ff"/><circle cx="50" cy="20" r="5" fill="#f3e8ff"/><circle cx="50" cy="52" r="5" fill="#f3e8ff"/><line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/></svg>'
       +'</div>'
       +'<div style="font-size:1rem;font-weight:700;color:var(--text);">Connecting wallet…</div>'
       +'<div style="font-size:.78rem;color:var(--text3);">Check your wallet for a connection request</div>'
@@ -4416,7 +4416,7 @@ function viewPaymentRequest(id){
   document.getElementById('prViewLink').textContent=link;
   const qrBox=document.getElementById('prViewQR');
   qrBox.innerHTML='';
-  try{new QRCode(qrBox,{text:link,width:120,height:120,colorDark:'#000000',colorLight:'#ffffff'});}catch{}
+  try{new QRCode(qrBox,{text:link,width:120,height:120,colorDark:'#111111',colorLight:'#ffffff'});}catch{}
   document.getElementById('prMarkPaidBtn').style.display=pr.status==='paid'?'none':'block';
   goPage('payreq-view');
 }
@@ -4434,7 +4434,7 @@ function renderPaymentRequests(){
   if(el2)el2.textContent=paid;
   if(el3)el3.textContent=pending;
   if(!paymentRequests.length){
-    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:10px;color:#ede9fe;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#a855f7,#7000ff);border:none;border-radius:10px;color:#f3e8ff;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
     return;
   }
   list.innerHTML=paymentRequests.map(pr=>{
@@ -4443,7 +4443,7 @@ function renderPaymentRequests(){
     const statusColor=status==='paid'?'var(--success)':status==='expired'?'var(--warning)':'var(--accent3)';
     const statusLabel=status==='paid'?'✓ Paid':status==='expired'?'Expired':'Pending';
     const amtText=pr.amount?parseFloat(pr.amount).toFixed(2)+' '+pr.token:'Open · '+pr.token;
-    return `<div onclick="viewPaymentRequest('${pr.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;" onmouseover="this.style.background='rgba(139,92,246,.04)'" onmouseout="this.style.background=''"><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🧾</div><div><div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:2px;">${pr.label}</div><div style="font-size:.72rem;color:var(--text3);">${new Date(pr.createdAt).toLocaleDateString()}</div></div></div><div style="text-align:right;"><div style="font-size:.88rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;">${amtText}</div><div style="font-size:.68rem;font-weight:600;color:${statusColor};">${statusLabel}</div></div></div>`;
+    return `<div onclick="viewPaymentRequest('${pr.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;" onmouseover="this.style.background='rgba(168,85,247,.04)'" onmouseout="this.style.background=''"><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:10px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🧾</div><div><div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:2px;">${pr.label}</div><div style="font-size:.72rem;color:var(--text3);">${new Date(pr.createdAt).toLocaleDateString()}</div></div></div><div style="text-align:right;"><div style="font-size:.88rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;">${amtText}</div><div style="font-size:.68rem;font-weight:600;color:${statusColor};">${statusLabel}</div></div></div>`;
   }).join('');
 }
 function copyPRLink(){
@@ -4567,7 +4567,7 @@ function deletePR(){
       if(amtInput)amtInput.style.display=dl.amt?'none':'block';
       document.getElementById('payNowAddrDisplay').textContent=dl.to||'';
       const qrBox=document.getElementById('payNowQR');
-      if(qrBox){qrBox.innerHTML='';try{new QRCode(qrBox,{text:dl.to||'',width:120,height:120,colorDark:'#000000',colorLight:'#ffffff'});}catch{}}
+      if(qrBox){qrBox.innerHTML='';try{new QRCode(qrBox,{text:dl.to||'',width:120,height:120,colorDark:'#111111',colorLight:'#ffffff'});}catch{}}
       goPage('pay-now');
       if(dl.lbl)toast('💸 Pay: '+dl.lbl,'info',5000);
       window._prDeepLink=null;
@@ -4652,7 +4652,7 @@ async function loadAdminStats(){
         const recEl=document.getElementById('statRecentWallets');
         const wallets=d.recentWallets||[];
         recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7c3aed;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7000ff;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#a855f7;text-decoration:none;">View ↗</a></div>`).join('');
         document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
         loading.style.display='none';
         statsEl.style.display='block';
@@ -4764,7 +4764,7 @@ async function loadAdminStats(){
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #141414;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7c3aed;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#8b5cf6;text-decoration:none;">View ↗</a></div>`).join('');
+      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7000ff;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#a855f7;text-decoration:none;">View ↗</a></div>`).join('');
 
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
@@ -4773,7 +4773,7 @@ async function loadAdminStats(){
 
   }catch(err){
     console.error('Admin error:',err);
-    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#141414;border:1px solid #1a1a1a;border-radius:8px;color:#a78bfa;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1a1a1a;border:1px solid #1a1a1a;border-radius:8px;color:#c084fc;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
   }
 }
 
@@ -4795,7 +4795,7 @@ async function loadAdminPoolStats(){
       if(u<10||e<10){
         statusEl.innerHTML='<span style="color:#f87171;">⚠️ Swap pool low — MetaMask swaps may fail. Tap Seed Pool.</span>';
       } else {
-        statusEl.innerHTML='<span style="color:#7c3aed;">✓ Swap pool healthy.</span>';
+        statusEl.innerHTML='<span style="color:#7000ff;">✓ Swap pool healthy.</span>';
       }
     }
 
@@ -4811,18 +4811,18 @@ async function loadAdminPoolStats(){
     const lendEl=document.getElementById('adminLendStats');
     if(lendEl){
       const util=ts>0?((tb/ts)*100).toFixed(1):0;
-      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#7c3aed';
+      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#7000ff';
       lendEl.innerHTML=`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
-          <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18);border-radius:10px;padding:10px;">
+          <div style="background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL SUPPLIED</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#7c3aed;">${ts.toFixed(2)}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#7000ff;">${ts.toFixed(2)}</div>
           </div>
           <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL BORROWED</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#fbbf24;">${tb.toFixed(2)}</div>
           </div>
-          <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:10px;">
+          <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">AVAILABLE</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:${color};">${avail.toFixed(2)}</div>
           </div>
@@ -4850,13 +4850,13 @@ async function adminSeedPool(){
     const seedAmt=Math.min(500, u*0.9, e*0.9);
     const seedU=ethers.parseUnits(seedAmt.toFixed(6),6);
     const seedE=ethers.parseUnits(seedAmt.toFixed(6),6);
-    statusEl.innerHTML='<span style="color:#a78bfa;">Approving tokens…</span>';
+    statusEl.innerHTML='<span style="color:#c084fc;">Approving tokens…</span>';
     const [appU,appE]=await Promise.all([
       usdcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
       eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
     ]);
     await Promise.all([appU.wait(0),appE.wait(0)]);
-    statusEl.innerHTML='<span style="color:#a78bfa;">Adding liquidity…</span>';
+    statusEl.innerHTML='<span style="color:#c084fc;">Adding liquidity…</span>';
     const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
     await liqTx.wait(1);
     toast('✓ Pool seeded with '+seedAmt.toFixed(2)+' USDC + '+seedAmt.toFixed(2)+' EURC','success',6000);

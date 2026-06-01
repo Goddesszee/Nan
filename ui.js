@@ -189,25 +189,25 @@ function updateTopbarPageInfo(page) {
     const bal = document.getElementById('homeBalAmt');
     if (bal && bal.textContent !== '—') {
       pillEl.textContent = '$' + bal.textContent;
-      pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+      pillEl.style.cssText = 'display:inline-block;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
     }
   } else if (page === 'send') {
     const usdc = parseFloat(usdcBal)||0;
     const eurc = parseFloat(eurcBal)||0;
     const total = (usdc + eurc).toFixed(2);
     pillEl.textContent = 'Balance: ' + total + ' USDC';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'earn' || page === 'lend') {
     pillEl.textContent = 'APY 4.80%';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#7c3aed;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.15);color:#7000ff;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'swap') {
     pillEl.textContent = 'USDC ↔ EURC';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);color:var(--accent3);font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'bridge') {
     pillEl.textContent = 'CCTP V2';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#a78bfa;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.15);color:#c084fc;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   } else if (page === 'history') {
     pillEl.textContent = 'On-chain';
-    pillEl.style.cssText = 'display:inline-block;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);color:#7c3aed;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    pillEl.style.cssText = 'display:inline-block;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.15);color:#7000ff;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
   }
 }
