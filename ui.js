@@ -183,6 +183,10 @@ function updateTopbarPageInfo(page) {
   nameEl.textContent = labels[page] || page.charAt(0).toUpperCase()+page.slice(1);
   wrapEl.style.display = 'flex';
 
+  // Show nav links
+  const navEl = document.getElementById('topbarNav');
+  if (navEl) navEl.style.display = 'flex';
+
   // Context pill per page
   pillEl.style.display = 'none';
   if (page === 'home') {
