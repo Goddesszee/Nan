@@ -482,7 +482,11 @@ function toggleConnectDrop(){
   const sheet = document.getElementById('onboardSheet');
   if(!modal) return;
   modal.style.display = 'flex';
-  requestAnimationFrame(()=>{ sheet.style.transform = 'translateY(0)'; });
+  modal.style.pointerEvents = 'none';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    sheet.style.transform = 'translateY(0)';
+    setTimeout(()=>{ modal.style.pointerEvents = ''; }, 400);
+  }));
   // Reset to step 1
   document.getElementById('ob-step1').style.display = 'block';
   document.getElementById('ob-step2').style.display = 'none';
