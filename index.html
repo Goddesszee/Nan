@@ -175,7 +175,7 @@
         <div id="connectDrop" style="display:none;"><!-- legacy, kept for JS compat --></div>
 
 <!-- Full-screen onboarding modal -->
-<div id="onboardModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeOnboard()">
+<div id="onboardModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" id="onboardOverlay">
   <div id="onboardSheet" style="width:100%;max-width:480px;background:#0a0a0a;border:1px solid rgba(112,0,255,.2);border-radius:24px 24px 0 0;padding:0 0 32px;box-shadow:0 -20px 80px rgba(112,0,255,.15);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.25,1);">
     <!-- Handle -->
     <div style="display:flex;justify-content:center;padding:12px 0 0;">
@@ -475,15 +475,15 @@
   reveals.forEach(el => io.observe(el));
 </script>
 <script>
+let _obOpenedAt = 0;
 function toggleConnectDrop(){
   const modal = document.getElementById('onboardModal');
   const sheet = document.getElementById('onboardSheet');
   if(!modal) return;
+  _obOpenedAt = Date.now();
   modal.style.display = 'flex';
-  modal.style.pointerEvents = 'none';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     sheet.style.transform = 'translateY(0)';
-    setTimeout(()=>{ modal.style.pointerEvents = ''; }, 400);
   }));
   // Reset to step 1
   document.getElementById('ob-step1').style.display = 'block';
@@ -494,12 +494,17 @@ function toggleConnectDrop(){
   document.getElementById('ob-dot2').style.background = 'rgba(112,0,255,.2)';
 }
 function closeOnboard(){
+  if(Date.now() - _obOpenedAt < 500) return; // ignore clicks during open animation
   const modal = document.getElementById('onboardModal');
   const sheet = document.getElementById('onboardSheet');
   if(!modal) return;
   sheet.style.transform = 'translateY(100%)';
   setTimeout(()=>{ modal.style.display = 'none'; }, 350);
 }
+// Close when clicking the dark overlay
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'onboardOverlay') closeOnboard();
+});
 function ob_backToEmail(){
   document.getElementById('ob-step2').style.display = 'none';
   document.getElementById('ob-step1').style.display = 'block';
