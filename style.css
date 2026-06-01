@@ -1778,3 +1778,24 @@ a:hover{color:var(--text);}
   opacity: 1 !important;
   font-weight: 500 !important;
 }
+
+/* == NAV BOLD RELAY STYLE FIX == */
+.nav-btn span {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+}
+#desktopNav .nav-btn .nl {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+}
+[data-theme="light"] #desktopNav .nav-btn .nl {
+  font-weight: 700 !important;
+}
+.dnav-section-label {
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.12em !important;
+}
+[data-theme="light"] .dnav-section-label {
+  font-weight: 700 !important;
+}
