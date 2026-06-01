@@ -1996,6 +1996,27 @@ a:hover{color:var(--text);}
     -webkit-backdrop-filter: none !important;
   }
 
+  /* ── Strip ALL grey backgrounds on mobile ── */
+  --card: transparent !important;
+  --card2: transparent !important;
+  --surface: transparent !important;
+
+  /* Strip inline grey backgrounds */
+  *[style*="background:#1a1a1a"],
+  *[style*="background:#111111"],
+  *[style*="background:#222222"],
+  *[style*="background:rgba(255,255,255,.03)"],
+  *[style*="background:rgba(255,255,255,.04)"],
+  *[style*="background:rgba(255,255,255,.05)"],
+  *[style*="background:rgba(255,255,255,.06)"],
+  *[style*="background:rgba(255,255,255,0.03)"],
+  *[style*="background:rgba(255,255,255,0.04)"],
+  *[style*="background:rgba(255,255,255,0.05)"],
+  *[style*="background:rgba(255,255,255,0.06)"] {
+    background: transparent !important;
+    border-color: rgba(168,85,247,.15) !important;
+  }
+
   /* ── Strip card backgrounds on mobile — clean flat look ── */
   .card {
     background: transparent !important;
