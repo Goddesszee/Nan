@@ -1995,6 +1995,56 @@ a:hover{color:var(--text);}
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
+
+  /* ── Slim bottom nav like Kuda ── */
+  .bottom-nav {
+    height:58px !important;
+    padding:4px 8px 6px !important;
+  }
+  .nav-pill-wrap {
+    padding:2px !important;
+    gap:1px !important;
+    border-radius:12px !important;
+    background: none !important;
+    border: none !important;
+  }
+  .nav-btn {
+    font-size:.6rem !important;
+    font-weight:600 !important;
+    gap:2px !important;
+    padding:5px 2px !important;
+    border-radius:9px !important;
+    letter-spacing:.02em !important;
+  }
+  .nav-btn .ni svg {
+    width:18px !important;
+    height:18px !important;
+  }
+  .nav-btn.active {
+    background: rgba(112,0,255,.12) !important;
+    border-color: transparent !important;
+    color: var(--accent3) !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Smaller fonts throughout app ── */
+  .card { padding:14px !important; }
+  .bal-amt, #homeBalAmt { font-size:1.9rem !important; }
+  .bal-sub { font-size:.75rem !important; }
+  .bal-head { font-size:.7rem !important; }
+  .home-action-label { font-size:.72rem !important; }
+  .home-action-icon-box { width:30px !important; height:30px !important; }
+  .asset-name { font-size:.85rem !important; }
+  .asset-sub { font-size:.72rem !important; }
+  .asset-amt { font-size:.85rem !important; }
+  .asset-usd { font-size:.72rem !important; }
+  .section-label, .dnav-section-label { font-size:.65rem !important; }
+  .card-title { font-size:.85rem !important; }
+  h2, .page-title { font-size:1.1rem !important; }
+  .pill-token { font-size:.72rem !important; }
+  button:not(.nav-btn):not(#connectTopBtn):not(#disconnectTopBtnMobile) {
+    font-size:.85rem !important;
+  }
 }
 .theme-toggle-btn{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 /* === RELAY-STYLE TOPBAR === */
