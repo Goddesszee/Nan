@@ -1999,9 +1999,12 @@ a:hover{color:var(--text);}
   /* ── Strip ALL grey backgrounds on mobile ── */
   --card: transparent !important;
   --card2: transparent !important;
-  --surface: transparent !important;
+  --surface: #111111 !important;
+  --bg: #111111 !important;
 
-  /* Strip inline grey backgrounds */
+  /* All inline grey/surface backgrounds → transparent */
+  *[style*="background:var(--card)"],
+  *[style*="background:var(--surface)"],
   *[style*="background:#1a1a1a"],
   *[style*="background:#111111"],
   *[style*="background:#222222"],
@@ -2014,23 +2017,23 @@ a:hover{color:var(--text);}
   *[style*="background:rgba(255,255,255,0.05)"],
   *[style*="background:rgba(255,255,255,0.06)"] {
     background: transparent !important;
-    border-color: rgba(168,85,247,.15) !important;
+    border-color: rgba(168,85,247,.12) !important;
   }
 
   /* ── Strip card backgrounds on mobile — clean flat look ── */
-  .card {
+  .card, .send-card, .mob-actions {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     margin-bottom: 8px !important;
   }
-  /* Keep inner cards that need separation */
-  .card .card {
-    background: rgba(255,255,255,.04) !important;
-    border: 1px solid rgba(168,85,247,.15) !important;
-    border-radius: 14px !important;
-    padding: 14px !important;
+  /* Force page bg to pure black */
+  .page, #app-root, body {
+    background: #000000 !important;
+  }
+  #globalTopBar, .bottom-nav {
+    background: #000000 !important;
   }
   .bottom-nav {
     height:58px !important;
