@@ -57,13 +57,16 @@
   --topbar-bg:#111111 !important;
   --nav-bg:#111111 !important;
 }
-html,body{background:#111111 !important;}
-#app-root{background:#111111 !important;}
-.bottom-nav{background:#111111 !important;border-top:1px solid rgba(255,255,255,.07) !important;}
+html,body{background:var(--bg) !important;}
+#app-root{background:var(--bg) !important;}
+.bottom-nav{background:var(--nav-bg) !important;border-top:1px solid var(--border) !important;}
 .nav-pill-wrap{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.07) !important;}
 .nav-btn{color:#555555 !important;}
 .nav-btn.active{background:rgba(112,0,255,.15) !important;color:#a855f7 !important;border:1px solid rgba(112,0,255,.2) !important;}
 .btn{background:#7000ff !important;box-shadow:0 4px 14px rgba(112,0,255,.35) !important;}
+[data-theme="light"] .nav-pill-wrap{background:rgba(0,0,0,.03) !important;border:1px solid rgba(0,0,0,.08) !important;}
+[data-theme="light"] .nav-btn{color:#999 !important;}
+[data-theme="light"] .nav-btn.active{background:rgba(112,0,255,.08) !important;color:#7000ff !important;border:1px solid rgba(112,0,255,.15) !important;}
 [data-theme="light"]:root,[data-theme="light"] :root{
   --bg:#fafafa !important;--surface:#f4f4f4 !important;--card:#f4f4f4 !important;
   --card2:#ebebeb !important;--border:#e4e4e4 !important;

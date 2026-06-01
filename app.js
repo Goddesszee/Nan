@@ -577,7 +577,7 @@ function toggleTheme(){
   document.getElementById('themeToggle').textContent=t==='light'?'🌙':'☀️';
 }
 function initTheme(){
-  const s=localStorage.getItem('nan_theme')||'dark';
+  const s=localStorage.getItem('nan_theme')||'light';
   document.documentElement.setAttribute('data-theme',s==='light'?'light':'');
   document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
 }

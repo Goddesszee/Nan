@@ -2043,12 +2043,12 @@ a:hover{color:var(--text);}
     padding: 0 !important;
     margin-bottom: 4px !important;
   }
-  /* Force pure black everywhere */
+  /* Force bg color on mobile using variable */
   .page, #app-root, body, html {
-    background: #000000 !important;
+    background: var(--bg) !important;
   }
   #globalTopBar, .bottom-nav {
-    background: #000000 !important;
+    background: var(--topbar-bg) !important;
   }
   .bottom-nav {
     height:58px !important;
