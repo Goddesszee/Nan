@@ -1460,3 +1460,164 @@ a:hover{color:var(--text);}
   .mob-action-ico{width:40px !important;height:40px !important;}
   .send-tabs .stab{font-size:.75rem !important;padding:7px 3px !important;}
 }
+
+/* ── Relay Light Mode — Text & Color Fixes ── */
+[data-theme="light"] body,
+[data-theme="light"] #app-root,
+[data-theme="light"] .page{
+  background:#ffffff;
+  color:#111111;
+}
+
+/* Fix all inline white-on-white text */
+[data-theme="light"] *[style*="color:rgba(255,255,255,.5)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.45)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.4)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.3)"]{
+  color:#888888 !important;
+}
+[data-theme="light"] *[style*="color:rgba(255,255,255,.6)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.65)"]{
+  color:#666666 !important;
+}
+[data-theme="light"] *[style*="color:rgba(255,255,255,.7)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.75)"]{
+  color:#444444 !important;
+}
+[data-theme="light"] *[style*="color:rgba(255,255,255,.8)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.85)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.9)"],
+[data-theme="light"] *[style*="color:rgba(255,255,255,.95)"],
+[data-theme="light"] *[style*="color:#ffffff"],
+[data-theme="light"] *[style*="color:#fff"]{
+  color:#111111 !important;
+}
+[data-theme="light"] *[style*="color:#f0f0f0"],
+[data-theme="light"] *[style*="color:#f0f0ff"]{
+  color:#111111 !important;
+}
+[data-theme="light"] *[style*="color:#a0a0a0"],
+[data-theme="light"] *[style*="color:#888899"],
+[data-theme="light"] *[style*="color:#9ca3af"]{
+  color:#666666 !important;
+}
+[data-theme="light"] *[style*="color:#555555"]{
+  color:#888888 !important;
+}
+
+/* Card backgrounds */
+[data-theme="light"] *[style*="background:var(--card)"],
+[data-theme="light"] *[style*="background:var(--surface)"]{
+  background:#f5f5f5 !important;
+  border-color:#e8e8e8 !important;
+}
+[data-theme="light"] *[style*="background:#1a1a1a"],
+[data-theme="light"] *[style*="background:#111111"],
+[data-theme="light"] *[style*="background:#0f0f0f"],
+[data-theme="light"] *[style*="background:#141414"],
+[data-theme="light"] *[style*="background:#222222"]{
+  background:#f5f5f5 !important;
+}
+
+/* Input fields */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea{
+  background:#ffffff !important;
+  color:#111111 !important;
+  border-color:#e8e8e8 !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder{
+  color:#aaaaaa !important;
+}
+
+/* Borders */
+[data-theme="light"] *[style*="border:1px solid rgba(255,255,255,.07)"],
+[data-theme="light"] *[style*="border:1px solid rgba(255,255,255,.08)"],
+[data-theme="light"] *[style*="border:1px solid rgba(255,255,255,.09)"],
+[data-theme="light"] *[style*="border:1px solid rgba(255,255,255,.1)"],
+[data-theme="light"] *[style*="border:1px solid var(--border)"]{
+  border-color:#e8e8e8 !important;
+}
+
+/* Balance card inline */
+[data-theme="light"] *[style*="letter-spacing:.18em"]{
+  color:#666666 !important;
+}
+
+/* Chips / pills that use white transparency */
+[data-theme="light"] *[style*="background:rgba(255,255,255,.06)"],
+[data-theme="light"] *[style*="background:rgba(255,255,255,.05)"],
+[data-theme="light"] *[style*="background:rgba(255,255,255,.04)"],
+[data-theme="light"] *[style*="background:rgba(255,255,255,.03)"]{
+  background:#eeeeee !important;
+  border-color:#e0e0e0 !important;
+  color:#444444 !important;
+}
+
+/* Arc testnet badge in light mode */
+[data-theme="light"] *[style*="background:rgba(112,0,255,.08)"]{
+  background:rgba(112,0,255,.08) !important;
+}
+[data-theme="light"] .net-pill,
+[data-theme="light"] *[style*="color:rgba(255,255,255,.7);"]{
+  color:#7000ff !important;
+}
+
+/* Topbar in light mode */
+[data-theme="light"] #globalTopBar,
+[data-theme="light"] .topbar{
+  background:#ffffff !important;
+  border-bottom:1px solid #e8e8e8 !important;
+}
+[data-theme="light"] .brand-name,
+[data-theme="light"] *[style*="font-weight:800;color:#ffffff"]{
+  color:#111111 !important;
+}
+
+/* Nav */
+[data-theme="light"] .bottom-nav{
+  background:rgba(255,255,255,.96) !important;
+  border-top:1px solid #e8e8e8 !important;
+}
+[data-theme="light"] .nav-pill-wrap{
+  background:#f0f0f0 !important;
+  border:1px solid #e8e8e8 !important;
+}
+
+/* Earn APY big number */
+[data-theme="light"] *[style*="font-size:2.8rem"],
+[data-theme="light"] *[style*="font-size:1.6rem;font-weight:800"]{
+  color:#111111 !important;
+}
+
+/* More page profile card */
+[data-theme="light"] *[style*="background:linear-gradient(145deg"]{
+  background:#f5f5f5 !important;
+}
+
+/* Success card */
+[data-theme="light"] .success-circle{
+  background:#7000ff !important;
+  box-shadow:0 8px 24px rgba(112,0,255,.3) !important;
+}
+
+/* Buttons stay purple in light mode */
+[data-theme="light"] .btn{
+  color:#ffffff !important;
+}
+[data-theme="light"] .btn-outline{
+  color:#111111 !important;
+  border-color:#e8e8e8 !important;
+  background:transparent !important;
+}
+
+/* Page titles */
+[data-theme="light"] *[style*="color:var(--text)"]{
+  color:#111111 !important;
+}
+[data-theme="light"] *[style*="color:var(--text3)"]{
+  color:#888888 !important;
+}
+
