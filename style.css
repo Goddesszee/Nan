@@ -1742,3 +1742,26 @@ a:hover{color:var(--text);}
   font-size: 1rem !important;
   gap: 10px !important;
 }
+
+/* == SIDEBAR SECTION & NAV LABELS BOLD FIX == */
+.dnav-section-label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .dnav-section-label {
+  color: #666 !important;
+  font-weight: 700 !important;
+}
+
+#desktopNav .nav-btn .nl {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] #desktopNav .nav-btn .nl {
+  color: #111 !important;
+  font-weight: 600 !important;
+}
