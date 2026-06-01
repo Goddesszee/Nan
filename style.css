@@ -928,22 +928,18 @@ a:hover{color:var(--text);}
   #globalTopBar{display:none !important;}
   .bottom-nav{display:none !important;}
 
-  /* ── Sidebar — Relay style ── */
+  /* ── Sidebar — starts below topbar ── */
   #desktopNav{
     flex-direction:column;
-    position:fixed;top:0;left:0;
-    width:220px;height:100vh;
+    position:fixed;top:60px;left:0;
+    width:220px;height:calc(100vh - 60px);
     background:var(--bg);
     border-right:1px solid var(--border);
     padding:0;gap:0;z-index:100;
     overflow:hidden;
   }
   #desktopNav .dnav-logo-row{
-    display:flex;align-items:center;gap:11px;
-    padding:24px 20px 20px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:12px;
-    flex-shrink:0;
+    display:none;
   }
   #desktopNav .dnav-logo{
     width:38px;height:38px;border-radius:11px;
@@ -961,7 +957,7 @@ a:hover{color:var(--text);}
     padding:12px 20px 4px;
     font-family:'Inter',sans-serif;
   }
-  #desktopNav{padding:0;}
+  #desktopNav{padding:12px 0 0;}
   #desktopNav .dnav-btn{
     display:flex;align-items:center;gap:13px;
     padding:13px 18px;border-radius:12px;
@@ -993,23 +989,23 @@ a:hover{color:var(--text);}
   #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 16px;}
   #desktopNav > button, #desktopNav .dnav-btn{margin-left:8px;margin-right:8px;width:calc(100% - 16px);}
 
-  /* ── Desktop topbar — seamless, no hard border ── */
+  /* ── Desktop topbar — full width with logo on left like Relay ── */
   #globalTopBar{
     display:none;
-    position:fixed;top:0;left:220px;right:0;height:52px;
-    background:transparent;
-    border-bottom:1px solid rgba(255,255,255,0.06);
+    position:fixed;top:0;left:0;right:0;height:60px;
+    background:var(--topbar-bg);
+    border-bottom:1px solid var(--border);
     align-items:center;justify-content:space-between;
-    padding:0 32px;z-index:90;
+    padding:0 28px;z-index:200;
   }
   #globalTopBar.desktop-show{display:flex !important;}
-  #globalTopBar .brand{display:none !important;}
+  #globalTopBar .brand{display:flex !important;align-items:center;gap:10px;flex-shrink:0;}
   #globalTopBar #topbarPageInfo{display:flex !important;}
 
   /* ── Pages: sit right of sidebar, below topbar ── */
   .page{
     position:fixed !important;
-    top:52px !important;
+    top:60px !important;
     left:220px !important;
     right:0 !important;
     bottom:0 !important;
