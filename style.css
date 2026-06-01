@@ -1865,3 +1865,40 @@ a:hover{color:var(--text);}
   visibility: visible !important;
 }
 
+
+/* == MOBILE HEADER + NAV + LOCKUP FIX == */
+@media (max-width: 768px) {
+
+  /* 1. Fix top header cramping */
+  #globalTopBar {
+    padding: 6px 10px !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+  .net-pill {
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+    white-space: nowrap !important;
+    max-width: 90px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+  }
+  .pulse-dot {
+    display: none !important;
+  }
+
+  /* 2. Fix "Withdraw anytime · No lockup" wrapping */
+  .earn-sub, .save-sub, [class*="earn"] p, [class*="save"] p {
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+
+  /* 3. Bottom nav labels bigger + bold */
+  .bottom-nav .nl,
+  .nav-btn .nl {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+  }
+}
