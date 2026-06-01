@@ -1809,3 +1809,51 @@ a:hover{color:var(--text);}
   font-weight: 700 !important;
   letter-spacing: 0.01em !important;
 }
+
+/* == MOBILE LAYOUT FIX (max-width: 768px only) == */
+@media (max-width: 768px) {
+
+  /* 1. Top header - reduce clutter, shrink pills */
+  .topbar, header, .app-header {
+    padding: 8px 12px !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+  .topbar .network-pill, .chain-pill, [class*="testnet"], [class*="network"] {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    max-width: 100px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .wallet-address, [class*="address"] {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    max-width: 110px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 2. Bottom nav labels bigger */
+  .bottom-nav .nav-btn .nl,
+  .bottom-nav .nav-btn span {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+  }
+
+  /* 3. Fix "Withdraw anytime · No lockup" wrapping */
+  .save-earn-sub, [class*="lockup"], [class*="withdraw"] {
+    white-space: nowrap !important;
+    font-size: 12px !important;
+  }
+
+  /* 4. Better overall spacing */
+  .home-content, .main-content, [class*="page"] {
+    padding: 12px !important;
+  }
+  .balance-card, [class*="balance"] {
+    padding: 16px !important;
+  }
+}
