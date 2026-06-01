@@ -1996,7 +1996,21 @@ a:hover{color:var(--text);}
     -webkit-backdrop-filter: none !important;
   }
 
-  /* ── Slim bottom nav like Kuda ── */
+  /* ── Strip card backgrounds on mobile — clean flat look ── */
+  .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 8px !important;
+  }
+  /* Keep inner cards that need separation */
+  .card .card {
+    background: rgba(255,255,255,.04) !important;
+    border: 1px solid rgba(168,85,247,.15) !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+  }
   .bottom-nav {
     height:58px !important;
     padding:4px 8px 6px !important;
