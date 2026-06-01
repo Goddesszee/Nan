@@ -1211,163 +1211,252 @@ a:hover{color:var(--text);}
   .home-actions-top{grid-template-columns:repeat(3,1fr) !important;gap:5px !important;}
 }
 
-/* ══ MOBILE FRIENDLY — COMPREHENSIVE FIX ══ */
+/* ══════════════════════════════════════════
+   MOBILE — TARGETED (max-width: 480px)
+   Only targets real classes/IDs in HTML
+   Does NOT affect desktop (min-width:481px)
+══════════════════════════════════════════ */
 @media(max-width:480px){
 
-  /* ── Page spacing ── */
-  .page{padding:10px 12px 100px !important;}
+  /* ── Core page sizing ── */
+  .page{
+    top:54px !important;
+    bottom:70px !important;
+    padding:12px 12px 24px !important;
+  }
 
-  /* ── All cards inside pages — tighter padding ── */
-  .page > div{border-radius:18px !important;}
-  
-  /* ── Balance section ── */
-  #homeBalAmt{font-size:2.4rem !important;}
-  #homeBalNgn{font-size:.875rem !important;margin-bottom:12px !important;}
-  
-  /* ── Action buttons — bigger tap area ── */
-  .page div[onclick*="goPage"]{min-height:60px;}
-  
-  /* ── All inputs — prevent iOS zoom, comfortable height ── */
-  input,select,textarea{
-    font-size:16px !important;
+  /* ── Actions grid on home ── */
+  .mob-actions{
+    padding:12px 4px !important;
+  }
+  .mob-actions > div{
+    /* Each action wrapper */
+    flex:1;
+    padding:6px 4px !important;
+  }
+  .mob-action-item{
+    padding:6px 4px !important;
+    gap:6px !important;
+    min-height:64px;
+    justify-content:center;
+  }
+  .mob-action-ico{
+    width:44px !important;
+    height:44px !important;
+    border-radius:13px !important;
+  }
+  .mob-action-ico svg{
+    width:20px !important;
+    height:20px !important;
+  }
+
+  /* ── Asset rows ── */
+  .mob-asset-row{
+    padding:12px 14px !important;
+    gap:10px !important;
+  }
+  .mob-asset-row img{
+    width:34px !important;
+    height:34px !important;
+  }
+
+  /* ── More page menu items ── */
+  .mob-menu-item{
+    padding:14px 14px !important;
+    gap:12px !important;
+    min-height:56px !important;
+  }
+
+  /* ── All page cards — comfortable padding ── */
+  .mob-card{
+    padding:14px !important;
+    border-radius:16px !important;
+  }
+
+  /* ── Bottom nav — taller tap targets ── */
+  .bottom-nav{
+    height:70px !important;
+    padding:6px 8px max(env(safe-area-inset-bottom),10px) !important;
+  }
+  .nav-btn{
     min-height:48px !important;
-    padding:13px 14px !important;
+    padding:6px 8px !important;
+    gap:3px !important;
+    flex:1;
+    border-radius:10px !important;
   }
-  
-  /* ── Amount inputs — large size ok ── */
-  input[type="number"]{
-    font-size:1.6rem !important;
-    min-height:auto !important;
-    padding:0 !important;
+  .nav-btn .nl{
+    font-size:.78rem !important;
   }
-  
-  /* ── Buttons — full tap height ── */
-  .btn{
-    padding:16px !important;
-    font-size:1rem !important;
-    min-height:52px !important;
+  .nav-btn .ni svg{
+    width:22px !important;
+    height:22px !important;
+  }
+  .nav-pill-wrap{
+    padding:3px !important;
+    gap:2px !important;
     border-radius:14px !important;
   }
-  
+
+  /* ── Top bar ── */
+  #globalTopBar{
+    padding:8px 12px !important;
+    min-height:54px !important;
+  }
+
+  /* ── All inputs — prevent iOS zoom ── */
+  input,select,textarea{
+    font-size:16px !important;
+    min-height:46px !important;
+  }
+  /* Exception: large number inputs */
+  .amt-input,
+  input[style*="font-size:1.6rem"],
+  input[style*="font-size:2rem"],
+  input[style*="font-size:2.2rem"]{
+    font-size:1.5rem !important;
+    min-height:auto !important;
+  }
+
+  /* ── Buttons — easy to tap ── */
+  .btn{
+    min-height:50px !important;
+    padding:14px 16px !important;
+    font-size:.95rem !important;
+    border-radius:13px !important;
+  }
+
   /* ── Back button ── */
   .back-btn{
     min-height:auto !important;
-    padding:0 0 14px !important;
-    font-size:.95rem !important;
+    padding:0 0 12px !important;
+    font-size:.9rem !important;
   }
-  
-  /* ── Nav tab labels ── */
-  .nav-btn{
-    font-size:.75rem !important;
-    padding:8px 6px !important;
-    gap:3px !important;
-  }
-  .nav-btn .ni svg{width:20px !important;height:20px !important;}
-  
-  /* ── Nav pill wrap ── */
-  .nav-pill-wrap{border-radius:14px !important;padding:3px !important;}
-  
-  /* ── Home actions — 4 in a row, compact ── */
-  .page #page-home > div > div:nth-child(3){
-    padding:10px 4px !important;
-  }
-  
-  /* ── Asset rows ── */
-  .page img[width="40"]{width:36px !important;height:36px !important;}
-  .page img[width="42"]{width:36px !important;height:36px !important;}
-  
+
   /* ── Earn tabs ── */
+  .send-tabs{
+    gap:2px !important;
+    padding:3px !important;
+  }
   .send-tabs .stab{
     font-size:.82rem !important;
     padding:8px 4px !important;
+    min-height:36px !important;
   }
-  
+
   /* ── Token selector buttons ── */
   .topt{
-    padding:10px 8px !important;
+    padding:10px 6px !important;
     font-size:.875rem !important;
     min-height:44px !important;
+    gap:5px !important;
   }
 
   /* ── Confirm card ── */
   .confirm-wrap{
-    border-radius:18px !important;
     padding:16px !important;
+    border-radius:16px !important;
   }
-  .conf-row{padding:8px 0 !important;font-size:.95rem !important;}
-  .conf-btns{gap:8px !important;margin-top:16px !important;}
+  .conf-rows{margin-bottom:12px !important;}
+  .conf-row{
+    font-size:.9rem !important;
+    padding:8px 0 !important;
+  }
+  .conf-btns{
+    gap:8px !important;
+    margin-top:14px !important;
+  }
 
   /* ── Success card ── */
-  .success-wrap{padding:24px 16px !important;}
-  .success-circle{width:68px !important;height:68px !important;font-size:1.8rem !important;}
-  .success-amount{font-size:2rem !important;}
+  .success-wrap{padding:24px 16px 20px !important;}
+  .success-circle{
+    width:64px !important;
+    height:64px !important;
+    font-size:1.6rem !important;
+  }
+  .success-amount{font-size:1.8rem !important;}
   .success-actions{gap:8px !important;}
 
-  /* ── History items ── */
-  .tx-item{padding:12px 12px !important;gap:10px !important;}
-  .tx-ico{width:34px !important;height:34px !important;border-radius:10px !important;}
+  /* ── History tx rows ── */
+  .tx-item{
+    padding:12px 12px !important;
+    gap:10px !important;
+    border-radius:8px !important;
+  }
+  .tx-ico{
+    width:34px !important;
+    height:34px !important;
+    border-radius:10px !important;
+    flex-shrink:0 !important;
+  }
   .tx-title{font-size:.875rem !important;}
-  .tx-right .tx-amt{font-size:.875rem !important;}
+  .tx-amt{font-size:.875rem !important;}
+  .tx-time{font-size:.75rem !important;}
+
+  /* ── History stats ── */
+  .hist-stat{padding:10px 6px !important;}
+  .hist-stat-num{font-size:1.2rem !important;}
+  .hist-stat-lbl{font-size:.72rem !important;}
+
+  /* ── Toast on mobile ── */
+  #toast{
+    left:12px !important;
+    right:12px !important;
+    top:12px !important;
+    width:auto !important;
+    max-width:none !important;
+    transform:translateY(-120px) !important;
+  }
+  #toast.show{
+    transform:translateY(0) !important;
+  }
+
+  /* ── Wallet modal slides up ── */
+  .wallet-modal{
+    border-radius:20px 20px 0 0 !important;
+    padding:16px 14px max(env(safe-area-inset-bottom),24px) !important;
+    max-height:85vh !important;
+    overflow-y:auto !important;
+  }
+  .wallet-modal-overlay{align-items:flex-end !important;}
+  .wallet-opt{
+    padding:13px 12px !important;
+    min-height:52px !important;
+    border-radius:12px !important;
+  }
+
+  /* ── AI floating button ── */
+  #aiBtn{
+    bottom:82px !important;
+    right:12px !important;
+    width:42px !important;
+    height:42px !important;
+  }
+
+  /* ── Balance on home ── */
+  #homeBalAmt{font-size:2.4rem !important;}
+  #homeBalNgn{font-size:.875rem !important;}
+
+  /* ── Earn APY ── */
+  div[style*="font-size:2.8rem"]{font-size:2rem !important;}
 
   /* ── Bridge select ── */
   #bridgeChainSelect{
     font-size:16px !important;
-    padding:13px 14px !important;
-    min-height:48px !important;
-  }
-  
-  /* ── More page menu items ── */
-  .menu-item{padding:13px 14px !important;}
-  
-  /* ── Profile card ── */
-  #moreAvatar{width:40px !important;height:40px !important;font-size:.9rem !important;}
-  
-  /* ── Stats grid ── */
-  .hist-stat{padding:10px 8px !important;}
-  .hist-stat-num{font-size:1.3rem !important;}
-  
-  /* ── Stat cards on earn ── */
-  #statSends,#statSwaps,#statBridges{font-size:1.2rem !important;}
-  
-  /* ── Earn APY hero ── */
-  .earn-apy-num,div[style*="2.8rem"]{font-size:2.2rem !important;}
-
-  /* ── Toast — centered top on mobile ── */
-  #toast{
-    top:12px !important;
-    left:12px !important;
-    right:12px !important;
-    width:auto !important;
-    max-width:none !important;
-    transform:translateX(0) !important;
-  }
-  #toast.show{
-    transform:translateX(0) translateY(0) !important;
+    min-height:46px !important;
   }
 
-  /* ── QR code box ── */
-  #qrBox img,#qrBox canvas{
-    width:140px !important;
-    height:140px !important;
-  }
+  /* ── Prevent any horizontal overflow ── */
+  .page,#app-root{overflow-x:hidden !important;}
 
-  /* ── Scroll padding bottom for safe area ── */
-  .page{padding-bottom:calc(100px + env(safe-area-inset-bottom)) !important;}
-
-  /* ── Prevent content under nav ── */
-  .bottom-nav{
-    padding-bottom:max(env(safe-area-inset-bottom),12px) !important;
-    height:auto !important;
-    min-height:70px !important;
-  }
 }
 
-/* ── Extra small phones (SE, Galaxy A series) ── */
+/* ── Tiny phones (iPhone SE, small Androids) ── */
 @media(max-width:360px){
   #homeBalAmt{font-size:2rem !important;}
-  .nav-btn{font-size:.65rem !important;padding:6px 4px !important;}
-  .btn{padding:14px !important;font-size:.95rem !important;}
-  .page{padding:8px 10px 100px !important;}
-  .hist-stat-num{font-size:1.1rem !important;}
+  .nav-btn .nl{font-size:.7rem !important;}
+  .btn{padding:12px 14px !important;min-height:46px !important;}
+  .mob-actions{padding:8px 2px !important;}
+  .mob-action-ico{width:40px !important;height:40px !important;}
+  .send-tabs .stab{font-size:.75rem !important;padding:7px 3px !important;}
 }
-
