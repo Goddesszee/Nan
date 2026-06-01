@@ -1975,3 +1975,16 @@ a:hover{color:var(--text);}
     font-weight: 700 !important;
   }
 }
+
+/* === MOBILE HEADER FIX === */
+@media(max-width:767px){
+  #disconnectTopBtn { display:none !important; }
+  #topbarPageInfo { display:none !important; }
+  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
+}
+/* === MOBILE HEADER FIX === */
+@media(max-width:767px){
+  #disconnectTopBtn { display:none !important; }
+  #topbarPageInfo { display:none !important; }
+  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
+}
