@@ -1990,6 +1990,11 @@ a:hover{color:var(--text);}
   /* Brand tighter */
   .brand-name { font-size:.95rem !important; }
   .brand-logo { width:28px !important; height:28px !important; }
+  /* Remove all blur effects on mobile — kills blurriness/lag */
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 .theme-toggle-btn{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 /* === RELAY-STYLE TOPBAR === */
