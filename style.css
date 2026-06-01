@@ -931,8 +931,8 @@ a:hover{color:var(--text);}
   /* ── Sidebar — starts below topbar ── */
   #desktopNav{
     flex-direction:column;
-    position:fixed;top:52px;left:0;
-    width:220px;height:calc(100vh - 52px);
+    position:fixed;top:58px;left:0;
+    width:220px;height:calc(100vh - 58px);
     background:var(--bg);
     border-right:1px solid var(--border);
     padding:0;gap:0;z-index:100;
@@ -992,7 +992,7 @@ a:hover{color:var(--text);}
   /* ── Desktop topbar — full width with logo on left like Relay ── */
   #globalTopBar{
     display:none;
-    position:fixed;top:0;left:0;right:0;height:52px;
+    position:fixed;top:0;left:0;right:0;height:58px;
     background:var(--topbar-bg);
     border-bottom:1px solid var(--border);
     align-items:center;justify-content:space-between;
@@ -1005,7 +1005,7 @@ a:hover{color:var(--text);}
   /* ── Pages: sit right of sidebar, below topbar ── */
   .page{
     position:fixed !important;
-    top:52px !important;
+    top:58px !important;
     left:220px !important;
     right:0 !important;
     bottom:0 !important;
@@ -2088,11 +2088,11 @@ a:hover{color:var(--text);}
   background: none;
   border: none;
   cursor: pointer;
-  padding: 7px 14px;
+  padding: 8px 16px;
   border-radius: 9px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--text);
   font-family: 'Inter', sans-serif;
   transition: background .15s;
@@ -2122,4 +2122,6 @@ a:hover{color:var(--text);}
 .brand { display:flex !important; align-items:center; gap:8px; }
 .brand-logo { display:flex !important; align-items:center; justify-content:center; width:32px; height:32px; background:#7000ff; border-radius:8px; flex-shrink:0; }
 .brand-logo svg { width:18px; height:18px; }
-.brand-name { display:block !important; font-size:1.1rem; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+.brand-name { display:block !important; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.03em; }
+.brand-logo { display:flex !important; align-items:center; justify-content:center; width:34px; height:34px; background:#7000ff; border-radius:9px; flex-shrink:0; }
+.brand-logo svg { width:19px; height:19px; }
