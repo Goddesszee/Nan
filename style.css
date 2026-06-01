@@ -1799,3 +1799,13 @@ a:hover{color:var(--text);}
 [data-theme="light"] .dnav-section-label {
   font-weight: 700 !important;
 }
+
+/* == NAV BOLD FINAL FIX == */
+.nav-btn span,
+.nav-btn .nl,
+#desktopNav .nav-btn .nl,
+[data-theme="light"] #desktopNav .nav-btn .nl {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+}
