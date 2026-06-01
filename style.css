@@ -1902,3 +1902,76 @@ a:hover{color:var(--text);}
     font-weight: 700 !important;
   }
 }
+
+/* == KUDA-STYLE MOBILE OVERHAUL == */
+@media (max-width: 768px) {
+
+  /* HEADER - clean and minimal */
+  #globalTopBar {
+    padding: 8px 14px !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+  .topbar-page-name {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+  .net-pill {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+    border-radius: 20px !important;
+  }
+  .pulse-dot { display: none !important; }
+
+  /* Hide wallet address on mobile - too cluttered */
+  [class*="wallet-addr"], [class*="address-pill"], [class*="addr-btn"] {
+    display: none !important;
+  }
+
+  /* BALANCE AREA - more breathing room */
+  .home-balance, [class*="balance-card"], [class*="bal-card"] {
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+  .home-balance-amt, [class*="balance-amt"] {
+    font-size: 2.4rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* FIX "Withdraw anytime · No lockup" wrapping */
+  .earn-meta, .save-meta, [class*="earn-sub"], [class*="no-lock"] {
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* BOTTOM NAV - Kuda style */
+  .bottom-nav {
+    padding: 8px 0 12px !important;
+    height: auto !important;
+  }
+  .bottom-nav .nav-btn {
+    gap: 4px !important;
+    padding: 4px 8px !important;
+  }
+  .bottom-nav .nav-btn svg,
+  .bottom-nav .nav-btn .ni {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .bottom-nav .nav-btn .nl {
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+  }
+  .bottom-nav .nav-btn.active .nl {
+    color: #7000ff !important;
+    font-weight: 700 !important;
+  }
+}
