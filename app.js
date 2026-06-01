@@ -550,6 +550,24 @@ function showPage(name){
   try{ if(name==='arcname') renderArcDirectory(); } catch(e){}
   try{ if(name==='swap') refreshBalances(); } catch(e){}
 }
+function toggleMoreDropdown(e){
+  e.stopPropagation();
+  const dd=document.getElementById('moreDropdown');
+  const chevron=document.getElementById('moreChevron');
+  const open=dd.style.display==='block';
+  dd.style.display=open?'none':'block';
+  if(chevron) chevron.style.transform=open?'':'rotate(180deg)';
+}
+function closeMoreDropdown(){
+  const dd=document.getElementById('moreDropdown');
+  const chevron=document.getElementById('moreChevron');
+  if(dd) dd.style.display='none';
+  if(chevron) chevron.style.transform='';
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('tnavMoreWrap')?.contains(e.target)) closeMoreDropdown();
+});
+
 function toggleTheme(){
   const root=document.documentElement;
   const isLight=root.getAttribute('data-theme')==='light';
