@@ -1698,3 +1698,7 @@ a:hover{color:var(--text);}
     margin-bottom: 6px;
   }
 }
+
+/* ══ TOPBAR & DISCONNECT FIX ══ */
+[data-theme="light"] #disconnectTopBtn { color: #dc2626 !important; }
+[data-theme="light"] #moreArcName { color: #4c1d95 !important; }
