@@ -931,8 +931,8 @@ a:hover{color:var(--text);}
   /* ── Sidebar — starts below topbar ── */
   #desktopNav{
     flex-direction:column;
-    position:fixed;top:60px;left:0;
-    width:220px;height:calc(100vh - 60px);
+    position:fixed;top:52px;left:0;
+    width:220px;height:calc(100vh - 52px);
     background:var(--bg);
     border-right:1px solid var(--border);
     padding:0;gap:0;z-index:100;
@@ -992,7 +992,7 @@ a:hover{color:var(--text);}
   /* ── Desktop topbar — full width with logo on left like Relay ── */
   #globalTopBar{
     display:none;
-    position:fixed;top:0;left:0;right:0;height:60px;
+    position:fixed;top:0;left:0;right:0;height:52px;
     background:var(--topbar-bg);
     border-bottom:1px solid var(--border);
     align-items:center;justify-content:space-between;
@@ -1005,7 +1005,7 @@ a:hover{color:var(--text);}
   /* ── Pages: sit right of sidebar, below topbar ── */
   .page{
     position:fixed !important;
-    top:60px !important;
+    top:52px !important;
     left:220px !important;
     right:0 !important;
     bottom:0 !important;
