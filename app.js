@@ -1323,10 +1323,10 @@ function showReceipt(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
   modal.innerHTML=`
     <div style="max-width:360px;width:100%;position:relative;">
-      <div id="receiptCard" style="background:linear-gradient(135deg,#111111 0%,#111111 50%,#111111 100%);border:1px solid rgba(168,85,247,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(168,85,247,.3);">
+      <div id="receiptCard" style="background:var(--card);border:1px solid rgba(168,85,247,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(168,85,247,.3);">
         <!-- Background glow -->
-        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(168,85,247,.25) 0%,transparent 70%);pointer-events:none;"></div>
-        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(85,0,204,.2) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:transparent;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:transparent;pointer-events:none;"></div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -1345,7 +1345,7 @@ function showReceipt(){
 
         <!-- Success check -->
         <div style="text-align:center;margin-bottom:20px;">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(112,0,255,.2),rgba(112,0,255,.1));border:2px solid rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(112,0,255,.2);">✓</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(112,0,255,.1);border:2px solid rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(112,0,255,.2);">✓</div>
           <div style="font-size:1.3rem;font-weight:700;color:#f3e8ff;margin-bottom:4px;">Transaction Confirmed</div>
           <div style="font-size:.75rem;color:#c084fc;">${msg}</div>
         </div>
@@ -1390,9 +1390,9 @@ function showReceipt(){
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(85,0,204,.2));border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#c084fc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:rgba(112,0,255,.12);border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#c084fc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
           <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #1a1a1a;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:linear-gradient(135deg,#a855f7,#7000ff);border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -2312,10 +2312,10 @@ let bulkDefaultAmt = 10;
 
 function setBulkToken(token){
   bulkToken = token;
-  document.getElementById('bulk-usdc').style.background = token==='USDC'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--surface)';
+  document.getElementById('bulk-usdc').style.background = token==='USDC'?'#7000ff':'var(--surface)';
   document.getElementById('bulk-usdc').style.border = token==='USDC'?'none':'1px solid var(--border)';
   document.getElementById('bulk-usdc').style.color = token==='USDC'?'#f3e8ff':'var(--text3)';
-  document.getElementById('bulk-eurc').style.background = token==='EURC'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--surface)';
+  document.getElementById('bulk-eurc').style.background = token==='EURC'?'#7000ff':'var(--surface)';
   document.getElementById('bulk-eurc').style.border = token==='EURC'?'none':'1px solid var(--border)';
   document.getElementById('bulk-eurc').style.color = token==='EURC'?'#f3e8ff':'var(--text3)';
   updateBulkSummary();
@@ -3169,8 +3169,8 @@ function renderAgentMsgs(){
   if(!el)return;
   el.innerHTML=agentMsgs.map(m=>`
     <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'linear-gradient(135deg,#a855f7,#7000ff)':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
-      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#7000ff);border:none;color:#f3e8ff;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
+      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'#7000ff':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
+      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:#7000ff;border:none;color:#f3e8ff;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
     </div>
   `).join('');
 }
@@ -4211,7 +4211,7 @@ window.addEventListener('load',()=>{
     // Show minimal connect prompt
     document.body.insertAdjacentHTML('beforeend',
       '<div id="connectLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">'
-      +'<div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#a855f7,#5500cc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(112,0,255,.5);margin-bottom:4px;">'
+      +'<div style="width:48px;height:48px;border-radius:14px;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(112,0,255,.5);margin-bottom:4px;">'
       +'<svg width="24" height="24" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="5" fill="#f3e8ff"/><circle cx="50" cy="20" r="5" fill="#f3e8ff"/><circle cx="50" cy="52" r="5" fill="#f3e8ff"/><line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/></svg>'
       +'</div>'
       +'<div style="font-size:1rem;font-weight:700;color:var(--text);">Connecting wallet…</div>'
@@ -4434,7 +4434,7 @@ function renderPaymentRequests(){
   if(el2)el2.textContent=paid;
   if(el3)el3.textContent=pending;
   if(!paymentRequests.length){
-    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:linear-gradient(135deg,#a855f7,#7000ff);border:none;border-radius:10px;color:#f3e8ff;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
     return;
   }
   list.innerHTML=paymentRequests.map(pr=>{
