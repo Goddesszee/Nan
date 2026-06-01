@@ -1728,3 +1728,17 @@ a:hover{color:var(--text);}
   background-color: rgba(220,38,38,0.1) !important;
   border-color: rgba(220,38,38,0.3) !important;
 }
+
+/* == SIDEBAR NAV LABEL FIX == */
+.nav-btn .nl {
+  font-size: 1rem !important;
+}
+
+.nav-btn span {
+  font-size: 1rem !important;
+}
+
+#desktopNav .nav-btn {
+  font-size: 1rem !important;
+  gap: 10px !important;
+}
