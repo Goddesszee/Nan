@@ -1976,14 +1976,22 @@ a:hover{color:var(--text);}
 @media(max-width:767px){
   #disconnectTopBtn { display:none !important; }
   #topbarPageInfo { display:none !important; }
-  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
+  /* Hide net pill, theme toggle on mobile — saves space */
+  .net-pill { display:none !important; }
+  .theme-toggle-btn { display:none !important; }
+  /* Tighter topbar on mobile */
+  #globalTopBar { padding:0 12px !important; height:52px !important; }
+  /* Wallet address pill — smaller */
+  #connectTopBtn, #landConnectBtn {
+    font-size:.75rem !important;
+    padding:5px 10px !important;
+    border-radius:100px !important;
+  }
+  /* Brand tighter */
+  .brand-name { font-size:.95rem !important; }
+  .brand-logo { width:28px !important; height:28px !important; }
 }
-/* === MOBILE HEADER FIX === */
-@media(max-width:767px){
-  #disconnectTopBtn { display:none !important; }
-  #topbarPageInfo { display:none !important; }
-  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
-}
+.theme-toggle-btn{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 /* === RELAY-STYLE TOPBAR === */
 #globalTopBar {
   display: flex !important;

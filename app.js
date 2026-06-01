@@ -609,11 +609,15 @@ function updateTopBar(connected){
     };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
+    const discBtnMobile=document.getElementById('disconnectTopBtnMobile');
+    if(discBtnMobile)discBtnMobile.style.display='flex';
     if(landBtn) landBtn.style.display='none';
   }else{
     bar.style.display='none';
     if(dNav) dNav.style.display='none';
     btn.style.display='none';
+    const discBtnMobile=document.getElementById('disconnectTopBtnMobile');
+    if(discBtnMobile)discBtnMobile.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
 }

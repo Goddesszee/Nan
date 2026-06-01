@@ -146,11 +146,13 @@ html,body{background:#111111 !important;}
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <span id="devBadge" class="dev-badge" style="display:none;"></span>
-      <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
+      <button id="themeToggle" onclick="toggleTheme()" class="theme-toggle-btn">🌙</button>
       <div class="net-pill" id="netPill">Arc Testnet</div>
       <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
       <button id="landConnectBtn" style="display:none;" onclick="showWalletPicker()">Connect</button>
       <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
+      <!-- Mobile-only icon disconnect -->
+      <button id="disconnectTopBtnMobile" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:50%;width:32px;height:32px;font-size:1rem;color:var(--danger);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;">⏏</button>
     </div>
   </div>
 
