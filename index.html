@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Nan — Weave. Connect. Build.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <style>
   :root,[data-theme="dark"]{
     --violet:#7000ff;--violet-dark:#5500cc;--violet-light:#c084fc;
@@ -37,7 +38,7 @@
   .brand-logo svg{width:18px;height:18px;display:block;}
   .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .nav-right{display:flex;align-items:center;gap:12px;}
-  .net-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#111111;display:flex;align-items:center;gap:6px;}
+  .net-pill{font-family:'Inter var','Inter',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#111111;display:flex;align-items:center;gap:6px;}
   .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
   .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--violet-border);background:var(--faint);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text);}
@@ -47,7 +48,7 @@
   main{position:relative;z-index:1;max-width:100%;margin:0 auto;padding:0 28px;}
 
   .hero{text-align:center;padding:104px 24px 76px;}
-  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#ffffff);border-radius:6px;padding:6px 15px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#ffffff);border-radius:6px;padding:6px 15px;font-family:'Inter var','Inter',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
   .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
   .hero h1 .accent{color:var(--violet-light);}
   .hero-sub{font-size:1.05rem;color:#888;line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
@@ -59,11 +60,11 @@
 
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:72px 0;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:14px;overflow:hidden;}
   .stat{background:var(--surface);padding:32px 20px;text-align:center;}
-  .stat-num{font-size:2.4rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-1.5px;font-family:'JetBrains Mono',monospace;}
+  .stat-num{font-size:2.4rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-1.5px;font-family:'Inter var','Inter',monospace;}
   .stat-lbl{font-size:.68rem;color:#888;letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
 
   .section{padding:72px 0;}
-  .section-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
+  .section-tag{font-family:'Inter var','Inter',monospace;font-size:.6rem;color:var(--violet-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;}
   .section-title{font-size:2rem;font-weight:700;letter-spacing:-.7px;margin-bottom:12px;line-height:1.15;color:var(--text);}
   .section-sub{font-size:.92rem;color:#888;line-height:1.7;max-width:480px;margin-bottom:44px;}
 
@@ -74,19 +75,19 @@
   .feat-icon svg{width:18px;height:18px;stroke:var(--violet-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .feat-title{font-size:.97rem;font-weight:700;margin-bottom:8px;color:var(--text);}
   .feat-desc{font-size:.81rem;color:#888;line-height:1.68;}
-  .feat-badge{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--success);background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:4px;padding:2px 7px;letter-spacing:.08em;}
+  .feat-badge{display:inline-block;margin-top:8px;font-family:'Inter var','Inter',monospace;font-size:.55rem;color:var(--success);background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:4px;padding:2px 7px;letter-spacing:.08em;}
 
   .how-section{background:var(--surface);border:1px solid var(--card-border,#ffffff);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
   .steps{display:flex;flex-direction:column;gap:0;margin-top:36px;}
   .step{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-bottom:1px solid #1a1a1a;}
   .step:last-child{border-bottom:none;padding-bottom:0;}
   .step:first-child{padding-top:0;}
-  .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#f3e8ff;flex-shrink:0;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(168,85,247,.35);}
+  .step-num{width:36px;height:36px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#f3e8ff;flex-shrink:0;font-family:'Inter var','Inter',monospace;box-shadow:0 0 12px rgba(168,85,247,.35);}
   .step-title{font-size:.95rem;font-weight:700;margin-bottom:5px;color:var(--text);}
   .step-desc{font-size:.81rem;color:#888;line-height:1.68;}
   .step-desc strong{color:var(--text);}
   .wallets-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-  .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--card-border,#ffffff);border-radius:100px;padding:4px 11px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);}
+  .wallet-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--card-border,#ffffff);border-radius:100px;padding:4px 11px;font-family:'Inter var','Inter',monospace;font-size:.58rem;color:var(--muted);}
 
   .tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--violet-border);border:1px solid var(--violet-border);border-radius:12px;overflow:hidden;}
   .tok-card{background:var(--surface);padding:24px 26px;display:flex;align-items:center;gap:16px;transition:background .2s;}
@@ -94,8 +95,8 @@
   .tok-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
   .tok-name{font-size:1.02rem;font-weight:700;margin-bottom:3px;color:var(--text);}
   .tok-desc{font-size:.72rem;color:#888;}
-  .tok-meta{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#888;margin-top:4px;}
-  .tok-bal{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
+  .tok-meta{font-family:'Inter var','Inter',monospace;font-size:.58rem;color:#888;margin-top:4px;}
+  .tok-bal{font-family:'Inter var','Inter',monospace;font-size:.7rem;color:var(--violet-light);margin-left:auto;background:var(--faint);border:1px solid var(--violet-border);padding:4px 11px;border-radius:5px;white-space:nowrap;}
 
   .circle-section{background:var(--surface);border:1px solid var(--card-border,#ffffff);border-top:2px solid var(--violet);border-radius:14px;padding:44px;margin:72px 0;}
   .circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;}
@@ -118,7 +119,7 @@
   .footer-links a{font-size:.78rem;color:#888;text-decoration:none;transition:color .18s;font-weight:500;}
   .footer-links a:hover{color:var(--violet-light);}
   .footer-divider{height:1px;background:var(--violet-border);margin-bottom:22px;}
-  .footer-note{font-size:.67rem;color:#888;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;opacity:.7;}
+  .footer-note{font-size:.67rem;color:#888;font-family:'Inter var','Inter',monospace;letter-spacing:.06em;opacity:.7;}
 
   @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
@@ -189,7 +190,7 @@
             <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Enter verification code</div>
             <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#c084fc;margin-bottom:10px;"></div>
             <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#111111"
-              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#f0f0f0;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'JetBrains Mono',monospace;margin-bottom:8px;"
+              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#f0f0f0;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'Inter var','Inter',monospace;margin-bottom:8px;"
               onfocus="this.style.borderColor='#7000ff'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
               onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
             <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:#7000ff;border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
