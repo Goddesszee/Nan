@@ -37,6 +37,39 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css?v=1780285358"/>
+<style>
+/* ══ RELAY COLOR OVERRIDE — inline so cache can't block it ══ */
+:root{
+  --bg:#111111 !important;
+  --surface:#1a1a1a !important;
+  --card:#1a1a1a !important;
+  --card2:#222222 !important;
+  --border:rgba(255,255,255,.07) !important;
+  --border2:rgba(255,255,255,.12) !important;
+  --accent:#7000ff !important;
+  --accent3:#a855f7 !important;
+  --accent4:#c084fc !important;
+  --text:#ffffff !important;
+  --text2:#a0a0a0 !important;
+  --text3:#555555 !important;
+  --success:#7000ff !important;
+  --topbar-bg:#111111 !important;
+  --nav-bg:#111111 !important;
+}
+html,body{background:#111111 !important;}
+#app-root{background:#111111 !important;}
+.bottom-nav{background:#111111 !important;border-top:1px solid rgba(255,255,255,.07) !important;}
+.nav-pill-wrap{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.07) !important;}
+.nav-btn{color:#555555 !important;}
+.nav-btn.active{background:rgba(112,0,255,.15) !important;color:#a855f7 !important;border:1px solid rgba(112,0,255,.2) !important;}
+.btn{background:linear-gradient(135deg,#7000ff,#5500cc) !important;box-shadow:0 4px 14px rgba(112,0,255,.35) !important;}
+[data-theme="light"]:root,[data-theme="light"] :root{
+  --bg:#ffffff !important;--surface:#f5f5f5 !important;--card:#f5f5f5 !important;
+  --card2:#eeeeee !important;--border:#e8e8e8 !important;
+  --text:#111111 !important;--text2:#444444 !important;--text3:#888888 !important;
+  --accent:#7000ff !important;--topbar-bg:#ffffff !important;--nav-bg:#ffffff !important;
+}
+</style>
 </head>
 <body>
 <div id="app-root">
