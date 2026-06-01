@@ -2021,16 +2021,24 @@ a:hover{color:var(--text);}
     border-color: rgba(168,85,247,.12) !important;
   }
 
-  /* ── Strip card backgrounds on mobile — clean flat look ── */
-  .card, .send-card, .mob-actions {
+  /* ── Strip ALL card/container wrappers on mobile — plain black ── */
+  .card, .send-card, .mob-actions,
+  .page > div, .page > section,
+  [style*="border-radius:22px"],
+  [style*="border-radius:18px"],
+  [style*="border-radius:16px"],
+  [style*="border-radius:14px"],
+  [style*="overflow:hidden"] {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
-    margin-bottom: 8px !important;
   }
-  /* Force page bg to pure black */
-  .page, #app-root, body {
+  .card, .send-card, .mob-actions {
+    padding: 0 !important;
+    margin-bottom: 4px !important;
+  }
+  /* Force pure black everywhere */
+  .page, #app-root, body, html {
     background: #000000 !important;
   }
   #globalTopBar, .bottom-nav {
