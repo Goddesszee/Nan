@@ -945,6 +945,12 @@ async function onConnected(isEmail=false, isDev=false){
   land.style.display='none';
   land.style.visibility='hidden';
   land.style.zIndex='-1';
+  land.style.pointerEvents='none';
+  // Also remove active from page-land explicitly
+  document.querySelectorAll('.page-land').forEach(p=>{
+    p.classList.remove('active');
+    p.style.display='none';
+  });
   document.getElementById('bottomNav').classList.add('show');
   showPage('home');
   updateTopBar(true);
@@ -4248,7 +4254,7 @@ window.addEventListener('load',()=>{
       +'<div style="width:8px;height:8px;border-radius:50%;background:#9333ea;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div>'
       +'<div style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div>'
       +'</div>'
-      +'<button onclick="window.location.replace(\'/'\)" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:rgba(255,255,255,.35);padding:9px 20px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
+      +'<button onclick="window.location.href=\'/\'" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:rgba(255,255,255,.35);padding:9px 20px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
       +'<style>@keyframes splashRing{0%{transform:scale(1);opacity:.6;}100%{transform:scale(1.7);opacity:0;}}@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style>'
       +'</div>');
     setTimeout(async function(){

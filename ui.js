@@ -10,7 +10,8 @@ function goBack(){
 function goPage(name) {
   window._prevPage = window._currentPage || 'home';
   window._currentPage = name;
-  if (!userAddr) { toast('Connect wallet first', 'error'); return; }
+  const _userAddr = (typeof userAddr !== 'undefined') ? userAddr : null;
+  if (!_userAddr) { if(typeof toast==='function') toast('Connect wallet first', 'error'); return; }
 
   // Hide all pages
   document.querySelectorAll('.page:not(.page-land)').forEach(p => p.classList.remove('active'));
