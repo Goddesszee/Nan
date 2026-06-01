@@ -2008,4 +2008,7 @@ a:hover{color:var(--text);}
   font-size: 1rem !important;
   letter-spacing: -0.01em !important;
   color: var(--text) !important;
-}
+}.brand { display:flex !important; align-items:center; gap:8px; }
+.brand-logo { display:flex !important; align-items:center; justify-content:center; width:32px; height:32px; background:#7000ff; border-radius:8px; flex-shrink:0; }
+.brand-logo svg { width:18px; height:18px; }
+.brand-name { display:block !important; font-size:1.1rem; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
