@@ -17,7 +17,7 @@
     --nav-bg:#111111;--grid-line:rgba(255,255,255,.015);
   }
   [data-theme="light"]{
-    --violet:#7000ff;--violet-dark:#5500cc;--violet-light:#7000ff;
+    --violet:#7000ff;--violet-dark:#5500cc;--violet-light:#5500cc;
     --violet-border:rgba(85,0,204,0.2);--violet-border-strong:rgba(85,0,204,0.45);
     --bg:#ffffff;--surface:#ffffff;--surface2:#ffffff;
     --text:#111111;--muted:#9ca3af;--faint:rgba(112,0,255,0.05);
@@ -28,6 +28,7 @@
   *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,border-color .3s,color .3s;}
   html{scroll-behavior:smooth;}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  [data-theme="light"] body::before{display:none;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;}
   body::after{content:'';position:fixed;inset:0;background:none;pointer-events:none;z-index:0;}
 
@@ -51,6 +52,8 @@
   .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#ffffff);border-radius:6px;padding:6px 15px;font-family:'Inter var','Inter',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
   .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
   .hero h1 .accent{color:var(--violet-light);}
+  [data-theme="light"] .hero h1 .accent{color:#7000ff;}
+  [data-theme="light"] .cta-section h2 .accent{color:#7000ff;}
   .hero-sub{font-size:1.05rem;color:#888;line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
   .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
   .btn-primary{background:var(--violet);color:#f3e8ff;border:none;border-radius:8px;padding:14px 34px;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.03em;box-shadow:0 0 22px rgba(168,85,247,.45);transition:all .18s;display:inline-block;}
