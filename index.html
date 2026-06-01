@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Nan — Weave. Connect. Build.</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20width%3D%2732%27%20height%3D%2732%27%20viewBox%3D%270%200%2040%2020%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M16%2C10%20C16%2C4%208%2C4%208%2C10%20C8%2C16%2016%2C16%2020%2C10%20C24%2C4%2032%2C4%2032%2C10%20C32%2C16%2024%2C16%2020%2C10%20Z%27%20fill%3D%27none%27%20stroke%3D%27%25237000ff%27%20stroke-width%3D%272.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <style>
@@ -14,7 +14,7 @@
     --bg:#111111;--surface:#1a1a1a;--surface2:#1a1a1a;
     --text:#f0f0f0;--muted:#9ca3af;--faint:rgba(255,255,255,0.04);
     --success:#7000ff;--gold:#fbbf24;--danger:#f87171;
-    --nav-bg:#111111;--grid-line:rgba(255,255,255,.025);
+    --nav-bg:#111111;--grid-line:rgba(255,255,255,.015);
   }
   [data-theme="light"]{
     --violet:#7000ff;--violet-dark:#5500cc;--violet-light:#5500cc;
@@ -22,12 +22,13 @@
     --bg:#ffffff;--surface:#ffffff;--surface2:#ffffff;
     --text:#111111;--muted:#9ca3af;--faint:rgba(112,0,255,0.05);
     --success:#5500cc;--gold:#fbbf24;--danger:#f87171;
-    --nav-bg:rgba(17,17,17,.96);--grid-line:rgba(0,0,0,.03);
+    --nav-bg:rgba(17,17,17,.96);--grid-line:transparent;
     --card-bg:#ffffff;--card-border:#ffffff;
   }
   *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,border-color .3s,color .3s;}
   html{scroll-behavior:smooth;}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  [data-theme="light"] body::before{display:none;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;}
   body::after{content:'';position:fixed;inset:0;background:none;pointer-events:none;z-index:0;}
 
@@ -36,7 +37,7 @@
   .brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
   .brand-logo{width:34px;height:34px;border-radius:8px;background:var(--violet);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-logo svg{width:18px;height:18px;display:block;}
-  .brand-name{font-size:1.5rem;font-weight:900;color:var(--text);letter-spacing:-.02em;text-transform:uppercase;}
+  .brand-name{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;text-transform:uppercase;}
   .nav-right{display:flex;align-items:center;gap:12px;}
   .net-pill{font-family:'Inter var','Inter',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#111111;display:flex;align-items:center;gap:6px;}
   .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
@@ -51,6 +52,8 @@
   .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--card-border,#ffffff);border-radius:6px;padding:6px 15px;font-family:'Inter var','Inter',monospace;font-size:.6rem;color:#888;margin-bottom:32px;letter-spacing:.12em;text-transform:uppercase;animation:fadeDown .6s ease both;}
   .hero h1{font-size:4.6rem;font-weight:700;letter-spacing:-3px;line-height:1.06;margin-bottom:24px;color:var(--text);animation:fadeUp .7s .1s ease both;}
   .hero h1 .accent{color:var(--violet-light);}
+  [data-theme="light"] .hero h1 .accent{color:#7000ff;}
+  [data-theme="light"] .cta-section h2 .accent{color:#7000ff;}
   .hero-sub{font-size:1.05rem;color:#888;line-height:1.8;max-width:520px;margin:0 auto 44px;animation:fadeUp .7s .2s ease both;}
   .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .3s ease both;}
   .btn-primary{background:var(--violet);color:#f3e8ff;border:none;border-radius:8px;padding:14px 34px;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:.03em;box-shadow:0 0 22px rgba(168,85,247,.45);transition:all .18s;display:inline-block;}
@@ -150,16 +153,7 @@
 <nav>
   <div class="nav-inner">
     <a class="brand" href="#">
-      <div class="brand-logo">
-        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="22" cy="36" r="5" fill="#f3e8ff"/>
-          <circle cx="50" cy="20" r="5" fill="#f3e8ff"/>
-          <circle cx="50" cy="52" r="5" fill="#f3e8ff"/>
-          <line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="45" y1="22" x2="45" y2="50" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-        </svg>
-      </div>
+      <div class="brand-logo" style="width:36px;height:18px;display:flex;align-items:center;"><svg width="36" height="18" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <span class="brand-name">Nan</span>
     </a>
     <div class="nav-right">
@@ -168,70 +162,13 @@
       <div style="position:relative;" id="connectWrap">
         <button id="connectNavBtn" onclick="toggleConnectDrop()" style="display:flex;align-items:center;gap:7px;background:rgba(112,0,255,.12);border:1.5px solid rgba(112,0,255,.35);border-radius:10px;color:#dbb4fd;font-size:.82rem;font-weight:700;padding:9px 18px;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:.02em;transition:all .15s;">
           <span style="width:7px;height:7px;border-radius:50%;background:#7000ff;display:inline-block;box-shadow:0 0 6px #7000ff;"></span>
-          Connect Wallet
+          Get Started
           <svg id="connectChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
 
-        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#111111;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(112,0,255,.1);z-index:500;">
+        <div id="connectDrop" style="display:none;"><!-- legacy, kept for JS compat --></div>
 
-          <!-- Email step 1 -->
-          <div id="landingEmailStep" style="padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Continue with Email</div>
-            <input id="landingEmailInput" type="email" placeholder="your@email.com"
-              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#f0f0f0;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
-              onfocus="this.style.borderColor='#7000ff'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
-              onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
-            <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:#7000ff;border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
-              Continue with Email →
-            </button>
-          </div>
-          <!-- OTP step 2 (hidden initially) -->
-          <div id="landingOtpStep" style="display:none;padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Enter verification code</div>
-            <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#c084fc;margin-bottom:10px;"></div>
-            <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#111111"
-              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#f0f0f0;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'Inter var','Inter',monospace;margin-bottom:8px;"
-              onfocus="this.style.borderColor='#7000ff'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
-              onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
-            <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:#7000ff;border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
-              Verify & Connect →
-            </button>
-            <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#9ca3af;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
-          </div>
 
-          <div style="height:1px;background:rgba(255,255,255,.06);margin:8px 0;"></div>
-          <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b7280;padding:2px 8px 6px;">Or connect wallet</div>
-
-          <!-- MetaMask -->
-          <div onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">M</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">MetaMask</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Browser extension</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <!-- WalletConnect -->
-          <div onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">W</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">WalletConnect</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Scan QR code</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <!-- Coinbase -->
-          <div onclick="landingWalletConnect('coinbase')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">C</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">Coinbase Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Mobile or extension</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <!-- Circle -->
-          <div onclick="landingWalletConnect('circle')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">◎</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">Circle Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Connect with email →</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <div style="padding:8px 10px 4px;font-size:.6rem;color:#6b7280;text-align:center;">Non-custodial · Your keys · Arc Testnet</div>
-        </div>
       </div>
     </div>
   </div>
@@ -244,7 +181,7 @@
     <h1>Weave. Connect.<br/><span class="accent">Build on Arc.</span></h1>
     <p class="hero-sub">Nan is the simplest way to send, swap, lend, borrow, and bridge USDC and EURC on Arc — Circle's stablecoin-native blockchain. Non-custodial. For everyone, everywhere.</p>
     <div class="hero-btns">
-      <button class="btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(toggleConnectDrop,300)">Connect Wallet →</button>
+      <button class="btn-primary" onclick="toggleConnectDrop()">Get Started →</button>
       <a class="btn-secondary" href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Get Free Tokens</a>
     </div>
   </div>
@@ -402,7 +339,7 @@
   <div class="cta-section reveal">
     <h2>Ready to try <span class="accent">Nan</span>?</h2>
     <p>Connect your wallet or sign in with email and experience stablecoin finance on Arc.</p>
-    <button class="btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(toggleConnectDrop,350)">Connect Wallet →</button>
+    <button class="btn-primary" onclick="toggleConnectDrop()">Get Started →</button>
   </div>
 
 </main>
@@ -410,14 +347,7 @@
 <footer>
   <div class="footer-brand">
     <div class="footer-logo">
-      <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="22" cy="36" r="5" fill="#f3e8ff"/>
-        <circle cx="50" cy="20" r="5" fill="#f3e8ff"/>
-        <circle cx="50" cy="52" r="5" fill="#f3e8ff"/>
-        <line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="45" y1="22" x2="45" y2="50" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-      </svg>
+      <svg width="36" height="18" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <span class="footer-name">Nan</span>
   </div>
@@ -457,20 +387,35 @@
 </script>
 <script>
 function toggleConnectDrop(){
-  const drop = document.getElementById('connectDrop');
-  const chevron = document.getElementById('connectChevron');
-  const isOpen = drop.style.display === 'block';
-  drop.style.display = isOpen ? 'none' : 'block';
-  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  const modal = document.getElementById('onboardModal');
+  const sheet = document.getElementById('onboardSheet');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    sheet.style.transform = 'translateY(0)';
+  }));
+  document.getElementById('ob-step1').style.display = 'block';
+  document.getElementById('ob-step2').style.display = 'none';
+  document.getElementById('ob-dot1').style.width = '24px';
+  document.getElementById('ob-dot2').style.width = '8px';
+  document.getElementById('ob-dot1').style.background = '#7000ff';
+  document.getElementById('ob-dot2').style.background = 'rgba(112,0,255,.2)';
 }
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#connectWrap')){
-    const drop = document.getElementById('connectDrop');
-    const chevron = document.getElementById('connectChevron');
-    if(drop) drop.style.display = 'none';
-    if(chevron) chevron.style.transform = 'rotate(0deg)';
-  }
-});
+function closeOnboard(){
+  const modal = document.getElementById('onboardModal');
+  const sheet = document.getElementById('onboardSheet');
+  if(!modal) return;
+  sheet.style.transform = 'translateY(100%)';
+  setTimeout(()=>{ modal.style.display = 'none'; }, 350);
+}
+function ob_backToEmail(){
+  document.getElementById('ob-step2').style.display = 'none';
+  document.getElementById('ob-step1').style.display = 'block';
+  document.getElementById('ob-dot1').style.width = '24px';
+  document.getElementById('ob-dot2').style.width = '8px';
+  document.getElementById('ob-dot1').style.background = '#7000ff';
+  document.getElementById('ob-dot2').style.background = 'rgba(112,0,255,.2)';
+}
 async function landingEmailConnect(){
   const email = document.getElementById('landingEmailInput').value.trim();
   if(!email||!email.includes('@')){ alert('Please enter a valid email'); return; }
@@ -485,8 +430,13 @@ async function landingEmailConnect(){
     window._landingOtpExpiry = data.expiresAt;
     window._landingEmail = email;
     document.getElementById('landingOtpEmailLabel').textContent = 'Code sent to '+email;
-    document.getElementById('landingEmailStep').style.display='none';
-    document.getElementById('landingOtpStep').style.display='block';
+    // Switch to step 2 in new modal
+    document.getElementById('ob-step1').style.display='none';
+    document.getElementById('ob-step2').style.display='block';
+    document.getElementById('ob-dot1').style.width='8px';
+    document.getElementById('ob-dot2').style.width='24px';
+    document.getElementById('ob-dot1').style.background='rgba(112,0,255,.2)';
+    document.getElementById('ob-dot2').style.background='#7000ff';
     setTimeout(()=>document.getElementById('landingOtpInput').focus(),100);
   } catch(e){
     alert('Could not send code: '+e.message);
@@ -526,6 +476,84 @@ document.addEventListener('DOMContentLoaded', function(){
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter') landingEmailConnect(); });
 });
 </script>
+
+<!-- Full-screen onboarding modal -->
+<div id="onboardModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeOnboard();">
+  <div id="onboardSheet" onclick="event.stopPropagation()" style="width:100%;max-width:480px;background:#0a0a0a;border:1px solid rgba(112,0,255,.2);border-radius:24px 24px 0 0;padding:0 0 32px;box-shadow:0 -20px 80px rgba(112,0,255,.15);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.25,1);">
+    <!-- Handle -->
+    <div style="display:flex;justify-content:center;padding:12px 0 0;">
+      <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);"></div>
+    </div>
+    <!-- Header -->
+    <div style="padding:20px 24px 0;text-align:center;">
+      <div style="margin:0 auto 14px;display:flex;align-items:center;justify-content:center;">
+        <svg width="36" height="18" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:6px;">Get started with NAN</div>
+      <div style="font-size:.875rem;color:rgba(255,255,255,.4);line-height:1.5;">Your stablecoin wallet on Arc.<br/>No gas fees. Takes 30 seconds.</div>
+    </div>
+
+    <!-- Steps indicator -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:18px 24px 0;">
+      <div id="ob-dot1" style="width:24px;height:4px;border-radius:2px;background:#7000ff;transition:all .3s;"></div>
+      <div id="ob-dot2" style="width:8px;height:4px;border-radius:2px;background:rgba(112,0,255,.2);transition:all .3s;"></div>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div id="ob-step1" style="padding:20px 24px 0;">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(168,85,247,.7);margin-bottom:10px;">✉ Continue with email — fastest way</div>
+      <input id="landingEmailInput" type="email" placeholder="your@email.com" autocomplete="email"
+        style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(112,0,255,.2);border-radius:14px;padding:14px 16px;color:#fff;font-size:1rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px;box-sizing:border-box;"
+        onfocus="this.style.borderColor='rgba(112,0,255,.7)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"
+        onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
+      <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:15px;cursor:pointer;box-shadow:0 4px 24px rgba(112,0,255,.4);margin-bottom:16px;">
+        Send verification code →
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
+        <span style="font-size:.78rem;color:rgba(255,255,255,.25);">or use a wallet</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+          <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none'"/>
+          <div style="text-align:left;"><div style="font-weight:700;">MetaMask</div><div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:1px;">Browser & mobile wallet</div></div>
+          <svg style="margin-left:auto;opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <button onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+          <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none'"/>
+          <div style="text-align:left;"><div style="font-weight:700;">WalletConnect</div><div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:1px;">Any EVM-compatible wallet</div></div>
+          <svg style="margin-left:auto;opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.18);margin-top:16px;">Non-custodial · Your keys · Arc Testnet</div>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="ob-step2" style="display:none;padding:20px 24px 0;">
+      <div style="background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(112,0,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <div style="font-size:.9rem;font-weight:700;color:#c084fc;">Code sent! Check your inbox</div>
+          <div id="landingOtpEmailLabel" style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(168,85,247,.7);margin-bottom:10px;">Enter 6-digit code</div>
+      <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code"
+        style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(112,0,255,.2);border-radius:14px;padding:16px;color:#fff;font-size:1.8rem;letter-spacing:.5em;text-align:center;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px;box-sizing:border-box;"
+        onfocus="this.style.borderColor='rgba(112,0,255,.7)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"
+        onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
+      <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:15px;cursor:pointer;box-shadow:0 4px 24px rgba(112,0,255,.4);margin-bottom:10px;">
+        Verify & Enter →
+      </button>
+      <button onclick="ob_backToEmail()" style="width:100%;background:none;border:none;color:rgba(255,255,255,.35);padding:8px;font-size:.875rem;cursor:pointer;font-family:'Inter',sans-serif;">
+        ← Change email
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
   

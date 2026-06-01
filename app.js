@@ -550,6 +550,24 @@ function showPage(name){
   try{ if(name==='arcname') renderArcDirectory(); } catch(e){}
   try{ if(name==='swap') refreshBalances(); } catch(e){}
 }
+function toggleMoreDropdown(e){
+  e.stopPropagation();
+  const dd=document.getElementById('moreDropdown');
+  const chevron=document.getElementById('moreChevron');
+  const open=dd.style.display==='block';
+  dd.style.display=open?'none':'block';
+  if(chevron) chevron.style.transform=open?'':'rotate(180deg)';
+}
+function closeMoreDropdown(){
+  const dd=document.getElementById('moreDropdown');
+  const chevron=document.getElementById('moreChevron');
+  if(dd) dd.style.display='none';
+  if(chevron) chevron.style.transform='';
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('tnavMoreWrap')?.contains(e.target)) closeMoreDropdown();
+});
+
 function toggleTheme(){
   const root=document.documentElement;
   const isLight=root.getAttribute('data-theme')==='light';
@@ -559,7 +577,7 @@ function toggleTheme(){
   document.getElementById('themeToggle').textContent=t==='light'?'🌙':'☀️';
 }
 function initTheme(){
-  const s=localStorage.getItem('nan_theme')||'dark';
+  const s=localStorage.getItem('nan_theme')||'light';
   document.documentElement.setAttribute('data-theme',s==='light'?'light':'');
   document.getElementById('themeToggle').textContent=s==='light'?'🌙':'☀️';
 }
@@ -591,11 +609,15 @@ function updateTopBar(connected){
     };
     const discBtn=document.getElementById('disconnectTopBtn');
     if(discBtn)discBtn.style.display='block';
+    const discBtnMobile=document.getElementById('disconnectTopBtnMobile');
+    if(discBtnMobile)discBtnMobile.style.display='flex';
     if(landBtn) landBtn.style.display='none';
   }else{
     bar.style.display='none';
     if(dNav) dNav.style.display='none';
     btn.style.display='none';
+    const discBtnMobile=document.getElementById('disconnectTopBtnMobile');
+    if(discBtnMobile)discBtnMobile.style.display='none';
     if(landBtn) landBtn.style.display='block';
   }
 }
@@ -923,6 +945,12 @@ async function onConnected(isEmail=false, isDev=false){
   land.style.display='none';
   land.style.visibility='hidden';
   land.style.zIndex='-1';
+  land.style.pointerEvents='none';
+  // Also remove active from page-land explicitly
+  document.querySelectorAll('.page-land').forEach(p=>{
+    p.classList.remove('active');
+    p.style.display='none';
+  });
   document.getElementById('bottomNav').classList.add('show');
   showPage('home');
   updateTopBar(true);
@@ -1568,16 +1596,16 @@ function _applyQuote(q){
 function flipSwap(){
   swapFlipped=!swapFlipped;
   _quoteCache={};
-  // Update labels in new Relay-style UI
+  const USDC_LOGO='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==';
+  const EURC_LOGO='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==';
   const fromLbl=document.getElementById('fromTokenLabel');
   const toLbl=document.getElementById('toTokenLabel');
+  const fromLogo=document.getElementById('fromTokenLogo');
+  const toLogo=document.getElementById('toTokenLogo');
   if(fromLbl) fromLbl.textContent=swapFlipped?'EURC':'USDC';
   if(toLbl) toLbl.textContent=swapFlipped?'USDC':'EURC';
-  // Update dot colors
-  const fromDot=document.querySelector('#fromToken span:first-child');
-  const toDot=document.querySelector('#toToken span:first-child');
-  if(fromDot) fromDot.style.background=swapFlipped?'#7000ff':'#7000ff';
-  if(toDot) toDot.style.background=swapFlipped?'#7000ff':'#7000ff';
+  if(fromLogo) fromLogo.src=swapFlipped?EURC_LOGO:USDC_LOGO;
+  if(toLogo) toLogo.src=swapFlipped?USDC_LOGO:EURC_LOGO;
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
@@ -4208,15 +4236,26 @@ window.addEventListener('load',()=>{
   } else if(_ct && _ct!=='email'){
     // MetaMask/Coinbase/WalletConnect — skip page-land, show loading + trigger wallet
     if(_land) _land.style.display='none';
-    // Show minimal connect prompt
-    document.body.insertAdjacentHTML('beforeend',
-      '<div id="connectLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">'
-      +'<div style="width:48px;height:48px;border-radius:14px;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(112,0,255,.5);margin-bottom:4px;">'
-      +'<svg width="24" height="24" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="5" fill="#f3e8ff"/><circle cx="50" cy="20" r="5" fill="#f3e8ff"/><circle cx="50" cy="52" r="5" fill="#f3e8ff"/><line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/></svg>'
+    // Show animated connect splash
+    document.body.insertAdjacentHTML('beforeend', '<div id="connectLoader" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden;">'
+      +'<div style="position:absolute;top:-10%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.2) 0%,transparent 70%);animation:floatOrb1 8s ease-in-out infinite;pointer-events:none;"></div>'
+      +'<div style="position:absolute;bottom:-10%;right:-10%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12) 0%,transparent 70%);animation:floatOrb2 10s ease-in-out infinite;pointer-events:none;"></div>'
+      +'<div style="margin-bottom:28px;">'
+      +''
+      +''
+      +'<div>'
+      +'<svg width="36" height="36" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>'
+      +'</div></div>'
+      +'<div style="font-size:1.6rem;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:8px;">NAN</div>'
+      +'<div style="font-size:1rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px;">Connecting wallet…</div>'
+      +'<div style="font-size:.825rem;color:rgba(255,255,255,.35);margin-bottom:28px;">Check your wallet for a request</div>'
+      +'<div style="display:flex;gap:7px;margin-bottom:32px;">'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:#7000ff;animation:dotBounce 1.2s ease-in-out infinite;"></div>'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:#9333ea;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div>'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div>'
       +'</div>'
-      +'<div style="font-size:1rem;font-weight:700;color:var(--text);">Connecting wallet…</div>'
-      +'<div style="font-size:.78rem;color:var(--text3);">Check your wallet for a connection request</div>'
-      +'<button onclick="window.location.replace('/')" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);padding:8px 18px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
+      +'<button onclick="window.location.href=\'/\'" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:rgba(255,255,255,.35);padding:9px 20px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
+      +'<style>@keyframes splashRing{0%{transform:scale(1);opacity:.6;}100%{transform:scale(1.7);opacity:0;}}@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style>'
       +'</div>');
     setTimeout(async function(){
       try{

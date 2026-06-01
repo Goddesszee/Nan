@@ -56,15 +56,17 @@ body::after{display:none;}
 /* ── Top bar ── */
 #globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:none;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
 .brand{display:flex;align-items:center;gap:9px;}
-.brand-logo{width:36px;height:36px;border-radius:11px;flex-shrink:0;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(168,85,247,0.55);}
-.brand-logo svg{width:20px;height:20px;}
+.brand-logo{width:40px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:none;box-shadow:none;border-radius:0;}
+.brand-logo svg{width:40px;height:20px;}
 .brand-name{font-size:1rem;font-weight:700;letter-spacing:.08em;}
 .net-pill{font-family:'Inter var','Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);border:1px solid rgba(168,85,247,.3);padding:4px 9px;border-radius:100px;background:rgba(168,85,247,.08);display:flex;align-items:center;gap:5px;}
 .net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);animation:pulse 2s ease infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+@keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(.95);}}
+@keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(-40px,30px) scale(1.08);}66%{transform:translate(20px,-20px) scale(.92);}}
 #connectTopBtn{background:#7000ff;color:#f0f0f0;border:none;border-radius:100px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 16px rgba(168,85,247,0.45),inset 0 1px 0 rgba(255,255,255,0.15);white-space:nowrap;display:none;}
 #connectTopBtn:hover{transform:translateY(-1px);}
-#connectTopBtn.connected{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);box-shadow:none;color:var(--accent3);font-family:'Inter var','Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;cursor:default;}
+#connectTopBtn.connected{background:rgba(168,85,247,.12);border:1.5px solid rgba(168,85,247,.4);box-shadow:none;color:var(--text);font-family:'Inter var','Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.9rem;font-weight:700;cursor:default;letter-spacing:-.01em;}
 
 /* ── Bottom Nav ── */
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:76px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(32px);border-top:1px solid rgba(255,255,255,0.06);padding:6px 10px 10px;display:none;}
@@ -928,28 +930,24 @@ a:hover{color:var(--text);}
   #globalTopBar{display:none !important;}
   .bottom-nav{display:none !important;}
 
-  /* ── Sidebar — Relay style ── */
+  /* ── Sidebar — starts below topbar ── */
   #desktopNav{
     flex-direction:column;
-    position:fixed;top:0;left:0;
-    width:220px;height:100vh;
+    position:fixed;top:64px;left:0;
+    width:220px;height:calc(100vh - 64px);
     background:var(--bg);
     border-right:1px solid var(--border);
     padding:0;gap:0;z-index:100;
     overflow:hidden;
   }
   #desktopNav .dnav-logo-row{
-    display:flex;align-items:center;gap:11px;
-    padding:24px 20px 20px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:12px;
-    flex-shrink:0;
+    display:none;
   }
   #desktopNav .dnav-logo{
-    width:38px;height:38px;border-radius:11px;
-    background:#7000ff;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;box-shadow:0 0 14px rgba(112,0,255,.4);
+    width:40px;height:20px;
+    background:none;
+    display:flex;align-items:center;
+    flex-shrink:0;box-shadow:none;
   }
   #desktopNav .dnav-brand{
     font-family:'Inter',sans-serif;
@@ -961,7 +959,7 @@ a:hover{color:var(--text);}
     padding:12px 20px 4px;
     font-family:'Inter',sans-serif;
   }
-  #desktopNav{padding:0;}
+  #desktopNav{padding:12px 0 0;}
   #desktopNav .dnav-btn{
     display:flex;align-items:center;gap:13px;
     padding:13px 18px;border-radius:12px;
@@ -993,24 +991,24 @@ a:hover{color:var(--text);}
   #desktopNav .dnav-divider{height:1px;background:var(--border);margin:10px 16px;}
   #desktopNav > button, #desktopNav .dnav-btn{margin-left:8px;margin-right:8px;width:calc(100% - 16px);}
 
-  /* ── Desktop topbar — seamless, no hard border ── */
+  /* ── Desktop topbar — full width with logo on left like Relay ── */
   #globalTopBar{
     display:none;
-    position:fixed;top:0;left:220px;right:0;height:52px;
-    background:transparent;
-    border-bottom:1px solid rgba(255,255,255,0.06);
+    position:fixed;top:0;left:0;right:0;height:64px;
+    background:var(--topbar-bg);
+    border-bottom:1px solid var(--border);
     align-items:center;justify-content:space-between;
-    padding:0 32px;z-index:90;
+    padding:0 28px;z-index:200;
   }
   #globalTopBar.desktop-show{display:flex !important;}
-  #globalTopBar .brand{display:none !important;}
+  #globalTopBar .brand{display:flex !important;align-items:center;gap:10px;flex-shrink:0;}
   #globalTopBar #topbarPageInfo{display:flex !important;}
 
-  /* ── Pages: sit right of sidebar, below topbar ── */
+  /* ── Pages: full width below topbar ── */
   .page{
     position:fixed !important;
-    top:52px !important;
-    left:220px !important;
+    top:64px !important;
+    left:0 !important;
     right:0 !important;
     bottom:0 !important;
     width:auto !important;max-width:none !important;
@@ -1978,37 +1976,193 @@ a:hover{color:var(--text);}
 
 /* === MOBILE HEADER FIX === */
 @media(max-width:767px){
+  :root {
+    --card: transparent !important;
+    --card2: transparent !important;
+    --surface: #000000 !important;
+    --bg: #000000 !important;
+    --border: rgba(168,85,247,.15) !important;
+  }
   #disconnectTopBtn { display:none !important; }
+  #disconnectTopBtnMobile { display:flex !important; }
   #topbarPageInfo { display:none !important; }
-  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
+  /* Hide net pill, theme toggle on mobile — saves space */
+  .net-pill { display:none !important; }
+  .theme-toggle-btn { display:none !important; }
+  /* Tighter topbar on mobile */
+  #globalTopBar { padding:0 12px !important; height:52px !important; }
+  /* Wallet address pill — smaller */
+  #connectTopBtn, #landConnectBtn {
+    font-size:.75rem !important;
+    padding:5px 10px !important;
+    border-radius:100px !important;
+  }
+  /* Brand tighter */
+  .brand-name { font-size:.95rem !important; }
+  .brand-logo { width:36px !important; height:18px !important; background:none !important; box-shadow:none !important; }
+  /* Remove all blur effects on mobile — kills blurriness/lag */
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* ── Strip ALL grey backgrounds on mobile ── */
+  /* Must be on :root for CSS custom properties to cascade */
+
+  /* All inline grey/surface backgrounds → transparent */
+  *[style*="background:var(--card)"],
+  *[style*="background:var(--surface)"],
+  *[style*="background:#1a1a1a"],
+  *[style*="background:#111111"],
+  *[style*="background:#222222"],
+  *[style*="background:rgba(255,255,255,.03)"],
+  *[style*="background:rgba(255,255,255,.04)"],
+  *[style*="background:rgba(255,255,255,.05)"],
+  *[style*="background:rgba(255,255,255,.06)"],
+  *[style*="background:rgba(255,255,255,0.03)"],
+  *[style*="background:rgba(255,255,255,0.04)"],
+  *[style*="background:rgba(255,255,255,0.05)"],
+  *[style*="background:rgba(255,255,255,0.06)"] {
+    background: transparent !important;
+    border-color: rgba(168,85,247,.12) !important;
+  }
+
+  /* ── Strip ALL card/container wrappers on mobile — plain black ── */
+  .card, .send-card, .mob-actions,
+  .page > div, .page > section,
+  [style*="border-radius:22px"],
+  [style*="border-radius:18px"],
+  [style*="border-radius:16px"],
+  [style*="border-radius:14px"],
+  [style*="overflow:hidden"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .card, .send-card, .mob-actions {
+    padding: 0 !important;
+    margin-bottom: 4px !important;
+  }
+  /* Force bg color on mobile using variable */
+  .page, #app-root, body, html {
+    background: var(--bg) !important;
+  }
+  #globalTopBar, .bottom-nav {
+    background: var(--topbar-bg) !important;
+  }
+  .bottom-nav {
+    height:58px !important;
+    padding:4px 8px 6px !important;
+  }
+  .nav-pill-wrap {
+    padding:2px !important;
+    gap:1px !important;
+    border-radius:12px !important;
+    background: none !important;
+    border: none !important;
+  }
+  .nav-btn {
+    font-size:.6rem !important;
+    font-weight:600 !important;
+    gap:2px !important;
+    padding:5px 2px !important;
+    border-radius:9px !important;
+    letter-spacing:.02em !important;
+  }
+  .nav-btn .ni svg {
+    width:18px !important;
+    height:18px !important;
+  }
+  .nav-btn.active {
+    background: rgba(112,0,255,.12) !important;
+    border-color: transparent !important;
+    color: var(--accent3) !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Smaller fonts throughout app ── */
+  .card { padding:14px !important; }
+  .bal-amt, #homeBalAmt { font-size:1.9rem !important; }
+  .bal-sub { font-size:.75rem !important; }
+  .bal-head { font-size:.7rem !important; }
+  .home-action-label { font-size:.72rem !important; }
+  .home-action-icon-box { width:30px !important; height:30px !important; }
+  .asset-name { font-size:.85rem !important; }
+  .asset-sub { font-size:.72rem !important; }
+  .asset-amt { font-size:.85rem !important; }
+  .asset-usd { font-size:.72rem !important; }
+  .section-label, .dnav-section-label { font-size:.65rem !important; }
+  .card-title { font-size:.85rem !important; }
+  h2, .page-title { font-size:1.1rem !important; }
+  .pill-token { font-size:.72rem !important; }
+  button:not(.nav-btn):not(#connectTopBtn):not(#disconnectTopBtnMobile) {
+    font-size:.85rem !important;
+  }
 }
-/* === MOBILE HEADER FIX === */
-@media(max-width:767px){
-  #disconnectTopBtn { display:none !important; }
-  #topbarPageInfo { display:none !important; }
-  .net-pill { font-size:.75rem !important; padding:3px 8px !important; }
-}
+.theme-toggle-btn{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* Mobile disconnect icon only, desktop text only */
+#disconnectTopBtnMobile { display:none !important; }
 /* === RELAY-STYLE TOPBAR === */
 #globalTopBar {
   display: flex !important;
   align-items: center !important;
-  padding: 0 20px !important;
+  justify-content: flex-start !important;
+  padding: 0 28px !important;
   gap: 0 !important;
+}
+#globalTopBar > div:last-child {
+  margin-left: auto !important;
 }
 .brand {
   margin-right: 0 !important;
-  padding-right: 32px !important;
+  padding-right: 0 !important;
   flex-shrink: 0 !important;
 }
-#topbarNav {
-  flex: 1 !important;
+#topbarPageInfo {
+  margin-left: 28px !important;
 }
-#topbarNav button {
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  letter-spacing: -0.01em !important;
-  color: var(--text) !important;
-}.brand { display:flex !important; align-items:center; gap:8px; }
-.brand-logo { display:flex !important; align-items:center; justify-content:center; width:32px; height:32px; background:#7000ff; border-radius:8px; flex-shrink:0; }
-.brand-logo svg { width:18px; height:18px; }
-.brand-name { display:block !important; font-size:1.1rem; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+#topbarNav {
+  flex: unset !important;
+  margin-left: 0 !important;
+}
+.tnav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 9px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.tnav-btn:hover { background: rgba(112,0,255,.08); }
+.tnav-btn.active { color: var(--accent); }
+.more-drop-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s;
+}
+.more-drop-btn:hover { background: rgba(112,0,255,.08); color: var(--accent); }
+.more-drop-btn svg { opacity: .7; flex-shrink: 0; }
+.brand { display:flex !important; align-items:center; gap:8px; }
+.brand-logo { display:flex !important; align-items:center; width:40px; height:20px; background:none; border-radius:0; flex-shrink:0; box-shadow:none; }
+.brand-logo svg { width:40px; height:20px; }
+.brand-name { display:block !important; font-size:1.4rem; font-weight:800; color:var(--text); letter-spacing:-0.03em; }
+.brand-logo { display:flex !important; align-items:center; width:40px; height:20px; background:none; border-radius:0; flex-shrink:0; box-shadow:none; }
+.brand-logo svg { width:40px; height:20px; }

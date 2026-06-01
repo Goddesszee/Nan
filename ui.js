@@ -10,7 +10,8 @@ function goBack(){
 function goPage(name) {
   window._prevPage = window._currentPage || 'home';
   window._currentPage = name;
-  if (!userAddr) { toast('Connect wallet first', 'error'); return; }
+  const _userAddr = (typeof userAddr !== 'undefined') ? userAddr : null;
+  if (!_userAddr) { if(typeof toast==='function') toast('Connect wallet first', 'error'); return; }
 
   // Hide all pages
   document.querySelectorAll('.page:not(.page-land)').forEach(p => p.classList.remove('active'));
@@ -182,6 +183,10 @@ function updateTopbarPageInfo(page) {
 
   nameEl.textContent = labels[page] || page.charAt(0).toUpperCase()+page.slice(1);
   wrapEl.style.display = 'flex';
+
+  // Show nav links
+  const navEl = document.getElementById('topbarNav');
+  if (navEl) navEl.style.display = 'flex';
 
   // Context pill per page
   pillEl.style.display = 'none';

@@ -34,7 +34,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#111111"/>
 <title>NAN — Weave. Connect. Build.</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='72' height='72' rx='18' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='36' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='20' r='5' fill='%23ede9fe'/%3E%3Ccircle cx='50' cy='52' r='5' fill='%23ede9fe'/%3E%3Cline x1='27' y1='36' x2='45' y2='22' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='36' x2='45' y2='50' stroke='%23ede9fe' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='45' y1='22' x2='45' y2='50' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-dasharray='3 3'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20width%3D%2732%27%20height%3D%2732%27%20viewBox%3D%270%200%2040%2020%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M16%2C10%20C16%2C4%208%2C4%208%2C10%20C8%2C16%2016%2C16%2020%2C10%20C24%2C4%2032%2C4%2032%2C10%20C32%2C16%2024%2C16%2020%2C10%20Z%27%20fill%3D%27none%27%20stroke%3D%27%25237000ff%27%20stroke-width%3D%272.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <link rel="stylesheet" href="style.css?v=1780285358"/>
@@ -57,13 +57,16 @@
   --topbar-bg:#111111 !important;
   --nav-bg:#111111 !important;
 }
-html,body{background:#111111 !important;}
-#app-root{background:#111111 !important;}
-.bottom-nav{background:#111111 !important;border-top:1px solid rgba(255,255,255,.07) !important;}
+html,body{background:var(--bg) !important;}
+#app-root{background:var(--bg) !important;}
+.bottom-nav{background:var(--nav-bg) !important;border-top:1px solid var(--border) !important;}
 .nav-pill-wrap{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.07) !important;}
 .nav-btn{color:#555555 !important;}
 .nav-btn.active{background:rgba(112,0,255,.15) !important;color:#a855f7 !important;border:1px solid rgba(112,0,255,.2) !important;}
 .btn{background:#7000ff !important;box-shadow:0 4px 14px rgba(112,0,255,.35) !important;}
+[data-theme="light"] .nav-pill-wrap{background:rgba(0,0,0,.03) !important;border:1px solid rgba(0,0,0,.08) !important;}
+[data-theme="light"] .nav-btn{color:#999 !important;}
+[data-theme="light"] .nav-btn.active{background:rgba(112,0,255,.08) !important;color:#7000ff !important;border:1px solid rgba(112,0,255,.15) !important;}
 [data-theme="light"]:root,[data-theme="light"] :root{
   --bg:#fafafa !important;--surface:#f4f4f4 !important;--card:#f4f4f4 !important;
   --card2:#ebebeb !important;--border:#e4e4e4 !important;
@@ -96,36 +99,26 @@ html,body{background:#111111 !important;}
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()">
-        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="22" cy="36" r="5" fill="#f3e8ff"/>
-          <circle cx="50" cy="20" r="5" fill="#f3e8ff"/>
-          <circle cx="50" cy="52" r="5" fill="#f3e8ff"/>
-          <line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="45" y1="22" x2="45" y2="50" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
-        </svg>
-      </div>
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="width:40px;height:20px;display:flex;align-items:center;cursor:pointer;background:none;box-shadow:none;"><svg width="40" height="20" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="brand-name">NAN</div>
     </div>
-    <!-- Desktop: page name + context pill -->
-    <div id="topbarPageInfo" style="display:none;align-items:center;gap:10px;">
-      <div style="display:flex;align-items:center;gap:7px;">
-        <div style="width:24px;height:24px;border-radius:7px;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(168,85,247,.4);flex-shrink:0;">
-          <svg width="13" height="13" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>
-        </div>
-        <span id="topbarPageName" style="font-size:1rem;font-weight:700;color:var(--text);"></span>
-      </div>
-      <span id="topbarContextPill" style="display:none;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;padding:3px 9px;border-radius:100px;"></span>
-    <div id="topbarNav" style="display:none;align-items:center;gap:4px;"><button onclick="goPage('home')" id="tnav-home" style="background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:8px;font-size:.9375rem;font-weight:500;color:var(--text);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.08)'" onmouseout="this.style.background='none'">Home</button><button onclick="goPage('earn')" id="tnav-earn" style="background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:8px;font-size:.9375rem;font-weight:500;color:var(--text);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.08)'" onmouseout="this.style.background='none'">Earn</button><button onclick="goPage('more')" id="tnav-more" style="background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:8px;font-size:.9375rem;font-weight:500;color:var(--text);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.08)'" onmouseout="this.style.background='none'">More</button></div>
+    <!-- Desktop: nav links -->
+    <div id="topbarPageInfo" style="display:none;align-items:center;gap:2px;">
+    <div id="topbarNav" style="display:none;align-items:center;gap:2px;">
+      <button onclick="goPage('home')" id="tnav-home" class="tnav-btn">Home</button>
+      <button onclick="goPage('earn')" id="tnav-earn" class="tnav-btn">Earn</button>
+      <button onclick="goPage('more')" id="tnav-more" class="tnav-btn">More</button>
+    </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <span id="devBadge" class="dev-badge" style="display:none;"></span>
-      <button id="themeToggle" onclick="toggleTheme()" style="width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
+      <button id="themeToggle" onclick="toggleTheme()" class="theme-toggle-btn">🌙</button>
       <div class="net-pill" id="netPill">Arc Testnet</div>
       <button id="connectTopBtn" onclick="showWalletPicker()">Connect</button>
       <button id="landConnectBtn" style="display:none;" onclick="showWalletPicker()">Connect</button>
       <button id="disconnectTopBtn" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:100px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;color:var(--danger);cursor:pointer;white-space:nowrap;transition:all .2s;">⏏ Disconnect</button>
+      <!-- Mobile-only icon disconnect -->
+      <button id="disconnectTopBtnMobile" onclick="disconnect()" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:50%;width:32px;height:32px;font-size:1rem;color:var(--danger);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;">⏏</button>
     </div>
   </div>
 
@@ -156,9 +149,9 @@ html,body{background:#111111 !important;}
   </nav>
 
   <!-- ══ DESKTOP SIDEBAR NAV ══ -->
-  <nav id="desktopNav" style="display:none!important;">
+  <nav id="desktopNav" style="display:none;">
     <div class="dnav-logo-row">
-      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="cursor:pointer;"><svg width="18" height="18" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="#a855f7"/><circle cx="22" cy="36" r="5" fill="#f3e8ff"/><circle cx="50" cy="20" r="5" fill="#f3e8ff"/><circle cx="50" cy="52" r="5" fill="#f3e8ff"/><line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="cursor:pointer;display:flex;align-items:center;background:none;box-shadow:none;width:36px;height:18px;"><svg width="36" height="18" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <span class="dnav-brand">NAN</span>
     </div>
     <div class="dnav-section-label">Main</div>
@@ -177,130 +170,140 @@ html,body{background:#111111 !important;}
   </nav>
 
   <!-- ══ LANDING PAGE ══ -->
-  <div class="page page-land active" id="page-land" style="background:var(--bg);">
+  <div class="page page-land active" id="page-land" style="background:#000;overflow:hidden;">
 
-    <!-- Top bar — like Relay -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="width:30px;height:30px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(168,85,247,.4);">
-          <svg width="16" height="16" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>
+    <!-- Animated background -->
+    <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
+      <div style="position:absolute;top:-20%;left:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.18) 0%,transparent 70%);animation:floatOrb1 8s ease-in-out infinite;"></div>
+      <div style="position:absolute;bottom:-10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12) 0%,transparent 70%);animation:floatOrb2 10s ease-in-out infinite;"></div>
+      <div style="position:absolute;top:40%;left:60%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(99,0,255,.1) 0%,transparent 70%);animation:floatOrb1 12s ease-in-out infinite reverse;"></div>
+      <!-- Grid lines -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.04" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#7000ff" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+    </div>
+
+    <!-- Top bar -->
+    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid rgba(112,0,255,.15);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:#7000ff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(112,0,255,.5);">
+          <svg width="32" height="16" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span style="font-size:1rem;font-weight:800;letter-spacing:.06em;color:var(--text);">NAN</span>
+        <span style="font-size:1.2rem;font-weight:800;letter-spacing:-.02em;color:#fff;">NAN</span>
       </div>
-      <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.18);border-radius:100px;padding:4px 11px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:#7000ff;">
-        <span style="width:5px;height:5px;border-radius:50%;background:#7000ff;box-shadow:0 0 6px #7000ff;display:inline-block;animation:pulse 2s infinite;"></span>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.3);border-radius:100px;padding:5px 12px;font-size:.8rem;font-weight:600;color:#c084fc;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#7000ff;box-shadow:0 0 8px #7000ff;display:inline-block;animation:pulse 2s infinite;"></span>
         Arc Testnet
       </div>
     </div>
 
-    <!-- Centered content — single col mobile, two col desktop -->
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px 20px 20px;overflow-y:auto;">
+    <!-- Main content -->
+    <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px 32px;overflow-y:auto;">
 
-      <!-- Desktop left col: hero branding (hidden on mobile) -->
-      <div class="land-hero-col" style="display:none;">
-        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.18);border-radius:100px;padding:5px 13px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:#7000ff;margin-bottom:28px;width:fit-content;">
-          <span style="width:6px;height:6px;border-radius:50%;background:#7000ff;box-shadow:0 0 6px #7000ff;display:inline-block;animation:pulse 2s infinite;"></span>
-          Arc Testnet · Live
+      <!-- Desktop two-col / mobile single col -->
+      <div style="width:100%;max-width:900px;display:flex;align-items:center;gap:48px;flex-wrap:wrap;justify-content:center;">
+
+        <!-- Left: Hero -->
+        <div class="land-hero-col" style="display:none;flex:1;min-width:300px;max-width:420px;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.25);border-radius:100px;padding:6px 14px;font-size:.85rem;font-weight:600;color:#c084fc;margin-bottom:24px;">
+            ⚡ Powered by Circle USDC + Arc Network
+          </div>
+          <h1 style="font-size:3.4rem;font-weight:800;letter-spacing:-.06em;line-height:1;margin:0 0 16px;color:#fff;">
+            Your global<br/><span style="background:linear-gradient(135deg,#7000ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">stablecoin</span><br/>wallet.
+          </h1>
+          <p style="font-size:1rem;color:rgba(255,255,255,.5);line-height:1.7;margin:0 0 28px;">
+            Send USDC & EURC worldwide.<br/>Earn 4.80% APY. Bridge cross-chain.<br/>Gas paid in dollars.
+          </p>
+          <!-- Floating stats -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <div style="background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:14px;padding:12px 16px;">
+              <div style="font-size:1.4rem;font-weight:800;color:#fff;">4.80%</div>
+              <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">APY on savings</div>
+            </div>
+            <div style="background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:14px;padding:12px 16px;">
+              <div style="font-size:1.4rem;font-weight:800;color:#fff;">$0</div>
+              <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Gas fees</div>
+            </div>
+            <div style="background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:14px;padding:12px 16px;">
+              <div style="font-size:1.4rem;font-weight:800;color:#fff;">&lt;3s</div>
+              <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Transactions</div>
+            </div>
+          </div>
         </div>
-        <div style="font-size:3.2rem;font-weight:800;letter-spacing:-.06em;line-height:1.05;margin-bottom:16px;">
-          Weave.<br/><span style="color:transparent;background:#7000ff;-webkit-background-clip:text;background-clip:text;">Connect.<br/>Build.</span>
-        </div>
-        <div style="font-size:1rem;color:#888;line-height:1.7;margin-bottom:32px;max-width:320px;">
-          Send USDC globally.<br/>Gas paid in dollars.<br/>No extension needed.
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.16);border-radius:100px;padding:6px 13px;font-size:1rem;font-weight:600;color:var(--text);"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Instant</div>
-          <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.16);border-radius:100px;padding:6px 13px;font-size:1rem;font-weight:600;color:var(--text);"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Non-custodial</div>
-          <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.16);border-radius:100px;padding:6px 13px;font-size:1rem;font-weight:600;color:var(--text);"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>Cross-chain</div>
-        </div>
-        <div style="margin-top:auto;padding-top:40px;display:flex;align-items:center;gap:14px;">
-          <div style="display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(168,85,247,.3);display:inline-block;"></span>Circle USDC</div>
-          <div style="display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(168,85,247,.3);display:inline-block;"></span>Arc Network</div>
-          <div style="display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:rgba(196,181,253,.3);"><span style="width:3px;height:3px;border-radius:50%;background:rgba(168,85,247,.3);display:inline-block;"></span>CCTP V2</div>
+
+        <!-- Right: Login card -->
+        <div style="width:100%;max-width:400px;flex-shrink:0;">
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(112,0,255,.2);border-radius:24px;padding:28px;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(112,0,255,.1),0 20px 60px rgba(0,0,0,.5);">
+
+            <!-- Header -->
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#7000ff,#9333ea);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 30px rgba(112,0,255,.5);">
+                <svg width="32" height="16" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.02em;">Welcome to NAN</div>
+              <div style="font-size:.875rem;color:rgba(255,255,255,.4);">Your stablecoin wallet on Arc</div>
+            </div>
+
+            <!-- Email section -->
+            <div id="emailLoginBox" style="margin-bottom:16px;">
+              <div style="font-size:.7rem;font-weight:700;color:rgba(168,85,247,.6);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;">Continue with email</div>
+              <div id="otpStepIndicator" style="display:flex;align-items:center;gap:5px;margin-bottom:10px;">
+                <div id="stepDot1" style="width:20px;height:3px;border-radius:2px;background:#7000ff;transition:all .3s;"></div>
+                <div id="stepDot2" style="width:7px;height:3px;border-radius:2px;background:rgba(112,0,255,.2);transition:all .3s;"></div>
+                <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
+              </div>
+              <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(112,0,255,.2);border-radius:12px;padding:12px 14px;color:#fff;font-size:1rem;margin-bottom:10px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;transition:border-color .2s;" onfocus="this.style.borderColor='rgba(112,0,255,.6)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"/>
+              <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:12px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:14px;cursor:pointer;box-shadow:0 4px 24px rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;">
+                Continue with Email
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+              <div id="otpBox" style="display:none;margin-top:12px;">
+                <div style="display:flex;align-items:center;gap:8px;background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+                  <div style="width:26px;height:26px;border-radius:8px;background:rgba(112,0,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                  <div><div style="font-size:.875rem;font-weight:700;color:#a855f7;">Code sent!</div><div style="font-size:.8rem;color:rgba(255,255,255,.4);">Enter the 6-digit code below</div></div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="flex:1;padding:12px 14px;font-size:1.3rem;letter-spacing:.4em;text-align:center;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(112,0,255,.2);color:#fff;font-family:'Inter',sans-serif;box-sizing:border-box;outline:none;" onfocus="this.style.borderColor='rgba(112,0,255,.6)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"/>
+                  <button onclick="verifyOTP()" id="verifyBtn" style="background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:12px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:12px 18px;cursor:pointer;box-shadow:0 4px 16px rgba(112,0,255,.4);">Verify →</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+              <div style="flex:1;height:1px;background:rgba(112,0,255,.15);"></div>
+              <span style="font-size:.8rem;color:rgba(255,255,255,.25);font-family:'Inter',sans-serif;">or connect wallet</span>
+              <div style="flex:1;height:1px;background:rgba(112,0,255,.15);"></div>
+            </div>
+
+            <!-- Wallet grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+              <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+                <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="24" height="24" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/>
+                MetaMask
+              </button>
+              <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+                <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="24" height="24" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/>
+                WalletConnect
+              </button>
+              <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+                <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="24" height="24" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/>
+                Coinbase
+              </button>
+              <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+                <div style="width:24px;height:24px;border-radius:6px;background:rgba(112,0,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
+                Circle
+              </button>
+            </div>
+
+            <!-- Footer -->
+            <div style="text-align:center;font-size:.75rem;color:rgba(255,255,255,.2);font-family:'Inter',sans-serif;">
+              Non-custodial · Your keys · Arc Testnet
+            </div>
+
+          </div>
         </div>
       </div>
-
-      <!-- Right col / mobile single col: form -->
-      <div class="land-form-col" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:0;">
-
-        <!-- Card wrapper -->
-        <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.6);">
-
-          <!-- Card header -->
-          <div style="text-align:center;margin-bottom:22px;">
-            <div style="width:44px;height:44px;border-radius:14px;background:#7000ff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 20px rgba(168,85,247,.4);">
-              <svg width="22" height="22" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>
-            </div>
-            <div style="font-size:1.0625rem;font-weight:700;color:var(--text);margin-bottom:4px;">Welcome to NAN</div>
-            <div style="font-size:.875rem;color:var(--text);">Connect or create your wallet to get started</div>
-          </div>
-
-          <!-- Email section -->
-          <div id="emailLoginBox" style="margin-bottom:16px;">
-            <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;font-weight:700;color:rgba(196,181,253,.45);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;">Continue with email</div>
-            <div id="otpStepIndicator" style="display:flex;align-items:center;gap:5px;margin-bottom:10px;">
-              <div id="stepDot1" style="width:18px;height:3px;border-radius:2px;background:#a855f7;transition:all .3s;"></div>
-              <div id="stepDot2" style="width:7px;height:3px;border-radius:2px;background:rgba(168,85,247,.2);transition:all .3s;"></div>
-              <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);margin-left:4px;" id="stepLabel">Step 1 of 2 — Enter email</div>
-            </div>
-            <input id="emailInput" type="email" placeholder="your@email.com" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;color:var(--text);font-size:1rem;margin-bottom:8px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;"/>
-            <button onclick="sendEmailOTP()" id="otpBtn" style="width:100%;background:#7000ff;border:none;border-radius:11px;color:#ffffff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:13px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,.38);display:flex;align-items:center;justify-content:center;gap:8px;">
-              Continue with Email
-              <span style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </span>
-            </button>
-            <div id="otpBox" style="display:none;margin-top:10px;">
-              <div style="display:flex;align-items:center;gap:8px;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.18);border-radius:10px;padding:9px 12px;margin-bottom:9px;">
-                <div style="width:24px;height:24px;border-radius:7px;background:rgba(112,0,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                <div><div style="font-size:1rem;font-weight:700;color:var(--success);">Code sent!</div><div style="font-size:1rem;color:var(--text);">Enter the 6-digit code below</div></div>
-              </div>
-              <div style="display:flex;gap:7px;">
-                <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#111111" style="flex:1;padding:11px 13px;font-size:1.2rem;letter-spacing:.5em;text-align:center;border-radius:10px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;box-sizing:border-box;"/>
-                <button onclick="verifyOTP()" id="verifyBtn" style="background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:11px 16px;cursor:pointer;">Verify →</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
-            <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:#444;">or connect wallet</span>
-            <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
-          </div>
-
-          <!-- Wallet 2x2 grid -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
-            <button onclick="connectSpecific('metamask')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
-              <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(245,130,32,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#7000ff;">M</div>
-              MetaMask
-            </button>
-            <button onclick="connectSpecific('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
-              <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(112,0,255,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#7000ff;">W</div>
-              WalletConnect
-            </button>
-            <button onclick="connectSpecific('coinbase')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
-              <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="26" height="26" style="border-radius:7px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-              <div style="display:none;width:26px;height:26px;border-radius:7px;background:rgba(112,0,255,.15);align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#7000ff;">C</div>
-              Coinbase
-            </button>
-            <button onclick="connectSpecific('circle')" style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:left;">
-              <div style="width:26px;height:26px;border-radius:7px;background:rgba(168,85,247,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
-              Circle
-            </button>
-          </div>
-
-          <!-- Footer -->
-          <div style="text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:#333;">
-            Non-custodial · Your keys · Arc Testnet
-          </div>
-
-        </div><!-- end card -->
-      </div><!-- end land-form-col -->      </div><!-- end land-form-col -->
-    </div><!-- end content row -->
-  </div><!-- end page-land -->
+    </div>
+  </div>
 
   <!-- ══ HOME PAGE ══ -->
   <div class="page" id="page-home">
@@ -319,11 +322,11 @@ html,body{background:#111111 !important;}
       <div id="homeBalNgn" style="font-size:1rem;color:rgba(225,210,255,.8);margin-bottom:18px;">≈ ₦0 NGN</div>
       <div style="display:flex;gap:7px;">
         <div class="tok" style="padding:5px 11px;font-size:.875rem;font-weight:500;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:rgba(255,255,255,.9);">
-          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
           <span id="homeUsdcBal">0.00 USDC</span>
         </div>
         <div class="tok" style="padding:5px 11px;font-size:.875rem;font-weight:500;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:rgba(255,255,255,.9);">
-          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="14" height="14" style="border-radius:50%;" onerror="this.style.display='none'"/>
           <span id="homeEurcBal">0.00 EURC</span>
         </div>
       </div>
@@ -360,20 +363,20 @@ html,body{background:#111111 !important;}
     </div>
 
     <!-- Earn promo -->
-    <div style="background:var(--card);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:transparent;border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:.875rem;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
-        <div style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:800;color:#f0f0f0;line-height:1;">4.80% <span style="font-size:1rem;font-weight:500;color:rgba(255,255,255,.5);">/ year</span></div>
-        <div style="font-size:1rem;color:rgba(255,255,255,.5);margin-top:4px;">Withdraw anytime · No lockup</div>
+        <div style="font-size:.875rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
+        <div style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);line-height:1;">4.80% <span style="font-size:1rem;font-weight:500;color:var(--text3);">/ year</span></div>
+        <div style="font-size:1rem;color:var(--text3);margin-top:4px;">Withdraw anytime · No lockup</div>
       </div>
-      <button onclick="goPage('lend')" style="background:rgba(112,0,255,.12);border:1px solid rgba(112,0,255,.25);border-radius:11px;color:#ffffff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap;">Start saving →</button>
+      <button onclick="goPage('lend')" style="background:rgba(112,0,255,.12);border:1px solid rgba(112,0,255,.25);border-radius:11px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap;">Start saving →</button>
     </div>
 
     <!-- Assets card -->
     <div style="background:transparent;overflow:hidden;">
 
       <div class="mob-asset-row" style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
-        <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#f0f0f0;flex-shrink:0;&quot;>U</div>'"/>
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#f0f0f0;flex-shrink:0;&quot;>U</div>'"/>
         <div style="flex:1;">
           <div style="font-size:1rem;font-weight:700;color:var(--text);">USDC</div>
           <div style="font-size:1rem;color:var(--text);margin-top:2px;">USD Coin</div>
@@ -385,7 +388,7 @@ html,body{background:#111111 !important;}
       </div>
 
       <div class="mob-asset-row" style="display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid var(--border);">
-        <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#f0f0f0;flex-shrink:0;&quot;>E</div>'"/>
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="40" height="40" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<div style=&quot;width:40px;height:40px;border-radius:50%;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#f0f0f0;flex-shrink:0;&quot;>E</div>'"/>
         <div style="flex:1;">
           <div style="font-size:1rem;font-weight:700;color:var(--text);">EURC</div>
           <div style="font-size:1rem;color:var(--text);margin-top:2px;">Euro Coin</div>
@@ -447,18 +450,18 @@ html,body{background:#111111 !important;}
     <!-- Balance strip -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:.875rem;color:rgba(255,255,255,.9);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;">Balance</div>
-        <div style="font-size:1.375rem;font-weight:700;color:#f0f0f0;letter-spacing:-.03em;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:1rem;color:rgba(225,210,255,.8);font-weight:400;" id="balCurrencyLabel">USDC</span></div>
-        <div style="font-size:1rem;color:rgba(225,210,255,.8);margin-top:3px;" id="balUsd">≈ $0.00</div>
+        <div style="font-size:.875rem;color:var(--text);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;font-weight:600;">Balance</div>
+        <div style="font-size:1.375rem;font-weight:700;color:var(--text);letter-spacing:-.03em;line-height:1;"><span id="balAmt">0.00</span> <span style="font-size:1rem;color:var(--accent3);font-weight:600;" id="balCurrencyLabel">USDC</span></div>
+        <div style="font-size:1rem;color:var(--text2);margin-top:3px;" id="balUsd">≈ $0.00</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
-          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>$</span>'"/>
-          <span style="font-size:1rem;color:rgba(255,255,255,.85);" id="usdcBal2">0.00</span>
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>$</span>'"/>
+          <span style="font-size:1rem;color:var(--text);font-weight:600;" id="usdcBal2">0.00</span>
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:4px 10px;">
-          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>€</span>'"/>
-          <span style="font-size:1rem;color:rgba(255,255,255,.85);" id="eurcBal2">0.00</span>
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>€</span>'"/>
+          <span style="font-size:1rem;color:var(--text);font-weight:600;" id="eurcBal2">0.00</span>
         </div>
       </div>
     </div>
@@ -492,11 +495,11 @@ html,body{background:#111111 !important;}
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <button id="topt-usdc" onclick="setSendTokenDirect('USDC',this)"
           style="flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(112,0,255,.5);background:rgba(112,0,255,.08);color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
-          <img src="https://www.circle.com/hubfs/USDC/usdc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>$</span>'"/> USDC
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>$</span>'"/> USDC
         </button>
         <button id="topt-eurc" onclick="setSendTokenDirect('EURC',this)"
           style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
-          <img src="https://www.circle.com/hubfs/EURC/eurc-icon-2023.svg" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>€</span>'"/> EURC
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="20" height="20" style="border-radius:50%;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;width:20px;height:20px;border-radius:50%;background:#7000ff;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#f0f0f0;flex-shrink:0;&quot;>€</span>'"/> EURC
         </button>
       </div>
 
@@ -750,7 +753,7 @@ html,body{background:#111111 !important;}
     <div style="font-size:.875rem;color:var(--text);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;padding:0 2px;">Features</div>
     <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:14px;">
 
-      <div onclick="goPage('history')" style="display:flex;align-items:center;gap:14px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.05)'" onmouseout="this.style.background='transparent'"><div style="width:36px;height:36px;border-radius:11px;background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div style="flex:1;"><div style="font-size:1rem;font-weight:600;color:var(--text);">History</div><div style="font-size:1rem;color:var(--text);margin-top:2px;">View your transaction activity</div></div><span style="color:var(--text);font-size:1rem;">�</span></div>
+      <div onclick="goPage('history')" style="display:flex;align-items:center;gap:14px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.05)'" onmouseout="this.style.background='transparent'"><div style="width:36px;height:36px;border-radius:11px;background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div style="flex:1;"><div style="font-size:1rem;font-weight:600;color:var(--text);">History</div><div style="font-size:1rem;color:var(--text);margin-top:2px;">View your transaction activity</div></div><span style="color:var(--text);font-size:1rem;">�</span></div>
         <div onclick="goPage('payreq')" style="display:flex;align-items:center;gap:14px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='rgba(112,0,255,.05)'" onmouseout="this.style.background='transparent'">
         <div style="width:36px;height:36px;border-radius:11px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -861,10 +864,10 @@ html,body{background:#111111 !important;}
         </span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;cursor:pointer;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#7000ff;flex-shrink:0;display:inline-block;"></span>
-          <span id="fromTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">USDC</span>
-          <span style="font-size:1rem;color:var(--text);">▾</span>
+        <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 8px;cursor:pointer;flex-shrink:0;">
+          <img id="fromTokenLogo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="22" height="22" style="border-radius:50%;flex-shrink:0;"/>
+          <span id="fromTokenLabel" style="font-size:1.05rem;font-weight:700;color:var(--text);">USDC</span>
+          <span style="font-size:.9rem;color:var(--text3);">▾</span>
         </button>
         <input class="swap-input" id="swapFrom" type="number" placeholder="0" oninput="calcSwap()"
           style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;min-width:0;"/>
@@ -886,9 +889,9 @@ html,body{background:#111111 !important;}
         <span style="font-size:.875rem;color:var(--text);">Bal: <span id="swapToBal">0.00</span></span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#7000ff;flex-shrink:0;display:inline-block;"></span>
-          <span id="toTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">EURC</span>
+        <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 8px;flex-shrink:0;">
+          <img id="toTokenLogo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="22" height="22" style="border-radius:50%;flex-shrink:0;"/>
+          <span id="toTokenLabel" style="font-size:1.05rem;font-weight:700;color:var(--text);">EURC</span>
         </div>
         <input class="swap-input" id="swapTo" type="number" placeholder="0" readonly
           style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--accent3);font-family:'Inter',sans-serif;min-width:0;opacity:.9;"/>
@@ -900,12 +903,12 @@ html,body{background:#111111 !important;}
 
     <!-- Rate bar -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;">
-      <span id="swapRate" style="font-size:1rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">1 USDC ≈ 0.9258 EURC</span>
+      <span id="swapRate" style="font-size:1rem;font-weight:600;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">1 USDC ≈ 0.9258 EURC</span>
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:.875rem;color:var(--text);">⛽ ~0.009</span>
-        <span style="font-size:.875rem;color:var(--text);">·</span>
-        <span style="font-size:.875rem;color:var(--text);">0.1%</span>
-        <span style="font-size:1rem;color:var(--success);display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--success);display:inline-block;"></span>live</span>
+        <span style="font-size:.9rem;font-weight:500;color:var(--text);">⛽ ~0.009</span>
+        <span style="font-size:.9rem;color:var(--text);">·</span>
+        <span style="font-size:.9rem;font-weight:500;color:var(--text);">0.1%</span>
+        <span style="font-size:.9rem;color:var(--success);display:flex;align-items:center;gap:4px;font-weight:600;"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span>live</span>
         <button onclick="fetchLiveFX()" style="background:none;border:none;color:var(--text);font-size:1rem;cursor:pointer;padding:0;">↻</button>
       </div>
     </div>
@@ -1027,7 +1030,7 @@ html,body{background:#111111 !important;}
         <div style="font-size:1.0625rem;font-weight:700;color:var(--text);margin-bottom:4px;">.arc Name</div>
     <div style="font-size:.875rem;color:var(--text);margin-bottom:16px;">Register your on-chain identity</div>
     <div class="page-title" style="display:flex;align-items:center;gap:8px;">
-      <svg width="22" height="22" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="72" height="72" rx="14" fill="#a855f7"/><circle cx="22" cy="36" r="5" fill="#f3e8ff"/><circle cx="50" cy="20" r="5" fill="#f3e8ff"/><circle cx="50" cy="52" r="5" fill="#f3e8ff"/><line x1="27" y1="36" x2="45" y2="22" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="36" x2="45" y2="50" stroke="#f3e8ff" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="22" x2="45" y2="50" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg>
+      <svg width="32" height="16" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Arc Name
     </div>
     <div class="page-sub">Register your .arc name — your identity on Arc Testnet</div>
@@ -1629,8 +1632,8 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="/app.js?v=1780285527"></script>
-<script src="/ui.js?v=1780285527"></script>
+<script src="/app.js?v=1780346600"></script>
+<script src="/ui.js?v=1780346600"></script>
 
 <!-- ══ BANK PICKER MODAL ══ -->
 <div id="bankPickerOverlay" onclick="closeBankPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99990;backdrop-filter:blur(4px);"></div>
