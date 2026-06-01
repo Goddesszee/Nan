@@ -860,10 +860,10 @@ html,body{background:#111111 !important;}
         </span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;cursor:pointer;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#7000ff;flex-shrink:0;display:inline-block;"></span>
-          <span id="fromTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">USDC</span>
-          <span style="font-size:1rem;color:var(--text);">▾</span>
+        <button id="fromToken" onclick="flipSwap()" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 8px;cursor:pointer;flex-shrink:0;">
+          <img id="fromTokenLogo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" width="22" height="22" style="border-radius:50%;flex-shrink:0;"/>
+          <span id="fromTokenLabel" style="font-size:1.05rem;font-weight:700;color:var(--text);">USDC</span>
+          <span style="font-size:.9rem;color:var(--text3);">▾</span>
         </button>
         <input class="swap-input" id="swapFrom" type="number" placeholder="0" oninput="calcSwap()"
           style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;min-width:0;"/>
@@ -885,9 +885,9 @@ html,body{background:#111111 !important;}
         <span style="font-size:.875rem;color:var(--text);">Bal: <span id="swapToBal">0.00</span></span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 10px;flex-shrink:0;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#7000ff;flex-shrink:0;display:inline-block;"></span>
-          <span id="toTokenLabel" style="font-size:1rem;font-weight:700;color:var(--text);">EURC</span>
+        <div id="toToken" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border2);border-radius:100px;padding:8px 14px 8px 8px;flex-shrink:0;">
+          <img id="toTokenLogo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==" width="22" height="22" style="border-radius:50%;flex-shrink:0;"/>
+          <span id="toTokenLabel" style="font-size:1.05rem;font-weight:700;color:var(--text);">EURC</span>
         </div>
         <input class="swap-input" id="swapTo" type="number" placeholder="0" readonly
           style="flex:1;text-align:right;font-size:2.2rem;font-weight:700;background:none;border:none;outline:none;color:var(--accent3);font-family:'Inter',sans-serif;min-width:0;opacity:.9;"/>
@@ -899,12 +899,12 @@ html,body{background:#111111 !important;}
 
     <!-- Rate bar -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;">
-      <span id="swapRate" style="font-size:1rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">1 USDC ≈ 0.9258 EURC</span>
+      <span id="swapRate" style="font-size:1rem;font-weight:600;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">1 USDC ≈ 0.9258 EURC</span>
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:.875rem;color:var(--text);">⛽ ~0.009</span>
-        <span style="font-size:.875rem;color:var(--text);">·</span>
-        <span style="font-size:.875rem;color:var(--text);">0.1%</span>
-        <span style="font-size:1rem;color:var(--success);display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--success);display:inline-block;"></span>live</span>
+        <span style="font-size:.9rem;font-weight:500;color:var(--text);">⛽ ~0.009</span>
+        <span style="font-size:.9rem;color:var(--text);">·</span>
+        <span style="font-size:.9rem;font-weight:500;color:var(--text);">0.1%</span>
+        <span style="font-size:.9rem;color:var(--success);display:flex;align-items:center;gap:4px;font-weight:600;"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span>live</span>
         <button onclick="fetchLiveFX()" style="background:none;border:none;color:var(--text);font-size:1rem;cursor:pointer;padding:0;">↻</button>
       </div>
     </div>

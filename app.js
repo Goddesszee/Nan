@@ -1590,16 +1590,16 @@ function _applyQuote(q){
 function flipSwap(){
   swapFlipped=!swapFlipped;
   _quoteCache={};
-  // Update labels in new Relay-style UI
+  const USDC_LOGO='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjxwYXRoIGQ9Ik0yNS41IDIzLjJjMC0yLjYtMS42LTMuNS00LjctMy45LTIuMi0uMy0yLjctLjktMi43LTJzLjctMS44IDIuMi0xLjhjMS4zIDAgMiAuNCAyLjQgMS41LjEuMi4zLjQuNS40aDEuMWMuMyAwIC41LS4yLjUtLjV2LS4xYy0uMy0xLjctMS43LTMtMy40LTMuMVYxMmMwLS4zLS4yLS41LS41LS41aC0xYy0uMyAwLS41LjItLjUuNXYxLjZjLTIuMS4zLTMuNSAxLjctMy41IDMuNSAwIDIuNSAxLjUgMy40IDQuNiAzLjggMi4xLjQgMi44LjggMi44IDIuMXMtMS4xIDIuMS0yLjYgMi4xYy0yIDAtMi43LS45LTIuOS0yLS4xLS4zLS4zLS40LS41LS40aC0xLjJjLS4zIDAtLjUuMi0uNS41di4xYy4zIDEuOSAxLjUgMy4yIDMuOCAzLjZ2MS42YzAgLjMuMi41LjUuNWgxYy4zIDAgLjUtLjIuNS0uNXYtMS42YzIuMi0uNCAzLjYtMS44IDMuNi0zLjd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==';
+  const EURC_LOGO='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzI3NzVDQSIvPjx0ZXh0IHg9IjIwIiB5PSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSI+4oKsPC90ZXh0Pjwvc3ZnPg==';
   const fromLbl=document.getElementById('fromTokenLabel');
   const toLbl=document.getElementById('toTokenLabel');
+  const fromLogo=document.getElementById('fromTokenLogo');
+  const toLogo=document.getElementById('toTokenLogo');
   if(fromLbl) fromLbl.textContent=swapFlipped?'EURC':'USDC';
   if(toLbl) toLbl.textContent=swapFlipped?'USDC':'EURC';
-  // Update dot colors
-  const fromDot=document.querySelector('#fromToken span:first-child');
-  const toDot=document.querySelector('#toToken span:first-child');
-  if(fromDot) fromDot.style.background=swapFlipped?'#7000ff':'#7000ff';
-  if(toDot) toDot.style.background=swapFlipped?'#7000ff':'#7000ff';
+  if(fromLogo) fromLogo.src=swapFlipped?EURC_LOGO:USDC_LOGO;
+  if(toLogo) toLogo.src=swapFlipped?USDC_LOGO:EURC_LOGO;
   document.getElementById('swapFrom').value='';document.getElementById('swapTo').value='';
   document.getElementById('swapFromBal').textContent=swapFlipped?parseFloat(eurcBal).toFixed(2):parseFloat(usdcBal).toFixed(2);
   document.getElementById('swapToBal').textContent=swapFlipped?parseFloat(usdcBal).toFixed(2):parseFloat(eurcBal).toFixed(2);
