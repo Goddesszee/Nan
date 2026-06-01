@@ -2112,11 +2112,11 @@ a:hover{color:var(--text);}
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 9px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text);
   font-family: 'Inter', sans-serif;
   transition: background .15s;
