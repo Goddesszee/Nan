@@ -1975,6 +1975,7 @@ a:hover{color:var(--text);}
 /* === MOBILE HEADER FIX === */
 @media(max-width:767px){
   #disconnectTopBtn { display:none !important; }
+  #disconnectTopBtnMobile { display:flex !important; }
   #topbarPageInfo { display:none !important; }
   /* Hide net pill, theme toggle on mobile — saves space */
   .net-pill { display:none !important; }
@@ -2085,6 +2086,8 @@ a:hover{color:var(--text);}
   }
 }
 .theme-toggle-btn{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* Mobile disconnect icon only, desktop text only */
+#disconnectTopBtnMobile { display:none !important; }
 /* === RELAY-STYLE TOPBAR === */
 #globalTopBar {
   display: flex !important;
