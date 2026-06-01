@@ -1857,3 +1857,10 @@ a:hover{color:var(--text);}
     padding: 16px !important;
   }
 }
+
+/* == HISTORY STAT NUMBERS FIX == */
+.hist-stat-num {
+  color: var(--text) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
