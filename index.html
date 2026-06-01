@@ -172,66 +172,87 @@
           <svg id="connectChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
 
-        <div id="connectDrop" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:310px;background:#111111;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(112,0,255,.1);z-index:500;">
+        <div id="connectDrop" style="display:none;"><!-- legacy, kept for JS compat --></div>
 
-          <!-- Email step 1 -->
-          <div id="landingEmailStep" style="padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Continue with Email</div>
-            <input id="landingEmailInput" type="email" placeholder="your@email.com"
-              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px;color:#f0f0f0;font-size:.85rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:8px;"
-              onfocus="this.style.borderColor='#7000ff'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
-              onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
-            <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:#7000ff;border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
-              Continue with Email →
-            </button>
-          </div>
-          <!-- OTP step 2 (hidden initially) -->
-          <div id="landingOtpStep" style="display:none;padding:10px 8px 6px;">
-            <div style="font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Enter verification code</div>
-            <div id="landingOtpEmailLabel" style="font-size:.72rem;color:#c084fc;margin-bottom:10px;"></div>
-            <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="#111111"
-              style="width:100%;background:#1a1a1a;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:12px;color:#f0f0f0;font-size:1.4rem;font-weight:700;letter-spacing:.3em;text-align:center;outline:none;font-family:'Inter var','Inter',monospace;margin-bottom:8px;"
-              onfocus="this.style.borderColor='#7000ff'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"
-              onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
-            <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:#7000ff;border:none;color:#f0f0f0;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:6px;">
-              Verify & Connect →
-            </button>
-            <button onclick="document.getElementById('landingOtpStep').style.display='none';document.getElementById('landingEmailStep').style.display='block';" style="width:100%;background:none;border:none;color:#9ca3af;padding:6px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;">← Change email</button>
-          </div>
+<!-- Full-screen onboarding modal -->
+<div id="onboardModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeOnboard()">
+  <div id="onboardSheet" style="width:100%;max-width:480px;background:#0a0a0a;border:1px solid rgba(112,0,255,.2);border-radius:24px 24px 0 0;padding:0 0 32px;box-shadow:0 -20px 80px rgba(112,0,255,.15);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.25,1);">
+    <!-- Handle -->
+    <div style="display:flex;justify-content:center;padding:12px 0 0;">
+      <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);"></div>
+    </div>
+    <!-- Header -->
+    <div style="padding:20px 24px 0;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#7000ff,#9333ea);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 30px rgba(112,0,255,.4);">
+        <svg width="28" height="28" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>
+      </div>
+      <div style="font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:6px;">Get started with NAN</div>
+      <div style="font-size:.875rem;color:rgba(255,255,255,.4);line-height:1.5;">Your stablecoin wallet on Arc.<br/>No gas fees. Takes 30 seconds.</div>
+    </div>
 
-          <div style="height:1px;background:rgba(255,255,255,.06);margin:8px 0;"></div>
-          <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b7280;padding:2px 8px 6px;">Or connect wallet</div>
+    <!-- Steps indicator -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:18px 24px 0;">
+      <div id="ob-dot1" style="width:24px;height:4px;border-radius:2px;background:#7000ff;transition:all .3s;"></div>
+      <div id="ob-dot2" style="width:8px;height:4px;border-radius:2px;background:rgba(112,0,255,.2);transition:all .3s;"></div>
+    </div>
 
-          <!-- MetaMask -->
-          <div onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">M</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">MetaMask</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Browser extension</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
+    <!-- Step 1: Email -->
+    <div id="ob-step1" style="padding:20px 24px 0;">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(168,85,247,.7);margin-bottom:10px;">✉ Continue with email — fastest way</div>
+      <input id="landingEmailInput" type="email" placeholder="your@email.com" autocomplete="email"
+        style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(112,0,255,.2);border-radius:14px;padding:14px 16px;color:#fff;font-size:1rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px;box-sizing:border-box;"
+        onfocus="this.style.borderColor='rgba(112,0,255,.7)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"
+        onkeydown="if(event.key==='Enter')landingEmailConnect()"/>
+      <button id="landingEmailBtn" onclick="landingEmailConnect()" style="width:100%;background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:15px;cursor:pointer;box-shadow:0 4px 24px rgba(112,0,255,.4);margin-bottom:16px;">
+        Send verification code →
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
+        <span style="font-size:.78rem;color:rgba(255,255,255,.25);">or use a wallet</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08);"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:9px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+          <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="22" height="22" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/> MetaMask
+        </button>
+        <button onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:9px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+          <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="22" height="22" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/> WalletConnect
+        </button>
+        <button onclick="landingWalletConnect('coinbase')" style="display:flex;align-items:center;gap:9px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+          <img src="https://raw.githubusercontent.com/coinbase/coinbase-wallet-sdk/master/packages/wallet-sdk/assets/coinbase-wallet-app-icon.png" width="22" height="22" style="border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/> Coinbase
+        </button>
+        <button onclick="landingWalletConnect('circle')" style="display:flex;align-items:center;gap:9px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+          <div style="width:22px;height:22px;border-radius:6px;background:rgba(112,0,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div> Circle
+        </button>
+      </div>
+      <div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.18);margin-top:16px;">Non-custodial · Your keys · Arc Testnet</div>
+    </div>
 
-          <!-- WalletConnect -->
-          <div onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">W</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">WalletConnect</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Scan QR code</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <!-- Coinbase -->
-          <div onclick="landingWalletConnect('coinbase')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">C</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">Coinbase Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Mobile or extension</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <!-- Circle -->
-          <div onclick="landingWalletConnect('circle')" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
-            <div style="width:34px;height:34px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#f0f0f0;flex-shrink:0;">◎</div>
-            <div style="flex:1;"><div style="font-size:.85rem;font-weight:600;color:#f3e8ff;">Circle Wallet</div><div style="font-size:.62rem;color:#9ca3af;margin-top:1px;">Connect with email →</div></div>
-            <span style="color:#6b7280;font-size:.85rem;">›</span>
-          </div>
-
-          <div style="padding:8px 10px 4px;font-size:.6rem;color:#6b7280;text-align:center;">Non-custodial · Your keys · Arc Testnet</div>
+    <!-- Step 2: OTP -->
+    <div id="ob-step2" style="display:none;padding:20px 24px 0;">
+      <div style="background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(112,0,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
+        <div>
+          <div style="font-size:.9rem;font-weight:700;color:#c084fc;">Code sent! Check your inbox</div>
+          <div id="landingOtpEmailLabel" style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(168,85,247,.7);margin-bottom:10px;">Enter 6-digit code</div>
+      <input id="landingOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code"
+        style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(112,0,255,.2);border-radius:14px;padding:16px;color:#fff;font-size:1.8rem;letter-spacing:.5em;text-align:center;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px;box-sizing:border-box;"
+        onfocus="this.style.borderColor='rgba(112,0,255,.7)'" onblur="this.style.borderColor='rgba(112,0,255,.2)'"
+        onkeydown="if(event.key==='Enter')landingVerifyOTP()"/>
+      <button id="landingVerifyBtn" onclick="landingVerifyOTP()" style="width:100%;background:linear-gradient(135deg,#7000ff,#9333ea);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:15px;cursor:pointer;box-shadow:0 4px 24px rgba(112,0,255,.4);margin-bottom:10px;">
+        Verify & Enter →
+      </button>
+      <button onclick="ob_backToEmail()" style="width:100%;background:none;border:none;color:rgba(255,255,255,.35);padding:8px;font-size:.875rem;cursor:pointer;font-family:'Inter',sans-serif;">
+        ← Change email
+      </button>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -457,20 +478,34 @@
 </script>
 <script>
 function toggleConnectDrop(){
-  const drop = document.getElementById('connectDrop');
-  const chevron = document.getElementById('connectChevron');
-  const isOpen = drop.style.display === 'block';
-  drop.style.display = isOpen ? 'none' : 'block';
-  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  const modal = document.getElementById('onboardModal');
+  const sheet = document.getElementById('onboardSheet');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  requestAnimationFrame(()=>{ sheet.style.transform = 'translateY(0)'; });
+  // Reset to step 1
+  document.getElementById('ob-step1').style.display = 'block';
+  document.getElementById('ob-step2').style.display = 'none';
+  document.getElementById('ob-dot1').style.width = '24px';
+  document.getElementById('ob-dot2').style.width = '8px';
+  document.getElementById('ob-dot1').style.background = '#7000ff';
+  document.getElementById('ob-dot2').style.background = 'rgba(112,0,255,.2)';
 }
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#connectWrap')){
-    const drop = document.getElementById('connectDrop');
-    const chevron = document.getElementById('connectChevron');
-    if(drop) drop.style.display = 'none';
-    if(chevron) chevron.style.transform = 'rotate(0deg)';
-  }
-});
+function closeOnboard(){
+  const modal = document.getElementById('onboardModal');
+  const sheet = document.getElementById('onboardSheet');
+  if(!modal) return;
+  sheet.style.transform = 'translateY(100%)';
+  setTimeout(()=>{ modal.style.display = 'none'; }, 350);
+}
+function ob_backToEmail(){
+  document.getElementById('ob-step2').style.display = 'none';
+  document.getElementById('ob-step1').style.display = 'block';
+  document.getElementById('ob-dot1').style.width = '24px';
+  document.getElementById('ob-dot2').style.width = '8px';
+  document.getElementById('ob-dot1').style.background = '#7000ff';
+  document.getElementById('ob-dot2').style.background = 'rgba(112,0,255,.2)';
+}
 async function landingEmailConnect(){
   const email = document.getElementById('landingEmailInput').value.trim();
   if(!email||!email.includes('@')){ alert('Please enter a valid email'); return; }
@@ -485,8 +520,13 @@ async function landingEmailConnect(){
     window._landingOtpExpiry = data.expiresAt;
     window._landingEmail = email;
     document.getElementById('landingOtpEmailLabel').textContent = 'Code sent to '+email;
-    document.getElementById('landingEmailStep').style.display='none';
-    document.getElementById('landingOtpStep').style.display='block';
+    // Switch to step 2 in new modal
+    document.getElementById('ob-step1').style.display='none';
+    document.getElementById('ob-step2').style.display='block';
+    document.getElementById('ob-dot1').style.width='8px';
+    document.getElementById('ob-dot2').style.width='24px';
+    document.getElementById('ob-dot1').style.background='rgba(112,0,255,.2)';
+    document.getElementById('ob-dot2').style.background='#7000ff';
     setTimeout(()=>document.getElementById('landingOtpInput').focus(),100);
   } catch(e){
     alert('Could not send code: '+e.message);
