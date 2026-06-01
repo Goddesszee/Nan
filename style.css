@@ -1702,3 +1702,29 @@ a:hover{color:var(--text);}
 /* ══ TOPBAR & DISCONNECT FIX ══ */
 [data-theme="light"] #disconnectTopBtn { color: #dc2626 !important; }
 [data-theme="light"] #moreArcName { color: #4c1d95 !important; }
+
+/* == DISCONNECT BUTTON FULL FIX == */
+#disconnectTopBtn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background-color: rgba(220,38,38,0.1) !important;
+  border: 1px solid rgba(220,38,38,0.3) !important;
+  border-radius: 100px !important;
+  padding: 6px 14px !important;
+  color: #dc2626 !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+#disconnectTopBtn:hover {
+  background-color: rgba(220,38,38,0.2) !important;
+}
+
+[data-theme="light"] #disconnectTopBtn {
+  color: #dc2626 !important;
+  background-color: rgba(220,38,38,0.1) !important;
+  border-color: rgba(220,38,38,0.3) !important;
+}
