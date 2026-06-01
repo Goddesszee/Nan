@@ -1974,6 +1974,13 @@ a:hover{color:var(--text);}
 
 /* === MOBILE HEADER FIX === */
 @media(max-width:767px){
+  :root {
+    --card: transparent !important;
+    --card2: transparent !important;
+    --surface: #000000 !important;
+    --bg: #000000 !important;
+    --border: rgba(168,85,247,.15) !important;
+  }
   #disconnectTopBtn { display:none !important; }
   #disconnectTopBtnMobile { display:flex !important; }
   #topbarPageInfo { display:none !important; }
@@ -1998,10 +2005,7 @@ a:hover{color:var(--text);}
   }
 
   /* ── Strip ALL grey backgrounds on mobile ── */
-  --card: transparent !important;
-  --card2: transparent !important;
-  --surface: #111111 !important;
-  --bg: #111111 !important;
+  /* Must be on :root for CSS custom properties to cascade */
 
   /* All inline grey/surface backgrounds → transparent */
   *[style*="background:var(--card)"],
