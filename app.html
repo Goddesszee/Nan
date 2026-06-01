@@ -305,9 +305,8 @@ html,body{background:#111111 !important;}
     <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;">
 
     <!-- Balance card -->
-    <div style="background:linear-gradient(145deg,#111111,#111111);padding:22px 20px 20px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.18),transparent 70%);pointer-events:none;"></div>
-      <div style="position:absolute;bottom:-40px;left:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.08),transparent 70%);pointer-events:none;"></div>
+    <div style="background:var(--card);padding:22px 20px 20px;position:relative;overflow:hidden;">
+      
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
         <div style="font-size:1rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.85);">Total Balance</div>
         <div style="display:flex;align-items:center;gap:4px;background:rgba(112,0,255,.08);border:1px solid rgba(112,0,255,.18);padding:4px 10px;border-radius:100px;font-size:.875rem;color:rgba(255,255,255,.7);font-weight:600;">
@@ -359,7 +358,7 @@ html,body{background:#111111 !important;}
     </div>
 
     <!-- Earn promo -->
-    <div style="background:linear-gradient(135deg,#111111,#111111);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--card);border-top:none;border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:.875rem;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Save & Earn</div>
         <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f0f0f0;line-height:1;">4.80% <span style="font-size:1rem;font-weight:500;color:rgba(255,255,255,.5);">/ year</span></div>
@@ -592,8 +591,8 @@ html,body{background:#111111 !important;}
     </div>
 
     <!-- APY Hero -->
-    <div style="background:linear-gradient(135deg,#111111,#111111);border:1px solid rgba(112,0,255,.3);border-radius:18px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.15),transparent 70%);pointer-events:none;"></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:10px;">
+      
       <div style="font-size:.875rem;color:rgba(255,255,255,.5);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;">Annual interest rate</div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;">
         <div style="font-size:2.8rem;font-weight:800;color:#f0f0f0;letter-spacing:-.04em;line-height:1;">4.80%</div>
@@ -648,7 +647,7 @@ html,body{background:#111111 !important;}
           <button class="topt" onclick="setLendAsset('EURC',this)"><span class="oi">💶</span><span>EURC</span></button>
         </div>
       </div>
-      <button class="btn" onclick="doSupply()" style="background:linear-gradient(135deg,#5500cc,#7000ff);box-shadow:0 4px 20px rgba(112,0,255,.3);">Start Saving →</button>
+      <button class="btn" onclick="doSupply()" style="background:#7000ff;box-shadow:0 4px 20px rgba(112,0,255,.3);">Start Saving →</button>
     </div>
 
     <!-- WITHDRAW panel -->
@@ -714,7 +713,7 @@ html,body{background:#111111 !important;}
           </div>
         </div>
       </div>
-      <button class="btn" onclick="doRepay()" style="background:linear-gradient(135deg,#5500cc,#5500cc);box-shadow:0 4px 20px rgba(85,0,204,.3);">Repay Loan</button>
+      <button class="btn" onclick="doRepay()" style="background:#7000ff;box-shadow:0 4px 20px rgba(85,0,204,.3);">Repay Loan</button>
     </div>
 
     <!-- Hidden elements kept for JS compatibility -->
@@ -733,7 +732,7 @@ html,body{background:#111111 !important;}
     <div style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:16px;">More</div>
 
     <!-- Profile card -->
-    <div style="background:linear-gradient(145deg,#111111,#111111);border:1px solid rgba(112,0,255,.2);border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+    <div style="background:var(--card);border:1px solid rgba(112,0,255,.2);border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
       <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#7000ff,#7000ff);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#f0f0f0;flex-shrink:0;" id="moreAvatar">?</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:1rem;font-weight:700;color:var(--text);" id="moreName">—</div>
