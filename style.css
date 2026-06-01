@@ -1765,3 +1765,16 @@ a:hover{color:var(--text);}
   color: #111 !important;
   font-weight: 600 !important;
 }
+
+/* == NAIRA BALANCE VISIBILITY FIX == */
+#homeBalNgn {
+  color: rgba(225,210,255,1) !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] #homeBalNgn {
+  color: #444 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
