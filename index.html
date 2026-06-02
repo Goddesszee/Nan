@@ -30,6 +30,52 @@
   html{scroll-behavior:smooth;}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   [data-theme="light"] body::before{display:none;}
+
+  /* Onboard modal theming */
+  #onboardModal[data-theme="light"] #onboardSheet {
+    background: #ffffff !important;
+    border-color: rgba(112,0,255,.15) !important;
+  }
+  #onboardModal[data-theme="light"] #onboardSheet input {
+    background: #f5f5f5 !important;
+    color: #111 !important;
+    border-color: rgba(112,0,255,.2) !important;
+  }
+  #onboardModal[data-theme="light"] #onboardSheet button:not([onclick*="landingWallet"]):not([onclick*="landingVerify"]):not([onclick*="landingEmail"]) {
+    background: #f5f5f5 !important;
+    border-color: #e8e8e8 !important;
+    color: #111 !important;
+  }
+  #onboardModal[data-theme="light"] .ob-title { color: #111 !important; }
+  #onboardModal[data-theme="light"] .ob-sub { color: #888 !important; }
+  #onboardModal[data-theme="light"] .ob-handle { background: rgba(0,0,0,.1) !important; }
+  #onboardModal[data-theme="light"] .ob-divider { background: #e8e8e8 !important; }
+  #onboardModal[data-theme="light"] .ob-divider-text { color: #aaa !important; }
+  #onboardModal[data-theme="light"] .ob-footer { color: #ccc !important; }
+  #onboardModal[data-theme="light"] .ob-wallet-btn {
+    background: #f5f5f5 !important;
+    border-color: #e8e8e8 !important;
+    color: #111 !important;
+  }
+  #onboardModal[data-theme="dark"] #onboardSheet {
+    background: #0a0a0a !important;
+    border-color: rgba(112,0,255,.2) !important;
+  }
+  #onboardModal[data-theme="dark"] #onboardSheet input {
+    background: rgba(255,255,255,.05) !important;
+    color: #fff !important;
+  }
+  #onboardModal[data-theme="dark"] .ob-title { color: #fff !important; }
+  #onboardModal[data-theme="dark"] .ob-sub { color: rgba(255,255,255,.4) !important; }
+  #onboardModal[data-theme="dark"] .ob-handle { background: rgba(255,255,255,.15) !important; }
+  #onboardModal[data-theme="dark"] .ob-divider { background: rgba(255,255,255,.08) !important; }
+  #onboardModal[data-theme="dark"] .ob-divider-text { color: rgba(255,255,255,.25) !important; }
+  #onboardModal[data-theme="dark"] .ob-footer { color: rgba(255,255,255,.18) !important; }
+  #onboardModal[data-theme="dark"] .ob-wallet-btn {
+    background: rgba(255,255,255,.04) !important;
+    border-color: rgba(255,255,255,.08) !important;
+    color: #fff !important;
+  }
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;}
   body::after{content:'';position:fixed;inset:0;background:none;pointer-events:none;z-index:0;}
 
@@ -391,6 +437,9 @@ function toggleConnectDrop(){
   const modal = document.getElementById('onboardModal');
   const sheet = document.getElementById('onboardSheet');
   if(!modal) return;
+  // Sync theme
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  modal.setAttribute('data-theme', theme);
   modal.style.display = 'flex';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     sheet.style.transform = 'translateY(0)';
@@ -483,15 +532,15 @@ document.addEventListener('DOMContentLoaded', function(){
   <div id="onboardSheet" onclick="event.stopPropagation()" style="width:100%;max-width:480px;background:var(--bg, #ffffff);border:1px solid rgba(112,0,255,.2);border-radius:24px 24px 0 0;padding:0 0 32px;box-shadow:0 -20px 80px rgba(112,0,255,.15);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.25,1);">
     <!-- Handle -->
     <div style="display:flex;justify-content:center;padding:12px 0 0;">
-      <div style="width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,.12);"></div>
+      <div class="ob-handle" style="width:40px;height:4px;border-radius:2px;"></div>
     </div>
     <!-- Header -->
     <div style="padding:20px 24px 0;text-align:center;">
       <div style="margin:0 auto 14px;display:flex;align-items:center;justify-content:center;">
         <svg width="100" height="58" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div style="font-size:1.3rem;font-weight:800;color:var(--text,#111);letter-spacing:-.02em;margin-bottom:6px;">Get started with NAN</div>
-      <div style="font-size:.875rem;color:var(--text3,#888);line-height:1.5;">Your stablecoin wallet on Arc.<br/>No gas fees. Takes 30 seconds.</div>
+      <div class="ob-title" style="font-size:1.3rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;">Get started with NAN</div>
+      <div class="ob-sub" style="font-size:.875rem;line-height:1.5;">Your stablecoin wallet on Arc.<br/>No gas fees. Takes 30 seconds.</div>
     </div>
 
     <!-- Steps indicator -->
@@ -511,23 +560,23 @@ document.addEventListener('DOMContentLoaded', function(){
         Send verification code →
       </button>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-        <div style="flex:1;height:1px;background:var(--border,#e8e8e8);"></div>
-        <span style="font-size:.78rem;color:var(--text3,#aaa);">or use a wallet</span>
-        <div style="flex:1;height:1px;background:var(--border,#e8e8e8);"></div>
+        <div class="ob-divider" style="flex:1;height:1px;"></div>
+        <span class="ob-divider-text" style="font-size:.78rem;">or use a wallet</span>
+        <div class="ob-divider" style="flex:1;height:1px;"></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button onclick="landingWalletConnect('metamask')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card,#f5f5f5);border:1px solid var(--border,#e8e8e8);border-radius:14px;color:var(--text,#111);font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+        <button onclick="landingWalletConnect('metamask')" class="ob-wallet-btn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
           <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none'"/>
           <div style="text-align:left;"><div style="font-weight:700;">MetaMask</div><div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:1px;">Browser & mobile wallet</div></div>
           <svg style="margin-left:auto;opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
-        <button onclick="landingWalletConnect('walletconnect')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card,#f5f5f5);border:1px solid var(--border,#e8e8e8);border-radius:14px;color:var(--text,#111);font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
+        <button onclick="landingWalletConnect('walletconnect')" class="ob-wallet-btn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;" onmouseover="this.style.borderColor='rgba(112,0,255,.4)';this.style.background='rgba(112,0,255,.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.background='rgba(255,255,255,.04)'">
           <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" width="28" height="28" style="border-radius:8px;flex-shrink:0;" onerror="this.style.display='none'"/>
           <div style="text-align:left;"><div style="font-weight:700;">WalletConnect</div><div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:1px;">Any EVM-compatible wallet</div></div>
           <svg style="margin-left:auto;opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
       </div>
-      <div style="text-align:center;font-size:.72rem;color:var(--text3,#bbb);margin-top:16px;">Non-custodial · Your keys · Arc Testnet</div>
+      <div class="ob-footer" style="text-align:center;font-size:.72rem;margin-top:16px;">Non-custodial · Your keys · Arc Testnet</div>
     </div>
 
     <!-- Step 2: OTP -->
