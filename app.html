@@ -34,7 +34,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#111111"/>
 <title>NAN — Weave. Connect. Build.</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20width%3D%2732%27%20height%3D%2732%27%20viewBox%3D%270%200%2040%2020%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M16%2C10%20C16%2C4%208%2C4%208%2C10%20C8%2C16%2016%2C16%2020%2C10%20C24%2C4%2032%2C4%2032%2C10%20C32%2C16%2024%2C16%2020%2C10%20Z%27%20fill%3D%27none%27%20stroke%3D%27%25237000ff%27%20stroke-width%3D%272.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M8%2C16%20C8%2C10%202%2C10%202%2C16%20C2%2C22%208%2C22%2011%2C16%20C14%2C10%2020%2C10%2020%2C16%20C20%2C22%2014%2C22%2011%2C16%20Z%22%20fill%3D%22none%22%20stroke%3D%22%237000ff%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpolyline%20points%3D%2224%2C28%2024%2C4%2030%2C28%2030%2C4%22%20fill%3D%22none%22%20stroke%3D%22%237000ff%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22square%22%20stroke-linejoin%3D%22miter%22/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <link rel="stylesheet" href="style.css?v=1780285358"/>
@@ -92,7 +92,6 @@ html,body{background:var(--bg) !important;}
 
 @media(min-width:768px){#topbarNav{display:flex!important;}#desktopNav{display:none!important;}}
 .dnav-brand{font-size:2.5rem!important;font-weight:900!important;color:var(--text);letter-spacing:-.03em;line-height:1;text-transform:uppercase;}</style>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <div id="app-root">
@@ -100,8 +99,14 @@ html,body{background:var(--bg) !important;}
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;cursor:pointer;"><svg width="52" height="26" viewBox="0 0 40 20" fill="none"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="brand-name" style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text,#111);line-height:1;">NAN</div>
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;cursor:pointer;"><svg width="160" height="50" viewBox="0 0 160 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20,25 C20,11 4,11 4,25 C4,39 20,39 28,25 C36,11 52,11 52,25 C52,39 36,39 28,25 Z" fill="none" stroke="#7000ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="68,44 68,6 88,44 88,6" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <polyline points="96,44 108,6 120,44" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <line x1="101" y1="29" x2="115" y2="29" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square"/>
+  <polyline points="128,44 128,6 148,44 148,6" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg></div>
+      
     </div>
     <!-- Desktop: nav links -->
     <div id="topbarPageInfo" style="display:none;align-items:center;gap:2px;">
@@ -152,7 +157,13 @@ html,body{background:var(--bg) !important;}
   <!-- ══ DESKTOP SIDEBAR NAV ══ -->
   <nav id="desktopNav" style="display:none;">
     <div class="dnav-logo-row">
-      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:none;box-shadow:none;height:72px;"><svg width="64" height="32" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="dnav-logo" style="display:flex;align-items:center;"><svg width="160" height="50" viewBox="0 0 160 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20,25 C20,11 4,11 4,25 C4,39 20,39 28,25 C36,11 52,11 52,25 C52,39 36,39 28,25 Z" fill="none" stroke="#7000ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="68,44 68,6 88,44 88,6" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <polyline points="96,44 108,6 120,44" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <line x1="101" y1="29" x2="115" y2="29" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square"/>
+  <polyline points="128,44 128,6 148,44 148,6" fill="none" stroke="#7000ff" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg></div>
                   <div><div style="font-size:.875rem;font-weight:700;color:#7000ff;">Code sent!</div><div style="font-size:.8rem;color:rgba(255,255,255,.4);">Enter the 6-digit code below</div></div>
                 </div>
                 <div style="display:flex;gap:8px;">
