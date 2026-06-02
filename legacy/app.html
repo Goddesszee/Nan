@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><script>
+// Apply theme IMMEDIATELY — before any CSS to prevent flash
+(function(){var t=localStorage.getItem('nan_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<script>
 // Dynamic bridge - set userAddr IMMEDIATELY before any other script runs
 (function() {
   var addr = localStorage.getItem('nan_dynamic_address');
@@ -50,41 +54,59 @@
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <link rel="stylesheet" href="/legacy/style.css"/>
 <style>
-/* ══ RELAY COLOR OVERRIDE — inline so cache can't block it ══ */
-:root{
-  --bg:#111111 !important;
-  --surface:#1a1a1a !important;
-  --card:#1a1a1a !important;
-  --card2:#222222 !important;
-  --border:rgba(255,255,255,.07) !important;
-  --border2:rgba(255,255,255,.12) !important;
-  --accent:#7000ff !important;
-  --accent3:#7000ff !important;
-  --accent4:#c084fc !important;
-  --text:#ffffff !important;
-  --text2:#a0a0a0 !important;
-  --text3:#555555 !important;
-  --success:#7000ff !important;
-  --topbar-bg:#111111 !important;
-  --nav-bg:#111111 !important;
+/* ══ THEME TOKENS — scoped per theme so neither fights the other ══ */
+:root,[data-theme="dark"]{
+  --bg:#111111;
+  --surface:#1a1a1a;
+  --card:#1a1a1a;
+  --card2:#222222;
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(255,255,255,.12);
+  --accent:#7000ff;
+  --accent3:#7000ff;
+  --accent4:#c084fc;
+  --text:#ffffff;
+  --text2:#a0a0a0;
+  --text3:#555555;
+  --success:#7000ff;
+  --topbar-bg:#111111;
+  --nav-bg:#111111;
 }
-html,body{background:var(--bg) !important;}
-#app-root{background:var(--bg) !important;}
+[data-theme="light"]{
+  --bg:#ffffff;
+  --surface:#f5f5f5;
+  --card:#f5f5f5;
+  --card2:#ebebeb;
+  --border:#e0e0e0;
+  --border2:#cccccc;
+  --accent:#7000ff;
+  --accent3:#7000ff;
+  --accent4:#9333ea;
+  --text:#111111;
+  --text2:#444444;
+  --text3:#888888;
+  --success:#7000ff;
+  --topbar-bg:#ffffff;
+  --nav-bg:#ffffff;
+}
+html,body{background:var(--bg);}
+#app-root{background:var(--bg);}
 .bottom-nav{background:var(--nav-bg) !important;border-top:1px solid var(--border) !important;}
-.nav-pill-wrap{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.07) !important;}
-.nav-btn{color:#555555 !important;}
-.nav-btn.active{background:rgba(112,0,255,.15) !important;color:#7000ff !important;border:1px solid rgba(112,0,255,.2) !important;}
-.btn{background:#7000ff !important;box-shadow:0 4px 14px rgba(112,0,255,.35) !important;}
-[data-theme="light"] .nav-pill-wrap{background:rgba(0,0,0,.03) !important;border:1px solid rgba(0,0,0,.08) !important;}
-[data-theme="light"] .nav-btn{color:#999 !important;}
+
+/* Dark nav */
+:root .nav-pill-wrap,[data-theme="dark"] .nav-pill-wrap{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.07) !important;}
+:root .nav-btn,[data-theme="dark"] .nav-btn{color:#555555 !important;}
+:root .nav-btn.active,[data-theme="dark"] .nav-btn.active{background:rgba(112,0,255,.15) !important;color:#7000ff !important;border:1px solid rgba(112,0,255,.2) !important;}
+
+/* Light nav */
+[data-theme="light"] .nav-pill-wrap{background:rgba(0,0,0,.04) !important;border:1px solid rgba(0,0,0,.08) !important;}
+[data-theme="light"] .nav-btn{color:#888 !important;}
 [data-theme="light"] .nav-btn.active{background:rgba(112,0,255,.08) !important;color:#7000ff !important;border:1px solid rgba(112,0,255,.15) !important;}
-[data-theme="light"]:root,[data-theme="light"] :root{
-  --bg:#fafafa !important;--surface:#f4f4f4 !important;--card:#f4f4f4 !important;
-  --card2:#ebebeb !important;--border:#e4e4e4 !important;
-  --text:#1a1a1a !important;--text2:#555555 !important;--text3:#999999 !important;
-  --accent:#7000ff !important;--topbar-bg:#ffffff !important;--nav-bg:#ffffff !important;
-}
-/* Light mode: fix faint white text */
+
+/* Primary button — same in both themes */
+.btn{background:#7000ff !important;box-shadow:0 4px 14px rgba(112,0,255,.35) !important;color:#fff !important;}
+
+/* Light mode: fix inline-styled white text */
 [data-theme="light"] *[style*="color:rgba(255,255,255,.5)"],
 [data-theme="light"] *[style*="color:rgba(255,255,255,.45)"],
 [data-theme="light"] *[style*="color:rgba(255,255,255,.4)"]{color:#888 !important;}
@@ -95,11 +117,40 @@ html,body{background:var(--bg) !important;}
 [data-theme="light"] *[style*="color:rgba(255,255,255,.9)"],
 [data-theme="light"] *[style*="color:#ffffff"],
 [data-theme="light"] *[style*="color:#f0f0f0"]{color:#111 !important;}
-[data-theme="light"] *[style*="background:rgba(255,255,255,.0"],
+
+/* Light mode: fix inline dark backgrounds */
 [data-theme="light"] *[style*="background:#1a1a1a"],
-[data-theme="light"] *[style*="background:#111111"]{background:#f5f5f5 !important;border-color:#e8e8e8 !important;}
+[data-theme="light"] *[style*="background:#111111"],
+[data-theme="light"] *[style*="background:#0a0a0a"]{background:#f5f5f5 !important;border-color:#e0e0e0 !important;}
+[data-theme="light"] *[style*="background:rgba(255,255,255,.0"]{background:rgba(0,0,0,.02) !important;}
+[data-theme="light"] *[style*="background:rgba(255,255,255,.03)"]{background:rgba(0,0,0,.02) !important;}
+[data-theme="light"] *[style*="background:rgba(255,255,255,.04)"]{background:rgba(0,0,0,.03) !important;}
+[data-theme="light"] *[style*="background:rgba(255,255,255,.06)"]{background:rgba(0,0,0,.04) !important;}
+
+/* Light mode: inputs */
 [data-theme="light"] input,
-[data-theme="light"] select{background:#fff !important;color:#111 !important;border-color:#e8e8e8 !important;}
+[data-theme="light"] select{background:#fff !important;color:#111 !important;border-color:#e0e0e0 !important;}
+
+/* Light mode: balance card */
+[data-theme="light"] .home-bal-card{background:linear-gradient(135deg,#7000ff,#9333ea) !important;}
+[data-theme="light"] .home-bal-card .home-bal-num,[data-theme="light"] .home-bal-card .home-bal-ngn,[data-theme="light"] .home-bal-card .home-bal-lbl{color:#fff !important;}
+[data-theme="light"] .bal-card{background:linear-gradient(135deg,#7000ff,#9333ea) !important;}
+[data-theme="light"] .bal-card *{color:#fff !important;}
+
+/* Light mode: action buttons */
+[data-theme="light"] .home-action{background:#f5f5f5 !important;border-color:#e0e0e0 !important;}
+[data-theme="light"] .home-action:first-child{background:linear-gradient(135deg,rgba(112,0,255,.15),rgba(112,0,255,.08)) !important;border-color:rgba(112,0,255,.3) !important;}
+
+/* Light mode: topbar */
+[data-theme="light"] #globalTopBar{background:#ffffff !important;border-bottom:1px solid #e0e0e0 !important;}
+
+/* Light mode: more page items */
+[data-theme="light"] .more-item{background:#fff !important;border-color:#e8e8e8 !important;}
+[data-theme="light"] .more-item:hover{background:#f5f5f5 !important;}
+
+/* Light mode: cards */
+[data-theme="light"] .card{background:#fff !important;border-color:#e8e8e8 !important;}
+[data-theme="light"] .tx-item{background:#fff !important;border-color:#e8e8e8 !important;}
 
 @media(min-width:768px){#topbarNav{display:flex!important;}#desktopNav{display:none!important;}}
 .dnav-brand{font-size:2.5rem!important;font-weight:900!important;color:var(--text);letter-spacing:-.03em;line-height:1;text-transform:uppercase;}
@@ -185,13 +236,13 @@ html,body{background:var(--bg) !important;}
         <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
         Home
       </button>
-      <button class="nav-btn nav-send-hl" id="nav-send" onclick="goPage('send')">
-        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
-        Send
+      <button class="nav-btn" id="nav-swap" onclick="goPage('swap')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+        Swap
       </button>
-      <button class="nav-btn" id="nav-earn" onclick="goPage('earn')">
-        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-        Earn
+      <button class="nav-btn" id="nav-bridge" onclick="goPage('bridge')">
+        <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16"/><path d="M4 8h16"/><path d="M4 12h8"/><circle cx="18" cy="16" r="4"/><path d="M18 14v4M16 16h4"/></svg></span>
+        Bridge
       </button>
       <button class="nav-btn" id="nav-history" onclick="goPage('history')">
         <span class="ni"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
@@ -521,6 +572,7 @@ html,body{background:var(--bg) !important;}
 
     <!-- Success card -->
     <div class="success-wrap" id="successCard">
+      <span id="successMsg" style="display:none;"></span>
       <div class="success-circle">✓</div>
       <div class="success-amount" id="successAmt">—</div>
       <div class="success-title">Sent successfully</div>
@@ -535,6 +587,7 @@ html,body{background:var(--bg) !important;}
       <div class="success-hash" id="successHash"></div>
       <div class="success-actions">
         <button class="btn btn-outline" onclick="openExplorer()">View ↗</button>
+        <button class="btn btn-outline" onclick="showReceipt()" style="background:rgba(112,0,255,.12);border-color:rgba(112,0,255,.4);color:#a855f7;">🧾 Receipt</button>
         <button class="btn" onclick="resetSend()">Send again</button>
       </div>
     </div>

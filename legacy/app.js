@@ -111,32 +111,43 @@ function getArcProvider(){
 }
 // Dynamic wallet signer helper — gets signer fresh each time
 async function getDynamicSigner() {
-  // Already have signer
+  // Already have cached signer
   if (window.signer) return window.signer;
-  
-  // Try all injected providers
-  var injected = window.rabby 
-    || window.ethereum 
+
+  // For Circle wallet users (email login via Dynamic) — no injected provider needed
+  // All transactions go through the Circle API, not window.ethereum
+  if (isCircleWallet && circleWalletId) return null;
+
+  // Try injected providers — priority: Rabby > Dynamic injected > EIP-6963 > others
+  var injected = window.rabby
+    || window.ethereum
     || (window.evmproviders && Object.values(window.evmproviders)[0])
     || window.coinbaseWalletExtension
     || window.trustwallet
     || null;
-  
-  if (injected) {
-    try {
-      await injected.request({ method: 'eth_requestAccounts' });
-      var prov = new ethers.BrowserProvider(injected);
-      var s = await prov.getSigner();
-      window.signer = s;
-      window.wp = injected;
-      window.provider = prov;
-      window.onArcNetwork = true;
-      return s;
-    } catch(e) {
-      console.error('getDynamicSigner error:', e);
+
+  if (!injected) return null;
+
+  try {
+    // Use eth_accounts first (no popup) — falls back to eth_requestAccounts if needed
+    var accounts = [];
+    try { accounts = await injected.request({ method: 'eth_accounts' }); } catch(e2) {}
+    if (!accounts || !accounts.length) {
+      accounts = await injected.request({ method: 'eth_requestAccounts' });
     }
+    if (!accounts || !accounts.length) return null;
+
+    var prov = new ethers.BrowserProvider(injected);
+    var s    = await prov.getSigner();
+    window.signer   = s;
+    window.wp       = injected;
+    window.provider = prov;
+    window.onArcNetwork = true;
+    return s;
+  } catch(e) {
+    console.error('getDynamicSigner error:', e);
+    return null;
   }
-  return null;
 }
 
 
@@ -1399,84 +1410,108 @@ function showReceipt(){
   const hash=lastTxHash||'';
   const isReal=hash&&hash.startsWith('0x');
   const shortHash=isReal?hash.slice(0,10)+'...'+hash.slice(-6):'Circle Wallet ✓';
-  const now=new Date().toLocaleString();
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const existing=document.getElementById('receiptModal');
+  if(existing)existing.remove();
   const modal=document.createElement('div');
   modal.id='receiptModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(12px);animation:fadeIn .2s ease;';
   modal.innerHTML=`
-    <div style="max-width:360px;width:100%;position:relative;">
-      <div id="receiptCard" style="background:var(--card);border:1px solid rgba(168,85,247,.4);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(168,85,247,.3);">
-        <!-- Background glow -->
-        <div style="position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:transparent;pointer-events:none;"></div>
-        <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;background:transparent;pointer-events:none;"></div>
-
-        <!-- Header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:30px;height:30px;background:#a855f7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#f3e8ff;box-shadow:0 0 12px rgba(168,85,247,.5);">N</div>
-            <div>
-              <div style="font-size:.75rem;font-weight:700;color:#f3e8ff;letter-spacing:.08em;">NAN WALLET</div>
-              <div style="font-size:.65rem;color:#c084fc;letter-spacing:.12em;">ARC TESTNET</div>
+    <div style="max-width:400px;width:100%;position:relative;animation:scaleIn .25s cubic-bezier(.34,1.56,.64,1);">
+      <!-- Receipt card -->
+      <div id="receiptCard" style="background:#0a0a0a;border:1px solid rgba(112,0,255,.5);border-radius:24px;overflow:hidden;box-shadow:0 0 80px rgba(112,0,255,.25),0 30px 60px rgba(0,0,0,.6);">
+        <!-- Purple gradient header -->
+        <div style="background:linear-gradient(135deg,#3b0764,#7000ff,#4c1d95);padding:28px 24px 24px;position:relative;overflow:hidden;">
+          <!-- Animated circles decoration -->
+          <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;border:1px solid rgba(255,255,255,.1);"></div>
+          <div style="position:absolute;top:-10px;right:-10px;width:70px;height:70px;border-radius:50%;border:1px solid rgba(255,255,255,.15);"></div>
+          <!-- Logo row -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);">
+                <svg width="18" height="10" viewBox="0 0 50 20" fill="none"><path d="M16,0 C16,-8 0,-8 0,0 C0,8 16,8 25,0 C34,-8 50,-8 50,0 C50,8 34,8 25,0 Z" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div style="font-size:.8rem;font-weight:800;color:#fff;letter-spacing:.06em;">NAN WALLET</div>
+                <div style="font-size:.65rem;color:rgba(255,255,255,.6);letter-spacing:.1em;">ARC TESTNET</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:.65rem;color:rgba(255,255,255,.6);font-family:monospace;">${dateStr}</div>
+              <div style="font-size:.65rem;color:rgba(255,255,255,.6);font-family:monospace;">${timeStr}</div>
             </div>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">RECEIPT</div>
-            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">${now}</div>
+          <!-- Big checkmark + amount -->
+          <div style="text-align:center;position:relative;">
+            <div style="width:56px;height:56px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;backdrop-filter:blur(10px);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:4px;font-weight:500;">Sent Successfully</div>
+            <div style="font-size:1.8rem;font-weight:800;color:#fff;letter-spacing:-.03em;">${msg.split(' sent to ')[0]}</div>
+            <div style="font-size:.85rem;color:rgba(255,255,255,.65);margin-top:4px;">to ${msg.split(' sent to ')[1]||shortHash}</div>
           </div>
         </div>
 
-        <!-- Success check -->
-        <div style="text-align:center;margin-bottom:20px;">
-          <div style="width:64px;height:64px;border-radius:50%;background:rgba(112,0,255,.1);border:2px solid rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(112,0,255,.2);">✓</div>
-          <div style="font-size:1.3rem;font-weight:700;color:#f3e8ff;margin-bottom:4px;">Transaction Confirmed</div>
-          <div style="font-size:.75rem;color:#c084fc;">${msg}</div>
-        </div>
-
-        <!-- Divider -->
-        <div style="border-top:1px dashed rgba(168,85,247,.25);margin:16px 0;"></div>
-
-        <!-- Details -->
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#c084fc;border-radius:50%;display:inline-block;box-shadow:0 0 4px #c084fc;"></span>Arc Testnet</span>
+        <!-- Details section -->
+        <div style="padding:20px 24px;">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(112,0,255,.07);border:1px solid rgba(112,0,255,.15);border-radius:10px;">
+              <span style="font-size:.75rem;color:#a855f7;font-weight:600;letter-spacing:.04em;">NETWORK</span>
+              <span style="font-size:.75rem;color:#e9d5ff;font-family:monospace;display:flex;align-items:center;gap:5px;"><span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;box-shadow:0 0 5px #22c55e;"></span>Arc Testnet</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(112,0,255,.07);border:1px solid rgba(112,0,255,.15);border-radius:10px;">
+              <span style="font-size:.75rem;color:#a855f7;font-weight:600;letter-spacing:.04em;">STATUS</span>
+              <span style="font-size:.75rem;color:#4ade80;font-family:monospace;font-weight:700;">✓ Confirmed</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(112,0,255,.07);border:1px solid rgba(112,0,255,.15);border-radius:10px;">
+              <span style="font-size:.75rem;color:#a855f7;font-weight:600;letter-spacing:.04em;">GAS FEE</span>
+              <span style="font-size:.75rem;color:#e9d5ff;font-family:monospace;">$0.00 🎉</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(112,0,255,.07);border:1px solid rgba(112,0,255,.15);border-radius:10px;">
+              <span style="font-size:.75rem;color:#a855f7;font-weight:600;letter-spacing:.04em;">TX HASH</span>
+              ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.7rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<span style="font-size:.7rem;color:#e9d5ff;font-family:monospace;">${shortHash}</span>`}
+            </div>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
-            <span style="font-size:.72rem;color:#7000ff;font-family:monospace;">● Confirmed</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
-            <span style="font-size:.72rem;color:#f3e8ff;font-family:monospace;">~0.009 USDC</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
-          </div>
-        </div>
 
-        <!-- Divider -->
-        <div style="border-top:1px dashed rgba(168,85,247,.25);margin:16px 0;"></div>
-
-        <!-- Powered by -->
-        <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:.65rem;color:#c084fc;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Circle USDC</span>
-            <span style="color:#c084fc;">·</span>
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Arc Network</span>
-            <span style="color:#c084fc;">·</span>
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">NAN Wallet</span>
+          <!-- Powered by -->
+          <div style="text-align:center;padding:10px;border-top:1px solid rgba(112,0,255,.15);margin-bottom:16px;">
+            <div style="font-size:.62rem;color:#6b21a8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;">Powered by</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span style="font-size:.7rem;color:#a855f7;font-weight:600;">Circle USDC</span>
+              <span style="color:#3b0764;">·</span>
+              <span style="font-size:.7rem;color:#a855f7;font-weight:600;">Arc Network</span>
+              <span style="color:#3b0764;">·</span>
+              <span style="font-size:.7rem;color:#a855f7;font-weight:600;">nanarc.xyz</span>
+            </div>
           </div>
-        </div>
 
-        <!-- Buttons -->
-        <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:rgba(112,0,255,.12);border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#c084fc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
-          <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #1a1a1a;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <!-- Action buttons -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <button onclick="downloadReceipt()" style="padding:11px;background:#7000ff;border:none;border-radius:12px;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </button>
+            <button onclick="shareReceiptX()" style="padding:11px;background:#000;border:1px solid #333;border-radius:12px;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Post on X
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="shareWhatsApp()" style="padding:11px;background:#25d366;border:none;border-radius:12px;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </button>
+            <button onclick="shareNative()" style="padding:11px;background:rgba(112,0,255,.12);border:1px solid rgba(112,0,255,.3);border-radius:12px;color:#a855f7;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              More
+            </button>
+          </div>
         </div>
       </div>
+      <!-- Close -->
+      <button onclick="document.getElementById('receiptModal').remove()" style="position:absolute;top:-14px;right:-14px;width:32px;height:32px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -1486,105 +1521,178 @@ function showReceipt(){
 function shareReceiptX(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const explorerUrl=hash?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
-  const text=`Just sent ${msg} on @arc_io Testnet using NAN Wallet! ⚡\n\n🔗 ${explorerUrl}\n\nBuilt with @circle USDC — the stablecoin-native L1\n\n#Arc #USDC #DeFi #NAN #Web3`;
+  const explorerUrl=(hash&&hash.startsWith('0x'))?ARC_EXP+'/tx/'+hash:'https://testnet.arcscan.app';
+  const text=`Just sent ${msg} on Arc Testnet via NAN Wallet ⚡\n\nNo gas fees. Settled in under 1 second.\n🔗 ${explorerUrl}\n\nBuilt on @arc_io · Powered by @circle USDC\n#Arc #USDC #DeFi #NAN #Web3 #Payments`;
   window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
 
+function shareWhatsApp(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const explorerUrl=(hash&&hash.startsWith('0x'))?ARC_EXP+'/tx/'+hash:'https://nanarc.xyz';
+  const text=`💸 Just sent ${msg} instantly on Arc Testnet using NAN Wallet!\n\nNo gas fees. No borders. Settled in under a second.\n\n🔗 ${explorerUrl}\n\nTry it: nanarc.xyz`;
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+function shareNative(){
+  const msg=document.getElementById('successMsg').textContent;
+  const hash=lastTxHash||'';
+  const url=(hash&&hash.startsWith('0x'))?ARC_EXP+'/tx/'+hash:'https://nanarc.xyz';
+  if(navigator.share){
+    navigator.share({title:'NAN Wallet — Transaction Confirmed',text:`Sent ${msg} on Arc Testnet with zero gas fees.`,url}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(()=>toast('Link copied!','success',2000)).catch(()=>{});
+  }
+}
+
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
 function downloadReceipt(){
   const msg=document.getElementById('successMsg').textContent;
   const hash=lastTxHash||'';
-  const shortHash=hash?hash.slice(0,18)+'...':'-';
-  const now=new Date().toLocaleString();
+  const shortHash=hash&&hash.startsWith('0x')?hash.slice(0,14)+'...'+hash.slice(-6):'Circle Wallet ✓';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const amtPart=msg.split(' sent to ')[0]||msg;
+  const toPart=msg.split(' sent to ')[1]||shortHash;
 
+  const S=1080;
   const canvas=document.createElement('canvas');
-  canvas.width=600;canvas.height=400;
+  canvas.width=S;canvas.height=S;
   const ctx=canvas.getContext('2d');
 
-  // Background gradient
-  const bg=ctx.createLinearGradient(0,0,600,400);
-  bg.addColorStop(0,'#111111');bg.addColorStop(0.5,'#111111');bg.addColorStop(1,'#111111');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,600,400);
+  // ── Background ──
+  ctx.fillStyle='#07030f';ctx.fillRect(0,0,S,S);
 
-  // Purple glow
-  const glow=ctx.createRadialGradient(550,50,0,550,50,200);
-  glow.addColorStop(0,'rgba(168,85,247,0.3)');glow.addColorStop(1,'rgba(168,85,247,0)');
-  ctx.fillStyle=glow;ctx.fillRect(0,0,600,400);
+  // Grid lines (subtle)
+  ctx.strokeStyle='rgba(112,0,255,0.06)';ctx.lineWidth=1;
+  for(let i=0;i<S;i+=60){
+    ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,S);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(S,i);ctx.stroke();
+  }
 
-  // Border
-  ctx.strokeStyle='rgba(168,85,247,0.5)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.roundRect(10,10,580,380,16);ctx.stroke();
+  // ── Glow orbs ──
+  const g1=ctx.createRadialGradient(900,120,0,900,120,380);
+  g1.addColorStop(0,'rgba(112,0,255,0.35)');g1.addColorStop(1,'rgba(112,0,255,0)');
+  ctx.fillStyle=g1;ctx.fillRect(0,0,S,S);
 
-  // NAN logo - rounded square like the brand
-  ctx.fillStyle='#a855f7';
-  roundRect(ctx,28,28,44,44,10);ctx.fill();
-  // NAN network icon - 3 dots + lines
-  ctx.fillStyle='#f3e8ff';
-  ctx.beginPath();ctx.arc(42,50,3.5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(58,42,3.5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(58,58,3.5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#f3e8ff';ctx.lineWidth=1.5;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,43.5);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(45.5,50);ctx.lineTo(54.5,56.5);ctx.stroke();
+  const g2=ctx.createRadialGradient(150,900,0,150,900,320);
+  g2.addColorStop(0,'rgba(168,85,247,0.2)');g2.addColorStop(1,'rgba(168,85,247,0)');
+  ctx.fillStyle=g2;ctx.fillRect(0,0,S,S);
 
-  // NAN title
-  ctx.fillStyle='#f3e8ff';ctx.font='bold 20px Inter, sans-serif';
-  ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
-  ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
-  ctx.fillText('ARC TESTNET',82,63);
+  // ── Card border ──
+  ctx.strokeStyle='rgba(112,0,255,0.6)';ctx.lineWidth=2;
+  roundRect(ctx,40,40,S-80,S-80,32);ctx.stroke();
 
-  // Date
-  ctx.fillStyle='#c084fc';ctx.font='10px JetBrains Mono, monospace';
-  ctx.textAlign='right';ctx.fillText(now,580,45);
+  // ── Header gradient bar ──
+  const hg=ctx.createLinearGradient(40,40,S-40,200);
+  hg.addColorStop(0,'rgba(59,7,100,0.9)');
+  hg.addColorStop(0.5,'rgba(112,0,255,0.85)');
+  hg.addColorStop(1,'rgba(76,29,149,0.9)');
+  roundRect(ctx,40,40,S-80,200,32);
+  ctx.fillStyle=hg;ctx.fill();
 
-  // Check circle
-  ctx.fillStyle='rgba(112,0,255,0.15)';
-  ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(112,0,255,0.4)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#7000ff';ctx.font='36px sans-serif';
-  ctx.textAlign='center';ctx.fillText('✓',300,168);
+  // Header decoration circles
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(S-60,60,100,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(S-60,60,60,0,Math.PI*2);ctx.stroke();
 
-  // Transaction confirmed
-  ctx.fillStyle='#f3e8ff';ctx.font='bold 22px Inter, sans-serif';
-  ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
-  ctx.fillStyle='#c084fc';ctx.font='14px Inter, sans-serif';
-  ctx.fillText(msg,300,250);
+  // ── NAN logo mark ──
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  roundRect(ctx,70,68,70,70,16);ctx.fill();
+  // Infinity-like logo
+  ctx.strokeStyle='#fff';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(91,103);ctx.bezierCurveTo(91,88,106,88,105,103);
+  ctx.bezierCurveTo(106,118,121,118,121,103);
+  ctx.bezierCurveTo(121,88,136,88,136,103);
+  ctx.bezierCurveTo(136,118,121,118,121,103);ctx.stroke();
 
-  // Divider
-  ctx.strokeStyle='rgba(168,85,247,0.2)';ctx.lineWidth=1;
-  ctx.setLineDash([5,5]);
-  ctx.beginPath();ctx.moveTo(40,268);ctx.lineTo(560,268);ctx.stroke();
+  // NAN WALLET text
+  ctx.fillStyle='#fff';ctx.font='bold 28px Inter, Arial, sans-serif';
+  ctx.textAlign='left';ctx.fillText('NAN WALLET',158,100);
+  ctx.fillStyle='rgba(255,255,255,0.55)';ctx.font='16px monospace';
+  ctx.fillText('ARC TESTNET',159,124);
+
+  // Date/time top right
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='14px monospace';
+  ctx.textAlign='right';ctx.fillText(dateStr,S-70,95);
+  ctx.fillText(timeStr,S-70,116);
+
+  // ── Check circle ──
+  const cx=S/2,cy=310;
+  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,80);
+  cg.addColorStop(0,'rgba(112,0,255,0.4)');cg.addColorStop(1,'rgba(112,0,255,0)');
+  ctx.fillStyle=cg;ctx.beginPath();ctx.arc(cx,cy,80,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(112,0,255,0.7)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(cx,cy,54,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(112,0,255,0.2)';
+  ctx.beginPath();ctx.arc(cx,cy,54,0,Math.PI*2);ctx.fill();
+  // Checkmark
+  ctx.strokeStyle='#fff';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(cx-20,cy+2);ctx.lineTo(cx-4,cy+18);ctx.lineTo(cx+22,cy-14);ctx.stroke();
+
+  // ── Sent Successfully ──
+  ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='22px Inter, Arial, sans-serif';
+  ctx.textAlign='center';ctx.fillText('Sent Successfully',cx,390);
+
+  // ── Amount (big) ──
+  ctx.fillStyle='#fff';ctx.font='bold 80px Inter, Arial, sans-serif';
+  ctx.textAlign='center';
+  // Gradient text effect
+  const tg=ctx.createLinearGradient(cx-200,420,cx+200,420);
+  tg.addColorStop(0,'#e9d5ff');tg.addColorStop(0.5,'#fff');tg.addColorStop(1,'#c084fc');
+  ctx.fillStyle=tg;ctx.fillText(amtPart,cx,480);
+
+  // ── To ──
+  ctx.fillStyle='rgba(168,85,247,0.8)';ctx.font='18px monospace';
+  ctx.textAlign='center';ctx.fillText('TO',cx,530);
+  ctx.fillStyle='#e9d5ff';ctx.font='22px monospace';
+  ctx.fillText(toPart,cx,562);
+
+  // ── Divider ──
+  ctx.strokeStyle='rgba(112,0,255,0.25)';ctx.lineWidth=1;
+  ctx.setLineDash([8,8]);
+  ctx.beginPath();ctx.moveTo(80,600);ctx.lineTo(S-80,600);ctx.stroke();
   ctx.setLineDash([]);
 
-  // Details
+  // ── Details grid ──
   const details=[
-    ['Network','Arc Testnet'],
-    ['Status','Confirmed ✓'],
-    ['Gas','~0.009 USDC'],
-    ['Tx Hash',shortHash],
+    ['NETWORK','Arc Testnet'],
+    ['STATUS','✓ Confirmed'],
+    ['GAS FEE','$0.00 🎉'],
+    ['TX HASH',shortHash],
   ];
   details.forEach(([label,value],i)=>{
-    const y=290+i*22;
-    ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
-    ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
-    ctx.fillStyle=label==='Status'?'#7000ff':'#f3e8ff';
-    ctx.textAlign='right';ctx.fillText(value,560,y);
+    const col=i%2,row=Math.floor(i/2);
+    const bx=80+col*460,by=620+row*100;
+    ctx.fillStyle='rgba(112,0,255,0.08)';
+    roundRect(ctx,bx,by,420,80,14);ctx.fill();
+    ctx.strokeStyle='rgba(112,0,255,0.2)';ctx.lineWidth=1;
+    roundRect(ctx,bx,by,420,80,14);ctx.stroke();
+    ctx.fillStyle='#a855f7';ctx.font='bold 13px monospace';
+    ctx.textAlign='left';ctx.fillText(label,bx+18,by+28);
+    ctx.fillStyle=label==='STATUS'?'#4ade80':'#e9d5ff';
+    ctx.font='bold 18px Inter, Arial, sans-serif';
+    ctx.fillText(value,bx+18,by+60);
   });
 
-  // Footer
-  ctx.fillStyle='rgba(168,85,247,0.15)';ctx.fillRect(0,360,600,40);
-  ctx.fillStyle='#c084fc';ctx.font='11px Inter, sans-serif';
-  ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
+  // ── Footer ──
+  const fg=ctx.createLinearGradient(40,S-100,S-40,S-100);
+  fg.addColorStop(0,'rgba(59,7,100,0.5)');fg.addColorStop(1,'rgba(112,0,255,0.3)');
+  roundRect(ctx,40,S-100,S-80,60,16);ctx.fillStyle=fg;ctx.fill();
+  ctx.fillStyle='rgba(192,132,252,0.9)';ctx.font='18px Inter, Arial, sans-serif';
+  ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',cx,S-62);
 
   // Download
   const link=document.createElement('a');
   link.download='nan-receipt-'+Date.now()+'.png';
   link.href=canvas.toDataURL('image/png');
   link.click();
-  toast('✓ Receipt image saved! Share it on 𝕏','success',4000);
+  toast('🎉 Receipt saved — share it everywhere!','success',4000);
 }
+
 function resetSend(){
   document.getElementById('successCard').classList.remove('show');
   const _sc=document.getElementById('sendCard')||document.getElementById('tab-send');if(_sc)_sc.style.display='block';
@@ -4243,6 +4351,84 @@ window.addEventListener('load',()=>{
   const _ct = _lp.get('connect');
   const _em = _lp.get('email');
   const _verified = _lp.get('verified');
+
+  // ── Dynamic wallet bootstrap ──────────────────────────────────────────────
+  // When user signs in via Dynamic (React landing), App.jsx writes nan_dynamic_address
+  // to localStorage and redirects here. We read it and auto-connect as a Circle wallet.
+  const _dynAddr  = localStorage.getItem('nan_dynamic_address');
+  const _dynEmail = localStorage.getItem('nan_dynamic_email');
+  const _dynToken = localStorage.getItem('nan_dynamic_token');
+  const _dynCircleWalletId = localStorage.getItem('circleWalletId');
+  const _dynCircleAddr     = localStorage.getItem('circleWalletAddr');
+
+  if (_dynAddr && _dynToken === 'dynamic_authenticated' && !_ct) {
+    // Hide landing immediately
+    if (_land) { _land.style.display = 'none'; _land.classList.remove('active'); }
+
+    if (_dynCircleWalletId && _dynCircleAddr) {
+      // Already have Circle wallet cached — restore session instantly
+      circleWalletId      = _dynCircleWalletId;
+      circleWalletAddress = _dynCircleAddr;
+      userAddr            = _dynCircleAddr;
+      otpEmail            = _dynEmail || '';
+      isCircleWallet      = true;
+      provider            = getArcProvider();
+      onArcNetwork        = true;
+      onConnected(true, false);
+    } else if (_dynEmail) {
+      // Have email but no Circle wallet yet — fetch/create it
+      otpEmail = _dynEmail;
+      document.body.insertAdjacentHTML('beforeend',
+        '<div id="dynLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">'
+        +'<div style="width:44px;height:44px;border:3px solid rgba(112,0,255,.2);border-top-color:#7000ff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
+        +'<div style="color:var(--text3);font-size:.85rem;">Setting up wallet…</div>'
+        +'</div>');
+      fetch('https://nan-production.up.railway.app/api/circle-wallets', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({action:'getWallet', email:_dynEmail})
+      }).then(r=>r.json()).then(cw=>{
+        const wData = cw.wallet || cw;
+        const wId   = wData.id || wData.walletId;
+        const wAddr = wData.address;
+        const loader = document.getElementById('dynLoader');
+        if (loader) loader.remove();
+        if (!wId) { toast('Wallet setup failed — '+( cw.error||'unknown'), 'error'); return; }
+        circleWalletId      = wId;
+        circleWalletAddress = wAddr;
+        userAddr            = wAddr;
+        isCircleWallet      = true;
+        provider            = getArcProvider();
+        onArcNetwork        = true;
+        localStorage.setItem('circleWalletId',   wId);
+        localStorage.setItem('circleWalletAddr', wAddr);
+        onConnected(true, false);
+      }).catch(e=>{
+        const loader = document.getElementById('dynLoader');
+        if (loader) loader.remove();
+        toast('Wallet error: '+e.message, 'error');
+      });
+    } else {
+      // Have address but no email — treat as external wallet address
+      userAddr     = _dynAddr;
+      isCircleWallet = false;
+      provider     = getArcProvider();
+      onArcNetwork = true;
+      // Try to get signer from injected provider
+      getDynamicSigner().then(s => {
+        if (s) { signer = s; onConnected(false, false); }
+        else { onConnected(false, false); }
+      }).catch(() => onConnected(false, false));
+    }
+
+    // Skip the rest of the init flow
+    initSwapUI(); initBridgeUI(); fetchLiveFX();
+    setInterval(fetchLiveFX, 60000);
+    setInterval(async()=>{ if(userAddr){ if(!isCircleWallet)await checkNetwork(); if(onArcNetwork||isCircleWallet){await refreshBalances();} } }, 10000);
+    if(userAddr) startOrderEngine();
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&userAddr)refreshBalances(); });
+    return;
+  }
+  // ── End Dynamic bootstrap ─────────────────────────────────────────────────
 
   if(_ct === 'email' && _verified === '1' && _em){
     // OTP already verified on landing page — skip page-land, go straight to wallet

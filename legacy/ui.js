@@ -42,17 +42,16 @@ function goPage(name) {
 
   const navMap = {
     home: 'nav-home',
-    send: 'nav-send',
-    earn: 'nav-earn',
+    send: 'nav-swap',
+    swap: 'nav-swap',
+    bridge: 'nav-bridge',
+    earn: 'nav-bridge',
+    lend: 'nav-bridge',
     more: 'nav-more',
-    // legacy pages go under "more" nav
-    swap:    'nav-more',
-    bridge:  'nav-more',
     arcname: 'nav-more',
     bulk:    'nav-more',
     naira:      'nav-more',
     history:    'nav-history',
-    lend:       'nav-earn',
     payreq:     'nav-more',
     'payreq-new': 'nav-more',
   };
