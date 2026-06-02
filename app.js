@@ -4239,26 +4239,14 @@ window.addEventListener('load',()=>{
     // MetaMask/Coinbase/WalletConnect — skip page-land, show loading + trigger wallet
     if(_land) _land.style.display='none';
     // Show animated connect splash
-    document.body.insertAdjacentHTML('beforeend', '<div id="connectLoader" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden;">'
-      +'<div style="position:absolute;top:-10%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(112,0,255,.2) 0%,transparent 70%);animation:floatOrb1 8s ease-in-out infinite;pointer-events:none;"></div>'
-      +'<div style="position:absolute;bottom:-10%;right:-10%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12) 0%,transparent 70%);animation:floatOrb2 10s ease-in-out infinite;pointer-events:none;"></div>'
-      +'<div style="margin-bottom:28px;">'
-      +''
-      +''
-      +'<div>'
-      +'<svg width="36" height="36" viewBox="0 0 72 72" fill="none"><circle cx="22" cy="36" r="6" fill="#f3e8ff"/><circle cx="50" cy="20" r="6" fill="#f3e8ff"/><circle cx="50" cy="52" r="6" fill="#f3e8ff"/><line x1="28" y1="36" x2="44" y2="22" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="36" x2="44" y2="50" stroke="#f3e8ff" stroke-width="3.5" stroke-linecap="round"/></svg>'
-      +'</div></div>'
-      +'<div style="font-size:1.6rem;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:8px;">NAN</div>'
-      +'<div style="font-size:1rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px;">Connecting wallet…</div>'
-      +'<div style="font-size:.825rem;color:rgba(255,255,255,.35);margin-bottom:28px;">Check your wallet for a request</div>'
-      +'<div style="display:flex;gap:7px;margin-bottom:32px;">'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:#7000ff;animation:dotBounce 1.2s ease-in-out infinite;"></div>'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:#9333ea;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div>'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div>'
-      +'</div>'
-      +'<button onclick="window.location.href=\'/\'" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:rgba(255,255,255,.35);padding:9px 20px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'
-      +'<style>@keyframes splashRing{0%{transform:scale(1);opacity:.6;}100%{transform:scale(1.7);opacity:0;}}@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style>'
-      +'</div>');
+    const _isLight = document.documentElement.getAttribute('data-theme')==='light';
+    const _bg = _isLight ? '#ffffff' : '#000000';
+    const _txt = _isLight ? '#111111' : '#ffffff';
+    const _txt2 = _isLight ? '#555' : 'rgba(255,255,255,.7)';
+    const _txt3 = _isLight ? '#999' : 'rgba(255,255,255,.35)';
+    const _btn = _isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.12)';
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="connectLoader" style="position:fixed;inset:0;background:'+_bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden;">'      +'<div style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">'      +'<svg width="64" height="32" viewBox="0 0 40 20" fill="none"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'      +'<span style="display:flex;align-items:baseline;gap:1px;"><span style="font-family:Carattere,cursive;font-size:42px;color:#7000ff;line-height:1;">N</span><span style="font-family:Syne,sans-serif;font-size:28px;font-weight:800;letter-spacing:4px;color:'+_txt+';line-height:1;">AN</span></span>'      +'</div>'      +'<div style="font-size:1rem;font-weight:600;color:'+_txt2+';margin-bottom:6px;">Connecting wallet…</div>'      +'<div style="font-size:.825rem;color:'+_txt3+';margin-bottom:28px;">Check your wallet for a request</div>'      +'<div style="display:flex;gap:7px;margin-bottom:32px;">'      +'<div style="width:8px;height:8px;border-radius:50%;background:#7000ff;animation:dotBounce 1.2s ease-in-out infinite;"></div>'      +'<div style="width:8px;height:8px;border-radius:50%;background:#9333ea;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div>'      +'<div style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div>'      +'</div>'      +'<button onclick="window.location.href=\'/\'" style="background:none;border:1px solid '+_btn+';border-radius:10px;color:'+_txt3+';padding:9px 20px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif;">← Go back</button>'      +'<style>@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style>'      +'</div>');
     setTimeout(async function(){
       try{
         if(typeof connectSpecific==='function') await connectSpecific(_ct);
