@@ -56,8 +56,8 @@ body::after{display:none;}
 /* â”€â”€ Top bar â”€â”€ */
 #globalTopBar{position:absolute;top:0;left:0;right:0;z-index:200;display:none;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--topbar-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
 .brand{display:flex;align-items:center;gap:9px;}
-.brand-logo{width:56px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:none;box-shadow:none;border-radius:0;}
-.brand-logo svg{width:56px;height:28px;}
+.brand-logo{width:72px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:none;box-shadow:none;border-radius:0;}
+.brand-logo svg{width:72px;height:36px;}
 .brand-name{font-size:1.15rem;font-weight:900;letter-spacing:.06em;}
 .net-pill{font-family:'Inter var','Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);border:1px solid rgba(168,85,247,.3);padding:4px 9px;border-radius:100px;background:rgba(168,85,247,.08);display:flex;align-items:center;gap:5px;}
 .net-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);animation:pulse 2s ease infinite;}
