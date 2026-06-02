@@ -18,7 +18,11 @@ const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-User-Token'],
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
@@ -583,6 +587,27 @@ app.get('/api/analytics', async (req, res) => {
   }
 });
 
+// GET /api/stats — alias for analytics
+app.get('/api/stats', async (req, res) => {
+  try {
+    const mod = await import('../api/analytics.js');
+    return mod.default(req, res);
+  } catch(e) {
+    res.json({ totalTx: 0, totalVolume: 0, activeWallets: 0 });
+  }
+});
+
+// POST /api/appkit/gateway — unified balance
+app.post('/api/appkit/gateway', async (req, res) => {
+  try {
+    req.body = { ...(req.body || {}), action: 'getUnifiedBalance' };
+    const mod = await import('../api/circle-wallets.js');
+    return mod.default(req, res);
+  } catch(e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
 
 // Admin auth — password stored in ADMIN_PASSWORD env var
 app.post('/api/admin/auth', (req, res) => {
@@ -595,12 +620,17 @@ app.post('/api/admin/auth', (req, res) => {
   return res.json({ success: false, error: 'Invalid password' });
 });
 
+// Serve legacy app files BEFORE catch-all
+app.use('/legacy', express.static(path.join(__dirname, '../legacy')));
+
+// SPA fallback — serve React app for all non-API, non-legacy routes
 app.get('*', (req, res) => {
+  // Don't serve index.html for API or legacy routes
+  if (req.path.startsWith('/api/') || req.path.startsWith('/legacy/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
   res.sendFile(path.join(__dirname, '../index.html'));
 });
-
-// Serve legacy app files
-app.use('/legacy', express.static(path.join(__dirname, '../legacy')));
 
 // ── Start ──
 app.listen(PORT, () => {
