@@ -599,6 +599,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
+// Serve legacy app files
+app.use('/legacy', express.static(path.join(__dirname, '../legacy')));
+
 // ── Start ──
 app.listen(PORT, () => {
   console.log(`\n🚀 NAN App running at http://localhost:${PORT}`);
