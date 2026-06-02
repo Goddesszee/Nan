@@ -92,7 +92,7 @@ html,body{background:var(--bg) !important;}
 
 @media(min-width:768px){#topbarNav{display:flex!important;}#desktopNav{display:none!important;}}
 .dnav-brand{font-size:2.5rem!important;font-weight:900!important;color:var(--text);letter-spacing:-.03em;line-height:1;text-transform:uppercase;}</style>
-<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Carattere&family=Syne:wght@800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <div id="app-root">
@@ -100,8 +100,8 @@ html,body{background:var(--bg) !important;}
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="width:44px;height:22px;display:flex;align-items:center;cursor:pointer;background:none;box-shadow:none;"><svg width="52" height="26" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="brand-name">NAN</div>
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;cursor:pointer;"><svg width="52" height="26" viewBox="0 0 40 20" fill="none"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="brand-name" style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text,#111);line-height:1;">NAN</div>
     </div>
     <!-- Desktop: nav links -->
     <div id="topbarPageInfo" style="display:none;align-items:center;gap:2px;">

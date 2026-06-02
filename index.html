@@ -84,7 +84,7 @@
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
   .brand-logo{width:auto;height:auto;background:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-logo svg{width:72px;height:36px;display:block;}
-  .brand-name{display:flex!important;align-items:baseline;}
+  .brand-name{font-family:'Syne',sans-serif!important;font-size:26px!important;font-weight:800!important;letter-spacing:-1px!important;color:var(--text)!important;line-height:1!important;}
   .nav-right{display:flex;align-items:center;gap:12px;}
   .net-pill{font-family:'Inter var','Inter',monospace;font-size:.58rem;color:var(--muted);border:1px solid var(--card-border,#ffffff);padding:5px 13px;border-radius:100px;background:#111111;display:flex;align-items:center;gap:6px;}
   .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-light);box-shadow:0 0 6px var(--violet-light);animation:blink 2s ease infinite;}
@@ -194,15 +194,14 @@
 <script>
   sessionStorage.setItem('nan_from_landing', '1');
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Carattere&family=Syne:wght@800&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
     <a class="brand" href="#">
-      <div class="brand-logo" style="width:72px;height:36px;display:flex;align-items:center;"><svg width="52" height="26" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <span class="brand-name"><span style="display:flex;align-items:baseline;gap:1px;line-height:1;"><span style="font-family:'Carattere',cursive;font-size:38px;font-weight:400;color:#7000ff;line-height:1;margin-bottom:-4px;">N</span><span style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:4px;color:var(--text,#111);line-height:1;">AN</span></span></span>
+      <div class="brand-logo"><svg width="52" height="26" viewBox="0 0 40 20" fill="none"><path d="M16,10 C16,4 8,4 8,10 C8,16 16,16 20,10 C24,4 32,4 32,10 C32,16 24,16 20,10 Z" fill="none" stroke="#7000ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="brand-name">NAN</span><span style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:4px;color:var(--text,#111);line-height:1;">AN</span></span></span>
     </a>
     <div class="nav-right">
       <div class="net-pill"><span class="pulse-dot"></span>Arc Testnet</div>
