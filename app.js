@@ -752,7 +752,7 @@ async function sendEmailOTP(){
       document.getElementById('otpBox').style.display='block';
       document.getElementById('otpInput').focus();
       document.getElementById('stepDot1').style.width='8px';document.getElementById('stepDot1').style.background='rgba(168,85,247,.4)';
-      document.getElementById('stepDot2').style.width='20px';document.getElementById('stepDot2').style.background='#a855f7';
+      document.getElementById('stepDot2').style.width='20px';document.getElementById('stepDot2').style.background='#888888';
       document.getElementById('stepLabel').textContent='Step 2 of 2 — Enter your code';
       window._otpToken=data.token||null;
       window._otpExpiry=data.expiresAt||Date.now()+600000;
@@ -1361,15 +1361,15 @@ function showReceipt(){
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:30px;height:30px;background:#a855f7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#f3e8ff;box-shadow:0 0 12px rgba(168,85,247,.5);">N</div>
+            <div style="width:30px;height:30px;background:#888888;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#f3e8ff;box-shadow:0 0 12px rgba(168,85,247,.5);">N</div>
             <div>
               <div style="font-size:.75rem;font-weight:700;color:#f3e8ff;letter-spacing:.08em;">NAN WALLET</div>
-              <div style="font-size:.65rem;color:#c084fc;letter-spacing:.12em;">ARC TESTNET</div>
+              <div style="font-size:.65rem;color:#cccccc;letter-spacing:.12em;">ARC TESTNET</div>
             </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">RECEIPT</div>
-            <div style="font-size:.65rem;color:#c084fc;font-family:monospace;">${now}</div>
+            <div style="font-size:.65rem;color:#cccccc;font-family:monospace;">RECEIPT</div>
+            <div style="font-size:.65rem;color:#cccccc;font-family:monospace;">${now}</div>
           </div>
         </div>
 
@@ -1377,7 +1377,7 @@ function showReceipt(){
         <div style="text-align:center;margin-bottom:20px;">
           <div style="width:64px;height:64px;border-radius:50%;background:rgba(112,0,255,.1);border:2px solid rgba(112,0,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem;box-shadow:0 0 24px rgba(112,0,255,.2);">✓</div>
           <div style="font-size:1.3rem;font-weight:700;color:#f3e8ff;margin-bottom:4px;">Transaction Confirmed</div>
-          <div style="font-size:.75rem;color:#c084fc;">${msg}</div>
+          <div style="font-size:.75rem;color:#cccccc;">${msg}</div>
         </div>
 
         <!-- Divider -->
@@ -1386,20 +1386,20 @@ function showReceipt(){
         <!-- Details -->
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#c084fc;border-radius:50%;display:inline-block;box-shadow:0 0 4px #c084fc;"></span>Arc Testnet</span>
+            <span style="font-size:.72rem;color:#cccccc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Network</span>
+            <span style="font-size:.72rem;color:#cccccc;font-family:monospace;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:#cccccc;border-radius:50%;display:inline-block;box-shadow:0 0 4px #cccccc;"></span>Arc Testnet</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
-            <span style="font-size:.72rem;color:#7000ff;font-family:monospace;">● Confirmed</span>
+            <span style="font-size:.72rem;color:#cccccc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Status</span>
+            <span style="font-size:.72rem;color:#111111;font-family:monospace;">● Confirmed</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
+            <span style="font-size:.72rem;color:#cccccc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Gas</span>
             <span style="font-size:.72rem;color:#f3e8ff;font-family:monospace;">~0.009 USDC</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:.72rem;color:#c084fc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
-            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#a855f7;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
+            <span style="font-size:.72rem;color:#cccccc;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;">Tx Hash</span>
+            ${isReal?`<a href="${ARC_EXP}/tx/${hash}" target="_blank" style="font-size:.65rem;color:#888888;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`:`<a href="${ARC_EXP}/address/${userAddr}" target="_blank" style="font-size:.65rem;color:#888888;font-family:monospace;text-decoration:none;">${shortHash} ↗</a>`}
           </div>
         </div>
 
@@ -1408,21 +1408,21 @@ function showReceipt(){
 
         <!-- Powered by -->
         <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:.65rem;color:#c084fc;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
+          <div style="font-size:.65rem;color:#cccccc;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Powered by</div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;">
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Circle USDC</span>
-            <span style="color:#c084fc;">·</span>
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">Arc Network</span>
-            <span style="color:#c084fc;">·</span>
-            <span style="font-size:.72rem;color:#c084fc;font-weight:600;">NAN Wallet</span>
+            <span style="font-size:.72rem;color:#cccccc;font-weight:600;">Circle USDC</span>
+            <span style="color:#cccccc;">·</span>
+            <span style="font-size:.72rem;color:#cccccc;font-weight:600;">Arc Network</span>
+            <span style="color:#cccccc;">·</span>
+            <span style="font-size:.72rem;color:#cccccc;font-weight:600;">NAN Wallet</span>
           </div>
         </div>
 
         <!-- Buttons -->
         <div style="display:flex;gap:8px;">
-          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:rgba(112,0,255,.12);border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#c084fc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
+          <button onclick="downloadReceipt()" style="flex:1;padding:10px;background:rgba(112,0,255,.12);border:1px solid rgba(168,85,247,.35);border-radius:10px;color:#cccccc;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">⬇ Save Image</button>
           <button onclick="shareReceiptX()" style="flex:1;padding:10px;background:#000;border:1px solid #1a1a1a;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">𝕏 Post</button>
-          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
+          <button onclick="document.getElementById('receiptModal').remove()" style="flex:1;padding:10px;background:#111111;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;">Done ✓</button>
         </div>
       </div>
     </div>
@@ -1465,7 +1465,7 @@ function downloadReceipt(){
   ctx.beginPath();ctx.roundRect(10,10,580,380,16);ctx.stroke();
 
   // NAN logo - rounded square like the brand
-  ctx.fillStyle='#a855f7';
+  ctx.fillStyle='#888888';
   roundRect(ctx,28,28,44,44,10);ctx.fill();
   // NAN network icon - 3 dots + lines
   ctx.fillStyle='#f3e8ff';
@@ -1479,11 +1479,11 @@ function downloadReceipt(){
   // NAN title
   ctx.fillStyle='#f3e8ff';ctx.font='bold 20px Inter, sans-serif';
   ctx.textAlign='left';ctx.fillText('NAN WALLET',82,45);
-  ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
+  ctx.fillStyle='#cccccc';ctx.font='11px JetBrains Mono, monospace';
   ctx.fillText('ARC TESTNET',82,63);
 
   // Date
-  ctx.fillStyle='#c084fc';ctx.font='10px JetBrains Mono, monospace';
+  ctx.fillStyle='#cccccc';ctx.font='10px JetBrains Mono, monospace';
   ctx.textAlign='right';ctx.fillText(now,580,45);
 
   // Check circle
@@ -1491,13 +1491,13 @@ function downloadReceipt(){
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(112,0,255,0.4)';ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(300,155,45,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#7000ff';ctx.font='36px sans-serif';
+  ctx.fillStyle='#111111';ctx.font='36px sans-serif';
   ctx.textAlign='center';ctx.fillText('✓',300,168);
 
   // Transaction confirmed
   ctx.fillStyle='#f3e8ff';ctx.font='bold 22px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('Transaction Confirmed',300,225);
-  ctx.fillStyle='#c084fc';ctx.font='14px Inter, sans-serif';
+  ctx.fillStyle='#cccccc';ctx.font='14px Inter, sans-serif';
   ctx.fillText(msg,300,250);
 
   // Divider
@@ -1515,15 +1515,15 @@ function downloadReceipt(){
   ];
   details.forEach(([label,value],i)=>{
     const y=290+i*22;
-    ctx.fillStyle='#c084fc';ctx.font='11px JetBrains Mono, monospace';
+    ctx.fillStyle='#cccccc';ctx.font='11px JetBrains Mono, monospace';
     ctx.textAlign='left';ctx.fillText(label.toUpperCase(),40,y);
-    ctx.fillStyle=label==='Status'?'#7000ff':'#f3e8ff';
+    ctx.fillStyle=label==='Status'?'#111111':'#f3e8ff';
     ctx.textAlign='right';ctx.fillText(value,560,y);
   });
 
   // Footer
   ctx.fillStyle='rgba(168,85,247,0.15)';ctx.fillRect(0,360,600,40);
-  ctx.fillStyle='#c084fc';ctx.font='11px Inter, sans-serif';
+  ctx.fillStyle='#cccccc';ctx.font='11px Inter, sans-serif';
   ctx.textAlign='center';ctx.fillText('nanarc.xyz  ·  Powered by Circle USDC  ·  Arc Network',300,385);
 
   // Download
@@ -1997,7 +1997,7 @@ async function pollIrisAttestation(txHash, destChain) {
                 Your USDC is burned on Arc. To receive it on <strong style="color:#ccc;">${destName}</strong>, complete the mint using the attestation below.
               </div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:6px;">MessageTransmitter on ${destName}:</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#a855f7;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#888888;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:10px;word-break:break-all;">${transmitterAddr}</div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Message bytes:</div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#666;background:#111;padding:6px 10px;border-radius:7px;margin-bottom:6px;word-break:break-all;">${message}</div>
               <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:4px;">Attestation:</div>
@@ -2005,7 +2005,7 @@ async function pollIrisAttestation(txHash, destChain) {
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button onclick="navigator.clipboard.writeText('${message}').then(()=>toast('Message copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Message</button>
                 <button onclick="navigator.clipboard.writeText('${attestation}').then(()=>toast('Attestation copied','success',2000))" style="background:#222;border:1px solid #1a1a1a;border-radius:8px;color:#aaa;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy Attestation</button>
-                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#7000ff;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
+                <a href="https://developers.circle.com/cctp/transfer-usdc-on-testnet-from-ethereum-to-avalanche" target="_blank" style="background:#111111;border:none;border-radius:8px;color:#fff;padding:6px 12px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;">Circle Guide ↗</a>
               </div>
             </div>`;
         }
@@ -2192,10 +2192,10 @@ function renderHistory(){
     return;
   }
   const ICONS={
-    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
-    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7000ff" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
-    swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
-    bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
+    out:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+    in:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
+    swap:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+    bridge:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#cccccc" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path d="M4 6q4 6 16 0"/><path d="M4 18q4-6 16 0"/></svg>`,
     stake:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
   };
   const ICO_BG={out:'rgba(112,0,255,.1)',in:'rgba(112,0,255,.1)',swap:'rgba(112,0,255,.1)',bridge:'rgba(112,0,255,.1)',stake:'rgba(112,0,255,.1)'};
@@ -2222,7 +2222,7 @@ function renderHistory(){
     if(isSim) return `<span style="font-size:.55rem;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 7px;">simulated</span>`;
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const st=(!isRealHash||tx.confirmed)?'confirmed':tx.failed?'failed':'pending';
-    const map={confirmed:['rgba(112,0,255,.1)','#7000ff','rgba(112,0,255,.2)'],failed:['rgba(112,0,255,.1)','#c084fc','rgba(112,0,255,.2)'],pending:['rgba(112,0,255,.08)','#a855f7','rgba(112,0,255,.15)']};
+    const map={confirmed:['rgba(112,0,255,.1)','#111111','rgba(112,0,255,.2)'],failed:['rgba(112,0,255,.1)','#cccccc','rgba(112,0,255,.2)'],pending:['rgba(112,0,255,.08)','#888888','rgba(112,0,255,.15)']};
     const [bg,col,bd]=map[st];
     return `<span style="font-size:.55rem;background:${bg};color:${col};border:1px solid ${bd};border-radius:100px;padding:2px 7px;font-weight:600;">${st}</span>`;
   }
@@ -2231,9 +2231,9 @@ function renderHistory(){
     const type=tx.type||'out';
     let label='',amt='',amtColor='#ffffff';
     if(type==='out'){label='Sent to '+(tx.toRaw||short(tx.to));amt='−'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');}
-    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#7000ff';}
-    else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#c084fc';}
-    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#7000ff';}
+    else if(type==='in'){label=tx.toRaw||'Received';amt='+'+parseFloat(tx.amount).toFixed(2)+' '+(tx.token||'USDC');amtColor='#111111';}
+    else if(type==='swap'){label=parseFloat(tx.amount).toFixed(2)+' '+(tx.fromToken||'USDC')+' → '+parseFloat(tx.outAmount||0).toFixed(2)+' '+(tx.toToken||'EURC');amt='Swap';amtColor='#cccccc';}
+    else if(type==='stake'){label='Saved '+parseFloat(tx.amount).toFixed(2)+' USDC';amt='Save';amtColor='#111111';}
     else if(type==='bridge'){label='Bridge → '+(tx.destChain||'');amt='−'+parseFloat(tx.amount).toFixed(2)+' USDC';}
     const isRealHash=tx.hash&&tx.hash.startsWith('0x')&&tx.hash.length===66;
     const href=isRealHash?`${ARC_EXP}/tx/${tx.hash}`:`${ARC_EXP}/address/${userAddr}`;
@@ -2342,10 +2342,10 @@ let bulkDefaultAmt = 10;
 
 function setBulkToken(token){
   bulkToken = token;
-  document.getElementById('bulk-usdc').style.background = token==='USDC'?'#7000ff':'var(--surface)';
+  document.getElementById('bulk-usdc').style.background = token==='USDC'?'#111111':'var(--surface)';
   document.getElementById('bulk-usdc').style.border = token==='USDC'?'none':'1px solid var(--border)';
   document.getElementById('bulk-usdc').style.color = token==='USDC'?'#f3e8ff':'var(--text3)';
-  document.getElementById('bulk-eurc').style.background = token==='EURC'?'#7000ff':'var(--surface)';
+  document.getElementById('bulk-eurc').style.background = token==='EURC'?'#111111':'var(--surface)';
   document.getElementById('bulk-eurc').style.border = token==='EURC'?'none':'1px solid var(--border)';
   document.getElementById('bulk-eurc').style.color = token==='EURC'?'#f3e8ff':'var(--text3)';
   updateBulkSummary();
@@ -2624,9 +2624,9 @@ function downloadPayrollReceipt(){
   // Header
   ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 20px sans-serif';
   ctx.textAlign = 'left'; ctx.fillText('NAN Payroll Receipt', 28, 48);
-  ctx.fillStyle = '#c084fc'; ctx.font = '12px monospace';
+  ctx.fillStyle = '#cccccc'; ctx.font = '12px monospace';
   ctx.fillText(now, 28, 68);
-  ctx.fillStyle = '#c084fc'; ctx.font = '11px monospace';
+  ctx.fillStyle = '#cccccc'; ctx.font = '11px monospace';
   ctx.textAlign = 'right';
   ctx.fillText(lastPayrollTxs.length+' recipients · '+total.toFixed(2)+' '+bulkToken+' total', 572, 68);
 
@@ -2642,12 +2642,12 @@ function downloadPayrollReceipt(){
     ctx.fillRect(18, y-16, 564, 40);
     ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'left'; ctx.fillText(r.name||r.addr.slice(0,16)+'…', 28, y+4);
-    ctx.fillStyle = '#c084fc'; ctx.font = '10px monospace';
+    ctx.fillStyle = '#cccccc'; ctx.font = '10px monospace';
     ctx.fillText(r.addr.slice(0,18)+'…', 28, y+18);
-    ctx.fillStyle = r.status==='done'?'#7000ff':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#111111':'#f87171';
     ctx.font = 'bold 13px monospace'; ctx.textAlign = 'right';
     ctx.fillText(r.amount.toFixed(2)+' '+bulkToken, 572, y+4);
-    ctx.fillStyle = r.status==='done'?'#7000ff':'#f87171';
+    ctx.fillStyle = r.status==='done'?'#111111':'#f87171';
     ctx.font = '10px monospace';
     ctx.fillText(r.status==='done'?'✓ Sent':'✗ Failed', 572, y+18);
   });
@@ -2655,7 +2655,7 @@ function downloadPayrollReceipt(){
   // Footer
   const fy = canvas.height - 30;
   ctx.fillStyle = 'rgba(168,85,247,0.15)'; ctx.fillRect(0,fy-14,600,44);
-  ctx.fillStyle = '#c084fc'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#cccccc'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
   ctx.fillText('NAN Wallet · Powered by Circle USDC · Arc Testnet', 300, fy+8);
 
   const link = document.createElement('a');
@@ -2752,7 +2752,7 @@ async function doBulkSend(){
   await refreshBalances();
   progressTitle.textContent = `Done! ${done}/${total} sent successfully`;
   progressBar.style.width = '100%';
-  progressBar.style.background = done===total ? 'linear-gradient(90deg,#7000ff,#7000ff)' : 'linear-gradient(90deg,#f87171,#f87171)';
+  progressBar.style.background = done===total ? 'linear-gradient(90deg,#111111,#111111)' : 'linear-gradient(90deg,#f87171,#f87171)';
   renderBulkRecipients();
   toast(done===total ? `✅ All ${done} payments sent!` : `Sent ${done}/${total} — ${total-done} failed`, done===total?'success':'error', 5000);
 
@@ -3199,8 +3199,8 @@ function renderAgentMsgs(){
   if(!el)return;
   el.innerHTML=agentMsgs.map(m=>`
     <div style="display:flex;flex-direction:column;align-items:${m.role==='user'?'flex-end':'flex-start'};">
-      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'#7000ff':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
-      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:#7000ff;border:none;color:#f3e8ff;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
+      <div style="max-width:85%;padding:9px 13px;border-radius:${m.role==='user'?'14px 14px 3px 14px':'14px 14px 14px 3px'};background:${m.role==='user'?'#111111':'var(--card)'};border:${m.role==='user'?'none':'1px solid var(--border)'};color:var(--text);font-size:.75rem;line-height:1.55;">${m.content}</div>
+      ${m.action?`<button onclick='executeAgentAction(${JSON.stringify(m.action)})' style="margin-top:6px;padding:7px 14px;border-radius:10px;background:#111111;border:none;color:#f3e8ff;font-size:.7rem;font-weight:700;cursor:pointer;">⚡ ${m.action.action.toUpperCase()} ${m.action.amount||''} ${m.action.token||''}</button>`:''}
     </div>
   `).join('');
 }
@@ -4194,7 +4194,7 @@ window.addEventListener('load',()=>{
     // Show loading indicator
     document.body.insertAdjacentHTML('beforeend',
       '<div id="verifiedLoader" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">'
-      +'<div style="width:44px;height:44px;border:3px solid rgba(112,0,255,.2);border-top-color:#7000ff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
+      +'<div style="width:44px;height:44px;border:3px solid rgba(112,0,255,.2);border-top-color:#111111;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>'
       +'<div style="color:var(--text3);font-size:.85rem;">Setting up your wallet…</div>'
       +'</div>');
     setTimeout(async function(){
@@ -4245,11 +4245,11 @@ window.addEventListener('load',()=>{
     const _txt2 = _isLight ? '#555' : 'rgba(255,255,255,.7)';
     const _txt3 = _isLight ? '#999' : 'rgba(255,255,255,.35)';
     const _btn = _isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.12)';
-    const _nanLogoL='<svg width="180" height="44" viewBox="0 0 280 70" fill="none"><g transform="translate(35,35)"><path d="M16,0 C16,-15 0,-15 0,0 C0,15 16,15 25,0 C34,-15 50,-15 50,0 C50,15 34,15 25,0 Z" fill="none" stroke="#7000ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><line x1="65" y1="-13" x2="65" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="65" y1="-13" x2="83" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="83" y1="-13" x2="83" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="91" y1="13" x2="100" y2="-13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="109" y1="13" x2="100" y2="-13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="94" y1="3" x2="106" y2="3" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="117" y1="-13" x2="117" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="117" y1="-13" x2="135" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="135" y1="-13" x2="135" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/></g></svg>';
+    const _nanLogoL='<svg width="180" height="44" viewBox="0 0 280 70" fill="none"><g transform="translate(35,35)"><path d="M16,0 C16,-15 0,-15 0,0 C0,15 16,15 25,0 C34,-15 50,-15 50,0 C50,15 34,15 25,0 Z" fill="none" stroke="#111111" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><line x1="65" y1="-13" x2="65" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="65" y1="-13" x2="83" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="83" y1="-13" x2="83" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="91" y1="13" x2="100" y2="-13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="109" y1="13" x2="100" y2="-13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="94" y1="3" x2="106" y2="3" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="117" y1="-13" x2="117" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="117" y1="-13" x2="135" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/><line x1="135" y1="-13" x2="135" y2="13" stroke="#111" stroke-width="5.5" stroke-linecap="round"/></g></svg>';
     const _nanLogoD=_nanLogoL.replace(/stroke="#111"/g,'stroke="#fff"');
     const _nanLogo=_isLight?_nanLogoL:_nanLogoD;
     const _goBack='<button onclick="window.location.href=String.fromCharCode(47)" style="background:none;border:1px solid '+_btn+';border-radius:10px;color:'+_txt3+';padding:9px 20px;font-size:.8rem;cursor:pointer;">← Go back</button>';
-    document.body.insertAdjacentHTML('beforeend','<div id="connectLoader" style="position:fixed;inset:0;background:'+_bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;"><div style="margin-bottom:20px;">'+_nanLogo+'</div><div style="font-size:1rem;font-weight:600;color:'+_txt2+';margin-bottom:6px;">Connecting wallet…</div><div style="font-size:.825rem;color:'+_txt3+';margin-bottom:28px;">Check your wallet for a request</div><div style="display:flex;gap:7px;margin-bottom:32px;"><div style="width:8px;height:8px;border-radius:50%;background:#7000ff;animation:dotBounce 1.2s ease-in-out infinite;"></div><div style="width:8px;height:8px;border-radius:50%;background:#9333ea;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div><div style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div></div>'+_goBack+'<style>@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style></div>');
+    document.body.insertAdjacentHTML('beforeend','<div id="connectLoader" style="position:fixed;inset:0;background:'+_bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;"><div style="margin-bottom:20px;">'+_nanLogo+'</div><div style="font-size:1rem;font-weight:600;color:'+_txt2+';margin-bottom:6px;">Connecting wallet…</div><div style="font-size:.825rem;color:'+_txt3+';margin-bottom:28px;">Check your wallet for a request</div><div style="display:flex;gap:7px;margin-bottom:32px;"><div style="width:8px;height:8px;border-radius:50%;background:#111111;animation:dotBounce 1.2s ease-in-out infinite;"></div><div style="width:8px;height:8px;border-radius:50%;background:#333333;animation:dotBounce 1.2s ease-in-out infinite .2s;"></div><div style="width:8px;height:8px;border-radius:50%;background:#cccccc;animation:dotBounce 1.2s ease-in-out infinite .4s;"></div></div>'+_goBack+'<style>@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.3;}50%{transform:translateY(-10px);opacity:1;}}</style></div>');
       (async function(){try{
         if(typeof connectSpecific==='function') await connectSpecific(_ct);
         var l=document.getElementById('connectLoader'); if(l)l.remove();
@@ -4464,7 +4464,7 @@ function renderPaymentRequests(){
   if(el2)el2.textContent=paid;
   if(el3)el3.textContent=pending;
   if(!paymentRequests.length){
-    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
+    list.innerHTML='<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🧾</div><div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:5px;">No requests yet</div><div style="font-size:.78rem;color:var(--text3);margin-bottom:16px;">Create one to start getting paid</div><button onclick="goPage(\'payreq-new\')" style="background:#111111;border:none;border-radius:10px;color:#f3e8ff;font-family:\'Inter\',sans-serif;font-weight:700;font-size:.82rem;padding:10px 20px;cursor:pointer;">+ Create First Request</button></div>';
     return;
   }
   list.innerHTML=paymentRequests.map(pr=>{
@@ -4682,7 +4682,7 @@ async function loadAdminStats(){
         const recEl=document.getElementById('statRecentWallets');
         const wallets=d.recentWallets||[];
         recEl.innerHTML=wallets.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7000ff;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#a855f7;text-decoration:none;">View ↗</a></div>`).join('');
+          wallets.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#111111;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#888888;text-decoration:none;">View ↗</a></div>`).join('');
         document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+(d.cached?' (cached)':'');
         loading.style.display='none';
         statsEl.style.display='block';
@@ -4794,7 +4794,7 @@ async function loadAdminStats(){
     const recEl=document.getElementById('statRecentWallets');
     const top=[...recent.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
     recEl.innerHTML=top.length===0?'<div style="font-size:.75rem;color:#666;">No activity yet</div>':
-      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#7000ff;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#a855f7;text-decoration:none;">View ↗</a></div>`).join('');
+      top.map(([a])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:4px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#111111;display:inline-block;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#ccc;">${a.slice(0,8)}…${a.slice(-6)}</span></div><a href="https://testnet.arcscan.app/address/${a}" target="_blank" style="font-size:.6rem;color:#888888;text-decoration:none;">View ↗</a></div>`).join('');
 
     document.getElementById('adminLastRefresh').textContent=new Date().toLocaleTimeString()+' · all-time';
     loading.style.display='none';
@@ -4803,7 +4803,7 @@ async function loadAdminStats(){
 
   }catch(err){
     console.error('Admin error:',err);
-    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1a1a1a;border:1px solid #1a1a1a;border-radius:8px;color:#c084fc;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
+    loading.innerHTML=`<div style="font-size:.78rem;color:#f87171;text-align:center;padding:20px;"><div style="margin-bottom:8px;">⚠️ ${err.message}</div><div style="font-size:.7rem;color:#666;margin-bottom:14px;">Make sure you are on nanarc.xyz</div><button onclick="loadAdminStats()" style="background:#1a1a1a;border:1px solid #1a1a1a;border-radius:8px;color:#cccccc;padding:8px 16px;cursor:pointer;">↻ Retry</button></div>`;
   }
 }
 
@@ -4825,7 +4825,7 @@ async function loadAdminPoolStats(){
       if(u<10||e<10){
         statusEl.innerHTML='<span style="color:#f87171;">⚠️ Swap pool low — MetaMask swaps may fail. Tap Seed Pool.</span>';
       } else {
-        statusEl.innerHTML='<span style="color:#7000ff;">✓ Swap pool healthy.</span>';
+        statusEl.innerHTML='<span style="color:#111111;">✓ Swap pool healthy.</span>';
       }
     }
 
@@ -4841,12 +4841,12 @@ async function loadAdminPoolStats(){
     const lendEl=document.getElementById('adminLendStats');
     if(lendEl){
       const util=ts>0?((tb/ts)*100).toFixed(1):0;
-      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#7000ff';
+      const color=avail<10?'#f87171':avail<100?'#fbbf24':'#111111';
       lendEl.innerHTML=`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
           <div style="background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL SUPPLIED</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#7000ff;">${ts.toFixed(2)}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:#111111;">${ts.toFixed(2)}</div>
           </div>
           <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:10px;padding:10px;">
             <div style="font-size:.6rem;color:var(--text3);margin-bottom:3px;">TOTAL BORROWED</div>
@@ -4880,13 +4880,13 @@ async function adminSeedPool(){
     const seedAmt=Math.min(500, u*0.9, e*0.9);
     const seedU=ethers.parseUnits(seedAmt.toFixed(6),6);
     const seedE=ethers.parseUnits(seedAmt.toFixed(6),6);
-    statusEl.innerHTML='<span style="color:#c084fc;">Approving tokens…</span>';
+    statusEl.innerHTML='<span style="color:#cccccc;">Approving tokens…</span>';
     const [appU,appE]=await Promise.all([
       usdcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
       eurcC.approve(SWAP_CONTRACT,ethers.MaxUint256,arcGasOpts()),
     ]);
     await Promise.all([appU.wait(0),appE.wait(0)]);
-    statusEl.innerHTML='<span style="color:#c084fc;">Adding liquidity…</span>';
+    statusEl.innerHTML='<span style="color:#cccccc;">Adding liquidity…</span>';
     const liqTx=await swapC.addLiquidity(seedU,seedE,arcGasOpts());
     await liqTx.wait(1);
     toast('✓ Pool seeded with '+seedAmt.toFixed(2)+' USDC + '+seedAmt.toFixed(2)+' EURC','success',6000);
