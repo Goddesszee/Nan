@@ -632,6 +632,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
+// ── Keep-alive ping — prevents Railway cold starts ──
+const SELF_URL = process.env.RAILWAY_PUBLIC_DOMAIN
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : null;
+
+if (SELF_URL) {
+  setInterval(async () => {
+    try {
+      const { default: fetch } = await import('node-fetch');
+      await fetch(`${SELF_URL}/api/health`, { signal: AbortSignal.timeout(8000) });
+    } catch(e) { /* silent */ }
+  }, 4 * 60 * 1000); // ping every 4 minutes
+}
+
 // ── Start ──
 app.listen(PORT, () => {
   console.log(`\n🚀 NAN App running at http://localhost:${PORT}`);

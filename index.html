@@ -16,6 +16,27 @@
     <link rel="stylesheet" crossorigin href="/assets/index-C01foOP1.css">
   </head>
   <body>
+    <!-- Instant loading screen — shown before React hydrates -->
+    <div id="nan-boot" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;">
+      <svg width="52" height="26" viewBox="0 0 50 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:20px;">
+        <path d="M16,0 C16,-10 0,-10 0,0 C0,10 16,10 25,0 C34,-10 50,-10 50,0 C50,10 34,10 25,0 Z" fill="none" stroke="#7000ff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="display:flex;gap:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#7000ff;animation:nb 1.2s ease-in-out infinite;"></div>
+        <div style="width:7px;height:7px;border-radius:50%;background:#9333ea;animation:nb 1.2s ease-in-out infinite .2s;"></div>
+        <div style="width:7px;height:7px;border-radius:50%;background:#c084fc;animation:nb 1.2s ease-in-out infinite .4s;"></div>
+      </div>
+      <style>@keyframes nb{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-8px);opacity:1}}</style>
+    </div>
+    <script>
+      // Remove boot screen once React is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var el = document.getElementById('nan-boot');
+          if (el) { el.style.opacity = '0'; setTimeout(function(){ el.remove(); }, 400); }
+        }, 200);
+      });
+    </script>
     <div id="root"></div>
   </body>
 </html>
