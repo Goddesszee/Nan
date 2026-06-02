@@ -941,11 +941,13 @@ async function _autoSeedLiquidity(){
 
 async function onConnected(isEmail=false, isDev=false){
   const land = document.getElementById('page-land');
-  land.classList.remove('active');
-  land.style.display='none';
-  land.style.visibility='hidden';
-  land.style.zIndex='-1';
-  land.style.pointerEvents='none';
+  if(land){
+    land.classList.remove('active');
+    land.style.display='none';
+    land.style.visibility='hidden';
+    land.style.zIndex='-1';
+    land.style.pointerEvents='none';
+  }
   // Also remove active from page-land explicitly
   document.querySelectorAll('.page-land').forEach(p=>{
     p.classList.remove('active');

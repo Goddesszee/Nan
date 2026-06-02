@@ -1548,20 +1548,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 
 <script>
-/* ── Chain picker ── */
-const CHAIN_OPTIONS = [
-  {val:'ETH-SEPOLIA',  label:'Ethereum Sepolia', icon:'⟠'},
-  {val:'AVAX-FUJI',    label:'Avalanche Fuji',   icon:'🔺'},
-  {val:'BASE-SEPOLIA', label:'Base Sepolia',      icon:'🔵'},
-  {val:'ARB-SEPOLIA',  label:'Arbitrum Sepolia',  icon:'🔷'},
-  {val:'OP-SEPOLIA',   label:'OP Sepolia',        icon:'🔴'},
-  {val:'POLYGON-AMOY', label:'Polygon Amoy',      icon:'🟣'},
-];
-const BANK_OPTIONS = [
-  'Access Bank','GTBank','First Bank','Zenith Bank','UBA',
-  'Kuda Bank','OPay','PalmPay','Stanbic IBTC','Fidelity Bank',
-  'Sterling Bank','Wema Bank','Polaris Bank','Jaiz Bank','Moniepoint'
-];
+/* ── Chain & Bank picker helpers ── */
 
 function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(168,85,247,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
 
