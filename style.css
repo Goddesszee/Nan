@@ -2168,5 +2168,7 @@ a:hover{color:var(--text);}
 
 
 
-.brand-logo{display:flex;align-items:center;flex-shrink:0;background:none;box-shadow:none;}
+
 .brand{display:flex;align-items:center;gap:0;}
+
+.brand-logo{display:flex!important;align-items:center;flex-shrink:0;background:none!important;box-shadow:none!important;}
