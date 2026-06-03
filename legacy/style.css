@@ -1609,7 +1609,21 @@ a:hover{color:var(--text);}
 [data-theme="light"] .success-circle{
   background:#7000ff !important;
   box-shadow:0 8px 24px rgba(112,0,255,.3) !important;
+  color:#fff !important;
 }
+
+/* Light mode: fix all white text in success card */
+[data-theme="light"] .success-amount{color:#111111 !important;}
+[data-theme="light"] .success-title{color:rgba(0,0,0,.6) !important;}
+[data-theme="light"] .success-recipient{background:rgba(112,0,255,.06) !important;border-color:rgba(112,0,255,.15) !important;}
+[data-theme="light"] .success-rec-label{color:#666 !important;}
+[data-theme="light"] .success-rec-val{color:#111 !important;}
+[data-theme="light"] .success-hash{color:#7000ff !important;}
+[data-theme="light"] .success-time{color:#16a34a !important;}
+[data-theme="light"] .success-sub{color:#666 !important;}
+[data-theme="light"] #successCard{background:#fff !important;}
+[data-theme="light"] #successTo{color:#111 !important;}
+[data-theme="light"] #successTime{color:#16a34a !important;}
 
 /* Buttons stay purple in light mode */
 [data-theme="light"] .btn{
