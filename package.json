@@ -1,6 +1,7 @@
 {
   "name": "nan-app",
   "version": "1.0.0",
+  "type": "module",
   "main": "_server/index.js",
   "scripts": {
     "start": "node _server/index.js",

@@ -1,33 +1,16 @@
 {
   "version": 2,
-  "buildCommand": "echo done",
-  "outputDirectory": ".",
   "rewrites": [
-    {
-      "source": "/app",
-      "destination": "/app.html"
-    },
-    {
-      "source": "/pay",
-      "destination": "/pay.html"
-    },
-    {
-      "source": "/legacy",
-      "destination": "/legacy/app.html"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/pay", "destination": "/pay.html" },
+    { "source": "/legacy", "destination": "/legacy/app.html" },
+    { "source": "/", "destination": "/index.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        }
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
   ]
