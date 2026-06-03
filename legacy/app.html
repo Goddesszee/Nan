@@ -175,13 +175,15 @@ html,body{background:var(--bg);}
   <div id="globalTopBar">
     <div class="brand">
       <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:1px;cursor:pointer;">
-        <span class="logo-dark" style="gap:1px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#ffffff"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
-          <span style="font-family:'Oswald',sans-serif;font-size:34px;font-weight:700;color:#ffffff;letter-spacing:.04em;line-height:1;">AN</span>
+        <!-- Purple N + white AN (dark) -->
+        <span class="logo-dark" style="gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#7000ff"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
+          <span style="font-family:'Oswald',sans-serif;font-size:23px;font-weight:700;color:#ffffff;letter-spacing:.06em;line-height:1;">AN</span>
         </span>
-        <span class="logo-light" style="gap:1px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#111111"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
-          <span style="font-family:'Oswald',sans-serif;font-size:34px;font-weight:700;color:#111111;letter-spacing:.04em;line-height:1;">AN</span>
+        <!-- Purple N + dark AN (light) -->
+        <span class="logo-light" style="gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#7000ff"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
+          <span style="font-family:'Oswald',sans-serif;font-size:23px;font-weight:700;color:#111111;letter-spacing:.06em;line-height:1;">AN</span>
         </span>
       </div>
       
@@ -1500,7 +1502,7 @@ html,body{background:var(--bg);}
         <div style="font-size:.875rem;color:var(--text3);margin-top:2px;">Fill in details · Share the link</div>
       </div>
     </div>
-    <div class="card" style="display:flex;flex-direction:column;gap:0;">
+    <div class="card" style="display:flex;flex-direction:column;gap:0;min-height:200px;">
       <div class="field">
         <div class="flbl">Currency</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
