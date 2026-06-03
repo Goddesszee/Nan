@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>NAN — Signing out…</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#000;display:flex;align-items:center;justify-content:center;
+      min-height:100vh;font-family:'Inter',system-ui,sans-serif;flex-direction:column;gap:16px;}
+    svg{opacity:.8;}
+    p{color:#555;font-size:.85rem;}
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 736" width="48" height="48">
+    <g fill="#7000ff">
+      <path d="M248 215 H312 L490 520 H426 Z"/>
+      <rect x="426" y="215" width="64" height="155"/>
+      <rect x="248" y="365" width="64" height="155"/>
+    </g>
+  </svg>
+  <p>Signing out…</p>
+  <script>
+    // Wipe ALL storage — no React, no Dynamic, no Wagmi
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      // Clear all cookies for this domain
+      document.cookie.split(';').forEach(function(c) {
+        document.cookie = c.trim().split('=')[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+      });
+    } catch(e) {}
+    // Redirect to landing after short delay
+    setTimeout(function() {
+      window.location.replace('/');
+    }, 300);
+  </script>
+</body>
+</html>

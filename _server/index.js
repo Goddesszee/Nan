@@ -620,6 +620,11 @@ app.post('/api/admin/auth', (req, res) => {
   return res.json({ success: false, error: 'Invalid password' });
 });
 
+// Serve disconnect page — plain HTML, no React/Dynamic
+app.get('/disconnect.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../disconnect.html'));
+});
+
 // Serve legacy app files BEFORE catch-all
 app.use('/legacy', express.static(path.join(__dirname, '../legacy')));
 
