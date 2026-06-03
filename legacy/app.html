@@ -1401,7 +1401,7 @@ html,body{background:var(--bg);}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div>
         <div style="font-size:1.125rem;font-weight:700;color:var(--text);letter-spacing:-.02em;">Pay Requests</div>
-        <div style="font-size:.875rem;color:var(--text3);margin-top:2px;">Create & share payment links</div>
+        <div style="font-size:.82rem;color:var(--text2);margin-top:2px;">Create & share payment links</div>
       </div>
       <button onclick="goPage('payreq-new')" style="background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-weight:700;font-size:.875rem;padding:8px 14px;cursor:pointer;">+ New</button>
     </div>
@@ -1431,8 +1431,8 @@ html,body{background:var(--bg);}
       <div style="width:32px;height:32px;border-radius:9px;background:#7000ff;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#f3e8ff;">N</div>
       <div class="page-title" style="margin-bottom:0;">NAN Payment Request</div>
     </div>
-    <div style="background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(85,0,204,.05));border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="payNowAmt">—</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:2rem;font-weight:800;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="payNowAmt">—</div>
       <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:4px;" id="payNowLabel">—</div>
       <div style="font-size:1rem;color:var(--text);" id="payNowNote"></div>
     </div>
@@ -1445,35 +1445,35 @@ html,body{background:var(--bg);}
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;"/>
     </div>
-    <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
       <div style="font-size:.875rem;color:var(--text);margin-bottom:8px;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Send USDC to this address on Arc Testnet</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
+      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.8rem;color:var(--text);word-break:break-all;text-align:center;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
       <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
-      <div style="font-size:.875rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">or pay with NAN wallet</div>
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <div style="font-size:.8rem;color:var(--text2);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">or pay with NAN wallet</div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
       <div style="font-size:.875rem;font-weight:700;color:var(--success);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.05em;margin-bottom:10px;">Step 1 — Scan or copy address</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
       <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
       <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
-    <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:12px;margin-bottom:12px;">
-      <div style="font-size:.875rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:8px;">Step 2 — Send from your wallet</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:8px;">Step 2 — Send from your wallet</div>
       <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:1rem;color:var(--text);"><span>1.</span> Open MetaMask, Trust Wallet, or any wallet</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:1rem;color:var(--text);"><span>2.</span> Switch to <strong style="color:var(--accent3);">Arc Testnet</strong> (Chain ID: 5042002)</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:1rem;color:var(--text);"><span>3.</span> Send <strong style="color:var(--accent3);" id="payNowAmtStep">the amount</strong> of USDC to the address above</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text2);"><span>1.</span> Open MetaMask, Trust Wallet, or any wallet</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text2);"><span>2.</span> Switch to <strong style="color:var(--text);">Arc Testnet</strong> (Chain ID: 5042002)</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text2);"><span>3.</span> Send <strong style="color:var(--accent3);" id="payNowAmtStep">the amount</strong> of USDC to the address above</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
-      <div style="font-size:.875rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Already have a NAN Wallet?</div>
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <div style="font-size:.8rem;color:var(--text2);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Already have a NAN Wallet?</div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
     <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">⚡ Pay instantly via NAN</button>
     <div style="text-align:center;font-size:.875rem;color:var(--text);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
@@ -1489,8 +1489,8 @@ html,body{background:var(--bg);}
         <div style="font-size:1rem;font-weight:600;" id="prViewStatus">⏳ Pending</div>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(85,0,204,.05));border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="prViewAmt">—</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:2rem;font-weight:800;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="prViewAmt">—</div>
       <div style="font-size:1rem;font-weight:600;color:var(--text);" id="prViewLabel2">—</div>
     </div>
     <div class="card" style="margin-bottom:12px;">
@@ -1501,7 +1501,7 @@ html,body{background:var(--bg);}
     </div>
     <div class="card" style="margin-bottom:12px;">
       <div style="font-size:.875rem;color:var(--text);margin-bottom:8px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">SHAREABLE LINK</div>
-      <div style="font-size:.875rem;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;" id="prViewLink"></div>
+      <div style="font-size:.78rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;word-break:break-all;margin-bottom:10px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;" id="prViewLink"></div>
       <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
       <div style="display:flex;gap:8px;">
         <button onclick="copyPRLink()" style="flex:1;padding:10px;background:#7000ff;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
