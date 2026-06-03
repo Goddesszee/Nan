@@ -115,35 +115,9 @@ html,body{background:var(--bg) !important;}
   <!-- ══ TOP BAR ══ -->
   <div id="globalTopBar">
     <div class="brand">
-      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;cursor:pointer;">
-  <span class="logo-light"><svg width="280" height="70" viewBox="0 0 280 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(35,35)">
-    <path d="M16,0 C16,-15 0,-15 0,0 C0,15 16,15 25,0 C34,-15 50,-15 50,0 C50,15 34,15 25,0 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    <line x1="65" y1="-13" x2="65" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="65" y1="-13" x2="83" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="83" y1="-13" x2="83" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="91" y1="13" x2="100" y2="-13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="109" y1="13" x2="100" y2="-13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="94" y1="3" x2="106" y2="3" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="117" y1="-13" x2="117" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="117" y1="-13" x2="135" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="135" y1="-13" x2="135" y2="13" stroke="#111111" stroke-width="5.5" stroke-linecap="round"/>
-  </g>
-</svg></span>
-  <span class="logo-dark" style="display:none;"><svg width="280" height="70" viewBox="0 0 280 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(35,35)">
-    <path d="M16,0 C16,-15 0,-15 0,0 C0,15 16,15 25,0 C34,-15 50,-15 50,0 C50,15 34,15 25,0 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    <line x1="65" y1="-13" x2="65" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="65" y1="-13" x2="83" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="83" y1="-13" x2="83" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="91" y1="13" x2="100" y2="-13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="109" y1="13" x2="100" y2="-13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="94" y1="3" x2="106" y2="3" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="117" y1="-13" x2="117" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="117" y1="-13" x2="135" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-    <line x1="135" y1="-13" x2="135" y2="13" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
-  </g>
-</svg></span>
+      <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#8b5cf6"/><rect x="78" y="10" width="14" height="80" fill="#8b5cf6"/></svg>
+  <span style="font-size:17px;font-weight:900;color:var(--text);letter-spacing:.04em;font-family:'Inter',sans-serif;">NAN</span>
 </div>
       
     </div>
@@ -196,13 +170,13 @@ html,body{background:var(--bg) !important;}
   <!-- ══ DESKTOP SIDEBAR NAV ══ -->
   <nav id="desktopNav" style="display:none;">
     <div class="dnav-logo-row">
-      <div class="dnav-logo" style="display:flex;align-items:center;"><svg width="160" height="50" viewBox="0 0 160 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20,25 C20,11 4,11 4,25 C4,39 20,39 28,25 C36,11 52,11 52,25 C52,39 36,39 28,25 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <polyline points="68,44 68,6 88,44 88,6" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <polyline points="96,44 108,6 120,44" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <line x1="101" y1="29" x2="115" y2="29" stroke="currentColor" stroke-width="5.5" stroke-linecap="square"/>
-  <polyline points="128,44 128,6 148,44 148,6" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="square" stroke-linejoin="miter"/>
-</svg></div>
+      <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:10px;cursor:pointer;height:72px;">
+  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#8b5cf6"/><rect x="78" y="10" width="14" height="80" fill="#8b5cf6"/></svg>
+  <div>
+    <div style="font-size:17px;font-weight:900;color:#fff;letter-spacing:.04em;line-height:1;font-family:'Inter',sans-serif;">NAN</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.1em;margin-top:2px;">WALLET</div>
+  </div>
+</div>
                   <div><div style="font-size:.875rem;font-weight:700;color:var(--text);">Code sent!</div><div style="font-size:.8rem;color:rgba(255,255,255,.4);">Enter the 6-digit code below</div></div>
                 </div>
                 <div style="display:flex;gap:8px;">
