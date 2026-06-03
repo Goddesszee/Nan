@@ -1021,6 +1021,9 @@ function disconnect(){
   isCircleWallet=false;
   localStorage.removeItem('circleWalletId');
   localStorage.removeItem('circleWalletAddr');
+  localStorage.removeItem('nan_dynamic_token');
+  localStorage.removeItem('nan_dynamic_address');
+  localStorage.removeItem('nan_dynamic_email');
   if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
   sessionStorage.removeItem('nan_from_landing');
   localStorage.removeItem('nan_metamask_was_connected');
