@@ -12,6 +12,10 @@
       "destination": "/pay.html"
     },
     {
+      "source": "/legacy",
+      "destination": "/legacy/app.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     }
