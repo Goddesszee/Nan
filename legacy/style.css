@@ -1022,8 +1022,7 @@ a:hover{color:var(--text);}
   }
   .page.active{display:flex !important;}
   /* Payment request new page — override centering */
-  #page-payreq-new{align-items:flex-start !important;}
-  #page-payreq-new.active{align-items:flex-start !important;overflow-y:auto !important;display:block !important;padding:16px 0 48px !important;}
+  #page-payreq-new.active{display:block !important;overflow-y:auto !important;padding:16px 24px 48px !important;}
 
   /* All direct children centered at 600px */
   .page > *{
