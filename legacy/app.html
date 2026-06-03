@@ -947,7 +947,7 @@ html,body{background:var(--bg);}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
             Circle Gateway
           </div>
-          <div style="font-size:.75rem;color:var(--text3);margin-top:2px;">Unified USDC across all chains</div>
+          <div style="font-size:.75rem;color:rgba(168,85,247,.8);margin-top:2px;">Unified USDC across all chains</div>
         </div>
         <button onclick="refreshGatewayBalance()" style="background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.2);border-radius:8px;padding:5px 10px;color:#a855f7;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Refresh</button>
       </div>
@@ -957,7 +957,7 @@ html,body{background:var(--bg);}
         <div style="background:linear-gradient(135deg,rgba(112,0,255,.15),rgba(168,85,247,.08));border:1px solid rgba(112,0,255,.2);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
           <div style="font-size:.7rem;font-weight:700;color:#a855f7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Unified Balance</div>
           <div style="font-size:1.5rem;font-weight:800;color:var(--text);letter-spacing:-.02em;" id="gatewayTotal">—</div>
-          <div style="font-size:.72rem;color:var(--text3);margin-top:2px;">Available across all networks</div>
+          <div style="font-size:.72rem;color:rgba(192,132,252,.8);margin-top:2px;">Available across all networks</div>
         </div>
 
         <!-- Per-chain balances -->
@@ -974,7 +974,7 @@ html,body{background:var(--bg);}
               style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;"/>
             <button onclick="depositToGateway()" style="background:#7000ff;border:none;border-radius:10px;color:#fff;font-size:.85rem;font-weight:700;padding:10px 14px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Deposit →</button>
           </div>
-          <div style="font-size:.7rem;color:var(--text3);margin-top:6px;">Balance updates in ~20 minutes per Circle protocol</div>
+          <div style="font-size:.7rem;color:rgba(168,85,247,.7);margin-top:6px;">Balance updates in ~20 minutes per Circle protocol</div>
         </div>
       </div>
     </div>
@@ -984,7 +984,7 @@ html,body{background:var(--bg);}
     <div class="card" style="margin-bottom:10px;overflow:visible;">
 
       <!-- From -->
-      <div style="font-size:.875rem;color:var(--text);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">From</div>
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">From</div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid rgba(112,0,255,.2);border-radius:12px;padding:11px 14px;margin-bottom:10px;">
         <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:8px;">
           <rect width="44" height="44" fill="#111111"/>
@@ -997,7 +997,7 @@ html,body{background:var(--bg);}
       <div style="text-align:center;font-size:1rem;color:var(--text);margin:2px 0 10px;">↓</div>
 
       <!-- To network -->
-      <div style="font-size:.875rem;color:var(--text);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">To network</div>
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">To network</div>
       <input type="hidden" id="bridgeDestChain" value="ETH-SEPOLIA"/>
       <select id="bridgeChainSelect" onchange="document.getElementById('bridgeDestChain').value=this.value;updateBridgeSummary()" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;cursor:pointer;margin-bottom:14px;">
         <option value="ETH-SEPOLIA">⟠ Ethereum Sepolia</option>
@@ -1024,13 +1024,13 @@ html,body{background:var(--bg);}
           style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 54px 12px 14px;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;outline:none;"/>
         <button onclick="navigator.clipboard.readText().then(t=>{document.getElementById('bridgeDestAddr').value=t}).catch(()=>document.getElementById('bridgeDestAddr').focus())"
           style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(112,0,255,.15);border:1px solid rgba(112,0,255,.2);border-radius:7px;color:var(--accent3);font-size:1rem;padding:4px 8px;cursor:pointer;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Paste</button>
-        <div style="font-size:1rem;color:var(--text);margin-top:6px;">⚠️ Double-check — wrong address = lost funds</div>
+        <div style="font-size:.82rem;color:#f87171;margin-top:6px;">⚠️ Double-check — wrong address = lost funds</div>
       </div>
     </div>
 
     <!-- Amount card -->
     <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:.875rem;color:var(--text);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Amount</div>
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Amount</div>
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <input id="bridgeAmt" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0"

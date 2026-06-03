@@ -1,1 +1,0 @@
-import{c as e,r as t,s as n}from"./index-Df3dTLFA.js";var r=async r=>{let i=n(e.getPublicKey(r.privateKey,!0));if(i!=r.publicKey)throw Error(`Bad API key. Expected to get public key ${r.publicKey}, got ${i}`);let a=t().update(r.content).digest();return e.sign(a,r.privateKey).toDERHex()};export{r as signWithApiKey};

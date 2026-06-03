@@ -1092,9 +1092,9 @@ function disconnect(){
   }catch(e){}
   // Wipe sessionStorage
   try{sessionStorage.clear();}catch(e){}
-  // Hard redirect to landing — bypass React app entirely
-  // Use window.location.href with a cache-bust to force full reload
-  window.location.href = '/?disconnected=1&t=' + Date.now();
+  // Redirect to landing — use replace so back button doesn't return to app
+  // Add nocache param so browser doesn't serve stale React bundle
+  window.location.replace('/?__nan_disconnected=1');
 }
 
 // ═══════════════════════════════════════════
