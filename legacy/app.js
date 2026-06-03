@@ -1065,23 +1065,25 @@ async function onConnected(isEmail=false, isDev=false){
 }
 
 function disconnect(){
+  // Stop all timers
+  if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
+  // Clear in-memory state
   txHistory=[];paymentRequests=[];arcNames=[];
   provider=signer=userAddr=wp=null;
   onArcNetwork=false;lastTxHash=lastTxId=null;
   circleWalletId=circleWalletAddress=circleWalletBlockchain=null;
   circleUserToken=circleUserId=otpEmail=null;
   isCircleWallet=false;
-  localStorage.removeItem('circleWalletId');
-  localStorage.removeItem('circleWalletAddr');
-  // Clear Dynamic session
-  localStorage.removeItem('nan_dynamic_address');
-  localStorage.removeItem('nan_dynamic_token');
-  localStorage.removeItem('nan_dynamic_email');
-  if(txPollTimer){clearInterval(txPollTimer);txPollTimer=null;}
-  sessionStorage.removeItem('nan_from_landing');
-  localStorage.removeItem('nan_metamask_was_connected');
-  toast('Disconnected','info',1500);
-  setTimeout(()=>{ window.location.replace('/?disconnected=1'); }, 800);
+  // Wipe ALL localStorage — no trace of former account
+  try{
+    var keys=[];
+    for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k)keys.push(k);}
+    keys.forEach(function(k){localStorage.removeItem(k);});
+  }catch(e){}
+  // Wipe sessionStorage
+  try{sessionStorage.clear();}catch(e){}
+  // Redirect immediately — no delay
+  window.location.replace('/?disconnected=1');
 }
 
 // ═══════════════════════════════════════════
