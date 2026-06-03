@@ -154,7 +154,8 @@ html,body{background:var(--bg);}
 
 @media(min-width:768px){#topbarNav{display:flex!important;}#desktopNav{display:none!important;}}
 /* Payment request new page — force content visible */
-
+#page-payreq-new.active{align-items:flex-start!important;overflow-y:auto!important;}
+#page-payreq-new.active>*{max-width:600px!important;width:100%!important;margin-left:auto!important;margin-right:auto!important;}
 .dnav-brand{font-size:2.5rem!important;font-weight:900!important;color:var(--text);letter-spacing:-.03em;line-height:1;text-transform:uppercase;}
 /* Logo theme switching */
 .logo-dark { display:none; }
@@ -175,14 +176,14 @@ html,body{background:var(--bg);}
     <div class="brand">
       <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:1px;cursor:pointer;">
         <!-- Purple N + white AN (dark) -->
-        <span class="logo-dark" style="gap:4px;">
+        <span class="logo-dark" style="gap:6px;">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#7000ff"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
-          <span style="font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:#ffffff;letter-spacing:.04em;line-height:1;">AN</span>
+          <span style="font-family:'Oswald',sans-serif;font-size:23px;font-weight:700;color:#ffffff;letter-spacing:.06em;line-height:1;">AN</span>
         </span>
         <!-- Purple N + dark AN (light) -->
-        <span class="logo-light" style="gap:4px;">
+        <span class="logo-light" style="gap:6px;">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="235 205 265 325" width="32" height="42"><g fill="#7000ff"><path d="M248 215 H312 L490 520 H426 Z"/><rect x="426" y="215" width="64" height="155"/><rect x="248" y="365" width="64" height="155"/></g></svg>
-          <span style="font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:#111111;letter-spacing:.04em;line-height:1;">AN</span>
+          <span style="font-family:'Oswald',sans-serif;font-size:23px;font-weight:700;color:#111111;letter-spacing:.06em;line-height:1;">AN</span>
         </span>
       </div>
       
@@ -1493,7 +1494,7 @@ html,body{background:var(--bg);}
   </div>
 
 <!-- ══ NEW PAYMENT REQUEST PAGE ══ -->
-  <div class="page" id="page-payreq-new">
+  <div class="page" id="page-payreq-new" style="flex-direction:column;align-items:stretch;">
     <button class="back-btn" onclick="goPage('payreq')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div>
