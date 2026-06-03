@@ -1082,8 +1082,9 @@ function disconnect(){
   }catch(e){}
   // Wipe sessionStorage
   try{sessionStorage.clear();}catch(e){}
-  // Redirect immediately — no delay
-  window.location.replace('/?disconnected=1');
+  // Hard redirect to landing — bypass React app entirely
+  // Use window.location.href with a cache-bust to force full reload
+  window.location.href = '/?disconnected=1&t=' + Date.now();
 }
 
 // ═══════════════════════════════════════════
