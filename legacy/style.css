@@ -1685,19 +1685,19 @@ a:hover{color:var(--text);}
   .page > div > .swap-box,
   .page > div > [class*="card"]{
     background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(168,85,247,0.18) !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    box-shadow: none !important;
     border-radius: var(--radius) !important;
     padding: 14px !important;
   }
 
-  /* Keep home balance card styled */
+  /* Balance card — same flat style as desktop */
   .home-bal-card,
   .bal-card{
-    background: linear-gradient(135deg,rgba(139,92,246,.18),rgba(109,40,217,.12)) !important;
-    border: 1px solid rgba(139,92,246,.3) !important;
+    background: #111 !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
     border-radius: 18px !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,.3) !important;
+    box-shadow: none !important;
   }
 
   /* Reduce page padding on mobile since no outer card */
