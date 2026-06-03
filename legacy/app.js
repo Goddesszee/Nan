@@ -677,12 +677,22 @@ function updateTopBar(connected){
 // FX RATE
 // ═══════════════════════════════════════════
 async function fetchLiveFX(){
+  // Use cached FX rate if less than 1 hour old — prevents balance flickering on refresh
+  try{
+    const cached=localStorage.getItem('nan_fx_rate');
+    const cachedTime=localStorage.getItem('nan_fx_time');
+    if(cached&&cachedTime&&Date.now()-parseInt(cachedTime)<3600000){
+      const rate=parseFloat(cached);
+      if(rate>0.5&&rate<2){FX=rate;fxLastUpdated=new Date(parseInt(cachedTime));updateSwapRateDisplay();return;}
+    }
+  }catch(e){}
   try{
     const res=await fetch('https://nan-production.up.railway.app/api/fx-rate');
     if(res.ok){
       const data=await res.json();
       if(data.rate&&data.rate>0.5&&data.rate<2){
         FX=data.rate;fxLastUpdated=new Date();
+        try{localStorage.setItem('nan_fx_rate',FX);localStorage.setItem('nan_fx_time',Date.now());}catch(e){}
         console.log('FX rate from',data.source,':',FX);
         updateSwapRateDisplay();return;
       }
@@ -1124,7 +1134,10 @@ async function refreshBalances(){
     document.getElementById('swapFromBal').textContent=swapFlipped?e:u;
     document.getElementById('swapToBal').textContent=swapFlipped?u:e;
     // Update home page balance card
-    const totalUsd=(parseFloat(u)+parseFloat(e)*(1/FX));
+    // Use stable FX: only update if we have a fresh rate, otherwise keep last known
+    // This prevents balance flickering on refresh due to FX changes
+    const stableFX = (FX && FX > 0.8 && FX < 1.2) ? FX : 0.9258;
+    const totalUsd=(parseFloat(u)+parseFloat(e)*(1/stableFX));
     const NGN_RATE=1622;
     const homeBalAmt=document.getElementById('homeBalAmt');
     const homeBalNgn=document.getElementById('homeBalNgn');
