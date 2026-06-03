@@ -1021,8 +1021,9 @@ a:hover{color:var(--text);}
     animation:none !important;isolation:auto !important;transform:none !important;
   }
   .page.active{display:flex !important;}
-  /* Payment request new page — override centering */
-  #page-payreq-new.active{display:block !important;overflow-y:auto !important;padding:16px 24px 48px !important;}
+  /* Payment request new page — must be flex-start not center */
+  #page-payreq-new.active{align-items:flex-start !important;overflow-y:auto !important;}
+  #page-payreq-new.active>*{max-width:600px !important;width:100% !important;margin-left:auto !important;margin-right:auto !important;padding-left:24px !important;padding-right:24px !important;}
 
   /* All direct children centered at 600px */
   .page > *{
