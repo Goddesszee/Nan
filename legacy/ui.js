@@ -38,6 +38,8 @@ function goPage(name) {
     lend:       'page-lend',
     payreq:     'page-payreq',
     'payreq-new': 'page-payreq-new',
+    'payreq-view': 'page-payreq-view',
+    'pay-now':  'page-pay-now',
   };
 
   const navMap = {

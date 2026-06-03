@@ -721,6 +721,8 @@ async function fetchLiveFX(){
   updateSwapRateDisplay();
 }
 function updateSwapRateDisplay(){
+  // Recalculate swap output whenever rate updates (fixes stale FX showing wrong amount)
+  if(document.getElementById('swapFrom')?.value>0) calcSwap();
   const time=fxLastUpdated?fxLastUpdated.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'fallback';
   const el=document.getElementById('swapRate');if(!el)return;
   el.innerHTML=swapFlipped
@@ -1051,6 +1053,9 @@ async function onConnected(isEmail=false, isDev=false){
   renderArcDirectory();
   initLendUI();
   document.getElementById('aiBtn').style.display='flex';
+  // Desktop button shown regardless via CSS - also ensure it's visible
+  var deskAI = document.getElementById('aiBtnDesktop');
+  if(deskAI) deskAI.style.display='flex';
   setTimeout(attachAIListeners, 100); // re-attach after button is visible
   startOrderEngine();
   // Pre-approve all contracts once so users never see repeated approve popups
