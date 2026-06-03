@@ -1,12 +1,13 @@
 /* â”€â”€ NAN Wallet â€” style.css â€” Relay v2 â”€â”€ */
 :root{
-  --bg:#111111;--surface:#1a1a1a;--card:#1a1a1a;--card2:#222222;
-  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
-  --accent:#ffffff;--accent3:#cccccc;--accent4:#aaaaaa;
-  --text:#ffffff;--text2:#a0a0a0;--text3:#555555;
-  --danger:#f87171;--success:#ffffff;--gold:#fbbf24;--warning:#fbbf24;
+  --bg:#0d0b1e;--surface:#131228;--card:#131228;--card2:#1a1838;
+  --border:rgba(139,92,246,.12);--border2:rgba(139,92,246,.2);
+  --accent:#8b5cf6;--accent2:#7c3aed;--accent3:#a78bfa;--accent4:#c4b5fd;
+  --text:#ffffff;--text2:#a0a0b8;--text3:#555570;
+  --danger:#f87171;--success:#34d399;--gold:#fbbf24;--warning:#fbbf24;
   --radius:14px;--radius-sm:10px;
-  --topbar-bg:#111111;--nav-bg:#111111;
+  --topbar-bg:#0a0818;--nav-bg:#0a0818;
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,.12);
 }
 [data-theme="light"]{
   --bg:#fafafa;
