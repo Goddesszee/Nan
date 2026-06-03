@@ -1884,6 +1884,11 @@ function initBridgeUI(){
     document.getElementById('bridgeDestChain').value=this.value;
     updateBridgeSummary();
   });
+  // Load gateway balance when bridge page is ready
+  if(userAddr) refreshGatewayBalance();
+  // Show deposit section only for Circle wallet users
+  const depSec=document.getElementById('gatewayDepositSection');
+  if(depSec) depSec.style.display=isCircleWallet?'block':'none';
 }
 function initSwapUI(){
   document.getElementById('swapModeBanner').style.display='none';

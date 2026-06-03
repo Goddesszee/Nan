@@ -1025,10 +1025,47 @@ html,body{background:var(--bg);}
       </div>
     </div>
 
-    <!-- Gateway (hidden, kept for JS compatibility) -->
-    <input type="hidden" id="gatewayDepositAmt"/>
-    <span id="gatewayTotal" style="display:none;"></span>
-    <span id="gatewayChains" style="display:none;"></span>
+    <!-- ── Circle Gateway ─────────────────────────────── -->
+    <div style="margin-top:14px;background:var(--card);border:1px solid rgba(112,0,255,.2);border-radius:18px;overflow:hidden;">
+
+      <!-- Gateway header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;">
+        <div>
+          <div style="font-size:.95rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Circle Gateway
+          </div>
+          <div style="font-size:.75rem;color:var(--text3);margin-top:2px;">Unified USDC across all chains</div>
+        </div>
+        <button onclick="refreshGatewayBalance()" style="background:rgba(112,0,255,.1);border:1px solid rgba(112,0,255,.2);border-radius:8px;padding:5px 10px;color:#a855f7;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Refresh</button>
+      </div>
+
+      <!-- Unified balance -->
+      <div style="padding:0 16px 12px;">
+        <div style="background:linear-gradient(135deg,rgba(112,0,255,.15),rgba(168,85,247,.08));border:1px solid rgba(112,0,255,.2);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+          <div style="font-size:.7rem;font-weight:700;color:#a855f7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Unified Balance</div>
+          <div style="font-size:1.5rem;font-weight:800;color:var(--text);letter-spacing:-.02em;" id="gatewayTotal">—</div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:2px;">Available across all networks</div>
+        </div>
+
+        <!-- Per-chain balances -->
+        <div id="gatewayChains" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <div style="font-size:.72rem;color:var(--text3);text-align:center;padding:8px;">Loading gateway balance…</div>
+        </div>
+
+        <!-- Deposit section — Circle wallet only -->
+        <div id="gatewayDepositSection" style="display:none;">
+          <div style="height:1px;background:var(--border);margin-bottom:12px;"></div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:8px;">Deposit USDC to Gateway</div>
+          <div style="display:flex;gap:8px;">
+            <input id="gatewayDepositAmt" type="number" inputmode="decimal" min="1" step="1" placeholder="Amount (min 1)"
+              style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;"/>
+            <button onclick="depositToGateway()" style="background:#7000ff;border:none;border-radius:10px;color:#fff;font-size:.85rem;font-weight:700;padding:10px 14px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Deposit →</button>
+          </div>
+          <div style="font-size:.7rem;color:var(--text3);margin-top:6px;">Balance updates in ~20 minutes per Circle protocol</div>
+        </div>
+      </div>
+    </div>
 
     </div><!-- end bridge unified card -->
   </div><!-- end bridge page -->

@@ -219,6 +219,11 @@ function updateTopbarPageInfo(page) {
   } else if (page === 'bridge') {
     pillEl.textContent = 'CCTP V2';
     pillEl.style.cssText = 'display:inline-block;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.15);color:#c084fc;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
+    // Refresh gateway balance every time user opens bridge page
+    if(typeof refreshGatewayBalance==='function') setTimeout(refreshGatewayBalance, 100);
+    // Show/hide deposit section based on wallet type
+    const depSec=document.getElementById('gatewayDepositSection');
+    if(depSec) depSec.style.display=(typeof isCircleWallet!=='undefined'&&isCircleWallet)?'block':'none';
   } else if (page === 'history') {
     pillEl.textContent = 'On-chain';
     pillEl.style.cssText = 'display:inline-block;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.15);color:#7000ff;font-family:"JetBrains Mono",monospace;font-size:.58rem;padding:3px 9px;border-radius:100px;';
