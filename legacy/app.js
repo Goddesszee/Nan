@@ -1094,8 +1094,10 @@ function disconnect(){
   try{sessionStorage.clear();}catch(e){}
   // Redirect to landing — use replace so back button doesn't return to app
   // Add nocache param so browser doesn't serve stale React bundle
-  // Go to dedicated disconnect page — bypasses React+Dynamic entirely
-  window.location.href = '/disconnect.html';
+  // Wipe all storage right here then hard navigate to landing
+  try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+  // Use replace so back button can't return to app
+  window.location.replace('/');
 }
 
 // ═══════════════════════════════════════════
