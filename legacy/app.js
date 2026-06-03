@@ -1097,7 +1097,7 @@ function disconnect(){
   // Wipe all storage right here then hard navigate to landing
   try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
   // Use replace so back button can't return to app
-  window.location.replace('/');
+  window.location.replace('/?__nan_disconnected=1');
 }
 
 // ═══════════════════════════════════════════
