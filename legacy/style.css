@@ -1649,69 +1649,7 @@ a:hover{color:var(--text);}
    MOBILE Ã¢â¬â Remove outer card wrappers on feature pages
    Cards still show on desktop (min-width:481px+)
 Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â */
-@media(max-width:480px){
 
-  /* Remove outer card look from all .card elements inside pages */
-  .page > .card,
-  .page > .send-card,
-  .page > .swap-box,
-  .page > .arcname-card,
-  .page > [class*="card"]{
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Remove outer wrapper divs that use inline card styles */
-  /* These are the first direct child divs of pages with card styling */
-  .page > div:first-child:not(.page-title):not(.page-sub):not(.type-sel):not(.bottom-bar){
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  /* Keep inner cards (nested ones) Ã¢â¬â they still show */
-  .page > .card .card,
-  .page > div > .card,
-  .page > div > .send-card,
-  .page > div > .position-card,
-  .page > div > .swap-box,
-  .page > div > [class*="card"]{
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
-    box-shadow: none !important;
-    border-radius: var(--radius) !important;
-    padding: 14px !important;
-  }
-
-  /* Balance card — same flat style as desktop */
-  .home-bal-card,
-  .bal-card{
-    background: #111 !important;
-    border: 1px solid rgba(255,255,255,.09) !important;
-    border-radius: 18px !important;
-    box-shadow: none !important;
-  }
-
-  /* Reduce page padding on mobile since no outer card */
-  .page{
-    padding: 12px 14px 20px !important;
-  }
-
-  /* Page titles stay visible */
-  .page-title{
-    font-size: 1.3rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-}
 
 /* Ã¢â¢ÂÃ¢â¢Â TOPBAR & DISCONNECT FIX Ã¢â¢ÂÃ¢â¢Â */
 [data-theme="light"] #disconnectTopBtn { color: #dc2626 !important; }
