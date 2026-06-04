@@ -3274,6 +3274,7 @@ function attachAIListeners(){
     },{passive:false});
   }
   addToggle(document.getElementById('aiBtn'));
+  addToggle(document.getElementById('aiBtnDesktop'));
   addToggle(document.getElementById('nanAiMoreBtn'));
   addToggle(document.getElementById('agentCloseBtn'));
 }
