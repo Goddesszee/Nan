@@ -2,7 +2,7 @@
 // Queries Arc Testnet RPC server-side (no CORS issues)
 // Caches results for 5 minutes to avoid re-scanning
 
-const RPC    = 'https://rpc.testnet.arc.io';
+const RPC    = 'https://rpc.testnet.arc.network';
 const USDC   = '0x3600000000000000000000000000000000000000';
 const SWAP   = '0x5cE359b74BE53b1B370641571cBef157dD575c79';
 const LEND   = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
