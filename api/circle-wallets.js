@@ -455,7 +455,8 @@ export default async function handler(req, res) {
         from:     { adapter, chain: 'Arc_Testnet', address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
-        amount:   amtIn.toString(),
+        amountIn: amtIn.toString(),
+        config:   { kitKey: process.env.KIT_KEY },
       });
       return res.json({
         success:         true,
@@ -495,7 +496,8 @@ export default async function handler(req, res) {
         from:     { adapter, chain: 'Arc_Testnet', address: walletAddress },
         tokenIn:  fromToken,
         tokenOut: toToken,
-        amount:   amtIn.toString(),
+        amountIn: amtIn.toString(),
+        config:   { kitKey: process.env.KIT_KEY },
       });
       return res.json({
         success:   true,
