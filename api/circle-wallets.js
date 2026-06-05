@@ -585,14 +585,60 @@ export default async function handler(req, res) {
         amount: parsed.toFixed(2),
         token:  'USDC',
       });
-      const burnStep = result.steps?.find(s => s.name?.includes('burn'));
-      const mintStep = result.steps?.find(s => s.name?.includes('mint'));
+      const burnStep  = result.steps?.find(s => s.name?.includes('burn'));
+      const attestStep = result.steps?.find(s => s.name?.includes('fetchAttestation') || s.name?.includes('attest'));
+      const mintStep  = result.steps?.find(s => s.name?.includes('mint'));
+      const burnTxHash = burnStep?.txHash || null;
+      let mintTxHash = mintStep?.txHash || null;
+      let mintState  = mintStep?.state || 'pending';
+
+      // If burn+attest succeeded but mint failed, use relayer to complete mint
+      const burnOk   = burnStep?.state === 'success';
+      const attestOk = attestStep?.state === 'success';
+      const mintFailed = !mintStep || mintStep.state === 'error' || !mintStep.txHash;
+
+      if (burnOk && attestOk && mintFailed && process.env.RELAYER_PRIVATE_KEY) {
+        console.log('[appkitBridge] mint failed, attempting relayer mint for', destChain);
+        try {
+          // Get message + attestation from Iris
+          const { ethers } = await import('ethers');
+          const ARC_RPC = 'https://rpc.testnet.arc.network';
+          const IRIS    = 'https://iris-api-sandbox.circle.com/v2/messages/26';
+          const irisRes = await fetch(`${IRIS}?transactionHash=${burnTxHash}`, { headers: { Accept: 'application/json' } });
+          const irisData = await irisRes.json();
+          const msg = irisData.messages?.[0];
+          if (msg?.status === 'complete' && msg.attestation && msg.message) {
+            const DEST_CONFIG = {
+              'ETH-SEPOLIA':  { rpc: 'https://ethereum-sepolia-rpc.publicnode.com',  transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+              'BASE-SEPOLIA': { rpc: 'https://sepolia.base.org',                      transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+              'ARB-SEPOLIA':  { rpc: 'https://sepolia-rollup.arbitrum.io/rpc',        transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+              'OP-SEPOLIA':   { rpc: 'https://sepolia.optimism.io',                   transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+              'AVAX-FUJI':    { rpc: 'https://api.avax-test.network/ext/bc/C/rpc',    transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+            };
+            const cfg = DEST_CONFIG[bDestChain];
+            if (cfg) {
+              const provider = new ethers.JsonRpcProvider(cfg.rpc);
+              const relayer  = new ethers.Wallet(process.env.RELAYER_PRIVATE_KEY, provider);
+              const iface    = new ethers.Interface(['function receiveMessage(bytes message, bytes attestation) returns (bool)']);
+              const calldata = iface.encodeFunctionData('receiveMessage', [msg.message, msg.attestation]);
+              const tx       = await relayer.sendTransaction({ to: cfg.transmitter, data: calldata });
+              const receipt  = await tx.wait(1);
+              mintTxHash = tx.hash;
+              mintState  = receipt.status === 1 ? 'success' : 'error';
+              console.log('[appkitBridge] relayer mint', mintState, tx.hash);
+            }
+          }
+        } catch (relayErr) {
+          console.error('[appkitBridge] relayer mint error:', relayErr.message);
+        }
+      }
+
       return res.json({
-        success:    result.state === 'success' || result.state === 'pending',
-        state:      result.state,
-        burnTxHash: burnStep?.txHash || null,
-        mintTxHash: mintStep?.txHash || null,
-        steps:      result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
+        success:    burnOk,
+        state:      mintState === 'success' ? 'success' : (burnOk ? 'pending' : 'error'),
+        burnTxHash,
+        mintTxHash,
+        steps: result.steps?.map(s => ({ name: s.name, state: s.state, txHash: s.txHash || null })) || [],
       });
     } catch (err) {
       console.error('[appkitBridge]', err.message);
@@ -616,8 +662,47 @@ export default async function handler(req, res) {
     }
   }
 
+
+  // ── CCTP Relayer Mint: call receiveMessage on destination chain ──────────
+  if (action === 'cctpMint') {
+    const { message, attestation, destChain } = req.body;
+    if (!message || !attestation || !destChain)
+      return res.json({ success: false, error: 'message, attestation, destChain required' });
+
+    const DEST_CONFIG = {
+      'ETH-SEPOLIA':  { rpc: 'https://ethereum-sepolia-rpc.publicnode.com',  transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+      'BASE-SEPOLIA': { rpc: 'https://sepolia.base.org',                      transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+      'ARB-SEPOLIA':  { rpc: 'https://sepolia-rollup.arbitrum.io/rpc',        transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+      'OP-SEPOLIA':   { rpc: 'https://sepolia.optimism.io',                   transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+      'AVAX-FUJI':    { rpc: 'https://api.avax-test.network/ext/bc/C/rpc',    transmitter: '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' },
+    };
+
+    const cfg = DEST_CONFIG[destChain];
+    if (!cfg) return res.json({ success: false, error: 'Unsupported destChain: ' + destChain });
+
+    const relayerKey = process.env.RELAYER_PRIVATE_KEY;
+    if (!relayerKey) return res.json({ success: false, error: 'RELAYER_PRIVATE_KEY not set' });
+
+    try {
+      const { ethers } = await import('ethers');
+      const provider = new ethers.JsonRpcProvider(cfg.rpc);
+      const relayer  = new ethers.Wallet(relayerKey, provider);
+      const iface    = new ethers.Interface(['function receiveMessage(bytes message, bytes attestation) returns (bool)']);
+      const calldata = iface.encodeFunctionData('receiveMessage', [message, attestation]);
+      const tx       = await relayer.sendTransaction({ to: cfg.transmitter, data: calldata });
+      console.log('[cctpMint] tx sent:', tx.hash);
+      const receipt  = await tx.wait(1);
+      const ok       = receipt.status === 1;
+      console.log('[cctpMint]', ok ? 'success' : 'failed', tx.hash);
+      return res.json({ success: ok, mintTxHash: tx.hash, state: ok ? 'success' : 'error' });
+    } catch (err) {
+      console.error('[cctpMint]', err.message);
+      return res.json({ success: false, error: err.message.slice(0, 200) });
+    }
+  }
+
   return res.json({
     success: false,
-    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge, getUnifiedBalance',
+    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge, cctpMint, getUnifiedBalance',
   });
 }
