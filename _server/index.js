@@ -390,6 +390,46 @@ app.post('/api/notify', async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+
+// ── Web Push ──────────────────────────────────────────────────────────────────
+// In-memory store: addr -> subscription  (persists until Railway restarts)
+const pushSubscriptions = new Map();
+const VAPID_PUBLIC  = process.env.VAPID_PUBLIC_KEY  || '';
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
+
+app.get('/api/push-key', (req, res) => {
+  res.json({ publicKey: VAPID_PUBLIC });
+});
+
+app.post('/api/push-subscribe', async (req, res) => {
+  const { subscription, addr } = req.body || {};
+  if (!subscription?.endpoint) return res.json({ success: false, error: 'No endpoint' });
+  const key = (addr || subscription.endpoint).toLowerCase();
+  pushSubscriptions.set(key, subscription);
+  console.log(`[push] Subscribed: ${key.slice(0,20)}… total=${pushSubscriptions.size}`);
+  res.json({ success: true });
+});
+
+app.post('/api/push-send', async (req, res) => {
+  const { addr, title, body, url } = req.body || {};
+  if (!addr) return res.json({ success: false, error: 'addr required' });
+  const sub = pushSubscriptions.get(addr.toLowerCase());
+  if (!sub) return res.json({ success: false, error: 'No subscription for addr' });
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE)
+    return res.json({ success: false, error: 'VAPID keys not configured' });
+  try {
+    const webpush = (await import('web-push')).default;
+    webpush.setVapidDetails('mailto:noreply@nanarc.xyz', VAPID_PUBLIC, VAPID_PRIVATE);
+    await webpush.sendNotification(sub, JSON.stringify({ title: title||'NAN Wallet', body: body||'', url: url||'/app.html' }));
+    res.json({ success: true });
+  } catch(e) {
+    if (e.statusCode === 410) pushSubscriptions.delete(addr.toLowerCase()); // expired
+    console.error('[push-send]', e.message);
+    res.json({ success: false, error: e.message.slice(0,100) });
+  }
+});
+
+
 // ── Orders ────────────────────────────────────────────────────────────────────
 app.get('/api/orders', async (req, res) => {
   try {
