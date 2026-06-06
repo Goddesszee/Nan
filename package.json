@@ -11,6 +11,7 @@
   "dependencies": {
     "@circle-fin/adapter-circle-wallets": "^1.3.1",
     "@circle-fin/app-kit": "^1.6.1",
+    "@circle-fin/cli": "^1.0.0",
     "@circle-fin/developer-controlled-wallets": "^10.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -19,6 +20,6 @@
     "nodemailer": "^6.9.7"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.18.2"
   }
 }
