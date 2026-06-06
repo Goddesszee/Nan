@@ -1,4 +1,4 @@
-// api/chat.js — NAN AI assistant powered by Groq
+// api/chat.js — NAN AI powered by Groq + Circle Agent Stack awareness
 const rateLimitMap = new Map();
 
 function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
@@ -25,7 +25,15 @@ export default async function handler(req, res) {
   if (!checkRateLimit(ip, 20, 60_000))
     return res.status(429).json({ error: 'Too many requests — please wait a minute' });
 
-  const { messages, usdcBal, eurcBal, userAddress, system: clientSystem } = req.body;
+  const {
+    messages,
+    usdcBal,
+    eurcBal,
+    userAddress,
+    system: clientSystem,
+    agentWallets,       // Agent Wallet addresses by chain (if user has set up Agent Stack)
+    agentWalletActive,  // bool — whether Agent Stack session is active
+  } = req.body;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 20)
     return res.status(400).json({ error: 'Invalid messages array' });
@@ -33,26 +41,73 @@ export default async function handler(req, res) {
   const GROQ_KEY = process.env.GROQ_API_KEY;
   if (!GROQ_KEY) return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
 
-  const systemPrompt = clientSystem || `You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet by Circle.
+  // Build Agent Stack context string
+  const agentStackContext = agentWallets
+    ? `\nCIRCLE AGENT STACK STATUS: ACTIVE ✅
+- Agent Wallet on Arc Testnet: ${agentWallets['ARC-TESTNET'] || 'not provisioned'}
+- Agent Wallet on Base Sepolia: ${agentWallets['BASE-SEPOLIA'] || 'not provisioned'}
+- Agent Wallet on ETH Sepolia: ${agentWallets['ETH-SEPOLIA'] || 'not provisioned'}
+- Agent Wallets have SPENDING POLICIES, MPC custody, compliance screening
+- Agent Wallets are USER-CONTROLLED (not developer-controlled like main wallet)
+- For Agent Wallet actions use action type "agent-transfer", "agent-swap", "agent-bridge", "agent-fund", "agent-balance", "agent-pay-service"`
+    : `\nCIRCLE AGENT STACK STATUS: NOT SET UP
+- User has not connected a Circle Agent Wallet yet
+- To set up: navigate to "Agent Wallet" tab in More page
+- Agent Wallets are separate from the main Circle Developer-Controlled Wallet
+- Agent Wallets support: spending policies, x402 nanopayments, Agent Marketplace`;
 
-LIVE WALLET:
+  const systemPrompt = clientSystem || `You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
+
+LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddress || 'Not connected'}
-- USDC: ${parseFloat(usdcBal || '0').toFixed(2)} USDC
-- EURC: ${parseFloat(eurcBal || '0').toFixed(2)} EURC
+- Wallet type: ${agentWalletActive ? 'Circle Agent Wallet + Developer-Controlled Wallet' : 'Circle Developer-Controlled Wallet (email login)'}
+- USDC Balance: ${parseFloat(usdcBal || '0').toFixed(2)} USDC
+- EURC Balance: ${parseFloat(eurcBal || '0').toFixed(2)} EURC
 - Network: Arc Testnet (Chain ID 5042002, gas in USDC ~0.009/tx)
+${agentStackContext}
 
-NAN FEATURES: Send, Swap USDC↔EURC, Earn 7.2% APY, Borrow, Bridge via CCTP, .arc names, Payment links, Payroll, Limit/Scheduled/Standing orders.
+CIRCLE AGENT STACK — WHAT IT IS:
+- Launched May 11 2026 by Circle — financial infrastructure for AI agents
+- Circle CLI (@circle-fin/cli) — unified command interface for wallets + payments
+- Agent Wallets — user-controlled MPC wallets with spending policies, gas-sponsored
+- Agent Nanopayments — sub-cent USDC payments via x402 protocol through Circle Gateway
+- Agent Marketplace — discover x402-compatible API services at agents.circle.com
+- Circle Skills — open-source AI agent knowledge for Claude Code, Cursor, Codex
+- Arc Testnet is fully supported (ARC-TESTNET chain identifier)
+
+NAN FEATURES:
+- Send, Swap USDC↔EURC, Earn 4.80% APY, Borrow, Bridge via CCTP V2
+- .arc names, Payment links, Payroll, Limit/Scheduled/Standing orders
+- Circle Agent Wallet (new): autonomous wallet with spending controls
+- Agent Nanopayments (new): pay for APIs and services with USDC
 
 RULES:
-- Under 60 words, friendly, direct, no markdown
+- Under 80 words, friendly, direct, no markdown
 - Use only real balance numbers above — never invent amounts
 - Add ONE invisible ACTION block after reply when user wants to act:
+
+  Main wallet (Developer-Controlled):
   <ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>
   <ACTION>{"action":"swap","amount":10,"from":"USDC","to":"EURC"}</ACTION>
   <ACTION>{"action":"navigate","tab":"earn"}</ACTION>
+  <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
+  <ACTION>{"action":"navigate","tab":"agent-wallet"}</ACTION>
   <ACTION>{"action":"limit","amount":5,"sellToken":"USDC","buyToken":"EURC","targetRate":1.20,"condition":"gte"}</ACTION>
-- Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq
-- Never mention ACTION blocks in replies`;
+
+  Agent Wallet (Circle Agent Stack):
+  <ACTION>{"action":"agent-balance","chain":"ARC-TESTNET"}</ACTION>
+  <ACTION>{"action":"agent-fund","chain":"ARC-TESTNET"}</ACTION>
+  <ACTION>{"action":"agent-transfer","amount":0.1,"token":"USDC","toAddress":"0x...","chain":"ARC-TESTNET"}</ACTION>
+  <ACTION>{"action":"agent-swap","sellToken":"USDC","sellAmount":1,"buyToken":"EURC","chain":"ARC-TESTNET","quoteOnly":false}</ACTION>
+  <ACTION>{"action":"agent-bridge","toChain":"ETH-SEPOLIA","amount":0.5,"fromChain":"ARC-TESTNET"}</ACTION>
+  <ACTION>{"action":"agent-services-search","query":"financial"}</ACTION>
+  <ACTION>{"action":"agent-pay-service","url":"https://...","maxAmount":0.01}</ACTION>
+  <ACTION>{"action":"agent-tx-list","chain":"ARC-TESTNET"}</ACTION>
+  <ACTION>{"action":"agent-setup"}</ACTION>
+
+- Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
+- Never mention ACTION blocks in replies
+- If user asks about Agent Stack features but hasn't set it up, suggest navigating to agent-wallet tab`;
 
   const safeMessages = messages
     .slice(-10)
