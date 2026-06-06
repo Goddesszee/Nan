@@ -1,7 +1,6 @@
 {
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npm install && npm install -g @circle-fin/cli@0.0.5 || true"
+    "builder": "NIXPACKS"
   },
   "deploy": {
     "startCommand": "node _server/index.js",
