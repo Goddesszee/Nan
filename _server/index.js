@@ -576,6 +576,14 @@ app.post('/api/appkit/bridge', async (req, res) => {
 
 
 
+// ── Circle Agent Stack ───────────────────────────────────────────────────────
+app.post('/api/agent-stack', async (req, res) => {
+  try {
+    const mod = await import('../api/agent-stack.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
   try {
