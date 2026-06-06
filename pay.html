@@ -11,9 +11,11 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
 .card{background:rgba(255,255,255,.04);border:1px solid rgba(139,92,246,.25);border-radius:20px;padding:20px;margin-bottom:12px;}
-.btn{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:8px;}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:8px;transition:opacity .15s;}
+.btn:active{opacity:.75;}
 .btn-primary{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#ede9fe;}
 .btn-outline{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:#a78bfa;}
+.btn-green{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:#34d399;}
 .mono{font-family:'JetBrains Mono',monospace;}
 .label{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .step{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:6px;}
@@ -21,9 +23,16 @@ body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min
 .divider{display:flex;align-items:center;gap:10px;margin:14px 0;}
 .divider-line{flex:1;height:1px;background:rgba(139,92,246,.15);}
 .divider-text{font-size:.7rem;color:#6b7280;font-family:'JetBrains Mono',monospace;}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:9999;}
 #toast.show{opacity:1;}
 #toast.success{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.4);color:#34d399;}
+#toast.error{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#f87171;}
+/* Open amount input */
+#customAmtWrap{display:none;margin-bottom:12px;}
+#customAmtWrap input{width:100%;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.3);border-radius:12px;color:#ede9fe;font-family:'JetBrains Mono',monospace;font-size:1.1rem;text-align:center;outline:none;}
+/* Share row */
+.share-row{display:flex;gap:8px;margin-bottom:0;}
+.share-row .btn{margin-bottom:0;}
 </style>
 </head>
 <body>
@@ -45,12 +54,21 @@ body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min
     <div style="font-size:.78rem;color:#6b7280;" id="dispNote"></div>
   </div>
 
+  <!-- Open amount input (shown only if no fixed amount) -->
+  <div id="customAmtWrap">
+    <div class="label">Enter amount to send</div>
+    <input id="customAmt" type="number" min="0.01" step="0.01" placeholder="0.00" oninput="updateCustomAmt()"/>
+  </div>
+
   <!-- Address + QR -->
   <div class="card">
     <div class="label">Send payment to this address</div>
     <div style="display:flex;justify-content:center;margin:12px 0;" id="qrBox"></div>
     <div class="mono" style="font-size:.68rem;color:#a78bfa;word-break:break-all;text-align:center;background:rgba(139,92,246,.08);padding:10px;border-radius:8px;margin-bottom:10px;" id="dispAddr">—</div>
-    <button class="btn btn-primary" onclick="copyAddr()">📋 Copy Address</button>
+    <div class="share-row">
+      <button class="btn btn-primary" onclick="copyAddr()" style="flex:1;">📋 Copy Address</button>
+      <button class="btn btn-green" onclick="shareLink()" style="flex:1;">↗ Share Link</button>
+    </div>
   </div>
 
   <!-- Network info -->
@@ -66,7 +84,7 @@ body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min
     </div>
     <div class="step">
       <div class="step-num">3</div>
-      <div style="font-size:.82rem;color:#d1d5db;">Send <strong style="color:#a78bfa;" id="stepAmt">the amount</strong> of <strong style="color:#a78bfa;">USDC</strong> to the address above</div>
+      <div style="font-size:.82rem;color:#d1d5db;">Send <strong style="color:#a78bfa;" id="stepAmt">the amount</strong> of <strong style="color:#a78bfa;" id="stepTok">USDC</strong> to the address above</div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
@@ -81,7 +99,7 @@ body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min
     <div class="divider-line"></div>
   </div>
 
-  <!-- NAN wallet button -->
+  <!-- NAN wallet deep link -->
   <a id="nanLink" href="https://nanarc.xyz" style="text-decoration:none;">
     <button class="btn btn-outline">⚡ Pay instantly via NAN Wallet</button>
   </a>
@@ -93,43 +111,95 @@ body{background:#07081a;color:#ede9fe;font-family:'Space Grotesk',sans-serif;min
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const to = params.get('to') || '';
-const amt = params.get('amt') || '';
-const tok = params.get('tok') || 'USDC';
-const lbl = params.get('lbl') || 'Payment Request';
-const note = params.get('note') || '';
+const to  = params.get('to')   || '';
+const amt = params.get('amt')  || '';
+const tok = params.get('tok')  || 'USDC';
+const lbl = params.get('lbl')  || 'Payment Request';
+const note= params.get('note') || '';
 
 // Fill UI
 document.getElementById('dispLabel').textContent = lbl;
-document.getElementById('dispNote').textContent = note;
-document.getElementById('dispAmt').textContent = amt ? parseFloat(amt).toFixed(2) + ' ' + tok : 'Open Amount · ' + tok;
-document.getElementById('dispAddr').textContent = to;
-document.getElementById('stepAmt').textContent = amt ? parseFloat(amt).toFixed(2) + ' ' + tok : 'the requested';
+document.getElementById('dispNote').textContent  = note;
+document.getElementById('dispNote').style.display = note ? 'block' : 'none';
+document.getElementById('stepTok').textContent   = tok;
 
-// QR code
-if(to){
-  try{
-    new QRCode(document.getElementById('qrBox'), {
-      text: to,
-      width: 140,
-      height: 140,
-      colorDark: '#8b5cf6',
-      colorLight: '#07081a',
-    });
-  }catch(e){}
+if (amt && parseFloat(amt) > 0) {
+  document.getElementById('dispAmt').textContent  = parseFloat(amt).toFixed(2) + ' ' + tok;
+  document.getElementById('stepAmt').textContent  = parseFloat(amt).toFixed(2) + ' ' + tok;
+} else {
+  document.getElementById('dispAmt').textContent  = 'Open Amount · ' + tok;
+  document.getElementById('stepAmt').textContent  = 'the requested amount of';
+  document.getElementById('customAmtWrap').style.display = 'block';
 }
 
-// NAN deep link
-const nanUrl = 'https://nanarc.xyz?pay=' + (params.get('pay')||'') + '&to=' + encodeURIComponent(to) + '&amt=' + encodeURIComponent(amt) + '&tok=' + encodeURIComponent(tok) + '&lbl=' + encodeURIComponent(lbl) + '&note=' + encodeURIComponent(note);
+document.getElementById('dispAddr').textContent = to || 'Address unavailable';
+
+function updateCustomAmt() {
+  const v = parseFloat(document.getElementById('customAmt').value);
+  document.getElementById('stepAmt').textContent = v > 0 ? v.toFixed(2) + ' ' + tok : 'the requested amount of';
+}
+
+// QR code
+if (to) {
+  try {
+    new QRCode(document.getElementById('qrBox'), {
+      text: to,
+      width: 140, height: 140,
+      colorDark: '#8b5cf6', colorLight: '#07081a',
+    });
+  } catch(e) {}
+}
+
+// NAN deep link (preserves full params so app can auto-fill)
+const nanUrl = 'https://nanarc.xyz?pay=' + encodeURIComponent(params.get('pay')||'')
+  + '&to='  + encodeURIComponent(to)
+  + '&amt=' + encodeURIComponent(amt)
+  + '&tok=' + encodeURIComponent(tok)
+  + '&lbl=' + encodeURIComponent(lbl)
+  + '&note='+ encodeURIComponent(note);
 document.getElementById('nanLink').href = nanUrl;
 
-function copyAddr(){
-  navigator.clipboard.writeText(to).then(()=>{
-    const t = document.getElementById('toast');
-    t.textContent = '✓ Address copied!';
-    t.className = 'show success';
-    setTimeout(()=>t.className='', 2500);
-  });
+// ── Mobile-safe copy ──────────────────────────────────────────────────────────
+function mobileCopy(text, label) {
+  const finish = () => showToast('✓ ' + label + ' copied!', 'success');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(finish).catch(() => execCopy(text, finish));
+  } else {
+    execCopy(text, finish);
+  }
+}
+function execCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  if (cb) cb();
+}
+function copyAddr() { mobileCopy(to, 'Address'); }
+
+// Share link (uses Web Share API on mobile, copies on desktop)
+function shareLink() {
+  const url = window.location.href;
+  const shareAmt = amt ? amt + ' ' + tok : tok;
+  const text = 'Pay me ' + shareAmt + ' — ' + lbl + '\n\n' + url + '\n\nPowered by NAN Wallet on Arc Testnet';
+  if (navigator.share) {
+    navigator.share({ title: 'Payment Request — ' + lbl, text, url }).catch(() => mobileCopy(url, 'Link'));
+  } else {
+    mobileCopy(url, 'Link');
+  }
+}
+
+// Toast
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2800);
 }
 </script>
 </body>
