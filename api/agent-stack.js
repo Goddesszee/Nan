@@ -60,11 +60,18 @@ async function installCli() {
 }
 
 // ── CLI env ──────────────────────────────────────────────────────────────────
+// /tmp persists within a Railway container (not across redeploys)
+const CLI_HOME = '/tmp/circle-home';
+import { mkdirSync } from 'fs';
+try { mkdirSync(CLI_HOME + '/.config/circle', { recursive: true }); } catch {}
+
 function cliEnv() {
   return {
     ...process.env,
     CIRCLE_ACCEPT_TERMS: '1',
-    HOME: process.env.HOME || '/root',
+    HOME: CLI_HOME,
+    XDG_CONFIG_HOME: CLI_HOME + '/.config',
+    XDG_DATA_HOME: CLI_HOME + '/.local/share',
     PATH: `/usr/local/bin:/root/.npm-global/bin:/usr/bin:/bin:${process.env.PATH || ''}`,
   };
 }
