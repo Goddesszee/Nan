@@ -13,6 +13,29 @@ import { createRequire } from 'module';
 import dotenv from 'dotenv';
 dotenv.config();
 
+// ── Install Circle CLI at startup so it survives redeploys ──────────────────
+import { exec } from 'child_process';
+(async () => {
+  try {
+    await new Promise((resolve, reject) => {
+      exec('which circle || npm install -g @circle-fin/cli@0.0.5 2>&1', 
+        { timeout: 120000, env: { ...process.env, npm_config_prefix: '/usr/local' } },
+        (err, stdout) => {
+          if (err) {
+            // Try install anyway
+            exec('npm install -g @circle-fin/cli@0.0.5', { timeout: 120000 }, () => resolve());
+          } else {
+            console.log('[startup] Circle CLI ready:', stdout.trim().slice(0, 80));
+            resolve();
+          }
+        }
+      );
+    });
+  } catch(e) {
+    console.warn('[startup] Circle CLI install warning:', e.message?.slice(0, 100));
+  }
+})();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
