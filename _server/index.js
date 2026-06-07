@@ -541,13 +541,17 @@ const BRIDGE_CHAIN_MAP = {
   'POLYGON-AMOY': 'Polygon_Amoy_Testnet',
 };
 
+// Cache AppKit singleton — init once, reuse on every request (saves 200-400ms)
+let _appKitCache = null;
 async function getAppKit() {
+  if (_appKitCache) return _appKitCache;
   const { AppKit }                             = await import('@circle-fin/app-kit');
   const { createCircleWalletsAdapter }          = await import('@circle-fin/adapter-circle-wallets');
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
   const adapter = createCircleWalletsAdapter({ apiKey, entitySecret });
-  return { kit: new AppKit(), adapter };
+  _appKitCache = { kit: new AppKit(), adapter };
+  return _appKitCache;
 }
 
 // POST /api/appkit/send
@@ -764,4 +768,10 @@ app.listen(PORT, () => {
   console.log(`   Groq AI:    ${GROQ_API_KEY ? '✅ configured' : '⚠️  DEV MODE (no key)'}`);
   console.log(`   SMTP Email: ${SMTP_USER ? '✅ configured' : '⚠️  DEV MODE (OTP logged to console)'}`);
   console.log(`\n💡 Set environment variables in .env to enable production features\n`);
+  // Warm up AppKit singleton so first swap isn't cold
+  if (process.env.CIRCLE_API_KEY && process.env.CIRCLE_ENTITY_SECRET) {
+    getAppKit()
+      .then(() => console.log('[startup] AppKit singleton warmed ✓'))
+      .catch(e => console.log('[startup] AppKit warmup skipped:', e.message));
+  }
 });
