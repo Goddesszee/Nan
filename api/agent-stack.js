@@ -218,14 +218,37 @@ export default async function handler(req, res) {
       setImmediate(async () => {
         try {
           const out = await cliRaw(['wallet','login','--request',requestId,'--otp',otp], 45000);
-          const ok = /logged.?in|authenticated|success|wallet/i.test(out);
+          const ok = /logged.?in|authenticated|success|wallet|address/i.test(out);
           if (!ok) {
             sessionStore.set(resolvedEmail, { sessionActive: false, pending: false, error: 'OTP failed: ' + out.slice(0,100) });
             return;
           }
-          const wallets = await fetchWallets();
+
+          // Try to extract wallet address directly from login output
+          const addrMatch = out.match(/0x[a-fA-F0-9]{40}/);
+          let wallets = {};
+          if (addrMatch) {
+            wallets['ARC-TESTNET'] = addrMatch[0];
+            console.log('[agent-stack] Got address from login output:', addrMatch[0]);
+          }
+
+          // Also try fetchWallets for other chains
+          try {
+            const fetched = await fetchWallets();
+            wallets = { ...wallets, ...fetched };
+          } catch {}
+
+          // If still empty, do a direct list call with raw output
+          if (Object.keys(wallets).length === 0) {
+            try {
+              const rawList = await cliRaw(['wallet','list','--type','agent','--chain','ARC-TESTNET','--testnet'], 30000);
+              const m = rawList.match(/0x[a-fA-F0-9]{40}/);
+              if (m) wallets['ARC-TESTNET'] = m[0];
+            } catch {}
+          }
+
           sessionStore.set(resolvedEmail, { sessionActive: true, pending: false, wallets, lastAuth: new Date().toISOString() });
-          console.log('[agent-stack] Login complete for', resolvedEmail, '— wallets:', Object.keys(wallets));
+          console.log('[agent-stack] Login complete for', resolvedEmail, '— wallets:', wallets);
           loginRequests.delete(requestId);
         } catch (e) {
           console.error('[agent-stack] Background login error:', e.message);
