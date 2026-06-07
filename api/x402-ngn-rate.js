@@ -1,76 +1,84 @@
 // api/x402-ngn-rate.js
 // NAN x402 Seller Endpoint — NGN/USD Rate
-// Paywalled per Circle x402 spec: https://developers.circle.com/gateway/nanopayments
-// Price: 0.001 USDC per call on Arc Testnet (domain 26)
+// Uses Circle Gateway BatchFacilitatorClient settle() per official docs
+// https://developers.circle.com/gateway/nanopayments/quickstarts/seller
 
-const GATEWAY_API    = 'https://gateway-api-testnet.circle.com/v1';
-const BACKING_EOA    = '0x993712f1dde0f652ae9fdda5d72796b22c1249af';
+const GATEWAY_API  = 'https://gateway-api-testnet.circle.com';
+const SELLER_ADDR  = '0x993712f1dde0f652ae9fdda5d72796b22c1249af'; // backingEOA
+const PRICE_ATOMIC = '1000'; // 0.001 USDC in 6-decimal atomic units
+const USDC_ARC     = '0x3600000000000000000000000000000000000000';
+const CHAIN_ID     = 'eip155:5042002'; // Arc Testnet
 
-// 0.001 USDC = 1000 in 6-decimal atomic units
-const PRICE_ATOMIC   = '1000';
-const USDC_ARC       = '0x3600000000000000000000000000000000000000';
-const CHAIN_ID       = 'eip155:5042002'; // Arc Testnet
+// Gateway Wallet contract on Arc Testnet (from Circle docs)
+const GATEWAY_WALLET = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
+
+const requirements = {
+  scheme:            'exact',
+  network:           CHAIN_ID,
+  asset:             USDC_ARC,
+  amount:            PRICE_ATOMIC,
+  maxTimeoutSeconds: 604900, // 7 days + buffer per Circle docs
+  payTo:             SELLER_ADDR,
+  extra: {
+    name:              'GatewayWalletBatched',
+    version:           '1',
+    verifyingContract: GATEWAY_WALLET,
+  }
+};
+
+const paymentRequired = {
+  x402Version: 2,
+  resource: {
+    url:         '/api/x402/ngn-rate',
+    description: 'Live NGN/USD exchange rate — NAN Wallet',
+    mimeType:    'application/json',
+  },
+  accepts: [requirements]
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, X-Payment');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, X-Payment, PAYMENT-REQUIRED');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const paymentHeader = req.headers['x-payment'] || req.headers['x-Payment'];
 
-  // ── No payment header → return 402 with payment requirements ─────────────
+  // ── No payment → return 402 ───────────────────────────────────────────────
   if (!paymentHeader) {
-    return res.status(402).json({
-      x402Version: 2,
-      error: 'Payment required',
-      accepts: [{
-        scheme:            'exact',
-        network:           CHAIN_ID,
-        asset:             USDC_ARC,
-        payTo:             BACKING_EOA,
-        amount:            PRICE_ATOMIC,
-        maxTimeoutSeconds: 60,
-        extra: { name: 'USD Coin', version: '2' }
-      }]
-    });
+    const encoded = Buffer.from(JSON.stringify(paymentRequired)).toString('base64');
+    res.setHeader('PAYMENT-REQUIRED', encoded);
+    return res.status(402).json(paymentRequired);
   }
 
-  // ── Payment header present → verify with Circle Gateway ──────────────────
+  // ── Payment present → settle with Circle Gateway ──────────────────────────
   try {
-    const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY || '';
-    let payment;
+    let payload;
     try {
-      payment = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
+      payload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
     } catch {
-      payment = JSON.parse(paymentHeader);
+      payload = JSON.parse(paymentHeader);
     }
 
-    const verifyRes = await fetch(`${GATEWAY_API}/payments/verify`, {
+    const settleRes = await fetch(`${GATEWAY_API}/v1/payments/settle`, {
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': `Bearer ${CIRCLE_API_KEY}`,
+        'Authorization': `Bearer ${process.env.CIRCLE_API_KEY || ''}`,
       },
-      body: JSON.stringify({
-        payment,
-        payTo:   BACKING_EOA,
-        amount:  PRICE_ATOMIC,
-        asset:   USDC_ARC,
-        network: CHAIN_ID,
-      })
+      body: JSON.stringify({ payment: payload, requirements })
     });
 
-    const verified = await verifyRes.json();
+    const settled = await settleRes.json();
 
-    if (!verified.valid) {
+    if (!settled.success && !settled.settled) {
       return res.status(402).json({
-        error: 'Payment verification failed',
-        details: verified
+        error:   'Settlement failed',
+        details: settled
       });
     }
 
-    // ── Payment verified → return NGN/USD rate ────────────────────────────
+    // ── Settled → return NGN/USD rate ─────────────────────────────────────
     const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
     const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
     const rate   = fxData?.rates?.NGN || 1650;
@@ -86,10 +94,11 @@ export default async function handler(req, res) {
         timestamp: new Date().toISOString(),
         chain:     'Arc Testnet',
         pricePaid: '0.001 USDC',
+        settler:   settled,
       }
     });
 
   } catch (e) {
-    return res.status(500).json({ error: 'Verification error: ' + e.message });
+    return res.status(500).json({ error: 'Settlement error: ' + e.message });
   }
 }
