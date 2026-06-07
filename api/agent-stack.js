@@ -111,24 +111,22 @@ async function fetchWallets() {
   const wallets = {};
   for (const chain of chains) {
     try {
-      // Try with --type agent first, then without
+      const r = await cli(['wallet','list','--type','agent','--chain',chain]);
+      // CLI returns: { wallets: { wallets: [ { address, blockchain, type } ] } }
+      // or: { wallets: [ { address, ... } ] }
+      // or: [ { address, ... } ]
       let items = [];
-      for (const args of [
-        ['wallet','list','--type','agent','--chain',chain],
-        ['wallet','list','--chain',chain],
-      ]) {
-        try {
-          const r = await cli(args);
-          // Handle all response shapes Circle CLI might return
-          const raw = Array.isArray(r) ? r
-            : r?.wallets || r?.data || r?.items || r?.result
-            || (r && typeof r === 'object' && !r.success ? [r] : []);
-          if (raw.length > 0) { items = raw; break; }
-        } catch {}
+      if (Array.isArray(r)) {
+        items = r;
+      } else if (Array.isArray(r?.wallets?.wallets)) {
+        items = r.wallets.wallets;
+      } else if (Array.isArray(r?.wallets)) {
+        items = r.wallets;
+      } else if (Array.isArray(r?.data)) {
+        items = r.data;
       }
       if (items.length > 0) {
-        const w = items[0];
-        const addr = w.address || w.walletAddress || w.wallet_address || w.id;
+        const addr = items[0].address || items[0].walletAddress;
         if (addr && addr.startsWith('0x')) wallets[chain] = addr;
       }
     } catch {}
