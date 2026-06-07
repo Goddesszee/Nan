@@ -708,6 +708,14 @@ app.post('/api/agent-stack', async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+// x402 Seller Endpoint — NAN NGN/USD Rate (nanopayment, 0.001 USDC, Arc Testnet)
+app.get('/api/x402/ngn-rate', async (req, res) => {
+  try {
+    const mod = await import('../api/x402-ngn-rate.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
   try {
