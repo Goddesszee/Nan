@@ -472,6 +472,11 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error(`[agent-stack/${action}]`, err.message);
-    return res.status(500).json({ success: false, error: err.message.slice(0, 300) });
+    // Detect session-expired errors from Circle CLI
+    const msg = err.message || '';
+    if (/no wallet matches|not authenticated|login required|session expired|unauthorized/i.test(msg)) {
+      return res.status(401).json({ success: false, error: 'Agent Wallet session expired — please reconnect', sessionExpired: true });
+    }
+    return res.status(500).json({ success: false, error: msg.slice(0, 300) });
   }
 }
