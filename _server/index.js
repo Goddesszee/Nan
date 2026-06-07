@@ -26,6 +26,23 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
+// ── Simple in-memory rate limiter (no extra package needed) ──
+const _rl = new Map(); // ip -> { count, reset }
+function rateLimit(maxPerMin) {
+  return (req, res, next) => {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
+    const now = Date.now();
+    const rec = _rl.get(ip) || { count: 0, reset: now + 60000 };
+    if (now > rec.reset) { rec.count = 0; rec.reset = now + 60000; }
+    rec.count++;
+    _rl.set(ip, rec);
+    if (rec.count > maxPerMin) {
+      return res.status(429).json({ success: false, error: 'Too many requests — slow down' });
+    }
+    next();
+  };
+}
+
 // ── In-memory stores (use Redis/DB in production) ──
 const otpStore = new Map();      // email -> { otp, expires, attempts }
 const userStore = new Map();     // email -> { circleUserId, userToken, walletId, walletAddress }
@@ -188,7 +205,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── OTP: Send & Verify ──
-app.post('/api/otp', async (req, res) => {
+app.post('/api/otp', rateLimit(5), async (req, res) => {
   try {
     const mod = await import('../api/otp.js');
     return mod.default(req, res);
@@ -324,7 +341,7 @@ app.post('/api/faucet', async (req, res) => {
 });
 
 // ── Groq AI Chat ──
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', rateLimit(20), async (req, res) => {
   // Proxy to Vercel api/chat.js handler — it handles Groq, rate limiting, ACTION parsing
   try {
     const mod = await import('../api/chat.js');
@@ -383,7 +400,7 @@ app.post('/api/gateway-deposit', async (req, res) => {
 });
 
 // ── Notify ────────────────────────────────────────────────────────────────────
-app.post('/api/notify', async (req, res) => {
+app.post('/api/notify', rateLimit(20), async (req, res) => {
   try {
     const mod = await import('../api/notify.js');
     return mod.default(req, res);
@@ -392,8 +409,27 @@ app.post('/api/notify', async (req, res) => {
 
 
 // ── Web Push ──────────────────────────────────────────────────────────────────
-// In-memory store: addr -> subscription  (persists until Railway restarts)
-const pushSubscriptions = new Map();
+// Persist subscriptions to file so they survive Railway restarts
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+const PUSH_SUBS_FILE = '/tmp/nan_push_subs.json';
+
+function loadPushSubs() {
+  try {
+    if (existsSync(PUSH_SUBS_FILE)) {
+      const data = JSON.parse(readFileSync(PUSH_SUBS_FILE, 'utf8'));
+      return new Map(Object.entries(data));
+    }
+  } catch(e) { console.log('[push] Could not load subs file:', e.message); }
+  return new Map();
+}
+function savePushSubs(map) {
+  try {
+    const obj = Object.fromEntries(map);
+    writeFileSync(PUSH_SUBS_FILE, JSON.stringify(obj), 'utf8');
+  } catch(e) { console.log('[push] Could not save subs file:', e.message); }
+}
+const pushSubscriptions = loadPushSubs();
+console.log(`[push] Loaded ${pushSubscriptions.size} subscriptions from file`);
 const VAPID_PUBLIC  = process.env.VAPID_PUBLIC_KEY  || '';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
 
@@ -406,11 +442,12 @@ app.post('/api/push-subscribe', async (req, res) => {
   if (!subscription?.endpoint) return res.json({ success: false, error: 'No endpoint' });
   const key = (addr || subscription.endpoint).toLowerCase();
   pushSubscriptions.set(key, subscription);
+  savePushSubs(pushSubscriptions);
   console.log(`[push] Subscribed: ${key.slice(0,20)}… total=${pushSubscriptions.size}`);
   res.json({ success: true });
 });
 
-app.post('/api/push-send', async (req, res) => {
+app.post('/api/push-send', rateLimit(30), async (req, res) => {
   const { addr, title, body, url } = req.body || {};
   if (!addr) return res.json({ success: false, error: 'addr required' });
   const sub = pushSubscriptions.get(addr.toLowerCase());
@@ -423,7 +460,7 @@ app.post('/api/push-send', async (req, res) => {
     await webpush.sendNotification(sub, JSON.stringify({ title: title||'NAN Wallet', body: body||'', url: url||'/app.html' }));
     res.json({ success: true });
   } catch(e) {
-    if (e.statusCode === 410) pushSubscriptions.delete(addr.toLowerCase()); // expired
+    if (e.statusCode === 410) { pushSubscriptions.delete(addr.toLowerCase()); savePushSubs(pushSubscriptions); } // expired
     console.error('[push-send]', e.message);
     res.json({ success: false, error: e.message.slice(0,100) });
   }
