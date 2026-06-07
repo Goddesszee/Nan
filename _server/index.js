@@ -18,12 +18,26 @@ const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
 const app = express();
+const ALLOWED_ORIGINS = [
+  'https://nanarc.xyz',
+  'https://www.nanarc.xyz',
+  'https://nan-production.up.railway.app',
+  /\.vercel\.app$/,   // Vercel preview deploys
+];
 app.use(cors({
-  origin: '*',
+  origin: (origin, cb) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return cb(null, true);
+    const ok = ALLOWED_ORIGINS.some(o =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    cb(ok ? null : new Error('CORS: origin not allowed'), ok);
+  },
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-User-Token'],
+  credentials: false,
 }));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, '..')));
 
 // ── Simple in-memory rate limiter (no extra package needed) ──
@@ -312,7 +326,7 @@ app.post('/api/transfer', async (req, res) => {
 // Transaction route — handled by the second route below (DCW-based)
 
 // ── Faucet Proxy ──
-app.post('/api/faucet', async (req, res) => {
+app.post('/api/faucet', rateLimit(5), async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: 'address required' });
 
@@ -354,7 +368,7 @@ app.post('/api/chat', rateLimit(20), async (req, res) => {
 
 
 // ── Circle Wallets proxy (forward to api/circle-wallets.js handler) ──────────
-app.post('/api/circle-wallets', async (req, res) => {
+app.post('/api/circle-wallets', rateLimit(60), async (req, res) => {
   try {
     const mod = await import('../api/circle-wallets.js');
     return mod.default(req, res);
@@ -378,13 +392,13 @@ app.get('/api/fx-rate', async (req, res) => {
 });
 
 // ── Gateway balance ───────────────────────────────────────────────────────────
-app.post('/api/gateway', async (req, res) => {
+app.post('/api/gateway', rateLimit(30), async (req, res) => {
   try {
     const mod = await import('../api/gateway.js');
     return mod.default(req, res);
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
-app.get('/api/gateway', async (req, res) => {
+app.get('/api/gateway', rateLimit(30), async (req, res) => {
   try {
     const mod = await import('../api/gateway.js');
     return mod.default(req, res);
@@ -392,7 +406,7 @@ app.get('/api/gateway', async (req, res) => {
 });
 
 // ── Gateway deposit ───────────────────────────────────────────────────────────
-app.post('/api/gateway-deposit', async (req, res) => {
+app.post('/api/gateway-deposit', rateLimit(10), async (req, res) => {
   try {
     const mod = await import('../api/gateway-deposit.js');
     return mod.default(req, res);
@@ -448,6 +462,12 @@ app.post('/api/push-subscribe', async (req, res) => {
 });
 
 app.post('/api/push-send', rateLimit(30), async (req, res) => {
+  // Require internal secret so only NAN app can trigger pushes
+  const secret = req.headers['x-nan-secret'] || req.body?.secret;
+  const NAN_SECRET = process.env.NAN_INTERNAL_SECRET || '';
+  if (NAN_SECRET && secret !== NAN_SECRET) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
   const { addr, title, body, url } = req.body || {};
   if (!addr) return res.json({ success: false, error: 'addr required' });
   const sub = pushSubscriptions.get(addr.toLowerCase());
@@ -560,7 +580,7 @@ app.post('/api/appkit/send', async (req, res) => {
 });
 
 // POST /api/appkit/swap  (action: quote | swap)
-app.post('/api/appkit/swap', async (req, res) => {
+app.post('/api/appkit/swap', rateLimit(20), async (req, res) => {
   const { action, walletAddress, tokenIn, tokenOut, amountIn } = req.body || {};
   const fromToken = (tokenIn  || 'USDC').toUpperCase();
   const toToken   = (tokenOut || 'EURC').toUpperCase();
@@ -617,7 +637,7 @@ app.post('/api/appkit/swap', async (req, res) => {
 });
 
 // POST /api/appkit/bridge
-app.post('/api/appkit/bridge', async (req, res) => {
+app.post('/api/appkit/bridge', rateLimit(20), async (req, res) => {
   const { walletAddress, destChain, destAddr, amount } = req.body || {};
   const parsed = parseFloat(amount);
   const destChainName = BRIDGE_CHAIN_MAP[destChain];
@@ -683,7 +703,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // POST /api/appkit/gateway — unified balance
-app.post('/api/appkit/gateway', async (req, res) => {
+app.post('/api/appkit/gateway', rateLimit(20), async (req, res) => {
   try {
     req.body = { ...(req.body || {}), action: 'getUnifiedBalance' };
     const mod = await import('../api/circle-wallets.js');
