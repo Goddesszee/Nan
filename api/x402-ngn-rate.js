@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   // ── No payment header → return 402 with payment requirements ─────────────
   if (!paymentHeader) {
     return res.status(402).json({
-      x402Version: 1,
+      x402Version: 2,
       error: 'Payment required',
       accepts: [{
         scheme:            'exact',
