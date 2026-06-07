@@ -111,9 +111,26 @@ async function fetchWallets() {
   const wallets = {};
   for (const chain of chains) {
     try {
-      const r = await cli(['wallet','list','--type','agent','--chain',chain]);
-      const items = Array.isArray(r) ? r : (r?.wallets || r?.data || []);
-      if (items.length > 0) wallets[chain] = items[0].address || items[0].walletAddress;
+      // Try with --type agent first, then without
+      let items = [];
+      for (const args of [
+        ['wallet','list','--type','agent','--chain',chain],
+        ['wallet','list','--chain',chain],
+      ]) {
+        try {
+          const r = await cli(args);
+          // Handle all response shapes Circle CLI might return
+          const raw = Array.isArray(r) ? r
+            : r?.wallets || r?.data || r?.items || r?.result
+            || (r && typeof r === 'object' && !r.success ? [r] : []);
+          if (raw.length > 0) { items = raw; break; }
+        } catch {}
+      }
+      if (items.length > 0) {
+        const w = items[0];
+        const addr = w.address || w.walletAddress || w.wallet_address || w.id;
+        if (addr && addr.startsWith('0x')) wallets[chain] = addr;
+      }
     } catch {}
   }
   return wallets;
