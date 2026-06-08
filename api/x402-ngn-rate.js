@@ -74,9 +74,8 @@ export default async function handler(req, res) {
     const settled = await facilitator.settle(paymentPayload, settleRequirements);
     console.log('[x402] settle result:', JSON.stringify(settled));
 
-    if (!settled.success) {
-      return res.status(402).json({ error: 'Settlement failed', details: settled });
-    }
+    // Return 200 with settle details regardless so we can debug
+    return res.json({ debug: true, settled, payloadKeys: Object.keys(fullPayload), requirementsUsed: settleRequirements });
 
     const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
     const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
