@@ -1,5 +1,7 @@
 // api/chat.js — NAN AI powered by Groq + Circle Agent Stack awareness — v1780887355
 const rateLimitMap = new Map();
+let _activeGroqRequests = 0;
+const MAX_CONCURRENT_GROQ = 5; // max parallel Groq calls
 
 function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
   const now    = Date.now();
@@ -9,7 +11,7 @@ function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
     return true;
   }
   if (record.count >= limit) return false;
-  record.count++;
+  record.count++;\
   rateLimitMap.set(ip, record);
   return true;
 }
@@ -61,7 +63,8 @@ export default async function handler(req, res) {
 
 LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddress || 'Not connected'}
-- Wallet type: ${agentWalletActive ? 'Circle Agent Wallet + Developer-Controlled Wallet' : 'Circle Developer-Controlled Wallet (email login)'}
+- Wallet type: ${agentWalletActive ? 'Circle Agent Wallet (autonomous sends) + Main Wallet' : 'Main Wallet (Circle Developer-Controlled)'}
+- Agent wallet: ${agentWalletActive ? 'CONNECTED — use agent-send for autonomous sends' : 'NOT connected — sends use main wallet via send page (still works fine)'}
 - USDC Balance: ${parseFloat(usdcBal || '0').toFixed(2)} USDC
 - EURC Balance: ${parseFloat(eurcBal || '0').toFixed(2)} EURC
 - Network: Arc Testnet (Chain ID 5042002, gas in USDC ~0.009/tx)
@@ -130,7 +133,7 @@ RULES:
 - Never mention ACTION blocks in replies
 - ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
-- If agentWalletActive is true: NEVER use action "send" — ALWAYS use "agent-send" instead
+- If agentWalletActive is true: ALWAYS use "agent-send" (autonomous, no popup). If false: use "send" (opens send page prefilled — user confirms with their wallet)
 - For "sell USDC to naira when rate hits X": use fx-limit-offramp with targetRate=X (number only, no ₦ symbol)
 - For "pay staff/team/payroll": use agent-payroll, include group name if mentioned
 - For "cancel order [ID]": use cancel_order with the id field
@@ -158,20 +161,29 @@ RULES:
     .map(m => ({ role: m.role, content: String(m.content).slice(0, 2000) }));
 
   try {
-    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_KEY}`,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        model:      'llama-3.1-8b-instant',
-        max_tokens: 512,
-        messages:   [{ role: 'system', content: systemPrompt }, ...safeMessages],
-      }),
-    });
-
-    const data = await r.json();
+    // Concurrency guard — prevent Groq rate limits under traffic
+    if (_activeGroqRequests >= MAX_CONCURRENT_GROQ) {
+      return res.status(429).json({ error: 'NAN AI is busy — please try again in a moment 🙏' });
+    }
+    _activeGroqRequests++;
+    let r, data;
+    try {
+      r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method:  'POST',
+        headers: {
+          'Authorization': `Bearer ${GROQ_KEY}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          model:      'llama-3.1-8b-instant',
+          max_tokens: 512,
+          messages:   [{ role: 'system', content: systemPrompt }, ...safeMessages],
+        }),
+      });
+      data = await r.json();
+    } finally {
+      _activeGroqRequests--;
+    }
     if (!r.ok) {
       console.error('Groq error:', data);
       return res.status(500).json({ error: data?.error?.message || 'Groq error' });
