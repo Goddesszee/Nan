@@ -721,6 +721,14 @@ app.get('/api/x402/wallet-stats', async (req, res) => {
   try { const mod = await import('../api/x402-wallet-stats.js'); return mod.default(req, res); }
   catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
+app.get('/api/x402/arc-stats', async (req, res) => {
+  try { const mod = await import('../api/x402-arc-stats.js'); return mod.default(req, res); }
+  catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+app.get('/api/x402/cctp-status', async (req, res) => {
+  try { const mod = await import('../api/x402-cctp-status.js'); return mod.default(req, res); }
+  catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
 
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
