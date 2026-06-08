@@ -811,47 +811,37 @@ if (SELF_URL) {
   }, 4 * 60 * 1000); // ping every 4 minutes
 
   // ── Autonomous order executor — runs every 60s on Railway ─────────────────
-  // Executes pending agent-scheduled, agent-standing, fx-limit-offramp orders
-  // without needing the user's browser tab open
+  // Uses AGENT_WALLET_PRIVATE_KEY to execute orders without browser/CLI session
   setInterval(async () => {
     try {
+      if (!process.env.ADMIN_PASSWORD || !process.env.AGENT_WALLET_PRIVATE_KEY) return;
       const { default: fetch } = await import('node-fetch');
       const ordersModule = await import('../api/orders.js');
-      // Get all wallets that have pending orders
-      const allOrders = ordersModule.ordersStore || null;
-      if (!allOrders || !process.env.ADMIN_PASSWORD) return;
+      const allOrders = ordersModule.ordersStore;
+      if (!allOrders) return;
       for (const [wallet, orders] of allOrders.entries()) {
-        const pending = orders.filter(o => o.status === 'pending' &&
-          ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type));
+        const pending = orders.filter(o =>
+          o.status === 'pending' &&
+          ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type)
+        );
         if (!pending.length) continue;
-        // Find the agent address from session store
-        const { sessionStore } = await import('../api/agent-stack.js').catch(()=>({sessionStore:null}));
-        if (!sessionStore) continue;
-        // Find session by wallet address
-        let agentAddress = null;
-        for (const [email, session] of sessionStore.entries()) {
-          if (session?.wallets?.['ARC-TESTNET']?.toLowerCase() === wallet.toLowerCase()) {
-            agentAddress = session.wallets['ARC-TESTNET'];
-            break;
-          }
-        }
-        if (!agentAddress) continue;
-        console.log(`[cron] Executing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
+        console.log(`[cron] Processing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
         const r = await fetch(`${SELF_URL}/api/execute-orders`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending, agentAddress }),
+          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending }),
           signal: AbortSignal.timeout(30000)
         });
         const result = await r.json();
         if (result.orders) {
-          // Update stored orders with new status/nextRun
-          ordersModule.ordersStore.set(wallet, [
-            ...orders.filter(o => !pending.find(p => p.id === o.id)),
-            ...result.orders.filter(o => o.status === 'pending')
-          ]);
+          // Update stored orders with new status/nextRun from executor
+          const untouched = orders.filter(o => !pending.find(p => p.id === o.id));
+          const updated = result.orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
+          allOrders.set(wallet, [...untouched, ...updated]);
         }
-        console.log(`[cron] Done for ${wallet.slice(0,8)}: ${JSON.stringify(result.results?.map(r=>({id:r.id,executed:r.executed})))}`);
+        if (result.results?.length) {
+          console.log(`[cron] Results:`, result.results.map(r => `${r.id}:${r.executed?'✅':'⏭'}`).join(' '));
+        }
       }
     } catch(e) { console.log('[cron] executor error:', e.message); }
   }, 60 * 1000); // every 60 seconds
