@@ -392,6 +392,26 @@ export default async function handler(req, res) {
       return res.json({ success: true, result: r });
     }
 
+    // ── debug-x402 ───────────────────────────────────────────────────────────
+    if (action === 'debug-x402') {
+      const { url: debugUrl } = body;
+      if (!debugUrl) return res.json({ error: 'url required' });
+      try {
+        const r = await fetch(debugUrl, { method: 'GET' });
+        const allHeaders = {};
+        r.headers.forEach((v, k) => { allHeaders[k] = v; });
+        const body2 = await r.text();
+        return res.json({
+          status: r.status,
+          headers: allHeaders,
+          hasPaymentRequired: !!r.headers.get('PAYMENT-REQUIRED'),
+          hasPaymentRequiredLower: !!r.headers.get('payment-required'),
+          paymentRequiredValue: r.headers.get('PAYMENT-REQUIRED') || r.headers.get('payment-required') || null,
+          body: body2.slice(0, 500)
+        });
+      } catch(e) { return res.json({ error: e.message }); }
+    }
+
     // ── gateway-deposit-sdk ──────────────────────────────────────────────────
     // Deposits USDC from AGENT_WALLET_PRIVATE_KEY EOA into Gateway using SDK
     if (action === 'gateway-deposit-sdk') {
