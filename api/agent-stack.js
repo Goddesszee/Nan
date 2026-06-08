@@ -10,7 +10,7 @@ const execAsync  = promisify(exec);
 const execFileP  = promisify(execFile);
 
 // Session store: email → { sessionActive, wallets, lastAuth, pending }
-const sessionStore = new Map();
+export const sessionStore = new Map();
 // Login request store: requestId → { email, initiated }
 const loginRequests = new Map();
 
