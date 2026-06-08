@@ -112,7 +112,10 @@ RULES:
   <ACTION>{"action":"agent-offramp","amount":10}</ACTION>
   <ACTION>{"action":"fx-limit-offramp","amount":50,"targetRate":1700,"condition":"gte"}</ACTION>
   <ACTION>{"action":"agent-payroll","group":"Engineering Team"}</ACTION>
-  <ACTION>{"action":"list_orders"}</ACTION>
+  <ACTION>{"action":"agent-bills","billType":"airtime","phone":"08012345678","amount":1000,"network":"mtn"}</ACTION>
+  <ACTION>{"action":"agent-bills","billType":"data","phone":"08012345678","plan":"mtn-10gb","network":"mtn"}</ACTION>
+  <ACTION>{"action":"agent-bills","billType":"electricity","meter":"12345678901","amount":5000,"disco":"ekedc","meterType":"prepaid"}</ACTION>
+  <ACTION>{"action":"agent-bills","billType":"cable","card":"1234567890","provider":"dstv","plan":"compact"}</ACTION>
   <ACTION>{"action":"cancel_order","id":"ord_abc123"}</ACTION>
   <ACTION>{"action":"cancel_all"}</ACTION>
   <ACTION>{"action":"agent-ngn-rate"}</ACTION>
@@ -128,6 +131,11 @@ RULES:
 - For "what's the NGN rate" or "how far is my FX order": use agent-ngn-rate
 - For "list orders" or "show my orders": use list_orders
 - For "cancel all orders": use cancel_all
+- For airtime/recharge: use agent-bills with billType "airtime", include phone, amount (NGN), network (mtn/glo/airtel/9mobile)
+- For data purchase: use agent-bills with billType "data", include phone, plan/variationCode, network
+- For electricity bill: use agent-bills with billType "electricity", include meter number, amount (NGN), disco (ekedc/ikedc/aedc/phed etc)
+- For cable TV (DSTV/GOtv/Startimes): use agent-bills with billType "cable", include card number, provider, plan (compact/confam/premium etc)
+- For recurring bills (monthly DSTV, weekly airtime etc): combine agent-bills with agent-standing using taskType "bills"
 - NEVER show JSON or ACTION text in your reply — it is invisible
 - Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
