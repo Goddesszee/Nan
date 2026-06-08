@@ -110,12 +110,16 @@ RULES:
   <ACTION>{"action":"agent-bridge","amount":5,"toChain":"ETH-SEPOLIA"}</ACTION>
   <ACTION>{"action":"agent-multichain"}</ACTION>
   <ACTION>{"action":"agent-offramp","amount":10}</ACTION>
+  <ACTION>{"action":"fx-limit-offramp","amount":50,"targetRate":1700,"condition":"gte"}</ACTION>
+  <ACTION>{"action":"agent-payroll","group":"Engineering Team"}</ACTION>
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
 - ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
 - If agentWalletActive is true: NEVER use action "send" — ALWAYS use "agent-send" instead
+- For "sell USDC to naira when rate hits X": use fx-limit-offramp with targetRate=X (number only, no ₦ symbol)
+- For "pay staff/team/payroll": use agent-payroll, include group name if mentioned
 - NEVER show JSON or ACTION text in your reply — it is invisible
 - Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
