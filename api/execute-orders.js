@@ -83,6 +83,27 @@ export default async function handler(req, res) {
           } else {
             results.push({ id: order.id, executed: false, error: r.error });
           }
+        } else if (taskType === 'bills') {
+          const billAction = order.billType === 'airtime' ? 'buy-airtime' :
+            order.billType === 'data' ? 'buy-data' :
+            order.billType === 'electricity' ? 'pay-electricity' : 'pay-cable';
+          const { default: fetch } = await import('node-fetch');
+          const r = await fetch(`${SELF_URL}/api/bills`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: billAction, phone: order.phone, amount: order.amount,
+              network: order.network, meterNumber: order.meter, disco: order.disco,
+              cardNumber: order.card, provider: order.provider, variationCode: order.plan }),
+            signal: AbortSignal.timeout(30000)
+          });
+          const d = await r.json();
+          if (d.success) {
+            order.nextRun = now + order.interval;
+            results.push({ id: order.id, type: 'agent-standing', taskType: 'bills', executed: true, message: d.message });
+            console.log(`[executor] ✅ Recurring bill: ${d.message}`);
+          } else {
+            results.push({ id: order.id, executed: false, error: d.error || d.message });
+          }
         } else {
           results.push({ id: order.id, skipped: true, reason: `taskType '${taskType}' not supported server-side` });
         }
@@ -109,6 +130,27 @@ export default async function handler(req, res) {
             results.push({ id: order.id, type: 'agent-standing', taskType, executed: true, nextRun: order.nextRun });
           } else {
             results.push({ id: order.id, executed: false, error: r.error });
+          }
+        } else if (taskType === 'bills') {
+          const billAction = order.billType === 'airtime' ? 'buy-airtime' :
+            order.billType === 'data' ? 'buy-data' :
+            order.billType === 'electricity' ? 'pay-electricity' : 'pay-cable';
+          const { default: fetch } = await import('node-fetch');
+          const r = await fetch(`${SELF_URL}/api/bills`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: billAction, phone: order.phone, amount: order.amount,
+              network: order.network, meterNumber: order.meter, disco: order.disco,
+              cardNumber: order.card, provider: order.provider, variationCode: order.plan }),
+            signal: AbortSignal.timeout(30000)
+          });
+          const d = await r.json();
+          if (d.success) {
+            order.nextRun = now + order.interval;
+            results.push({ id: order.id, type: 'agent-standing', taskType: 'bills', executed: true, message: d.message });
+            console.log(`[executor] ✅ Recurring bill: ${d.message}`);
+          } else {
+            results.push({ id: order.id, executed: false, error: d.error || d.message });
           }
         } else {
           results.push({ id: order.id, skipped: true, reason: `taskType '${taskType}' not supported server-side` });
