@@ -1,12 +1,14 @@
 // api/x402-ngn-rate.js
 // NAN x402 Seller Endpoint — NGN/USD Rate
+// GatewayClient sends header as "Payment-Signature" (not X-PAYMENT)
+// Payload: { ...paymentPayload, resource, accepted } base64 encoded
 
-const GATEWAY_API  = 'https://gateway-api-testnet.circle.com';
-const SELLER_ADDR  = process.env.X402_SELLER_ADDR || '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77';
+const GATEWAY_API    = 'https://gateway-api-testnet.circle.com';
+const SELLER_ADDR    = process.env.X402_SELLER_ADDR || '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77';
 const GATEWAY_WALLET = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
-const PRICE_ATOMIC = '1000';
-const USDC_ARC     = '0x3600000000000000000000000000000000000000';
-const CHAIN_ID     = 'eip155:5042002';
+const PRICE_ATOMIC   = '1000';
+const USDC_ARC       = '0x3600000000000000000000000000000000000000';
+const CHAIN_ID       = 'eip155:5042002';
 
 const requirements = {
   scheme:            'exact',
@@ -35,11 +37,12 @@ const paymentRequired = {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, PAYMENT-SIGNATURE, PAYMENT-REQUIRED');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, Payment-Signature, PAYMENT-REQUIRED');
   res.setHeader('Access-Control-Expose-Headers', 'PAYMENT-REQUIRED');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const paymentHeader = req.headers['x-payment'] || req.headers['payment-signature'];
+  // GatewayClient sends "Payment-Signature" header (lowercase in Node)
+  const paymentHeader = req.headers['payment-signature'] || req.headers['x-payment'];
 
   if (!paymentHeader) {
     const encoded = Buffer.from(JSON.stringify(paymentRequired)).toString('base64');
@@ -48,22 +51,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse payment payload - this is the FULL signed payload from GatewayClient
-    let paymentPayload;
+    // Decode the full payment payload
+    let fullPayload;
     try {
-      paymentPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
+      fullPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
     } catch {
-      paymentPayload = JSON.parse(paymentHeader);
+      fullPayload = JSON.parse(paymentHeader);
     }
 
-    // Log the full payload structure for debugging
-    console.log('[x402] received paymentPayload keys:', Object.keys(paymentPayload));
-    console.log('[x402] paymentPayload:', JSON.stringify(paymentPayload).slice(0, 500));
+    console.log('[x402] payload keys:', Object.keys(fullPayload));
+
+    // Extract paymentPayload for BatchFacilitatorClient.settle()
+    // fullPayload = { ...paymentPayload, resource, accepted }
+    // paymentPayload = everything except resource and accepted
+    const { resource, accepted, ...paymentPayload } = fullPayload;
 
     const { BatchFacilitatorClient } = await import('@circle-fin/x402-batching/server');
     const facilitator = new BatchFacilitatorClient({ url: GATEWAY_API });
 
-    const settled = await facilitator.settle(paymentPayload, requirements);
+    // Use the accepted requirements from the payload (what buyer agreed to)
+    const settleRequirements = accepted || requirements;
+    const settled = await facilitator.settle(paymentPayload, settleRequirements);
     console.log('[x402] settle result:', JSON.stringify(settled));
 
     if (!settled.success) {
@@ -89,7 +97,7 @@ export default async function handler(req, res) {
     });
 
   } catch(e) {
-    console.error('[x402] error:', e.message, e.stack?.slice(0,300));
+    console.error('[x402] error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 }
