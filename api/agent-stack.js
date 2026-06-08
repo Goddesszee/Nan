@@ -356,6 +356,30 @@ export default async function handler(req, res) {
     if (action === 'login-status') {
       const { email } = body;
       if (!email) return res.json({ error: 'email required' });
+
+      // If AGENT_WALLET_PRIVATE_KEY is set, derive the address and return ready immediately
+      // This means transfers work without any CLI session
+      if (process.env.AGENT_WALLET_PRIVATE_KEY) {
+        try {
+          const { ethers } = await import('ethers');
+          const pk = process.env.AGENT_WALLET_PRIVATE_KEY;
+          const wallet = new ethers.Wallet(pk.startsWith('0x') ? pk : '0x'+pk);
+          const wallets = { 'ARC-TESTNET': wallet.address };
+          // Cache in session store
+          if (!sessionStore.has(email)) {
+            sessionStore.set(email, { sessionActive: true, pending: false, wallets, lastAuth: 'privatekey' });
+          } else {
+            // Keep existing session but ensure wallet address is correct
+            const s = sessionStore.get(email);
+            if (!s.wallets?.['ARC-TESTNET']) s.wallets = wallets;
+          }
+          const session = sessionStore.get(email);
+          return res.json({ success: true, ready: true, sessionActive: true, wallets: session.wallets, lastAuth: session.lastAuth });
+        } catch(e) {
+          console.log('[agent] Private key derive failed:', e.message);
+        }
+      }
+
       let session = sessionStore.get(email);
       // If no session in memory — try restoring from Redis silently
       if (!session && email) {
@@ -417,19 +441,42 @@ export default async function handler(req, res) {
     if (action === 'transfer') {
       const { fromAddress, toAddress, amount, chain = 'ARC-TESTNET' } = body;
       if (!fromAddress || !toAddress || !amount) return res.json({ error: 'fromAddress, toAddress, amount required' });
-      // Validate address format
-      if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
-        return res.json({ error: `Invalid destination address: ${toAddress}` });
+      if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return res.json({ error: `Invalid destination address: ${toAddress}` });
+
+      // Use AGENT_WALLET_PRIVATE_KEY directly — no CLI session needed, never expires
+      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in Railway env' });
+
+      try {
+        const { ethers } = await import('ethers');
+        const ARC_RPC = 'https://rpc.testnet.arc.network';
+        const ARC_CHAIN_ID = 5042002;
+        const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
+        const EURC_ADDRESS = process.env.EURC_ADDRESS || '0x89B5...72a';
+        const TOKEN_ABI = ['function transfer(address to,uint256 amount) returns(bool)','function balanceOf(address) view returns(uint256)'];
+
+        const provider = new ethers.JsonRpcProvider(ARC_RPC, { chainId: ARC_CHAIN_ID, name: 'arc-testnet' });
+        const wallet = new ethers.Wallet(privateKey.startsWith('0x') ? privateKey : '0x'+privateKey, provider);
+
+        // Verify the wallet address matches
+        if (fromAddress.toLowerCase() !== wallet.address.toLowerCase()) {
+          return res.json({ error: `Private key address ${wallet.address} does not match fromAddress ${fromAddress}` });
+        }
+
+        // Determine token contract
+        const tokenSymbol = (body.token || 'USDC').toUpperCase();
+        const tokenAddr = tokenSymbol === 'EURC' ? EURC_ADDRESS : USDC_ADDRESS;
+        const contract = new ethers.Contract(tokenAddr, TOKEN_ABI, wallet);
+        const amountWei = ethers.parseUnits(String(amount), 6); // USDC/EURC are 6 decimals
+
+        const tx = await contract.transfer(toAddress, amountWei);
+        await tx.wait(0); // Arc has sub-second finality
+        console.log(`[transfer] ✅ ${amount} ${tokenSymbol} → ${toAddress.slice(0,10)} tx:${tx.hash}`);
+        return res.json({ success: true, txHash: tx.hash, result: `Sent ${amount} ${tokenSymbol} to ${toAddress}` });
+      } catch(e) {
+        console.error('[transfer] failed:', e.message);
+        return res.json({ success: false, error: e.message.slice(0, 200) });
       }
-      const args = ['wallet','transfer',
-        '--to', toAddress,
-        '--amount', String(amount),
-        '--address', fromAddress,
-        '--chain', chain,
-        '--testnet'
-      ];
-      const r = await cli(args);
-      return res.json({ success: true, result: r });
     }
 
     // ── swap ──────────────────────────────────────────────────────────────────
