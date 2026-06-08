@@ -6,7 +6,7 @@
 // DELETE /api/orders?wallet=0x... → { id: 'all' } or { id: 'order-id' }
 
 // In-memory store — survives Vercel warm instances (good enough for testnet)
-const ordersStore = new Map(); // wallet → [orders]
+export const ordersStore = new Map(); // wallet → [orders]
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
