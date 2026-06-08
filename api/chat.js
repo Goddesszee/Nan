@@ -1,4 +1,4 @@
-// api/chat.js — NAN AI powered by Groq + Circle Agent Stack awareness
+// api/chat.js — NAN AI powered by Groq + Circle Agent Stack awareness — v1780887355
 const rateLimitMap = new Map();
 
 function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
@@ -56,7 +56,8 @@ export default async function handler(req, res) {
 - Agent Wallets are separate from the main Circle Developer-Controlled Wallet
 - Agent Wallets support: spending policies, x402 nanopayments, Agent Marketplace`;
 
-  const systemPrompt = clientSystem || `You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
+  // Always use our system prompt - clientSystem may be stale
+  const systemPrompt = `You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
 
 LIVE WALLET DATA (use these exact numbers):
 - Address: ${userAddress || 'Not connected'}
@@ -117,7 +118,10 @@ RULES:
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
-- If user asks about Agent Stack features but hasn't set it up, suggest navigating to agent-wallet tab`;
+- ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
+- For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
+- NEVER show JSON or ACTION text in your reply — it is invisible
+- Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
   const safeMessages = messages
     .slice(-10)
