@@ -428,10 +428,11 @@ export default async function handler(req, res) {
         ];
         const r = await cli(args);
         // Check for success in output
-        const success = r && !r.toLowerCase().includes('error') && !r.toLowerCase().includes('failed');
-        const txHashM = r.match(/0x[a-fA-F0-9]{64}/);
+        const rStr = typeof r === 'string' ? r : JSON.stringify(r||'');
+        const success = rStr && !rStr.toLowerCase().includes('error') && !rStr.toLowerCase().includes('failed');
+        const txHashM = rStr.match(/0x[a-fA-F0-9]{64}/);
         console.log(`[transfer] ${success?'✅':'❌'} ${amount} USDC → ${toAddress.slice(0,10)}`);
-        return res.json({ success, txHash: txHashM?.[0], result: r, error: success ? undefined : r.slice(0,200) });
+        return res.json({ success, txHash: txHashM?.[0], result: rStr, error: success ? undefined : rStr.slice(0,200) });
       } catch(e) {
         console.error('[transfer] CLI failed:', e.message);
         return res.json({ success: false, error: e.message.slice(0,200) });
