@@ -1,34 +1,69 @@
-// api/orders.js — Order persistence for NAN Wallet
-// Persists to /tmp/nan_orders.json — survives Railway restarts within same deployment
-// GET  /api/orders?wallet=0x...  → list pending orders
-// POST /api/orders               → save order { order: {...} }
-// DELETE /api/orders             → { id: 'all' } or { id: 'order-id' }
+// api/orders.js — Order persistence using Upstash Redis REST API
+// Fully persistent — survives Railway restarts, redeploys, container replacements
+// GET    /api/orders?wallet=0x...  → list orders
+// POST   /api/orders               → { order: {...} } save/update order
+// DELETE /api/orders               → { id: 'all' | 'order-id' }
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+const UPSTASH_URL   = process.env.KV_REST_API_URL   || process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN  || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const ORDERS_FILE = process.env.RAILWAY_VOLUME_MOUNT_PATH ? `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/nan_orders.json` : '/tmp/nan_orders.json';
+async function redisCmd(...args) {
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(`${UPSTASH_URL}/${args.map(encodeURIComponent).join('/')}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+    signal: AbortSignal.timeout(5000)
+  });
+  const d = await r.json();
+  return d.result;
+}
 
-function loadFromDisk() {
+async function getOrders(wallet) {
   try {
-    if (existsSync(ORDERS_FILE)) {
-      const data = JSON.parse(readFileSync(ORDERS_FILE, 'utf8'));
-      // data is { wallet: [orders] }
-      return new Map(Object.entries(data));
+    const raw = await redisCmd('GET', `nan:orders:${wallet.toLowerCase()}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { console.log('[orders] Redis GET error:', e.message); return []; }
+}
+
+async function setOrders(wallet, orders) {
+  try {
+    await redisCmd('SET', `nan:orders:${wallet.toLowerCase()}`, JSON.stringify(orders));
+  } catch(e) { console.log('[orders] Redis SET error:', e.message); }
+}
+
+// In-memory cache so cron can access orders without re-fetching every second
+export const ordersStore = new Map();
+
+// Sync ordersStore from Redis on startup
+async function syncFromRedis() {
+  try {
+    const { default: fetch } = await import('node-fetch');
+    const r = await fetch(`${UPSTASH_URL}/keys/nan:orders:*`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    });
+    const d = await r.json();
+    const keys = d.result || [];
+    for (const key of keys) {
+      const wallet = key.replace('nan:orders:', '');
+      const orders = await getOrders(wallet);
+      if (orders.length) ordersStore.set(wallet, orders);
     }
-  } catch(e) { console.log('[orders] Could not load from disk:', e.message); }
-  return new Map();
+    console.log(`[orders] Synced ${ordersStore.size} wallets from Upstash Redis`);
+  } catch(e) { console.log('[orders] Redis sync error:', e.message); }
 }
 
-export function saveToDisk(map) {
-  try {
-    const obj = Object.fromEntries(map);
-    writeFileSync(ORDERS_FILE, JSON.stringify(obj), 'utf8');
-  } catch(e) { console.log('[orders] Could not save to disk:', e.message); }
+// Export saveToDisk as saveToRedis alias so server.js cron works unchanged
+export async function saveToDisk(map) {
+  for (const [wallet, orders] of map.entries()) {
+    await setOrders(wallet, orders);
+  }
 }
 
-// Load on startup — restores orders after Railway restart
-export const ordersStore = loadFromDisk();
-console.log(`[orders] Loaded ${[...ordersStore.values()].flat().length} orders from disk`);
+// Run sync on module load
+if (UPSTASH_URL && UPSTASH_TOKEN) {
+  syncFromRedis();
+} else {
+  console.log('[orders] ⚠️ Upstash keys not set — orders will be in-memory only');
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,35 +75,39 @@ export default async function handler(req, res) {
   if (!wallet || !/^0x[a-f0-9]{40}$/i.test(wallet))
     return res.json({ success: false, error: 'Valid wallet address required' });
 
-  // ── GET ──────────────────────────────────────────────────────────────────────
+  // ── GET ────────────────────────────────────────────────────────────────────
   if (req.method === 'GET') {
-    const orders = ordersStore.get(wallet) || [];
-    return res.json({ success: true, orders: orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered') });
+    const orders = await getOrders(wallet);
+    const active = orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
+    ordersStore.set(wallet, active); // refresh in-memory cache
+    return res.json({ success: true, orders: active });
   }
 
-  // ── POST ─────────────────────────────────────────────────────────────────────
+  // ── POST ───────────────────────────────────────────────────────────────────
   if (req.method === 'POST') {
     const { order } = req.body || {};
     if (!order || !order.id)
       return res.json({ success: false, error: 'order with id required' });
-    const existing = ordersStore.get(wallet) || [];
+    const existing = await getOrders(wallet);
     const updated = existing.filter(o => o.id !== order.id);
     updated.push({ ...order, wallet, savedAt: Date.now() });
+    await setOrders(wallet, updated);
     ordersStore.set(wallet, updated);
-    saveToDisk(ordersStore);
     return res.json({ success: true, saved: true });
   }
 
-  // ── DELETE ───────────────────────────────────────────────────────────────────
+  // ── DELETE ─────────────────────────────────────────────────────────────────
   if (req.method === 'DELETE') {
     const { id } = req.body || {};
     if (id === 'all') {
+      await redisCmd('DEL', `nan:orders:${wallet}`);
       ordersStore.delete(wallet);
     } else {
-      const existing = ordersStore.get(wallet) || [];
-      ordersStore.set(wallet, existing.filter(o => o.id !== id));
+      const existing = await getOrders(wallet);
+      const updated = existing.filter(o => o.id !== id);
+      await setOrders(wallet, updated);
+      ordersStore.set(wallet, updated);
     }
-    saveToDisk(ordersStore);
     return res.json({ success: true, deleted: id || 'all' });
   }
 
