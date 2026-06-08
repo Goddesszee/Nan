@@ -3,7 +3,8 @@
 // Uses createGatewayMiddleware exactly like circle reference implementation:
 // github.com/BlockRunAI/circle-nanopayment-sample/blob/main/src/server.ts
 
-const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77';
+// Seller = main wallet (DIFFERENT from buyer 0xd83498...)
+const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0x86B245D0B48BBdc58F08cAeA971a24ba377c366a';
 
 let _gateway = null;
 async function getGateway() {
