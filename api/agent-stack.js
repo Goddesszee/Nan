@@ -490,8 +490,8 @@ export default async function handler(req, res) {
         const origFetch = global.fetch;
         let capturedPaymentHeader = null;
         global.fetch = async (u, opts) => {
-          if (String(u).includes('/ngn-rate') && opts?.headers?.['X-PAYMENT']) {
-            capturedPaymentHeader = opts.headers['X-PAYMENT'];
+          if (String(u).includes('/ngn-rate') && (opts?.headers?.['Payment-Signature'] || opts?.headers?.['X-PAYMENT'])) {
+            capturedPaymentHeader = opts.headers['Payment-Signature'] || opts.headers['X-PAYMENT'];
             console.log('[pay-service] X-PAYMENT header length:', capturedPaymentHeader?.length);
             try {
               const decoded = JSON.parse(Buffer.from(capturedPaymentHeader, 'base64').toString('utf-8'));
