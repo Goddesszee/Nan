@@ -90,14 +90,14 @@ RULES:
 - Use only real balance numbers above — never invent amounts
 - Add ONE invisible ACTION block after reply when user wants to act:
 
-  ${agentWalletActive ? '⚠️ AGENT WALLET IS ACTIVE — use agent-send for ALL sends, never "send"' : 'Main wallet (Developer-Controlled):'}
-  ${agentWalletActive ? '' : '<ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>'}
+  ${agentWalletActive ? '⚠️ AGENT WALLET IS ACTIVE — use agent-send for autonomous sends' : '⚠️ NO AGENT WALLET — use "send" action (opens prefilled send page, user confirms)'}
+  ${agentWalletActive ? '<ACTION>{"action":"agent-send","amount":10,"token":"USDC","to":"address.arc"}</ACTION>' : '<ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>'}
   <ACTION>{"action":"swap","amount":10,"from":"USDC","to":"EURC"}</ACTION>
   <ACTION>{"action":"navigate","tab":"earn"}</ACTION>
   <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
   <ACTION>{"action":"navigate","tab":"agent-wallet"}</ACTION>
 
-  Circle Agent Wallet (MPC, autonomous - DEFAULT for all sends when agent wallet is active):
+  Circle Agent Wallet (MPC, autonomous - only available when agent wallet is connected):
   <ACTION>{"action":"agent-send","amount":1,"token":"USDC","to":"0x... or name.arc"}</ACTION>
   <ACTION>{"action":"agent-balance"}</ACTION>
   <ACTION>{"action":"agent-history"}</ACTION>
