@@ -749,6 +749,13 @@ app.post('/api/agent-stack', async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+app.post('/api/agent-wallets', async (req, res) => {
+  try {
+    const mod = await import('../api/agent-wallets.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 // x402 Seller Endpoints — NAN nanopayment services (0.001 USDC, Arc Testnet) — updated 1780886779
 app.get('/api/x402/ngn-rate', async (req, res) => {
   try { const mod = await import('../api/x402-ngn-rate.js'); return mod.default(req, res); }
