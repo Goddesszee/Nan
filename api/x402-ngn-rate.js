@@ -61,21 +61,34 @@ export default async function handler(req, res) {
 
     console.log('[x402] payload keys:', Object.keys(fullPayload));
 
-    // Extract paymentPayload for BatchFacilitatorClient.settle()
-    // fullPayload = { ...paymentPayload, resource, accepted }
-    // paymentPayload = everything except resource and accepted
-    const { resource, accepted, ...paymentPayload } = fullPayload;
-
+    // Pass fullPayload directly — Circle settle needs { x402Version, payload, resource, accepted }
     const { BatchFacilitatorClient } = await import('@circle-fin/x402-batching/server');
     const facilitator = new BatchFacilitatorClient({ url: GATEWAY_API });
-
-    // Use the accepted requirements from the payload (what buyer agreed to)
-    const settleRequirements = accepted || requirements;
-    const settled = await facilitator.settle(paymentPayload, settleRequirements);
+    const settleRequirements = fullPayload.accepted || requirements;
+    const settled = await facilitator.settle(fullPayload, settleRequirements);
     console.log('[x402] settle result:', JSON.stringify(settled));
 
-    // Return 200 with settle details regardless so we can debug
-    return res.json({ debug: true, settled, payloadKeys: Object.keys(fullPayload), requirementsUsed: settleRequirements });
+    if (!settled.success) {
+      return res.status(402).json({ error: 'Settlement failed', details: settled });
+    }
+
+    const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
+    const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
+    const rate   = fxData?.rates?.NGN || 1650;
+
+    return res.json({
+      success:   true,
+      paid:      true,
+      data: {
+        pair:      'NGN/USD',
+        rate,
+        inverse:   parseFloat((1 / rate).toFixed(8)),
+        source:    fxData ? 'frankfurter-ecb' : 'fallback',
+        timestamp: new Date().toISOString(),
+        chain:     'Arc Testnet',
+        pricePaid: '$0.001 USDC',
+      }
+    });
 
     const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
     const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
