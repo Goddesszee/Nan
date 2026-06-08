@@ -392,6 +392,30 @@ export default async function handler(req, res) {
       return res.json({ success: true, result: r });
     }
 
+    // ── gateway-deposit-sdk ──────────────────────────────────────────────────
+    // Deposits USDC from AGENT_WALLET_PRIVATE_KEY EOA into Gateway using SDK
+    if (action === 'gateway-deposit-sdk') {
+      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set' });
+      try {
+        const chainMap = { 'ARC-TESTNET': 'arcTestnet', 'BASE-SEPOLIA': 'baseSepolia' };
+        const chainName = chainMap[chain] || 'arcTestnet';
+        const { GatewayClient } = await import('@circle-fin/x402-batching/client');
+        const client = new GatewayClient({
+          chain: chainName,
+          privateKey: privateKey.startsWith('0x') ? privateKey : '0x' + privateKey,
+        });
+        const balances = await client.getBalances();
+        console.log('[gateway-deposit-sdk] Current balance:', balances.gateway.formattedAvailable);
+        if (balances.gateway.available < 500000n) {
+          const deposit = await client.deposit(amount || '1');
+          return res.json({ success: true, action: 'deposited', result: deposit });
+        } else {
+          return res.json({ success: true, action: 'already_funded', balance: balances.gateway.formattedAvailable });
+        }
+      } catch(e) { return res.json({ success: false, error: e.message }); }
+    }
+
     // ── pay-service ───────────────────────────────────────────────────────────
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     if (action === 'pay-service') {
