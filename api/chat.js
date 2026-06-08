@@ -112,6 +112,10 @@ RULES:
   <ACTION>{"action":"agent-offramp","amount":10}</ACTION>
   <ACTION>{"action":"fx-limit-offramp","amount":50,"targetRate":1700,"condition":"gte"}</ACTION>
   <ACTION>{"action":"agent-payroll","group":"Engineering Team"}</ACTION>
+  <ACTION>{"action":"list_orders"}</ACTION>
+  <ACTION>{"action":"cancel_order","id":"ord_abc123"}</ACTION>
+  <ACTION>{"action":"cancel_all"}</ACTION>
+  <ACTION>{"action":"agent-ngn-rate"}</ACTION>
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
@@ -120,6 +124,10 @@ RULES:
 - If agentWalletActive is true: NEVER use action "send" — ALWAYS use "agent-send" instead
 - For "sell USDC to naira when rate hits X": use fx-limit-offramp with targetRate=X (number only, no ₦ symbol)
 - For "pay staff/team/payroll": use agent-payroll, include group name if mentioned
+- For "cancel order [ID]": use cancel_order with the id field
+- For "what's the NGN rate" or "how far is my FX order": use agent-ngn-rate
+- For "list orders" or "show my orders": use list_orders
+- For "cancel all orders": use cancel_all
 - NEVER show JSON or ACTION text in your reply — it is invisible
 - Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
