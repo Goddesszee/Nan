@@ -811,10 +811,10 @@ if (SELF_URL) {
   }, 4 * 60 * 1000); // ping every 4 minutes
 
   // ── Autonomous order executor — runs every 60s on Railway ─────────────────
-  // Uses AGENT_WALLET_PRIVATE_KEY to execute orders without browser/CLI session
+  // Uses Circle AppKit (CIRCLE_API_KEY + CIRCLE_ENTITY_SECRET) — survives restarts
   setInterval(async () => {
     try {
-      if (!process.env.ADMIN_PASSWORD || !process.env.AGENT_WALLET_PRIVATE_KEY) return;
+      if (!process.env.ADMIN_PASSWORD || !process.env.CIRCLE_API_KEY) return;
       const { default: fetch } = await import('node-fetch');
       const ordersModule = await import('../api/orders.js');
       const allOrders = ordersModule.ordersStore;
@@ -825,16 +825,23 @@ if (SELF_URL) {
           ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type)
         );
         if (!pending.length) continue;
+        // Find the Circle wallet address for this user from userStore
+        let walletAddress = wallet;
+        for (const [, u] of userStore.entries()) {
+          if (u.walletAddress?.toLowerCase() === wallet.toLowerCase()) {
+            walletAddress = u.walletAddress;
+            break;
+          }
+        }
         console.log(`[cron] Processing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
         const r = await fetch(`${SELF_URL}/api/execute-orders`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending }),
+          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending, walletAddress }),
           signal: AbortSignal.timeout(30000)
         });
         const result = await r.json();
         if (result.orders) {
-          // Update stored orders with new status/nextRun from executor
           const untouched = orders.filter(o => !pending.find(p => p.id === o.id));
           const updated = result.orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
           allOrders.set(wallet, [...untouched, ...updated]);
