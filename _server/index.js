@@ -708,12 +708,18 @@ app.post('/api/agent-stack', async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-// x402 Seller Endpoint — NAN NGN/USD Rate (nanopayment, 0.001 USDC, Arc Testnet)
+// x402 Seller Endpoints — NAN nanopayment services (0.001 USDC, Arc Testnet)
 app.get('/api/x402/ngn-rate', async (req, res) => {
-  try {
-    const mod = await import('../api/x402-ngn-rate.js');
-    return mod.default(req, res);
-  } catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+  try { const mod = await import('../api/x402-ngn-rate.js'); return mod.default(req, res); }
+  catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+app.get('/api/x402/arc-price', async (req, res) => {
+  try { const mod = await import('../api/x402-arc-price.js'); return mod.default(req, res); }
+  catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+app.get('/api/x402/wallet-stats', async (req, res) => {
+  try { const mod = await import('../api/x402-wallet-stats.js'); return mod.default(req, res); }
+  catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
 
 // Analytics route
