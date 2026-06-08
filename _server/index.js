@@ -448,7 +448,7 @@ app.post('/api/notify', rateLimit(20), async (req, res) => {
 // ── Web Push ──────────────────────────────────────────────────────────────────
 // Persist subscriptions to file so they survive Railway restarts
 import { readFileSync, writeFileSync, existsSync } from 'fs';
-const PUSH_SUBS_FILE = '/tmp/nan_push_subs.json';
+const PUSH_SUBS_FILE = process.env.RAILWAY_VOLUME_MOUNT_PATH ? `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/nan_push_subs.json` : '/tmp/nan_push_subs.json';
 
 function loadPushSubs() {
   try {
