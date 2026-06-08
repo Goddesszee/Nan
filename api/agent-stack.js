@@ -439,7 +439,7 @@ export default async function handler(req, res) {
     // ── gateway-deposit-sdk ──────────────────────────────────────────────────
     // Deposits USDC from AGENT_WALLET_PRIVATE_KEY EOA into Gateway using SDK
     if (action === 'gateway-deposit-sdk') {
-      const { chain='ARC-TESTNET', amount='1' } = body;
+      const { chain='ARC-TESTNET', amount='1', force=false } = body;
       const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
       if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set' });
       try {
@@ -451,14 +451,18 @@ export default async function handler(req, res) {
           privateKey: privateKey.startsWith('0x') ? privateKey : '0x' + privateKey,
         });
         const balances = await client.getBalances();
-        const available = balances.gateway.formattedAvailable;
-        console.log('[gateway-deposit-sdk] Current balance:', available);
-        if (balances.gateway.available < 500000n) {
+        const gatewayBal = balances.gateway.formattedAvailable;
+        const walletBal  = balances.wallet.formatted;
+        console.log('[deposit-sdk] gateway:', gatewayBal, 'wallet:', walletBal);
+        if (force || balances.gateway.available < 500000n) {
+          console.log('[deposit-sdk] Depositing', amount, 'USDC into Gateway...');
           const deposit = await client.deposit(amount || '1');
           const safe = JSON.parse(JSON.stringify(deposit, (k,v) => typeof v === 'bigint' ? v.toString() : v));
-          return res.json({ success: true, action: 'deposited', result: safe });
+          // Check new balance
+          const newBal = await client.getBalances();
+          return res.json({ success: true, action: 'deposited', result: safe, newGatewayBalance: newBal.gateway.formattedAvailable });
         } else {
-          return res.json({ success: true, action: 'already_funded', balance: available });
+          return res.json({ success: true, action: 'already_funded', gatewayBalance: gatewayBal, walletBalance: walletBal });
         }
       } catch(e) { return res.json({ success: false, error: e.message }); }
     }
