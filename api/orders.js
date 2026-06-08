@@ -6,7 +6,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 
-const ORDERS_FILE = '/tmp/nan_orders.json';
+const ORDERS_FILE = process.env.RAILWAY_VOLUME_MOUNT_PATH ? `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/nan_orders.json` : '/tmp/nan_orders.json';
 
 function loadFromDisk() {
   try {
