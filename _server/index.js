@@ -474,6 +474,13 @@ app.get('/api/push-key', (req, res) => {
   res.json({ publicKey: VAPID_PUBLIC });
 });
 
+app.post('/api/bills', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/bills.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 app.post('/api/send-email', rateLimit(20), async (req, res) => {
   const { to, subject, body } = req.body || {};
   if (!to || !subject) return res.json({ success: false, error: 'to and subject required' });
