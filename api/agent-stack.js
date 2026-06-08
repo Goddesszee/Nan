@@ -395,6 +395,7 @@ export default async function handler(req, res) {
     // ── gateway-deposit-sdk ──────────────────────────────────────────────────
     // Deposits USDC from AGENT_WALLET_PRIVATE_KEY EOA into Gateway using SDK
     if (action === 'gateway-deposit-sdk') {
+      const { chain='ARC-TESTNET', amount='1' } = body;
       const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
       if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set' });
       try {
