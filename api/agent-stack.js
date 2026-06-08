@@ -392,6 +392,50 @@ export default async function handler(req, res) {
       return res.json({ success: true, result: r });
     }
 
+    // ── pay-and-capture ──────────────────────────────────────────────────────
+    // Pays the x402 endpoint and captures the full signed payload + settle response
+    if (action === 'pay-and-capture') {
+      const { url: payUrl, chain='ARC-TESTNET' } = body;
+      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set' });
+      try {
+        const { GatewayClient } = await import('@circle-fin/x402-batching/client');
+        const client = new GatewayClient({
+          chain: chain === 'ARC-TESTNET' ? 'arcTestnet' : 'baseSepolia',
+          privateKey: privateKey.startsWith('0x') ? privateKey : '0x' + privateKey,
+        });
+
+        // Step 1: Get 402
+        const r1 = await fetch(payUrl);
+        const paymentRequiredHeader = r1.headers.get('PAYMENT-REQUIRED');
+        const paymentRequired = JSON.parse(Buffer.from(paymentRequiredHeader, 'base64').toString('utf-8'));
+        const batchingOption = paymentRequired.accepts[0];
+
+        // Step 2: Sign payment
+        const { BatchEvmScheme } = await import('@circle-fin/x402-batching/client');
+        // Use client internals to sign
+        const paymentPayload = await client._scheme.createPaymentPayload(paymentRequired.x402Version, batchingOption);
+        const fullPayload = { ...paymentPayload, resource: paymentRequired.resource, accepted: batchingOption };
+        const headerValue = Buffer.from(JSON.stringify(fullPayload)).toString('base64');
+
+        // Step 3: Call settle directly
+        const settleRes = await fetch('https://gateway-api-testnet.circle.com/v1/x402/settle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentPayload: fullPayload, paymentRequirements: batchingOption })
+        });
+        const settleBody = await settleRes.text();
+
+        return res.json({
+          success: true,
+          settleStatus: settleRes.status,
+          settleBody: settleBody,
+          payloadKeys: Object.keys(fullPayload),
+          payloadSample: JSON.stringify(fullPayload).slice(0, 400)
+        });
+      } catch(e) { return res.json({ success: false, error: e.message, stack: e.stack?.slice(0,300) }); }
+    }
+
     // ── test-settle ───────────────────────────────────────────────────────────
     if (action === 'test-settle') {
       // Test the Circle Gateway settle endpoint directly with a dummy payload
