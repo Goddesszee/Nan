@@ -119,6 +119,12 @@ RULES:
   <ACTION>{"action":"cancel_order","id":"ord_abc123"}</ACTION>
   <ACTION>{"action":"cancel_all"}</ACTION>
   <ACTION>{"action":"agent-ngn-rate"}</ACTION>
+  <ACTION>{"action":"agent-portfolio"}</ACTION>
+  <ACTION>{"action":"agent-analytics"}</ACTION>
+  <ACTION>{"action":"agent-price-alert","token":"EURC","targetPrice":1.05,"condition":"gte"}</ACTION>
+  <ACTION>{"action":"agent-auto-sweep","threshold":50,"keep":10}</ACTION>
+  <ACTION>{"action":"agent-data","phone":"08012345678","plan":"mtn-5gb","network":"mtn"}</ACTION>
+  <ACTION>{"action":"agent-receipt"}</ACTION>
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
@@ -136,6 +142,13 @@ RULES:
 - For electricity bill: use agent-bills with billType "electricity", include meter number, amount (NGN), disco (ekedc/ikedc/aedc/phed etc)
 - For cable TV (DSTV/GOtv/Startimes): use agent-bills with billType "cable", include card number, provider, plan (compact/confam/premium etc)
 - For recurring bills (monthly DSTV, weekly airtime etc): combine agent-bills with agent-standing using taskType "bills"
+- For "portfolio", "total balance", "net worth": use agent-portfolio
+- For "spending", "analytics", "how much sent": use agent-analytics  
+- For "alert me when X hits Y": use agent-price-alert with token, targetPrice, condition (gte/lte)
+- For "auto sweep", "automatic transfer": use agent-auto-sweep with threshold amount
+- For "buy data", "mobile data": use agent-data with phone, plan, network
+- For "receipt", "generate receipt": use agent-receipt
+- For "school fees", "remita": use agent-remita
 - NEVER show JSON or ACTION text in your reply — it is invisible
 - Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
