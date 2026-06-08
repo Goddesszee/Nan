@@ -48,6 +48,8 @@ export default async function handler(req, res) {
   if (!paymentHeader) {
     const encoded = Buffer.from(JSON.stringify(paymentRequired)).toString('base64');
     res.setHeader('PAYMENT-REQUIRED', encoded);
+    res.setHeader('payment-required', encoded);
+    res.setHeader('Access-Control-Expose-Headers', 'PAYMENT-REQUIRED, payment-required');
     return res.status(402).json(paymentRequired);
   }
 
