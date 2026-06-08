@@ -474,6 +474,34 @@ app.get('/api/push-key', (req, res) => {
   res.json({ publicKey: VAPID_PUBLIC });
 });
 
+app.post('/api/send-email', rateLimit(20), async (req, res) => {
+  const { to, subject, body } = req.body || {};
+  if (!to || !subject) return res.json({ success: false, error: 'to and subject required' });
+  if (!SMTP_USER || !SMTP_PASS) return res.json({ success: false, error: 'Email not configured' });
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST, port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    });
+    await transporter.sendMail({
+      from: `"NAN Wallet" <${SMTP_USER}>`,
+      to, subject,
+      html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#07081a;border-radius:16px;">
+        <div style="font-size:22px;font-weight:700;color:#a78bfa;margin-bottom:4px;">NAN Wallet</div>
+        <div style="color:#6b5fa0;font-size:12px;margin-bottom:20px;">Weave. Connect. Build.</div>
+        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:16px;color:#ede9fe;font-size:14px;line-height:1.6;white-space:pre-wrap;">${body||''}</div>
+        <div style="color:#4a4a6a;font-size:11px;margin-top:16px;">nanarc.xyz · Arc Testnet</div>
+      </div>`
+    });
+    res.json({ success: true });
+  } catch(e) {
+    console.error('[send-email]', e.message);
+    res.json({ success: false, error: e.message.slice(0,100) });
+  }
+});
+
 app.post('/api/push-subscribe', async (req, res) => {
   const { subscription, addr } = req.body || {};
   if (!subscription?.endpoint) return res.json({ success: false, error: 'No endpoint' });
