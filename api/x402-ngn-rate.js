@@ -1,7 +1,5 @@
 // api/x402-ngn-rate.js
 // NAN x402 Seller Endpoint — NGN/USD Rate
-// Uses BatchFacilitatorClient.settle() per @circle-fin/x402-batching/server source
-// Correct endpoint: /v1/x402/settle with { paymentPayload, paymentRequirements }
 
 const GATEWAY_API  = 'https://gateway-api-testnet.circle.com';
 const SELLER_ADDR  = process.env.X402_SELLER_ADDR || '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77';
@@ -50,7 +48,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse payment payload from header
+    // Parse payment payload - this is the FULL signed payload from GatewayClient
     let paymentPayload;
     try {
       paymentPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
@@ -58,18 +56,20 @@ export default async function handler(req, res) {
       paymentPayload = JSON.parse(paymentHeader);
     }
 
-    // Use BatchFacilitatorClient to settle
+    // Log the full payload structure for debugging
+    console.log('[x402] received paymentPayload keys:', Object.keys(paymentPayload));
+    console.log('[x402] paymentPayload:', JSON.stringify(paymentPayload).slice(0, 500));
+
     const { BatchFacilitatorClient } = await import('@circle-fin/x402-batching/server');
     const facilitator = new BatchFacilitatorClient({ url: GATEWAY_API });
 
     const settled = await facilitator.settle(paymentPayload, requirements);
-    console.log('[x402] settled:', JSON.stringify(settled));
+    console.log('[x402] settle result:', JSON.stringify(settled));
 
     if (!settled.success) {
       return res.status(402).json({ error: 'Settlement failed', details: settled });
     }
 
-    // Return NGN/USD rate
     const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
     const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
     const rate   = fxData?.rates?.NGN || 1650;
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     });
 
   } catch(e) {
-    console.error('[x402] error:', e.message);
+    console.error('[x402] error:', e.message, e.stack?.slice(0,300));
     return res.status(500).json({ error: e.message });
   }
 }
