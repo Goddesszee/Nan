@@ -1,7 +1,5 @@
 // api/x402-ngn-rate.js
 // NAN x402 Seller Endpoint — NGN/USD Rate
-// GatewayClient sends header as "Payment-Signature" (not X-PAYMENT)
-// Payload: { ...paymentPayload, resource, accepted } base64 encoded
 
 const GATEWAY_API    = 'https://gateway-api-testnet.circle.com';
 const SELLER_ADDR    = process.env.X402_SELLER_ADDR || '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77';
@@ -41,7 +39,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Expose-Headers', 'PAYMENT-REQUIRED');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // GatewayClient sends "Payment-Signature" header (lowercase in Node)
   const paymentHeader = req.headers['payment-signature'] || req.headers['x-payment'];
 
   if (!paymentHeader) {
@@ -51,7 +48,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Decode the full payment payload
     let fullPayload;
     try {
       fullPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
@@ -61,34 +57,25 @@ export default async function handler(req, res) {
 
     console.log('[x402] payload keys:', Object.keys(fullPayload));
 
-    // Pass fullPayload directly — Circle settle needs { x402Version, payload, resource, accepted }
-    const { BatchFacilitatorClient } = await import('@circle-fin/x402-batching/server');
-    const facilitator = new BatchFacilitatorClient({ url: GATEWAY_API });
-    const settleRequirements = fullPayload.accepted || requirements;
-    const settled = await facilitator.settle(fullPayload, settleRequirements);
-    console.log('[x402] settle result:', JSON.stringify(settled));
+    // Call Circle Gateway settle directly — bypass SDK to see raw response
+    const settleRes = await fetch(`${GATEWAY_API}/v1/x402/settle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentPayload:      fullPayload,
+        paymentRequirements: fullPayload.accepted || requirements,
+      })
+    });
+
+    const settleText = await settleRes.text();
+    console.log('[x402] settle status:', settleRes.status, 'body:', settleText.slice(0, 300));
+
+    let settled;
+    try { settled = JSON.parse(settleText); } catch { settled = { raw: settleText }; }
 
     if (!settled.success) {
-      return res.status(402).json({ error: 'Settlement failed', details: settled });
+      return res.status(402).json({ error: 'Settlement failed', status: settleRes.status, details: settled });
     }
-
-    const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
-    const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
-    const rate   = fxData?.rates?.NGN || 1650;
-
-    return res.json({
-      success:   true,
-      paid:      true,
-      data: {
-        pair:      'NGN/USD',
-        rate,
-        inverse:   parseFloat((1 / rate).toFixed(8)),
-        source:    fxData ? 'frankfurter-ecb' : 'fallback',
-        timestamp: new Date().toISOString(),
-        chain:     'Arc Testnet',
-        pricePaid: '$0.001 USDC',
-      }
-    });
 
     const fxRes  = await fetch('https://api.frankfurter.app/latest?from=USD&to=NGN').catch(() => null);
     const fxData = fxRes ? await fxRes.json().catch(() => null) : null;
