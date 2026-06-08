@@ -101,6 +101,7 @@ RULES:
   <ACTION>{"action":"agent-pay","serviceUrl":"https://...","amount":"0.001"}</ACTION>
   <ACTION>{"action":"agent-schedule","amount":5,"token":"USDC","to":"0x...","when":"every friday"}</ACTION>
   <ACTION>{"action":"agent-standing","amount":10,"token":"USDC","to":"0x...","freq":"weekly"}</ACTION>
+  <ACTION>{"action":"payreq-create","amount":5,"token":"USDC","label":"Invoice #1","note":"For services"}</ACTION>
   <ACTION>{"action":"limit","amount":5,"sellToken":"USDC","buyToken":"EURC","targetRate":1.20,"condition":"gte"}</ACTION>
 
   Agent Wallet (Circle Agent Stack):
