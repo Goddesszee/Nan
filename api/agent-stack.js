@@ -407,12 +407,14 @@ export default async function handler(req, res) {
           privateKey: privateKey.startsWith('0x') ? privateKey : '0x' + privateKey,
         });
         const balances = await client.getBalances();
-        console.log('[gateway-deposit-sdk] Current balance:', balances.gateway.formattedAvailable);
+        const available = balances.gateway.formattedAvailable;
+        console.log('[gateway-deposit-sdk] Current balance:', available);
         if (balances.gateway.available < 500000n) {
           const deposit = await client.deposit(amount || '1');
-          return res.json({ success: true, action: 'deposited', result: deposit });
+          const safe = JSON.parse(JSON.stringify(deposit, (k,v) => typeof v === 'bigint' ? v.toString() : v));
+          return res.json({ success: true, action: 'deposited', result: safe });
         } else {
-          return res.json({ success: true, action: 'already_funded', balance: balances.gateway.formattedAvailable });
+          return res.json({ success: true, action: 'already_funded', balance: available });
         }
       } catch(e) { return res.json({ success: false, error: e.message }); }
     }
