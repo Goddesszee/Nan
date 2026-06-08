@@ -392,6 +392,30 @@ export default async function handler(req, res) {
       return res.json({ success: true, result: r });
     }
 
+    // ── test-settle ───────────────────────────────────────────────────────────
+    if (action === 'test-settle') {
+      // Test the Circle Gateway settle endpoint directly with a dummy payload
+      const requirements = {
+        scheme: 'exact',
+        network: 'eip155:5042002',
+        asset: '0x3600000000000000000000000000000000000000',
+        amount: '1000',
+        maxTimeoutSeconds: 604900,
+        payTo: '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77',
+        extra: { name: 'GatewayWalletBatched', version: '1', verifyingContract: '0x0077777d7EBA4688BDeF3E311b846F25870A19B9' }
+      };
+      const dummyPayload = { scheme: 'exact', network: 'eip155:5042002', payload: { signature: '0x0', from: '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77', to: '0xd83498B62d2ab0650A4Edfc7929c96804aA75F77', value: '1000', validAfter: '0', validBefore: '9999999999', nonce: '0x0' } };
+      try {
+        const r = await fetch('https://gateway-api-testnet.circle.com/v1/x402/settle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentPayload: dummyPayload, paymentRequirements: requirements })
+        });
+        const text = await r.text();
+        return res.json({ status: r.status, response: text });
+      } catch(e) { return res.json({ error: e.message }); }
+    }
+
     // ── debug-x402 ───────────────────────────────────────────────────────────
     if (action === 'debug-x402') {
       const { url: debugUrl } = body;
