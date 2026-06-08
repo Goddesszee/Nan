@@ -417,7 +417,18 @@ export default async function handler(req, res) {
     if (action === 'transfer') {
       const { fromAddress, toAddress, amount, chain = 'ARC-TESTNET' } = body;
       if (!fromAddress || !toAddress || !amount) return res.json({ error: 'fromAddress, toAddress, amount required' });
-      const r = await cli(['wallet','transfer',toAddress,'--amount',String(amount),'--address',fromAddress,'--chain',chain]);
+      // Validate address format
+      if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
+        return res.json({ error: `Invalid destination address: ${toAddress}` });
+      }
+      const args = ['wallet','transfer',
+        '--to', toAddress,
+        '--amount', String(amount),
+        '--address', fromAddress,
+        '--chain', chain,
+        '--testnet'
+      ];
+      const r = await cli(args);
       return res.json({ success: true, result: r });
     }
 
