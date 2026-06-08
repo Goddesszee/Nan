@@ -393,15 +393,33 @@ export default async function handler(req, res) {
     }
 
     // ── pay-service ───────────────────────────────────────────────────────────
+    // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     if (action === 'pay-service') {
-      const { url, address, chain='BASE-SEPOLIA', maxAmount, method='GET', data } = body;
-      if (!url || !address) return res.json({ error: 'url and address required' });
-      const args = ['services','pay',url,'--address',address,'--chain',chain];
-      if (maxAmount) args.push('--max-amount', String(maxAmount));
-      if (method !== 'GET') args.push('--method', method);
-      if (data) args.push('--data', JSON.stringify(data));
-      const r = await cli(args, { testnet: false });
-      return res.json({ success: true, result: r });
+      const { url, address, chain='ARC-TESTNET', maxAmount, method='GET' } = body;
+      if (!url) return res.json({ error: 'url required' });
+
+      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in environment' });
+
+      try {
+        const chainMap = {
+          'ARC-TESTNET':  'arcTestnet',
+          'BASE-SEPOLIA': 'baseSepolia',
+          'BASE':         'base',
+          'ETH-SEPOLIA':  'sepolia',
+        };
+        const chainName = chainMap[chain] || 'arcTestnet';
+        const { GatewayClient } = await import('@circle-fin/x402-batching/client');
+        const client = new GatewayClient({
+          chain:      chainName,
+          privateKey: privateKey.startsWith('0x') ? privateKey : `0x${privateKey}`,
+        });
+        const fetchMethod = (method || 'GET').toUpperCase();
+        const { data: responseData, status } = await client.pay(url, { method: fetchMethod });
+        return res.json({ success: true, status, result: responseData });
+      } catch (e) {
+        return res.json({ success: false, error: e.message });
+      }
     }
 
     // ── tx-list ───────────────────────────────────────────────────────────────
