@@ -845,6 +845,8 @@ if (SELF_URL) {
           const untouched = orders.filter(o => !pending.find(p => p.id === o.id));
           const updated = result.orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
           allOrders.set(wallet, [...untouched, ...updated]);
+          // Persist to disk so orders survive Railway restarts
+          if (ordersModule.saveToDisk) ordersModule.saveToDisk(allOrders);
         }
         if (result.results?.length) {
           console.log(`[cron] Results:`, result.results.map(r => `${r.id}:${r.executed?'✅':'⏭'}`).join(' '));
