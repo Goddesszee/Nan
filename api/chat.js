@@ -106,15 +106,10 @@ RULES:
   <ACTION>{"action":"limit","amount":5,"sellToken":"USDC","buyToken":"EURC","targetRate":1.20,"condition":"gte"}</ACTION>
 
   Agent Wallet (Circle Agent Stack):
-  <ACTION>{"action":"agent-balance","chain":"ARC-TESTNET"}</ACTION>
-  <ACTION>{"action":"agent-fund","chain":"ARC-TESTNET"}</ACTION>
-  <ACTION>{"action":"agent-transfer","amount":0.1,"token":"USDC","toAddress":"0x...","chain":"ARC-TESTNET"}</ACTION>
-  <ACTION>{"action":"agent-swap","sellToken":"USDC","sellAmount":1,"buyToken":"EURC","chain":"ARC-TESTNET","quoteOnly":false}</ACTION>
-  <ACTION>{"action":"agent-bridge","toChain":"ETH-SEPOLIA","amount":0.5,"fromChain":"ARC-TESTNET"}</ACTION>
-  <ACTION>{"action":"agent-services-search","query":"financial"}</ACTION>
-  <ACTION>{"action":"agent-pay-service","url":"https://...","maxAmount":0.01}</ACTION>
-  <ACTION>{"action":"agent-tx-list","chain":"ARC-TESTNET"}</ACTION>
-  <ACTION>{"action":"agent-setup"}</ACTION>
+  <ACTION>{"action":"agent-swap","amount":5,"from":"USDC","to":"EURC"}</ACTION>
+  <ACTION>{"action":"agent-bridge","amount":5,"toChain":"ETH-SEPOLIA"}</ACTION>
+  <ACTION>{"action":"agent-multichain"}</ACTION>
+  <ACTION>{"action":"agent-offramp","amount":10}</ACTION>
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
