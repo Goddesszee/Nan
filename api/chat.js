@@ -11,7 +11,7 @@ function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
     return true;
   }
   if (record.count >= limit) return false;
-  record.count++;\
+  record.count++;
   rateLimitMap.set(ip, record);
   return true;
 }
