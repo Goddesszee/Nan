@@ -62,8 +62,92 @@ async function installCli() {
 // ── CLI env ──────────────────────────────────────────────────────────────────
 // /tmp persists within a Railway container (not across redeploys)
 const CLI_HOME = '/tmp/circle-home';
-import { mkdirSync } from 'fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 try { mkdirSync(CLI_HOME + '/.config/circle', { recursive: true }); } catch {}
+
+const UPSTASH_URL   = process.env.KV_REST_API_URL   || process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN  || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function redisGet(key) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
+  try {
+    const { default: fetch } = await import('node-fetch');
+    const r = await fetch(`${UPSTASH_URL}/${encodeURIComponent('GET')}/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }, signal: AbortSignal.timeout(5000)
+    });
+    const d = await r.json();
+    return d.result || null;
+  } catch { return null; }
+}
+
+async function redisSet(key, value) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
+  try {
+    const { default: fetch } = await import('node-fetch');
+    await fetch(`${UPSTASH_URL}/${encodeURIComponent('SET')}/${encodeURIComponent(key)}/${encodeURIComponent(value)}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }, signal: AbortSignal.timeout(5000)
+    });
+  } catch {}
+}
+
+async function saveCliConfigToRedis(email) {
+  try {
+    const configDir = CLI_HOME + '/.config/circle';
+    if (!existsSync(configDir)) return;
+    const files = readdirSync(configDir);
+    const configMap = {};
+    for (const f of files) {
+      try { configMap[f] = readFileSync(configDir + '/' + f, 'utf8'); } catch {}
+    }
+    if (Object.keys(configMap).length) {
+      await redisSet('nan:circle-cli:' + email.toLowerCase(), JSON.stringify(configMap));
+      console.log('[agent] CLI config saved to Redis for', email);
+    }
+  } catch(e) { console.log('[agent] Could not save CLI config:', e.message); }
+}
+
+async function restoreCliConfigFromRedis(email) {
+  try {
+    const raw = await redisGet('nan:circle-cli:' + email.toLowerCase());
+    if (!raw) return false;
+    const configMap = JSON.parse(raw);
+    const configDir = CLI_HOME + '/.config/circle';
+    mkdirSync(configDir, { recursive: true });
+    for (const [filename, content] of Object.entries(configMap)) {
+      writeFileSync(configDir + '/' + filename, content, 'utf8');
+    }
+    console.log('[agent] CLI config restored from Redis for', email);
+    return true;
+  } catch(e) { console.log('[agent] Could not restore CLI config:', e.message); return false; }
+}
+
+// On startup — restore CLI config for all known sessions
+async function restoreAllSessions() {
+  try {
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
+    const { default: fetch } = await import('node-fetch');
+    const r = await fetch(`${UPSTASH_URL}/${encodeURIComponent('KEYS')}/${encodeURIComponent('nan:circle-cli:*')}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    });
+    const d = await r.json();
+    const keys = d.result || [];
+    for (const key of keys) {
+      const email = key.replace('nan:circle-cli:', '');
+      const restored = await restoreCliConfigFromRedis(email);
+      if (restored) {
+        // Verify session is active by checking wallet list
+        try {
+          const { stdout } = await import('child_process').then(m => m.execFileP ? m : { execFileP: null });
+        } catch {}
+        sessionStore.set(email, { sessionActive: true, pending: false, wallets: {}, lastAuth: 'restored', restored: true });
+        console.log('[agent] Session pre-restored for', email);
+      }
+    }
+  } catch(e) { console.log('[agent] Session restore error:', e.message); }
+}
+
+// Run restore on startup
+restoreAllSessions();
 
 function cliEnv() {
   return {
@@ -255,6 +339,8 @@ export default async function handler(req, res) {
           }
 
           sessionStore.set(resolvedEmail, { sessionActive: true, pending: false, wallets, lastAuth: new Date().toISOString() });
+          // Save CLI config to Redis so session survives Railway restarts
+          saveCliConfigToRedis(resolvedEmail);
           console.log('[agent-stack] Login complete for', resolvedEmail, '— wallets:', wallets);
           loginRequests.delete(requestId);
         } catch (e) {
@@ -270,7 +356,24 @@ export default async function handler(req, res) {
     if (action === 'login-status') {
       const { email } = body;
       if (!email) return res.json({ error: 'email required' });
-      const session = sessionStore.get(email);
+      let session = sessionStore.get(email);
+      // If no session in memory — try restoring from Redis silently
+      if (!session && email) {
+        const restored = await restoreCliConfigFromRedis(email);
+        if (restored) {
+          try {
+            const walletOut = await cliRaw(['wallet','list','--testnet'], 15000);
+            const wallets = {};
+            const arcM = walletOut.match(/ARC[^:]*:\s*(0x[a-fA-F0-9]{40})/i);
+            if (arcM) wallets['ARC-TESTNET'] = arcM[1];
+            sessionStore.set(email, { sessionActive: true, pending: false, wallets, lastAuth: 'auto-restored' });
+            session = sessionStore.get(email);
+            console.log('[agent] Session auto-restored from Redis for', email);
+          } catch(e) {
+            console.log('[agent] CLI restore verify failed:', e.message);
+          }
+        }
+      }
       if (!session) return res.json({ success: false, ready: false, message: 'No session found' });
       if (session.pending) return res.json({ success: true, ready: false, pending: true, message: 'Still verifying...' });
       if (session.error) return res.json({ success: false, ready: false, error: session.error });
