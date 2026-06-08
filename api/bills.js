@@ -12,19 +12,35 @@ const VTPASS_KEY   = process.env.VTPASS_KEY   || 'sk_sandbox_xxxxxxxx';
 const NGN_RATE = 1620;
 
 async function vtpassRequest(endpoint, body) {
-  const { default: fetch } = await import('node-fetch');
-  const auth = Buffer.from(`${VTPASS_USER}:${VTPASS_PASS}`).toString('base64');
-  const r = await fetch(`${VTPASS_BASE}${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Basic ${auth}`,
-      'api-key': VTPASS_KEY,
+  // If real credentials are set, use live API
+  if (VTPASS_KEY && VTPASS_KEY !== 'sk_sandbox_xxxxxxxx' && VTPASS_USER !== 'sandbox@vtpass.com') {
+    const { default: fetch } = await import('node-fetch');
+    const auth = Buffer.from(`${VTPASS_USER}:${VTPASS_PASS}`).toString('base64');
+    const r = await fetch(`${VTPASS_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${auth}`,
+        'api-key': VTPASS_KEY,
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30000)
+    });
+    return r.json();
+  }
+  // Demo mode — simulate success for testnet
+  await new Promise(r => setTimeout(r, 1200)); // realistic delay
+  return {
+    code: '000',
+    content: {
+      transactions: {
+        status: 'delivered',
+        transactionId: 'DEMO-' + Date.now(),
+        token: body.serviceID?.includes('electric') ? 'DEMO-TOKEN-' + Math.random().toString(36).slice(2,10).toUpperCase() : undefined
+      }
     },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(30000)
-  });
-  return r.json();
+    response_description: 'DEMO MODE - Transaction Successful'
+  };
 }
 
 function genRequestId() {
