@@ -87,14 +87,14 @@ RULES:
 - Use only real balance numbers above — never invent amounts
 - Add ONE invisible ACTION block after reply when user wants to act:
 
-  Main wallet (Developer-Controlled):
-  <ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>
+  ${agentWalletActive ? '⚠️ AGENT WALLET IS ACTIVE — use agent-send for ALL sends, never "send"' : 'Main wallet (Developer-Controlled):'}
+  ${agentWalletActive ? '' : '<ACTION>{"action":"send","amount":10,"token":"USDC","to":"0x..."}</ACTION>'}
   <ACTION>{"action":"swap","amount":10,"from":"USDC","to":"EURC"}</ACTION>
   <ACTION>{"action":"navigate","tab":"earn"}</ACTION>
   <ACTION>{"action":"navigate","tab":"bridge"}</ACTION>
   <ACTION>{"action":"navigate","tab":"agent-wallet"}</ACTION>
 
-  Circle Agent Wallet (MPC, autonomous - use when user says "agent wallet" or "from agent"):
+  Circle Agent Wallet (MPC, autonomous - DEFAULT for all sends when agent wallet is active):
   <ACTION>{"action":"agent-send","amount":1,"token":"USDC","to":"0x... or name.arc"}</ACTION>
   <ACTION>{"action":"agent-balance"}</ACTION>
   <ACTION>{"action":"agent-history"}</ACTION>
@@ -120,6 +120,7 @@ RULES:
 - Never mention ACTION blocks in replies
 - ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
+- If agentWalletActive is true: NEVER use action "send" — ALWAYS use "agent-send" instead
 - NEVER show JSON or ACTION text in your reply — it is invisible
 - Reply must be plain English only — confirm what you're doing then include ACTION tag`;
 
