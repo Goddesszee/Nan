@@ -529,6 +529,12 @@ app.delete('/api/orders', async (req, res) => {
     return mod.default(req, res);
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
+app.post('/api/execute-orders', async (req, res) => {
+  try {
+    const mod = await import('../api/execute-orders.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
 
 // ── Transaction status ────────────────────────────────────────────────────────
 app.get('/api/transaction/:txId', async (req, res) => {
@@ -803,6 +809,52 @@ if (SELF_URL) {
       await fetch(`${SELF_URL}/api/health`, { signal: AbortSignal.timeout(8000) });
     } catch(e) { /* silent */ }
   }, 4 * 60 * 1000); // ping every 4 minutes
+
+  // ── Autonomous order executor — runs every 60s on Railway ─────────────────
+  // Executes pending agent-scheduled, agent-standing, fx-limit-offramp orders
+  // without needing the user's browser tab open
+  setInterval(async () => {
+    try {
+      const { default: fetch } = await import('node-fetch');
+      const ordersModule = await import('../api/orders.js');
+      // Get all wallets that have pending orders
+      const allOrders = ordersModule.ordersStore || null;
+      if (!allOrders || !process.env.ADMIN_PASSWORD) return;
+      for (const [wallet, orders] of allOrders.entries()) {
+        const pending = orders.filter(o => o.status === 'pending' &&
+          ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type));
+        if (!pending.length) continue;
+        // Find the agent address from session store
+        const { sessionStore } = await import('../api/agent-stack.js').catch(()=>({sessionStore:null}));
+        if (!sessionStore) continue;
+        // Find session by wallet address
+        let agentAddress = null;
+        for (const [email, session] of sessionStore.entries()) {
+          if (session?.wallets?.['ARC-TESTNET']?.toLowerCase() === wallet.toLowerCase()) {
+            agentAddress = session.wallets['ARC-TESTNET'];
+            break;
+          }
+        }
+        if (!agentAddress) continue;
+        console.log(`[cron] Executing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
+        const r = await fetch(`${SELF_URL}/api/execute-orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending, agentAddress }),
+          signal: AbortSignal.timeout(30000)
+        });
+        const result = await r.json();
+        if (result.orders) {
+          // Update stored orders with new status/nextRun
+          ordersModule.ordersStore.set(wallet, [
+            ...orders.filter(o => !pending.find(p => p.id === o.id)),
+            ...result.orders.filter(o => o.status === 'pending')
+          ]);
+        }
+        console.log(`[cron] Done for ${wallet.slice(0,8)}: ${JSON.stringify(result.results?.map(r=>({id:r.id,executed:r.executed})))}`);
+      }
+    } catch(e) { console.log('[cron] executor error:', e.message); }
+  }, 60 * 1000); // every 60 seconds
 }
 
 // ── Start ──
