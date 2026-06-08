@@ -1,165 +1,151 @@
-// api/agent-wallets.js — Multi-user Circle Programmable Wallet management
+// api/agent-wallets.js — Multi-user Circle Developer-Controlled Wallet management
 // Each NAN user gets their own Circle agent wallet, created on first connect
-// Wallets stored in Redis: nan:agentwallet:{userAddress} → { walletId, walletAddress, createdAt }
+// Uses @circle-fin/developer-controlled-wallets SDK (same as circle-wallets.js)
+// Wallets stored in Redis: nan:agentwallet:{userAddress} → { walletId, walletAddress, walletSetId, createdAt }
 
-const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY;
-const CIRCLE_API_BASE = 'https://api.circle.com/v1/w3s';
+import crypto from 'crypto';
+
 const KV_URL   = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 const ARC_RPC  = 'https://rpc.testnet.arc.network';
 const ARC_CHAIN_ID = 5042002;
+const BLOCKCHAIN   = 'ARC-TESTNET';
 const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
 const EURC_ADDRESS = '0x89B572E95e4f609551b44F7b3b3d875952A72a';
-const TOKEN_ABI = [
-  'function transfer(address to,uint256 amount) returns(bool)',
-  'function balanceOf(address) view returns(uint256)',
-  'function approve(address spender,uint256 amount) returns(bool)',
-  'function allowance(address owner,address spender) view returns(uint256)'
-];
+const TOKEN_ABI    = ['function balanceOf(address) view returns(uint256)'];
 
-// Redis helpers
+// ── Redis helpers ─────────────────────────────────────────────────────────────
 async function kvGet(key) {
   const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/get/${key}`, {
+  const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
   const d = await r.json();
   return d?.result ? JSON.parse(d.result) : null;
 }
 
-async function kvSet(key, value, exSeconds = null) {
+async function kvSet(key, value) {
   const { default: fetch } = await import('node-fetch');
-  const url = exSeconds ? `${KV_URL}/set/${key}?ex=${exSeconds}` : `${KV_URL}/set/${key}`;
-  await fetch(url, {
+  await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(JSON.stringify(value))
   });
 }
 
-// Circle API helper
-async function circlePost(path, body) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${CIRCLE_API_BASE}${path}`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CIRCLE_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body)
-  });
-  return r.json();
+// ── Circle SDK client (same pattern as circle-wallets.js) ────────────────────
+async function getClient() {
+  const { initiateDeveloperControlledWalletsClient } = await import('@circle-fin/developer-controlled-wallets');
+  const apiKey       = process.env.CIRCLE_API_KEY;
+  const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
+  if (!apiKey || !entitySecret)
+    throw new Error('CIRCLE_API_KEY and CIRCLE_ENTITY_SECRET must be set in Railway env');
+  return initiateDeveloperControlledWalletsClient({ apiKey, entitySecret });
 }
 
-async function circleGet(path) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${CIRCLE_API_BASE}${path}`, {
-    headers: { 'Authorization': `Bearer ${CIRCLE_API_KEY}` }
-  });
-  return r.json();
+// ── Deterministic idempotency keys ───────────────────────────────────────────
+function deterministicUUID(scope, addr) {
+  const hex = crypto.createHash('sha256')
+    .update(`nan:agent:${scope}:${addr.toLowerCase()}`)
+    .digest('hex');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-${['8','9','a','b'][parseInt(hex[16],16)%4]}${hex.slice(17,20)}-${hex.slice(20,32)}`;
 }
 
-// Create or get entity secret for user
-async function getOrCreateEntitySecret(userAddress) {
-  const key = `nan:entity:${userAddress.toLowerCase()}`;
-  let stored = await kvGet(key);
-  if (stored?.entitySecret) return stored.entitySecret;
-  // Generate new entity secret (32 bytes hex)
-  const { randomBytes } = await import('crypto');
-  const entitySecret = randomBytes(32).toString('hex');
-  await kvSet(key, { entitySecret, createdAt: Date.now() });
-  return entitySecret;
-}
-
-// Get or create Circle agent wallet for a user
+// ── Get or create agent wallet for a user ────────────────────────────────────
 async function getOrCreateAgentWallet(userAddress) {
   const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
   const existing = await kvGet(key);
   if (existing?.walletAddress) return existing;
 
-  if (!CIRCLE_API_KEY) {
-    throw new Error('CIRCLE_API_KEY not set in Railway env');
+  const client = await getClient();
+
+  // Find or create wallet set for this user
+  const wsName = `NAN-Agent-${userAddress.slice(0,10).toLowerCase()}`;
+  let walletSetId;
+
+  // Try to find existing wallet set
+  try {
+    const listRes = await client.listWalletSets({ pageSize: 50 });
+    const existing = listRes.data?.walletSets?.find(ws => ws.name === wsName);
+    if (existing?.id) walletSetId = existing.id;
+  } catch(e) {}
+
+  // Create wallet set if not found
+  if (!walletSetId) {
+    const wsRes = await client.createWalletSet({
+      idempotencyKey: deterministicUUID('walletset', userAddress),
+      name: wsName
+    });
+    walletSetId = wsRes.data?.walletSet?.id;
+    if (!walletSetId) throw new Error('Failed to create wallet set: ' + JSON.stringify(wsRes.data));
   }
 
-  // Create a new wallet set for this user
-  const entitySecret = await getOrCreateEntitySecret(userAddress);
-  const walletSetRes = await circlePost('/developer/walletSets', {
-    idempotencyKey: `nan-agent-${userAddress.toLowerCase()}-${Date.now()}`,
-    name: `NAN Agent Wallet - ${userAddress.slice(0,10)}`,
-    entitySecretCiphertext: entitySecret // simplified - in production use proper encryption
+  // Create wallet in the set
+  const wRes = await client.createWallets({
+    idempotencyKey: deterministicUUID('wallet', userAddress),
+    blockchains: [BLOCKCHAIN],
+    count: 1,
+    walletSetId,
+    accountType: 'EOA'
   });
 
-  if (walletSetRes.data?.walletSet?.id) {
-    const walletSetId = walletSetRes.data.walletSet.id;
-    // Create wallet in the set
-    const walletRes = await circlePost('/developer/wallets', {
-      idempotencyKey: `nan-wallet-${userAddress.toLowerCase()}-${Date.now()}`,
-      blockchains: ['ARC-TESTNET'],
-      count: 1,
-      walletSetId,
-      entitySecretCiphertext: entitySecret
-    });
+  const wallet = wRes.data?.wallets?.[0];
+  if (!wallet?.id || !wallet?.address)
+    throw new Error('Failed to create wallet: ' + JSON.stringify(wRes.data));
 
-    if (walletRes.data?.wallets?.[0]) {
-      const wallet = walletRes.data.wallets[0];
-      const record = {
-        walletId: wallet.id,
-        walletAddress: wallet.address,
-        walletSetId,
-        userAddress,
-        createdAt: Date.now()
-      };
-      await kvSet(key, record);
-      console.log(`[agent-wallets] Created wallet ${wallet.address} for user ${userAddress.slice(0,10)}`);
-      return record;
-    }
-  }
-  throw new Error('Failed to create Circle wallet: ' + JSON.stringify(walletSetRes));
+  const record = {
+    walletId: wallet.id,
+    walletAddress: wallet.address,
+    walletSetId,
+    userAddress,
+    createdAt: Date.now()
+  };
+  await kvSet(key, record);
+  console.log(`[agent-wallets] Created wallet ${wallet.address} for ${userAddress.slice(0,10)}`);
+  return record;
 }
 
-// Transfer USDC/EURC from user's agent wallet using ethers + stored private key
-// NOTE: Circle Programmable Wallets use server-side signing via Circle API
+// ── Get balance via ethers ────────────────────────────────────────────────────
+async function getAgentBalance(walletAddress) {
+  try {
+    const { ethers } = await import('ethers');
+    const provider = new ethers.JsonRpcProvider(ARC_RPC, { chainId: ARC_CHAIN_ID, name: 'arc-testnet' });
+    const usdc = new ethers.Contract(USDC_ADDRESS, TOKEN_ABI, provider);
+    const eurc = new ethers.Contract(EURC_ADDRESS, TOKEN_ABI, provider);
+    const [u, e] = await Promise.all([
+      usdc.balanceOf(walletAddress).catch(() => 0n),
+      eurc.balanceOf(walletAddress).catch(() => 0n)
+    ]);
+    return { USDC: (Number(u) / 1e6).toFixed(2), EURC: (Number(e) / 1e6).toFixed(2) };
+  } catch(e) {
+    return { USDC: '0.00', EURC: '0.00' };
+  }
+}
+
+// ── Transfer via Circle SDK ───────────────────────────────────────────────────
 async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC') {
+  const client = await getClient();
+
+  // Get token ID from Circle — needed for transfer API
   const tokenAddress = tokenSymbol === 'EURC' ? EURC_ADDRESS : USDC_ADDRESS;
-  const amountInUnits = Math.round(parseFloat(amount) * 1e6); // 6 decimals
 
-  // Use Circle's contractExecution to call transfer
-  const transferCall = {
-    contractAddress: tokenAddress,
-    abiFunctionSignature: 'transfer(address,uint256)',
-    abiParameters: [toAddress, String(amountInUnits)],
-    amount: '0'
-  };
+  // Use contractExecution to call ERC20 transfer directly
+  const { ethers } = await import('ethers');
+  const amountWei = ethers.parseUnits(String(parseFloat(amount).toFixed(6)), 6);
 
-  const res = await circlePost('/developer/transactions/contractExecution', {
-    idempotencyKey: `nan-transfer-${walletId}-${Date.now()}`,
+  const res = await client.createContractExecutionTransaction({
+    idempotencyKey: deterministicUUID('transfer-'+Date.now(), walletId),
     walletId,
-    blockchain: 'ARC-TESTNET',
     contractAddress: tokenAddress,
     abiFunctionSignature: 'transfer(address,uint256)',
-    abiParameters: [toAddress, String(amountInUnits)],
+    abiParameters: [toAddress, amountWei.toString()],
     fee: { type: 'level', config: { feeLevel: 'MEDIUM' } }
   });
 
   return res;
 }
 
-// Get balance of user's agent wallet
-async function getAgentBalance(walletAddress) {
-  const { ethers } = await import('ethers');
-  const provider = new ethers.JsonRpcProvider(ARC_RPC, { chainId: ARC_CHAIN_ID, name: 'arc-testnet' });
-  const usdcContract = new ethers.Contract(USDC_ADDRESS, TOKEN_ABI, provider);
-  const eurcContract = new ethers.Contract(EURC_ADDRESS, TOKEN_ABI, provider);
-  const [usdcBal, eurcBal] = await Promise.all([
-    usdcContract.balanceOf(walletAddress).catch(() => BigInt(0)),
-    eurcContract.balanceOf(walletAddress).catch(() => BigInt(0))
-  ]);
-  return {
-    USDC: (Number(usdcBal) / 1e6).toFixed(2),
-    EURC: (Number(eurcBal) / 1e6).toFixed(2)
-  };
-}
-
+// ── Handler ───────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -167,42 +153,53 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { action, userAddress, walletId, toAddress, amount, token = 'USDC' } = req.body || {};
+  const { action, userAddress, toAddress, amount, token = 'USDC' } = req.body || {};
   if (!userAddress) return res.status(400).json({ error: 'userAddress required' });
 
+  // Dev mode — no Circle credentials
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    const hash = crypto.createHash('sha256').update(userAddress.toLowerCase()).digest('hex');
+    const devAddr = '0x' + hash.slice(0, 40);
+    if (action === 'get-or-create')
+      return res.json({ success: true, wallet: { walletId: 'dev-'+hash.slice(0,8), walletAddress: devAddr, walletSetId: 'dev-set', userAddress }, balance: { USDC: '10.00', EURC: '0.00' } });
+    if (action === 'balance')
+      return res.json({ success: true, walletAddress: devAddr, balance: { USDC: '10.00', EURC: '0.00' } });
+    if (action === 'transfer')
+      return res.json({ success: true, txId: 'dev-tx-'+Date.now(), state: 'CONFIRMED', dev: true });
+  }
+
   try {
-    // Get or create wallet for this user
     if (action === 'get-or-create') {
       const wallet = await getOrCreateAgentWallet(userAddress);
-      const balance = await getAgentBalance(wallet.walletAddress).catch(() => ({ USDC: '0', EURC: '0' }));
+      const balance = await getAgentBalance(wallet.walletAddress);
       return res.json({ success: true, wallet, balance });
     }
 
-    // Get balance
     if (action === 'balance') {
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
       const wallet = await kvGet(key);
-      if (!wallet?.walletAddress) return res.json({ success: false, error: 'No agent wallet found. Call get-or-create first.' });
+      if (!wallet?.walletAddress) return res.json({ success: false, error: 'No agent wallet found' });
       const balance = await getAgentBalance(wallet.walletAddress);
       return res.json({ success: true, walletAddress: wallet.walletAddress, balance });
     }
 
-    // Transfer
     if (action === 'transfer') {
       if (!toAddress || !amount) return res.status(400).json({ error: 'toAddress and amount required' });
       if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return res.status(400).json({ error: 'Invalid toAddress' });
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
       const wallet = await kvGet(key);
-      if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found' });
+      if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found — connect first' });
       const result = await agentTransfer(wallet.walletId, toAddress, amount, token);
       const txId = result?.data?.transaction?.id || result?.data?.id;
       const state = result?.data?.transaction?.state || result?.data?.state;
-      return res.json({ success: !!txId, txId, state, result });
+      if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0,200));
+      return res.json({ success: true, txId, state });
     }
 
     return res.status(400).json({ error: `Unknown action: ${action}` });
+
   } catch(e) {
     console.error('[agent-wallets] error:', e.message);
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ success: false, error: e.message.slice(0, 200) });
   }
 }
