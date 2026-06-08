@@ -536,24 +536,9 @@ export default async function handler(req, res) {
           privateKey: privateKey.startsWith('0x') ? privateKey : `0x${privateKey}`,
         });
         const fetchMethod = (method || 'GET').toUpperCase();
-        // Intercept the payment to log what GatewayClient sends
-        const origFetch = global.fetch;
-        let capturedPaymentHeader = null;
-        global.fetch = async (u, opts) => {
-          if (String(u).includes('/ngn-rate') && (opts?.headers?.['Payment-Signature'] || opts?.headers?.['X-PAYMENT'])) {
-            capturedPaymentHeader = opts.headers['Payment-Signature'] || opts.headers['X-PAYMENT'];
-            console.log('[pay-service] X-PAYMENT header length:', capturedPaymentHeader?.length);
-            try {
-              const decoded = JSON.parse(Buffer.from(capturedPaymentHeader, 'base64').toString('utf-8'));
-              console.log('[pay-service] payment payload keys:', Object.keys(decoded));
-              console.log('[pay-service] payment payload:', JSON.stringify(decoded).slice(0,300));
-            } catch(e) { console.log('[pay-service] decode error:', e.message); }
-          }
-          return origFetch(u, opts);
-        };
         const { data: responseData, status } = await client.pay(url, { method: fetchMethod });
-        global.fetch = origFetch;
-        return res.json({ success: true, status, result: responseData, capturedPaymentHeader: capturedPaymentHeader?.slice(0,200) });
+        const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
+        return res.json({ success: true, status, result: safe });
       } catch (e) {
         return res.json({ success: false, error: e.message });
       }
