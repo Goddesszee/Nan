@@ -219,15 +219,24 @@ async function getAgentBalanceRpc(walletAddress) {
 }
 
 // ── Transfer via Circle SDK (createTransaction) ───────────────────────────────
-// Uses createTransaction (simple transfer) NOT createContractExecutionTransaction
-// createTransaction: { walletId, destinationAddress, amounts, tokenAddress, blockchain?, fee }
-async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC') {
+// Accepts either walletId OR walletAddress — if only address given, looks up walletId
+async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC', walletAddress = null) {
   const client = await getClient();
   const tokenAddress = tokenSymbol === 'EURC' ? EURC_ADDRESS : USDC_ADDRESS;
 
+  // If no walletId but we have walletAddress, look up walletId via SDK
+  let resolvedWalletId = walletId;
+  if (!resolvedWalletId && walletAddress) {
+    const wRes = await client.listWallets({ address: walletAddress, blockchain: BLOCKCHAIN });
+    const found = wRes.data?.wallets?.[0];
+    if (!found?.id) throw new Error(`No Circle wallet found for address ${walletAddress}`);
+    resolvedWalletId = found.id;
+    console.log(`[agent-wallets] Resolved walletId ${resolvedWalletId} from address ${walletAddress.slice(0,10)}`);
+  }
+
   const res = await client.createTransaction({
-    idempotencyKey: deterministicUUID('transfer-' + Date.now(), walletId),
-    walletId,
+    idempotencyKey: deterministicUUID('transfer-' + Date.now(), resolvedWalletId),
+    walletId: resolvedWalletId,
     destinationAddress: toAddress,
     amounts: [String(parseFloat(amount).toFixed(6))],
     tokenAddress,
@@ -297,10 +306,28 @@ export default async function handler(req, res) {
     if (action === 'transfer') {
       if (!toAddress || !amount) return res.status(400).json({ error: 'toAddress and amount required' });
       if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return res.status(400).json({ error: 'Invalid toAddress' });
+
+      // Accept agentWalletAddress directly from frontend (avoids Redis lookup entirely)
+      const { agentWalletAddress } = req.body;
+
+      let walletId = null;
+      let walletAddr = agentWalletAddress || null;
+
+      // Try Redis first (fast path)
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
-      const wallet = await kvGet(key);
-      if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet — connect first' });
-      const result = await agentTransfer(wallet.walletId, toAddress, amount, token);
+      const stored = await kvGet(key);
+      if (stored?.walletId) {
+        walletId = stored.walletId;
+        walletAddr = stored.walletAddress;
+      } else if (walletAddr) {
+        // Redis miss but frontend sent agentWalletAddress — use it directly
+        // agentTransfer will resolve walletId from address via SDK
+        console.log(`[agent-wallets] Redis miss for ${userAddress.slice(0,10)}, using agentWalletAddress ${walletAddr.slice(0,10)}`);
+      } else {
+        return res.json({ success: false, error: 'No agent wallet — connect first' });
+      }
+
+      const result = await agentTransfer(walletId, toAddress, amount, token, walletAddr);
       const txId  = result?.data?.id || result?.data?.transaction?.id;
       const state = result?.data?.state || result?.data?.transaction?.state;
       if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0, 200));
