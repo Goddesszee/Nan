@@ -403,14 +403,26 @@ export default async function handler(req, res) {
     }
 
     // ── fund ──────────────────────────────────────────────────────────────────
+    // NOTE: 'circle wallet fund' does NOT exist in CLI v0.0.5.
+    // For CLI (MetaMask/owner) wallets: use gateway deposit or direct faucet URL.
+    // For Circle SDK agent wallets: use /api/agent-wallets?action=faucet instead.
     if (action === 'fund') {
-      const { address, chain = 'ARC-TESTNET', amount, method } = body;
+      const { address, chain = 'ARC-TESTNET' } = body;
       if (!address) return res.json({ error: 'address required' });
-      const args = ['wallet','fund','--address',address,'--chain',chain];
-      if (method) args.push('--method', method);
-      if (amount) args.push('--amount', String(amount));
-      const r = await cli(args, { timeout: 120000 });
-      return res.json({ success: true, result: r });
+      // Redirect to Circle faucet API directly
+      try {
+        const { default: fetch } = await import('node-fetch');
+        const r = await fetch('https://faucet.circle.com/api/faucet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, blockchain: chain, native: false, tokens: ['USDC','EURC'] })
+        });
+        if (r.ok) return res.json({ success: true, message: 'Faucet tokens requested — arrives in ~30s' });
+        const err = await r.text().catch(() => '');
+        return res.json({ success: false, error: 'Faucet failed: ' + err.slice(0,100), fallback: 'https://faucet.circle.com' });
+      } catch(e) {
+        return res.json({ success: false, error: e.message, fallback: 'https://faucet.circle.com' });
+      }
     }
 
     // ── transfer ──────────────────────────────────────────────────────────────
@@ -419,8 +431,9 @@ export default async function handler(req, res) {
       if (!fromAddress || !toAddress || !amount) return res.json({ error: 'fromAddress, toAddress, amount required' });
       if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return res.json({ error: `Invalid destination address: ${toAddress}` });
       try {
+        // CLI syntax: circle wallet transfer <recipient> --amount X --address <from> --chain X
         const args = ['wallet','transfer',
-          '--to', toAddress,
+          toAddress,
           '--amount', String(amount),
           '--address', fromAddress,
           '--chain', chain,
@@ -443,7 +456,8 @@ export default async function handler(req, res) {
     if (action === 'swap') {
       const { address, sellToken='USDC', sellAmount, buyToken='EURC', chain='ARC-TESTNET', quoteOnly=false } = body;
       if (!sellAmount) return res.json({ error: 'sellAmount required' });
-      const args = ['wallet','swap',sellToken,String(sellAmount),buyToken,'--chain',chain];
+      // CLI syntax: circle wallet swap --chain X --from TOKEN --to TOKEN --amount X --address X
+      const args = ['wallet','swap','--chain',chain,'--from',sellToken,'--to',buyToken,'--amount',String(sellAmount)];
       if (address) args.push('--address', address);
       if (quoteOnly) args.push('--quote');
       const r = await cli(args);
