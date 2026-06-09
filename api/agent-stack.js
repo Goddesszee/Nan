@@ -403,26 +403,16 @@ export default async function handler(req, res) {
     }
 
     // ── fund ──────────────────────────────────────────────────────────────────
-    // NOTE: 'circle wallet fund' does NOT exist in CLI v0.0.5.
-    // For CLI (MetaMask/owner) wallets: use gateway deposit or direct faucet URL.
-    // For Circle SDK agent wallets: use /api/agent-wallets?action=faucet instead.
+    // CLI syntax: circle wallet fund --address <addr> --chain <chain>
+    // On testnet: requests tokens from Circle faucet (requires active agent login)
     if (action === 'fund') {
-      const { address, chain = 'ARC-TESTNET' } = body;
+      const { address, chain = 'ARC-TESTNET', amount, method } = body;
       if (!address) return res.json({ error: 'address required' });
-      // Redirect to Circle faucet API directly
-      try {
-        const { default: fetch } = await import('node-fetch');
-        const r = await fetch('https://faucet.circle.com/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, blockchain: chain, native: false, tokens: ['USDC','EURC'] })
-        });
-        if (r.ok) return res.json({ success: true, message: 'Faucet tokens requested — arrives in ~30s' });
-        const err = await r.text().catch(() => '');
-        return res.json({ success: false, error: 'Faucet failed: ' + err.slice(0,100), fallback: 'https://faucet.circle.com' });
-      } catch(e) {
-        return res.json({ success: false, error: e.message, fallback: 'https://faucet.circle.com' });
-      }
+      const args = ['wallet','fund','--address',address,'--chain',chain];
+      if (method) args.push('--method', method);
+      if (amount) args.push('--amount', String(amount));
+      const r = await cli(args, { timeout: 120000 });
+      return res.json({ success: true, result: r });
     }
 
     // ── transfer ──────────────────────────────────────────────────────────────
@@ -456,8 +446,8 @@ export default async function handler(req, res) {
     if (action === 'swap') {
       const { address, sellToken='USDC', sellAmount, buyToken='EURC', chain='ARC-TESTNET', quoteOnly=false } = body;
       if (!sellAmount) return res.json({ error: 'sellAmount required' });
-      // CLI syntax: circle wallet swap --chain X --from TOKEN --to TOKEN --amount X --address X
-      const args = ['wallet','swap','--chain',chain,'--from',sellToken,'--to',buyToken,'--amount',String(sellAmount)];
+      // CLI syntax: circle wallet swap <sellToken> <sellAmount> <buyToken> --chain <chain> [--address <addr>]
+      const args = ['wallet','swap',sellToken,String(sellAmount),buyToken,'--chain',chain];
       if (address) args.push('--address', address);
       if (quoteOnly) args.push('--quote');
       const r = await cli(args);
@@ -683,16 +673,17 @@ export default async function handler(req, res) {
     if (action === 'tx-list') {
       const { address, chain='ARC-TESTNET', limit=20 } = body;
       if (!address) return res.json({ error: 'address required' });
-      const r = await cli(['transaction','list','--address',address,'--chain',chain,'--limit',String(limit)]);
+      // CLI syntax: circle transaction list --address <addr> --chain <chain> [--cursor <id>]
+      // Note: no --limit flag; use --cursor for pagination
+      const r = await cli(['transaction','list','--address',address,'--chain',chain]);
       return res.json({ success: true, transactions: r?.transactions || r?.data || r });
     }
 
     // ── tx-cancel ─────────────────────────────────────────────────────────────
+    // NOTE: 'circle transaction cancel' does NOT exist in CLI v0.0.5.
+    // Only 'circle transaction list' is available. Cancel via Circle SDK accelerateTransaction instead.
     if (action === 'tx-cancel') {
-      const { txId, address, chain='ARC-TESTNET' } = body;
-      if (!txId || !address) return res.json({ error: 'txId and address required' });
-      const r = await cli(['transaction','cancel',txId,'--address',address,'--chain',chain]);
-      return res.json({ success: true, result: r });
+      return res.json({ success: false, error: 'tx-cancel not supported in CLI v0.0.5 — use Circle SDK cancelTransaction directly' });
     }
 
     // ── contract-address ──────────────────────────────────────────────────────
