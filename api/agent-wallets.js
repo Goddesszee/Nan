@@ -62,50 +62,84 @@ async function kvKeys(prefix) {
 }
 
 // ── Get or create agent wallet for a user ────────────────────────────────────
+// Priority: 1) Redis exact key  2) Redis case-variant  3) Circle wallet scan by address
+//           4) Circle wallet set scan by name  5) Create new (last resort only)
 async function getOrCreateAgentWallet(userAddress) {
   const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
-  const existing = await kvGet(key);
-  if (existing?.walletAddress) return existing;
 
-  // Check for case-variant keys (e.g. address stored with different casing)
+  // 1. Redis exact match
+  const existing = await kvGet(key);
+  if (existing?.walletAddress) {
+    console.log(`[agent-wallets] Redis hit for ${userAddress.slice(0,10)}`);
+    return existing;
+  }
+
+  // 2. Redis case-variant scan
   try {
     const allKeys = await kvKeys('nan:agentwallet:');
     const matchKey = allKeys.find(k => k.toLowerCase() === key.toLowerCase());
     if (matchKey && matchKey !== key) {
       const caseVariant = await kvGet(matchKey);
       if (caseVariant?.walletAddress) {
-        // Re-save under canonical lowercase key for future lookups
         await kvSet(key, { ...caseVariant, userAddress });
-        console.log(`[agent-wallets] Migrated key ${matchKey} → ${key}`);
+        console.log(`[agent-wallets] Migrated Redis key ${matchKey} → ${key}`);
         return caseVariant;
       }
     }
-  } catch(e) { console.log('[agent-wallets] key scan error:', e.message); }
+  } catch(e) { console.log('[agent-wallets] Redis key scan error:', e.message); }
 
   const client = await getClient();
 
-  // Find or create wallet set for this user
-  const wsName = `NAN-Agent-${userAddress.slice(0,10).toLowerCase()}`;
-  let walletSetId;
-
-  // Try to find existing wallet set
+  // 3. Scan ALL Circle wallets for one whose address matches a known pattern
+  //    Also look for wallet sets named NAN-Agent-<prefix> or nan-<anything>
+  //    to recover wallets that fell out of Redis
+  const addrPrefix = userAddress.slice(0,10).toLowerCase();
+  const wsNameFull = `NAN-Agent-${addrPrefix}`;
   try {
-    const listRes = await client.listWalletSets({ pageSize: 50 });
-    const existing = listRes.data?.walletSets?.find(ws => ws.name === wsName);
-    if (existing?.id) walletSetId = existing.id;
-  } catch(e) {}
+    // Page through all wallet sets (up to 200)
+    let pageToken;
+    let found = null;
+    do {
+      const listRes = await client.listWalletSets({ pageSize: 50, ...(pageToken ? { pageToken } : {}) });
+      const sets = listRes.data?.walletSets || [];
+      pageToken = listRes.data?.pageToken;
 
-  // Create wallet set if not found
-  if (!walletSetId) {
-    const wsRes = await client.createWalletSet({
-      idempotencyKey: deterministicUUID('walletset', userAddress),
-      name: wsName
-    });
-    walletSetId = wsRes.data?.walletSet?.id;
-    if (!walletSetId) throw new Error('Failed to create wallet set: ' + JSON.stringify(wsRes.data));
+      for (const ws of sets) {
+        // Match by exact name OR name prefix (handles both NAN-Agent- and nan- prefixes)
+        const nameMatch = ws.name === wsNameFull || ws.name?.startsWith('NAN-Agent-' + addrPrefix);
+        if (!nameMatch) continue;
+
+        // Found a matching wallet set — get its wallets
+        const wList = await client.listWallets({ walletSetId: ws.id, pageSize: 10 });
+        const wallets = wList.data?.wallets || [];
+        const arcWallet = wallets.find(w => w.blockchain === BLOCKCHAIN);
+        if (arcWallet?.id && arcWallet?.address) {
+          found = { walletId: arcWallet.id, walletAddress: arcWallet.address, walletSetId: ws.id, userAddress, createdAt: Date.now(), recoveredAt: Date.now() };
+          break;
+        }
+      }
+      if (found) break;
+    } while (pageToken);
+
+    if (found) {
+      // Restore to Redis so future lookups are instant
+      await kvSet(key, found);
+      console.log(`[agent-wallets] Recovered wallet ${found.walletAddress} for ${userAddress.slice(0,10)} from Circle — restored to Redis`);
+      return found;
+    }
+  } catch(e) {
+    console.log('[agent-wallets] Circle scan error:', e.message);
   }
 
-  // Create wallet in the set
+  // 4. Create new wallet set + wallet (only reached if truly no wallet exists)
+  console.log(`[agent-wallets] No existing wallet found for ${userAddress.slice(0,10)} — creating new`);
+  const wsRes = await client.createWalletSet({
+    idempotencyKey: deterministicUUID('walletset', userAddress),
+    name: wsNameFull
+  });
+  const walletSetId = wsRes.data?.walletSet?.id;
+  if (!walletSetId) throw new Error('Failed to create wallet set: ' + JSON.stringify(wsRes.data));
+
   const wRes = await client.createWallets({
     idempotencyKey: deterministicUUID('wallet', userAddress),
     blockchains: [BLOCKCHAIN],
@@ -118,15 +152,9 @@ async function getOrCreateAgentWallet(userAddress) {
   if (!wallet?.id || !wallet?.address)
     throw new Error('Failed to create wallet: ' + JSON.stringify(wRes.data));
 
-  const record = {
-    walletId: wallet.id,
-    walletAddress: wallet.address,
-    walletSetId,
-    userAddress,
-    createdAt: Date.now()
-  };
+  const record = { walletId: wallet.id, walletAddress: wallet.address, walletSetId, userAddress, createdAt: Date.now() };
   await kvSet(key, record);
-  console.log(`[agent-wallets] Created wallet ${wallet.address} for ${userAddress.slice(0,10)}`);
+  console.log(`[agent-wallets] Created new wallet ${wallet.address} for ${userAddress.slice(0,10)}`);
   return record;
 }
 
