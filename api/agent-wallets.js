@@ -221,6 +221,34 @@ export default async function handler(req, res) {
       return res.json({ success: true, txId, state });
     }
 
+    // ── Admin: list all Circle wallets + restore one to Redis ──────────────────
+    if (action === 'list-circle-wallets') {
+      // Returns all wallets in all wallet sets — use to find original wallet
+      const client = await getClient();
+      const wsList = await client.listWalletSets({ pageSize: 50 });
+      const sets = wsList.data?.walletSets || [];
+      const result = [];
+      for (const ws of sets) {
+        try {
+          const wList = await client.listWallets({ walletSetId: ws.id, pageSize: 50 });
+          const wallets = wList.data?.wallets || [];
+          result.push({ walletSetId: ws.id, walletSetName: ws.name, wallets: wallets.map(w => ({ id: w.id, address: w.address, blockchain: w.blockchain, state: w.state })) });
+        } catch(e) { result.push({ walletSetId: ws.id, walletSetName: ws.name, error: e.message }); }
+      }
+      return res.json({ success: true, count: result.length, walletSets: result });
+    }
+
+    // ── Admin: restore a specific wallet to Redis by walletId ────────────────
+    if (action === 'restore-to-redis') {
+      const { walletId, walletSetId, walletAddress } = req.body;
+      if (!walletId || !walletAddress) return res.status(400).json({ error: 'walletId and walletAddress required' });
+      const record = { walletId, walletAddress, walletSetId: walletSetId || 'restored', userAddress, createdAt: Date.now(), restoredAt: Date.now() };
+      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      await kvSet(key, record);
+      console.log(`[agent-wallets] Restored wallet ${walletAddress} for ${userAddress.slice(0,10)} via admin`);
+      return res.json({ success: true, restored: true, key, record });
+    }
+
     if (action === 'lookup') {
       // Return wallet info from Redis without creating — for debugging
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
