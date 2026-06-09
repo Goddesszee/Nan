@@ -33,8 +33,16 @@ export default async function handler(req, res) {
     eurcBal,
     userAddress,
     system: clientSystem,
-    agentWallets,       // Agent Wallet addresses by chain (if user has set up Agent Stack)
-    agentWalletActive,  // bool — whether Agent Stack session is active
+    agentWallets,
+    agentWalletActive,
+    agentWalletBalance,
+    pendingOrders,
+    recentTxs,
+    arcNames,
+    lendSupplied,
+    lendBorrowed,
+    gatewayBalance,
+    fxRate,
   } = req.body;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 20)
@@ -59,15 +67,33 @@ export default async function handler(req, res) {
 - Agent Wallets support: spending policies, x402 nanopayments, Agent Marketplace`;
 
   // Always use our system prompt - clientSystem may be stale
+  const _pendingOrdersStr = Array.isArray(pendingOrders) && pendingOrders.length > 0
+    ? pendingOrders.join('\n') : 'No pending orders';
+  const _recentTxsStr = Array.isArray(recentTxs) && recentTxs.length > 0
+    ? recentTxs.join('\n') : 'No recent transactions';
+  const _arcNamesStr = Array.isArray(arcNames) && arcNames.length > 0
+    ? arcNames.join(', ') : 'none';
+
   const systemPrompt = `You are NAN AI ✦ — a smart DeFi assistant inside NAN Wallet on Arc Testnet. Be concise, friendly, direct. No markdown.
 
-LIVE WALLET DATA (use these exact numbers):
+LIVE WALLET DATA (use these exact numbers — never invent or guess):
 - Address: ${userAddress || 'Not connected'}
 - Wallet type: ${agentWalletActive ? 'Circle Agent Wallet (autonomous sends) + Main Wallet' : 'Main Wallet (Circle Developer-Controlled)'}
-- Agent wallet: ${agentWalletActive ? 'CONNECTED — use agent-send for autonomous sends' : 'NOT connected — sends use main wallet via send page (still works fine)'}
+- Agent wallet: ${agentWalletActive ? 'CONNECTED — use agent-send for autonomous sends' : 'NOT connected — sends use main wallet via send page'}
+- Agent wallet balance: ${agentWalletBalance || (agentWalletActive ? 'use agent-balance action to fetch' : 'N/A')}
 - USDC Balance: ${parseFloat(usdcBal || '0').toFixed(2)} USDC
 - EURC Balance: ${parseFloat(eurcBal || '0').toFixed(2)} EURC
+- FX Rate: ${fxRate ? `1 USDC = ${parseFloat(fxRate).toFixed(4)} EURC` : 'loading'}
+- Gateway balance: ${gatewayBalance || 'N/A'}
+- Lending: supplied ${parseFloat(lendSupplied||0).toFixed(2)} USDC, borrowed ${parseFloat(lendBorrowed||0).toFixed(2)} USDC
+- .arc names owned: ${_arcNamesStr}
 - Network: Arc Testnet (Chain ID 5042002, gas in USDC ~0.009/tx)
+
+PENDING ORDERS (these are REAL — do not fabricate):
+${_pendingOrdersStr}
+
+RECENT TRANSACTIONS (these are REAL — do not fabricate):
+${_recentTxsStr}
 ${agentStackContext}
 
 CIRCLE AGENT STACK — WHAT IT IS:
