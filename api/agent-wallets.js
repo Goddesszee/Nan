@@ -51,11 +51,36 @@ function deterministicUUID(scope, addr) {
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-${['8','9','a','b'][parseInt(hex[16],16)%4]}${hex.slice(17,20)}-${hex.slice(20,32)}`;
 }
 
+// ── List all agent wallet Redis keys ─────────────────────────────────────────
+async function kvKeys(prefix) {
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(`${KV_URL}/keys/${encodeURIComponent(prefix+'*')}`, {
+    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  });
+  const d = await r.json();
+  return d?.result || [];
+}
+
 // ── Get or create agent wallet for a user ────────────────────────────────────
 async function getOrCreateAgentWallet(userAddress) {
   const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
   const existing = await kvGet(key);
   if (existing?.walletAddress) return existing;
+
+  // Check for case-variant keys (e.g. address stored with different casing)
+  try {
+    const allKeys = await kvKeys('nan:agentwallet:');
+    const matchKey = allKeys.find(k => k.toLowerCase() === key.toLowerCase());
+    if (matchKey && matchKey !== key) {
+      const caseVariant = await kvGet(matchKey);
+      if (caseVariant?.walletAddress) {
+        // Re-save under canonical lowercase key for future lookups
+        await kvSet(key, { ...caseVariant, userAddress });
+        console.log(`[agent-wallets] Migrated key ${matchKey} → ${key}`);
+        return caseVariant;
+      }
+    }
+  } catch(e) { console.log('[agent-wallets] key scan error:', e.message); }
 
   const client = await getClient();
 
@@ -194,6 +219,28 @@ export default async function handler(req, res) {
       const state = result?.data?.transaction?.state || result?.data?.state;
       if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0,200));
       return res.json({ success: true, txId, state });
+    }
+
+    if (action === 'lookup') {
+      // Return wallet info from Redis without creating — for debugging
+      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      const wallet = await kvGet(key);
+      if (wallet?.walletAddress) {
+        const balance = await getAgentBalance(wallet.walletAddress);
+        return res.json({ success: true, found: true, wallet, balance });
+      }
+      // Scan for case variants
+      try {
+        const allKeys = await kvKeys('nan:agentwallet:');
+        const matchKey = allKeys.find(k => k.toLowerCase() === key.toLowerCase());
+        if (matchKey) {
+          const w = await kvGet(matchKey);
+          if (w?.walletAddress) {
+            return res.json({ success: true, found: true, wallet: w, note: 'found via key scan: '+matchKey });
+          }
+        }
+      } catch(e) {}
+      return res.json({ success: true, found: false, message: 'No agent wallet in Redis for this address' });
     }
 
     return res.status(400).json({ error: `Unknown action: ${action}` });
