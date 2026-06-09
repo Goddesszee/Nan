@@ -320,14 +320,23 @@ export default async function handler(req, res) {
         walletId = stored.walletId;
         walletAddr = stored.walletAddress;
       } else if (walletAddr) {
-        // Redis miss but frontend sent agentWalletAddress — use it directly
-        // agentTransfer will resolve walletId from address via SDK
-        console.log(`[agent-wallets] Redis miss for ${userAddress.slice(0,10)}, using agentWalletAddress ${walletAddr.slice(0,10)}`);
+        // Redis miss — agentTransfer will resolve walletId from address via listWallets SDK call
+        console.log(`[agent-wallets] Redis miss, resolving walletId from address ${walletAddr.slice(0,10)}`);
       } else {
-        return res.json({ success: false, error: 'No agent wallet — connect first' });
+        // No wallet address at all — not a Circle SDK wallet, tell frontend to use CLI
+        return res.json({ success: false, notCircleWallet: true, error: 'No Circle agent wallet address provided' });
       }
 
-      const result = await agentTransfer(walletId, toAddress, amount, token, walletAddr);
+      let result;
+      try {
+        result = await agentTransfer(walletId, toAddress, amount, token, walletAddr);
+      } catch(transferErr) {
+        // If Circle SDK can't find the wallet by address, it's probably a CLI wallet
+        if (transferErr.message?.includes('No Circle wallet found')) {
+          return res.json({ success: false, notCircleWallet: true, error: transferErr.message });
+        }
+        throw transferErr;
+      }
       const txId  = result?.data?.id || result?.data?.transaction?.id;
       const state = result?.data?.state || result?.data?.transaction?.state;
       if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0, 200));
