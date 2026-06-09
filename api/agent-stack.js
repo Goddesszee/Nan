@@ -729,9 +729,15 @@ export default async function handler(req, res) {
     }
 
     // ── set-policy ────────────────────────────────────────────────────────────
+    // CLI docs confirm: wallet limit set is MAINNET ONLY — testnet chains return error
     if (action === 'set-policy') {
       const { address, chain, policyType='stablecoin', ruleType='transfer-limit', perTx, daily, weekly, monthly } = body;
       if (!address || !chain) return res.json({ error: 'address and chain required (mainnet only)' });
+      // Block testnet chains — CLI will reject them anyway
+      const testnetChains = ['ARC-TESTNET','BASE-SEPOLIA','ETH-SEPOLIA','ARB-SEPOLIA','OP-SEPOLIA','AVAX-FUJI','MATIC-AMOY'];
+      if (testnetChains.includes(chain.toUpperCase())) {
+        return res.json({ success: false, error: `Policy writes are only available on mainnet chains. '${chain}' is a testnet.` });
+      }
       const args = ['wallet','limit','set','--address',address,'--chain',chain,'--policy-type',policyType,'--rule-type',ruleType];
       if (perTx) args.push('--per-tx', String(perTx));
       if (daily) args.push('--daily', String(daily));
