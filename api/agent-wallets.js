@@ -316,6 +316,18 @@ export default async function handler(req, res) {
       return res.json({ success: true, message: 'Testnet tokens requested — arrives in ~30s' });
     }
 
+    // ── history: list transactions via Circle SDK ───────────────────────────
+    if (action === 'history') {
+      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      const wallet = await kvGet(key);
+      if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found' });
+      const client = await getClient();
+      // listTransactions: filter by walletIds (comma-separated string)
+      const txRes = await client.listTransactions({ walletIds: wallet.walletId, pageSize: 20 });
+      const txs = txRes.data?.transactions || [];
+      return res.json({ success: true, transactions: txs });
+    }
+
     // ── lookup: check Redis without creating ─────────────────────────────────
     if (action === 'lookup') {
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
