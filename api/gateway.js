@@ -47,12 +47,10 @@ export default async function handler(req, res) {
         })),
       };
 
-      const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY || '';
       const response = await fetch(`${GATEWAY_API}/balances`, {
         method:  'POST',
         headers: {
           'Content-Type':  'application/json',
-          'Authorization': `Bearer ${CIRCLE_API_KEY}`,
         },
         body: JSON.stringify(body),
       });
@@ -101,10 +99,7 @@ export default async function handler(req, res) {
   // ── info ──────────────────────────────────────────────────────────────────
   if (action === 'info') {
     try {
-      const CIRCLE_API_KEY_INFO = process.env.CIRCLE_API_KEY || '';
-      const response = await fetch(`${GATEWAY_API}/info`, {
-        headers: { 'Authorization': `Bearer ${CIRCLE_API_KEY_INFO}` }
-      });
+      const response = await fetch(`${GATEWAY_API}/info`);
       if (!response.ok) throw new Error('Gateway info unavailable');
       const data = await response.json();
       return res.json({ success: true, data });
