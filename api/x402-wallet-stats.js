@@ -4,7 +4,7 @@
 const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0x86B245D0B48BBdc58F08cAeA971a24ba377c366a';
 const ARC_RPC = 'https://rpc.testnet.arc.network';
 const USDC_ADDR = '0x3600000000000000000000000000000000000000';
-const EURC_ADDR = '0x89B5a3B9e037e7F3e8F4a1Bb45B2f56845F272a';
+const EURC_ADDR = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 
 let _gateway = null;
 async function getGateway() {

@@ -16,7 +16,7 @@ async function getGateway() {
 }
 
 const CHAINS = [
-  { name: 'Arc Testnet', domain: 7, rpc: 'https://rpc.testnet.arc.network' },
+  { name: 'Arc Testnet', domain: 26, rpc: 'https://rpc.testnet.arc.network' },
   { name: 'ETH Sepolia', domain: 0, rpc: 'https://rpc.sepolia.org' },
   { name: 'Base Sepolia', domain: 6, rpc: 'https://sepolia.base.org' },
   { name: 'ARB Sepolia', domain: 3, rpc: 'https://sepolia-rollup.arbitrum.io/rpc' },

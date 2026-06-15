@@ -11,7 +11,7 @@ const ARC_RPC  = 'https://rpc.testnet.arc.network';
 const ARC_CHAIN_ID = 5042002;
 const BLOCKCHAIN   = 'ARC-TESTNET';
 const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
-const EURC_ADDRESS = '0x89B572E95e4f609551b44F7b3b3d875952A72a';
+const EURC_ADDRESS = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 const TOKEN_ABI    = ['function balanceOf(address) view returns(uint256)'];
 
 // ── Redis helpers ─────────────────────────────────────────────────────────────
