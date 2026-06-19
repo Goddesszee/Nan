@@ -9,6 +9,8 @@ export default function handler(req, res) {
   const { password } = req.body || {};
   const adminPw = process.env.ADMIN_PASSWORD;
   if (!adminPw) return res.json({ success: false, error: 'Admin not configured' });
-  if (password === adminPw) return res.json({ success: true });
+  // Trim both sides — guards against a trailing space/newline accidentally
+  // saved in the Railway env var, or stray whitespace from mobile keyboards.
+  if (typeof password === 'string' && password.trim() === adminPw.trim()) return res.json({ success: true });
   return res.json({ success: false, error: 'Invalid password' });
 }
