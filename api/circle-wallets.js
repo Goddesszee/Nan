@@ -701,8 +701,70 @@ export default async function handler(req, res) {
     }
   }
 
+  // ── listAllWalletSets ───────────────────────────────────────────────────
+  // Returns the TRUE total count of every Circle wallet NAN has ever created,
+  // since day one — independent of on-chain activity entirely. Each NAN user
+  // gets their own walletSet (see walletSetName(email) above), so paginating
+  // through ALL wallet sets (not searching for one specific name, as
+  // findWalletSet does) gives a complete historical user count that no
+  // amount of blockchain scanning could ever reconstruct, since a wallet
+  // that was created but never used on-chain leaves no trace there.
+  if (action === 'listAllWalletSets') {
+    if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+      return res.json({ success: false, error: 'Circle credentials not configured', dev: true, total: 0, wallets: [] });
+    }
+    try {
+      const client = await getClient();
+      const allSets = [];
+      let pageAfter;
+      let safetyIterations = 0;
+      const MAX_PAGES = 200; // 200 * 50 = 10,000 wallet sets ceiling; far beyond realistic NAN scale, just a safety net
+      do {
+        const r = await client.listWalletSets({ pageSize: 50, pageAfter });
+        allSets.push(...(r.data?.walletSets || []));
+        pageAfter = r.data?.pageCursor;
+        safetyIterations++;
+      } while (pageAfter && safetyIterations < MAX_PAGES);
+
+      // For each wallet set, fetch its Arc Testnet wallet address (if any).
+      // Run with limited concurrency to avoid hammering Circle's API if
+      // NAN ends up with thousands of users.
+      const results = [];
+      const CONCURRENCY = 5;
+      for (let i = 0; i < allSets.length; i += CONCURRENCY) {
+        const batch = allSets.slice(i, i + CONCURRENCY);
+        const batchResults = await Promise.all(batch.map(async (ws) => {
+          try {
+            const wr = await client.listWallets({ walletSetId: ws.id, pageSize: 20 });
+            const wallet = (wr.data?.wallets || []).find(w => w.blockchain === BLOCKCHAIN);
+            return {
+              walletSetId: ws.id,
+              createDate:  ws.createDate || ws.createdDate || null,
+              address:     wallet?.address || null,
+            };
+          } catch (e) {
+            return { walletSetId: ws.id, createDate: ws.createDate || null, address: null, error: e.message };
+          }
+        }));
+        results.push(...batchResults);
+      }
+
+      const withWallet = results.filter(r => r.address);
+
+      return res.json({
+        success: true,
+        total:   withWallet.length,
+        totalWalletSets: allSets.length, // includes sets that may not have an Arc wallet yet
+        wallets: withWallet,
+      });
+    } catch (err) {
+      console.error('[listAllWalletSets]', err.message);
+      return res.json({ success: false, error: err.message.slice(0, 200) });
+    }
+  }
+
   return res.json({
     success: false,
-    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge, cctpMint, getUnifiedBalance',
+    error:   'Unknown action. Valid: getWallet, transfer, bridge, getAttestation, contractCall, swapQuote, swapExecute, appkitSend, appkitBridge, cctpMint, getUnifiedBalance, listAllWalletSets',
   });
 }
