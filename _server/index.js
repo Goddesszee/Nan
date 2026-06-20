@@ -778,6 +778,26 @@ app.get('/api/x402/cctp-status', async (req, res) => {
   catch(e) { console.error('[x402] error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
 
+// Track-connection route — logs wallet connections (GET reads totals, POST logs a connection)
+app.get('/api/track-connection', async (req, res) => {
+  try {
+    const mod = await import('../api/track-connection.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[track-connection]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+app.post('/api/track-connection', async (req, res) => {
+  try {
+    const mod = await import('../api/track-connection.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[track-connection]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
   try {
