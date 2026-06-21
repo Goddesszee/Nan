@@ -798,6 +798,17 @@ app.post('/api/track-connection', async (req, res) => {
   }
 });
 
+// VTpass route — Marketplace bill payments (Airtime, Data, Electricity, DSTV)
+app.post('/api/vtpass', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/vtpass.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[vtpass]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
   try {
