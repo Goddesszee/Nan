@@ -809,6 +809,28 @@ app.post('/api/vtpass', rateLimit(30), async (req, res) => {
   }
 });
 
+// NGN Ledger — persistent per-wallet Naira balance (credit/debit/getBalance)
+app.post('/api/ngn-ledger', rateLimit(60), async (req, res) => {
+  try {
+    const mod = await import('../api/ngn-ledger.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[ngn-ledger]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// NGN Disburse — converts NGN ledger balance to real USDC on Arc Testnet
+app.post('/api/ngn-disburse', rateLimit(10), async (req, res) => {
+  try {
+    const mod = await import('../api/ngn-disburse.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[ngn-disburse]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Analytics route
 app.get('/api/analytics', async (req, res) => {
   try {
