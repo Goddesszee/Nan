@@ -429,6 +429,10 @@ app.get('/api/gateway', rateLimit(30), async (req, res) => {
 });
 
 // ── Gateway deposit ───────────────────────────────────────────────────────────
+app.post('/api/ajo', rateLimit(20), async (req, res) => {
+    const mod = await import('../api/ajo.js');
+    return mod.default(req, res);
+});
 app.post('/api/gateway-deposit', rateLimit(10), async (req, res) => {
   try {
     const mod = await import('../api/gateway-deposit.js');
