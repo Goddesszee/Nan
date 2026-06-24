@@ -1,10 +1,35 @@
 // api/ajo.js — Ajo actions for Circle Developer-Controlled Wallet users
 // MetaMask users sign directly; this endpoint handles Circle wallet users only.
+// Uses getTransaction polling per Circle docs (recommended over fixed waits).
 import crypto from 'crypto';
 
 const AJO_CONTRACT = '0xced87A492edF8AfE834b2730102C7d5A0cc56cA9';
 const USDC_ADDR    = '0x3600000000000000000000000000000000000000';
 const BLOCKCHAIN   = 'ARC-TESTNET';
+
+// Poll getTransaction until terminal state per Circle docs best practice.
+// Terminal states: COMPLETE, FAILED, DENIED, CANCELLED
+// https://developers.circle.com/wallets/dev-controlled/use-developer-controlled-wallets
+async function waitForTx(client, txId, timeoutMs = 60000) {
+  const TERMINAL = new Set(['COMPLETE', 'FAILED', 'DENIED', 'CANCELLED']);
+  const start = Date.now();
+  let delay = 1000;
+  while (Date.now() - start < timeoutMs) {
+    await new Promise(r => setTimeout(r, delay));
+    delay = Math.min(delay * 1.5, 5000); // back off up to 5s
+    try {
+      const r = await client.getTransaction({ id: txId });
+      const state = r.data?.transaction?.state || r.data?.state;
+      if (!state) continue;
+      if (state === 'COMPLETE') return { success: true, state };
+      if (TERMINAL.has(state)) throw new Error(`Transaction ${state}: ${txId}`);
+    } catch (e) {
+      if (e.message.startsWith('Transaction ')) throw e;
+      // transient fetch error — keep polling
+    }
+  }
+  throw new Error(`Transaction timed out after ${timeoutMs / 1000}s: ${txId}`);
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,7 +52,8 @@ export default async function handler(req, res) {
       entitySecret: process.env.CIRCLE_ENTITY_SECRET,
     });
 
-    const tx = async (contractAddress, sig, params) => {
+    // Submit tx and return id — does NOT wait for confirmation
+    const submit = async (contractAddress, sig, params) => {
       const r = await client.createContractExecutionTransaction({
         walletId, blockchain: BLOCKCHAIN, contractAddress,
         abiFunctionSignature: sig,
@@ -40,14 +66,18 @@ export default async function handler(req, res) {
       return id;
     };
 
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+    // Submit and wait for on-chain confirmation
+    const tx = async (contractAddress, sig, params) => {
+      const id = await submit(contractAddress, sig, params);
+      await waitForTx(client, id);
+      return id;
+    };
 
-    // ── CREATE GROUP ────────────────────────────────────────────────────────
+    // ── CREATE GROUP ──────────────────────────────────────────────────────
     if (action === 'createGroup') {
       const { contributionAmount, maxMembers, roundLength, label } = req.body;
       if (!contributionAmount || !maxMembers || !roundLength || !label)
         return res.json({ success: false, error: 'Missing fields' });
-
       const amtAtomic = Math.floor(parseFloat(contributionAmount) * 1_000_000).toString();
       const id = await tx(AJO_CONTRACT,
         'createGroup(uint256,uint8,uint256,string)',
@@ -56,7 +86,7 @@ export default async function handler(req, res) {
       return res.json({ success: true, txId: id });
     }
 
-    // ── JOIN GROUP ──────────────────────────────────────────────────────────
+    // ── JOIN GROUP ────────────────────────────────────────────────────────
     if (action === 'joinGroup') {
       const { groupId } = req.body;
       if (groupId == null) return res.json({ success: false, error: 'groupId required' });
@@ -64,7 +94,7 @@ export default async function handler(req, res) {
       return res.json({ success: true, txId: id });
     }
 
-    // ── START GROUP ─────────────────────────────────────────────────────────
+    // ── START GROUP ───────────────────────────────────────────────────────
     if (action === 'startGroup') {
       const { groupId } = req.body;
       if (groupId == null) return res.json({ success: false, error: 'groupId required' });
@@ -72,24 +102,20 @@ export default async function handler(req, res) {
       return res.json({ success: true, txId: id });
     }
 
-    // ── CONTRIBUTE ──────────────────────────────────────────────────────────
+    // ── CONTRIBUTE ────────────────────────────────────────────────────────
     if (action === 'contribute') {
       const { groupId, contributionAmount } = req.body;
       if (groupId == null || !contributionAmount)
         return res.json({ success: false, error: 'groupId and contributionAmount required' });
-
       const amtAtomic = Math.floor(parseFloat(contributionAmount) * 1_000_000).toString();
-
-      // Step 1: approve
+      // Step 1: approve — wait for confirmation before contributing
       await tx(USDC_ADDR, 'approve(address,uint256)', [AJO_CONTRACT, amtAtomic]);
-      await wait(3000);
-
       // Step 2: contribute
       const id = await tx(AJO_CONTRACT, 'contribute(uint256)', [String(groupId)]);
       return res.json({ success: true, txId: id });
     }
 
-    // ── CLAIM ROUND PAYOUT ──────────────────────────────────────────────────
+    // ── CLAIM ROUND PAYOUT ────────────────────────────────────────────────
     if (action === 'claimRoundPayout') {
       const { groupId } = req.body;
       if (groupId == null) return res.json({ success: false, error: 'groupId required' });
