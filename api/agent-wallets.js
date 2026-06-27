@@ -234,13 +234,18 @@ async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC', 
     console.log(`[agent-wallets] Resolved walletId ${resolvedWalletId} from address ${walletAddress.slice(0,10)}`);
   }
 
+  // Idempotency key: stable hash of walletId + destination + amount + token
+  // (safe to retry without creating duplicate transactions)
+  const idemBase = `${resolvedWalletId}:${toAddress}:${parseFloat(amount).toFixed(6)}:${tokenSymbol}`;
+  const idemKey  = deterministicUUID('transfer', idemBase);
+
   const res = await client.createTransaction({
-    idempotencyKey: deterministicUUID('transfer-' + Date.now(), resolvedWalletId),
+    idempotencyKey: idemKey,
     walletId: resolvedWalletId,
     destinationAddress: toAddress,
     amounts: [String(parseFloat(amount).toFixed(6))],
     tokenAddress,
-    blockchain: BLOCKCHAIN,
+    blockchain: BLOCKCHAIN, // required when using tokenAddress instead of tokenId
     fee: { type: 'level', config: { feeLevel: 'MEDIUM' } }
   });
   return res;
@@ -359,7 +364,7 @@ export default async function handler(req, res) {
       if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found' });
       const client = await getClient();
       // listTransactions: filter by walletIds (comma-separated string)
-      const txRes = await client.listTransactions({ walletIds: wallet.walletId, pageSize: 20 });
+      const txRes = await client.listTransactions({ walletIds: [wallet.walletId], pageSize: 20 });
       const txs = txRes.data?.transactions || [];
       return res.json({ success: true, transactions: txs });
     }
