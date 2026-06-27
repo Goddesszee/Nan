@@ -364,6 +364,99 @@ export default async function handler(req, res) {
       return res.json({ success: true, transactions: txs });
     }
 
+
+    // ── lookup-by-arc: resolve arc name → main wallet → find their agent wallet ─
+    if (action === 'lookup-by-arc') {
+      const { arcName, recipientAddress } = req.body;
+      // Accept either a pre-resolved address or an arc name to resolve on-chain
+      let mainAddr = recipientAddress || null;
+
+      if (!mainAddr && arcName) {
+        // Resolve arc name using Arc Testnet name registry
+        const { JsonRpcProvider, Contract } = await import('ethers');
+        const NAME_REGISTRY_ADDR = '0x0000000000000000000000000000000000000832';
+        const NAME_ABI_MINI = ['function resolve(string name) view returns (address)'];
+        try {
+          const rp = new JsonRpcProvider('https://rpc.testnet.arc.network');
+          const nc = new Contract(NAME_REGISTRY_ADDR, NAME_ABI_MINI, rp);
+          const resolved = await Promise.race([
+            nc.resolve(arcName.replace(/\.arc$/i, '').toLowerCase()),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+          ]);
+          if (!resolved || resolved === '0x0000000000000000000000000000000000000000') {
+            return res.json({ success: false, error: `Arc name "${arcName}" not found` });
+          }
+          mainAddr = resolved;
+        } catch(e) {
+          return res.json({ success: false, error: 'Arc name resolution failed: ' + e.message.slice(0,100) });
+        }
+      }
+
+      if (!mainAddr || !/^0x[a-fA-F0-9]{40}$/.test(mainAddr)) {
+        return res.json({ success: false, error: 'Provide arcName or a valid recipientAddress' });
+      }
+
+      // Now look up their agent wallet in Redis
+      const key = `nan:agentwallet:${mainAddr.toLowerCase()}`;
+      const wallet = await kvGet(key);
+      if (wallet?.walletAddress) {
+        return res.json({ success: true, found: true, mainAddress: mainAddr, agentWalletAddress: wallet.walletAddress });
+      }
+      // Also try fallback key scan (handles case mismatches)
+      try {
+        const allKeys = await kvKeys('nan:agentwallet:');
+        const matchKey = allKeys.find(k => k.toLowerCase() === key.toLowerCase());
+        if (matchKey) {
+          const w = await kvGet(matchKey);
+          if (w?.walletAddress) {
+            return res.json({ success: true, found: true, mainAddress: mainAddr, agentWalletAddress: w.walletAddress, note: 'key-scan' });
+          }
+        }
+      } catch(e) {}
+      // Recipient has no agent wallet — return their main wallet so frontend can fall back to agent→main send
+      return res.json({ success: true, found: false, mainAddress: mainAddr, agentWalletAddress: null,
+        message: 'Recipient has no NAN agent wallet — will send to their main wallet instead' });
+    }
+
+    // ── a2a-transfer: send from your agent wallet → recipient's agent wallet (or main wallet) ──
+    if (action === 'a2a-transfer') {
+      const { agentWalletAddress, toMainAddress, toAgentAddress, amount, token = 'USDC' } = req.body;
+      if (!agentWalletAddress || !amount) return res.status(400).json({ error: 'agentWalletAddress and amount required' });
+
+      // Destination: prefer agent wallet, fall back to main wallet
+      const destination = toAgentAddress || toMainAddress;
+      if (!destination || !/^0x[a-fA-F0-9]{40}$/.test(destination)) {
+        return res.status(400).json({ error: 'Valid toAgentAddress or toMainAddress required' });
+      }
+
+      // Resolve sender walletId from Redis or by address scan
+      let walletId = null;
+      const senderKey = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      const senderWallet = await kvGet(senderKey);
+      if (senderWallet?.walletId) {
+        walletId = senderWallet.walletId;
+      }
+
+      let result;
+      try {
+        result = await agentTransfer(walletId, destination, amount, token, agentWalletAddress);
+      } catch(e) {
+        if (e.message?.includes('No Circle wallet found')) {
+          return res.json({ success: false, notCircleWallet: true, error: e.message });
+        }
+        throw e;
+      }
+      const txId  = result?.data?.id || result?.data?.transaction?.id;
+      const state = result?.data?.state || result?.data?.transaction?.state;
+      if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0, 200));
+      const sentToAgent = !!toAgentAddress;
+      return res.json({ success: true, txId, state, sentToAgent,
+        message: sentToAgent
+          ? `Sent ${amount} ${token} agent→agent ✅`
+          : `Sent ${amount} ${token} to recipient's main wallet (no agent wallet found) ✅`
+      });
+    }
+
     // ── lookup: check Redis without creating ─────────────────────────────────
     if (action === 'lookup') {
       const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
