@@ -132,6 +132,9 @@ RULES:
   <ACTION>{"action":"agent-schedule","amount":5,"token":"USDC","to":"0x...","when":"every friday"}</ACTION>
   <ACTION>{"action":"agent-standing","amount":10,"token":"USDC","to":"0x...","freq":"weekly"}</ACTION>
   <ACTION>{"action":"payreq-create","amount":5,"token":"USDC","label":"Invoice #1","note":"For services"}</ACTION>
+  <ACTION>{"action":"agent-set-policy","perTx":10,"daily":50,"weekly":200}</ACTION>
+  <ACTION>{"action":"agent-get-policy"}</ACTION>
+  <ACTION>{"action":"agent-clear-policy"}</ACTION>
   <ACTION>{"action":"limit","amount":5,"sellToken":"USDC","buyToken":"EURC","targetRate":1.20,"condition":"gte"}</ACTION>
 
   Agent Wallet (Circle Agent Stack):
@@ -160,6 +163,9 @@ RULES:
 - ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
 - CRITICAL ADDRESS RULE: In ACTION tags NEVER use truncated addresses like "86B2...366a". Always use the original .arc name (e.g. "aunty.arc") OR a full 42-char 0x address. If unsure, use the .arc name from the user's message
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
+- For "set limit", "spending limit", "max per tx", "daily limit", "cap my agent": use agent-set-policy with perTx and daily amounts parsed from the message
+- For "what are my limits", "show policy", "spending rules": use agent-get-policy
+- For "remove limits", "clear policy", "no limits": use agent-clear-policy
 - If agentWalletActive is true: ALWAYS use "agent-send" (autonomous, no popup). If false: use "send" (opens send page prefilled — user confirms with their wallet)
 - For "sell USDC to naira when rate hits X": use fx-limit-offramp with targetRate=X (number only, no ₦ symbol)
 - For "pay staff/team/payroll": use agent-payroll, include group name if mentioned
