@@ -1,7 +1,7 @@
 // api/chat.js — NAN AI powered by OpenAI + Circle Agent Stack awareness — v1780887356
 const rateLimitMap = new Map();
 let _activeOpenAIRequests = 0;
-const MAX_CONCURRENT_OPENAI = 5; // max parallel OpenAI calls
+const MAX_CONCURRENT_OPENAI = 10; // max parallel OpenAI calls
 
 function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
   const now    = Date.now();
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
-  if (!checkRateLimit(ip, 20, 60_000))
-    return res.status(429).json({ error: 'Too many requests — please wait a minute' });
+  if (!checkRateLimit(ip, 60, 60_000))
+    return res.status(429).json({ error: 'Too many requests — please wait a moment' });
 
   const {
     messages,
