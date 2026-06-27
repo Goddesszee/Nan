@@ -1,7 +1,7 @@
-// api/chat.js — NAN AI powered by Groq + Circle Agent Stack awareness — v1780887355
+// api/chat.js — NAN AI powered by OpenAI + Circle Agent Stack awareness — v1780887356
 const rateLimitMap = new Map();
-let _activeGroqRequests = 0;
-const MAX_CONCURRENT_GROQ = 5; // max parallel Groq calls
+let _activeOpenAIRequests = 0;
+const MAX_CONCURRENT_OPENAI = 5; // max parallel OpenAI calls
 
 function checkRateLimit(ip, limit = 20, windowMs = 60_000) {
   const now    = Date.now();
@@ -48,8 +48,8 @@ export default async function handler(req, res) {
   if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 20)
     return res.status(400).json({ error: 'Invalid messages array' });
 
-  const GROQ_KEY = process.env.GROQ_API_KEY;
-  if (!GROQ_KEY) return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
+  const OPENAI_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
 
   // Build Agent Stack context string
   const agentStackContext = agentWallets
@@ -188,32 +188,32 @@ RULES:
     .map(m => ({ role: m.role, content: String(m.content).slice(0, 2000) }));
 
   try {
-    // Concurrency guard — prevent Groq rate limits under traffic
-    if (_activeGroqRequests >= MAX_CONCURRENT_GROQ) {
+    // Concurrency guard — prevent OpenAI rate limits under traffic
+    if (_activeOpenAIRequests >= MAX_CONCURRENT_OPENAI) {
       return res.status(429).json({ error: 'NAN AI is busy — please try again in a moment 🙏' });
     }
-    _activeGroqRequests++;
+    _activeOpenAIRequests++;
     let r, data;
     try {
-      r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      r = await fetch('https://api.openai.com/v1/chat/completions', {
         method:  'POST',
         headers: {
-          'Authorization': `Bearer ${GROQ_KEY}`,
+          'Authorization': `Bearer ${OPENAI_KEY}`,
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          model:      'llama-3.1-8b-instant',
+          model:      'gpt-4o-mini',
           max_tokens: 512,
           messages:   [{ role: 'system', content: systemPrompt }, ...safeMessages],
         }),
       });
       data = await r.json();
     } finally {
-      _activeGroqRequests--;
+      _activeOpenAIRequests--;
     }
     if (!r.ok) {
-      console.error('Groq error:', data);
-      return res.status(500).json({ error: data?.error?.message || 'Groq error' });
+      console.error('OpenAI error:', data);
+      return res.status(500).json({ error: data?.error?.message || 'OpenAI error' });
     }
 
     let reply = data.choices?.[0]?.message?.content || 'No response.';
