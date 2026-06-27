@@ -220,9 +220,16 @@ async function getAgentBalanceRpc(walletAddress) {
 
 // ── Transfer via Circle SDK (createTransaction) ───────────────────────────────
 // Accepts either walletId OR walletAddress — if only address given, looks up walletId
-async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC', walletAddress = null) {
+async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC', walletAddress = null, skipPolicyCheck = false) {
   const client = await getClient();
   const tokenAddress = tokenSymbol === 'EURC' ? EURC_ADDRESS : USDC_ADDRESS;
+
+  // ── Spending policy enforcement ──────────────────────────────────────────
+  const policyAddr = walletAddress || (walletId ? await getWalletAddress(walletId) : null);
+  if (policyAddr && !skipPolicyCheck) {
+    const check = await checkPolicy(policyAddr, amount);
+    if (!check.allowed) throw new Error('POLICY_VIOLATION: ' + check.reason);
+  }
 
   // If no walletId but we have walletAddress, look up walletId via SDK
   let resolvedWalletId = walletId;
@@ -248,6 +255,11 @@ async function agentTransfer(walletId, toAddress, amount, tokenSymbol = 'USDC', 
     blockchain: BLOCKCHAIN, // required when using tokenAddress instead of tokenId
     fee: { type: 'level', config: { feeLevel: 'MEDIUM' } }
   });
+  // Record spend for policy tracking (fire-and-forget, don't block response)
+  const spendAddr = walletAddress || (resolvedWalletId ? await getWalletAddress(resolvedWalletId).catch(()=>null) : null);
+  if (spendAddr && !skipPolicyCheck) {
+    recordSpend(spendAddr, amount).catch(e => console.log('[policy] recordSpend error:', e.message));
+  }
   return res;
 }
 
@@ -262,6 +274,85 @@ async function requestFaucet(walletAddress) {
     usdc: true,
     eurc: false
   });
+}
+
+
+// ── Spending policy helpers ───────────────────────────────────────────────────
+// Policy stored in Redis: nan:agentpolicy:{walletAddress} → { perTx, daily, weekly, createdAt }
+// Spend tracking:         nan:agentspend:{walletAddress}:{YYYY-MM-DD} → total spent today (number)
+//                         nan:agentspend:{walletAddress}:week:{YYYY-WW}  → total spent this week
+
+async function getPolicy(walletAddress) {
+  const key = `nan:agentpolicy:${walletAddress.toLowerCase()}`;
+  return await kvGet(key) || null;
+}
+
+async function setPolicy(walletAddress, { perTx, daily, weekly }) {
+  const key = `nan:agentpolicy:${walletAddress.toLowerCase()}`;
+  const policy = {
+    perTx:    perTx    != null ? parseFloat(perTx)    : null,
+    daily:    daily    != null ? parseFloat(daily)    : null,
+    weekly:   weekly   != null ? parseFloat(weekly)   : null,
+    updatedAt: Date.now()
+  };
+  await kvSet(key, policy);
+  return policy;
+}
+
+function todayKey()  { return new Date().toISOString().slice(0, 10); }           // YYYY-MM-DD
+function weekKey()   {                                                             // YYYY-WW
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${d.getFullYear()}-${String(week).padStart(2,'0')}`;
+}
+
+async function getSpend(walletAddress) {
+  const addr = walletAddress.toLowerCase();
+  const [dayRaw, weekRaw] = await Promise.all([
+    kvGet(`nan:agentspend:${addr}:${todayKey()}`),
+    kvGet(`nan:agentspend:${addr}:week:${weekKey()}`)
+  ]);
+  return {
+    today: parseFloat(dayRaw || '0'),
+    week:  parseFloat(weekRaw || '0')
+  };
+}
+
+async function recordSpend(walletAddress, amount) {
+  const addr   = walletAddress.toLowerCase();
+  const amt    = parseFloat(amount);
+  const spend  = await getSpend(walletAddress);
+  await Promise.all([
+    kvSet(`nan:agentspend:${addr}:${todayKey()}`,       String(spend.today + amt)),
+    kvSet(`nan:agentspend:${addr}:week:${weekKey()}`,   String(spend.week  + amt))
+  ]);
+}
+
+async function checkPolicy(walletAddress, amount) {
+  const policy = await getPolicy(walletAddress);
+  if (!policy) return { allowed: true }; // no policy set → allow
+
+  const amt = parseFloat(amount);
+
+  // Per-transaction limit
+  if (policy.perTx != null && amt > policy.perTx) {
+    return { allowed: false, reason: `Amount $${amt} exceeds per-transaction limit of $${policy.perTx}` };
+  }
+
+  const spend = await getSpend(walletAddress);
+
+  // Daily limit
+  if (policy.daily != null && (spend.today + amt) > policy.daily) {
+    return { allowed: false, reason: `Would exceed daily limit of $${policy.daily} (spent today: $${spend.today.toFixed(2)})` };
+  }
+
+  // Weekly limit
+  if (policy.weekly != null && (spend.week + amt) > policy.weekly) {
+    return { allowed: false, reason: `Would exceed weekly limit of $${policy.weekly} (spent this week: $${spend.week.toFixed(2)})` };
+  }
+
+  return { allowed: true, policy, spend };
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -336,7 +427,9 @@ export default async function handler(req, res) {
       try {
         result = await agentTransfer(walletId, toAddress, amount, token, walletAddr);
       } catch(transferErr) {
-        // If Circle SDK can't find the wallet by address, it's probably a CLI wallet
+        if (transferErr.message?.includes('POLICY_VIOLATION:')) {
+          return res.json({ success: false, policyViolation: true, error: transferErr.message.replace('POLICY_VIOLATION: ','') });
+        }
         if (transferErr.message?.includes('No Circle wallet found')) {
           return res.json({ success: false, notCircleWallet: true, error: transferErr.message });
         }
@@ -369,6 +462,41 @@ export default async function handler(req, res) {
       return res.json({ success: true, transactions: txs });
     }
 
+
+
+    // ── set-policy: save spending limits to Redis ─────────────────────────────
+    if (action === 'set-policy') {
+      const { walletAddress: pWallet, perTx, daily, weekly } = req.body;
+      if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
+      if (perTx == null && daily == null && weekly == null)
+        return res.status(400).json({ error: 'At least one of perTx, daily, or weekly required' });
+      const policy = await setPolicy(pWallet, { perTx, daily, weekly });
+      console.log(`[policy] Set for ${pWallet.slice(0,10)}: perTx=${policy.perTx} daily=${policy.daily} weekly=${policy.weekly}`);
+      return res.json({ success: true, policy });
+    }
+
+    // ── get-policy: read current spending limits + today's spend ─────────────
+    if (action === 'get-policy') {
+      const { walletAddress: pWallet } = req.body;
+      if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
+      const [policy, spend] = await Promise.all([
+        getPolicy(pWallet),
+        getSpend(pWallet)
+      ]);
+      return res.json({ success: true, policy: policy || null, spend });
+    }
+
+    // ── clear-policy: remove all spending limits ──────────────────────────────
+    if (action === 'clear-policy') {
+      const { walletAddress: pWallet } = req.body;
+      if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
+      const { default: fetch } = await import('node-fetch');
+      const key = `nan:agentpolicy:${pWallet.toLowerCase()}`;
+      await fetch(`${KV_URL}/del/${encodeURIComponent(key)}`, {
+        method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` }
+      });
+      return res.json({ success: true, message: 'Spending policy cleared' });
+    }
 
     // ── lookup-by-arc: resolve arc name → main wallet → find their agent wallet ─
     if (action === 'lookup-by-arc') {
@@ -446,6 +574,9 @@ export default async function handler(req, res) {
       try {
         result = await agentTransfer(walletId, destination, amount, token, agentWalletAddress);
       } catch(e) {
+        if (e.message?.includes('POLICY_VIOLATION:')) {
+          return res.json({ success: false, policyViolation: true, error: e.message.replace('POLICY_VIOLATION: ','') });
+        }
         if (e.message?.includes('No Circle wallet found')) {
           return res.json({ success: false, notCircleWallet: true, error: e.message });
         }
