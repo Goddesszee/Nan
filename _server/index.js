@@ -817,6 +817,25 @@ if (SELF_URL) {
       }
     } catch(e) { console.log('[cron] executor error:', e.message); }
   }, 60 * 1000); // every 60 seconds
+
+  // ── Recurring agent-to-agent payment executor — runs every 60s ────────────
+  setInterval(async () => {
+    try {
+      if (!process.env.CIRCLE_API_KEY) return;
+      const { default: fetch } = await import('node-fetch');
+      const r = await fetch(`${SELF_URL}/api/agent-wallets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'recurring-run-due', userAddress: 'cron' }),
+        signal: AbortSignal.timeout(30000)
+      });
+      const result = await r.json();
+      if (result.processed) {
+        console.log(`[cron] Recurring A2A: processed ${result.processed}`,
+          result.results?.map(x => `${x.id}:${x.executed ? '✅' : x.skipped ? '⏭' : '❌'}`).join(' '));
+      }
+    } catch(e) { console.log('[cron] recurring A2A executor error:', e.message); }
+  }, 60 * 1000); // every 60 seconds
 }
 
 // ── Start ──
