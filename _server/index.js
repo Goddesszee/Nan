@@ -172,26 +172,51 @@ app.post('/api/faucet', rateLimit(5), async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: 'address required' });
 
+  if (!CIRCLE_API_KEY) {
+    return res.json({ success: false, error: 'Faucet not configured — visit faucet.circle.com directly' });
+  }
+
   const { default: fetch } = await import('node-fetch');
   try {
-    const faucetRes = await fetch('https://faucet.circle.com/api/faucet', {
+    // Circle's documented programmatic faucet: POST /v1/faucet/drips
+    // (developers.circle.com/api-reference/wallets/programmable-wallets/request-testnet-tokens)
+    // Requires Bearer auth with a Circle API key, and — per Circle's own
+    // notes — that key's account must have completed mainnet verification
+    // even to claim testnet tokens this way. Success returns 204 with no
+    // body; there is nothing to JSON-parse on success.
+    // The previous implementation called https://faucet.circle.com/api/faucet
+    // (the unauthenticated internal endpoint behind the public website,
+    // likely gated by bot/CAPTCHA checks a server call can't pass) with an
+    // unrelated body shape (tokens: [...] array instead of usdc/eurc booleans) —
+    // it could return 200 without ever actually dispensing anything.
+    const faucetRes = await fetch('https://api.circle.com/v1/faucet/drips', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CIRCLE_API_KEY}`,
+      },
       body: JSON.stringify({
         address,
         blockchain: 'ARC-TESTNET',
         native: false,
-        tokens: ['USDC', 'EURC'],
+        usdc: true,
+        eurc: true,
       }),
     });
 
-    if (faucetRes.ok) {
-      const data = await faucetRes.json();
-      return res.json({ success: true, data });
+    if (faucetRes.status === 204) {
+      return res.json({ success: true });
     }
 
-    return res.json({ success: false, error: 'Faucet unavailable — visit faucet.circle.com directly' });
+    let errBody = null;
+    try { errBody = await faucetRes.json(); } catch {}
+    console.error('[faucet] Circle API error:', faucetRes.status, errBody);
+    return res.json({
+      success: false,
+      error: errBody?.message || `Faucet request failed (${faucetRes.status}) — visit faucet.circle.com directly`,
+    });
   } catch (err) {
+    console.error('[faucet] request error:', err.message);
     return res.json({ success: false, error: 'Faucet request failed — visit faucet.circle.com directly' });
   }
 });
