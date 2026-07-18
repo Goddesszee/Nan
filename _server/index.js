@@ -90,6 +90,12 @@ const userStore = new Map();
 
 // ── Config ──
 const CIRCLE_API_KEY   = process.env.CIRCLE_API_KEY   || '';
+// True only when actually deployed on Railway (this var is set automatically
+// by Railway, never present in local dev). Used to make sure the "no Circle
+// creds configured, fake a success for local testing" fallback below can
+// only ever fire in local dev — never silently in production if the env
+// vars are ever misconfigured or unset there.
+const IS_RAILWAY = !!(process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RAILWAY_ENVIRONMENT);
 const GROQ_API_KEY     = process.env.GROQ_API_KEY     || '';
 const SMTP_HOST        = process.env.SMTP_HOST        || 'smtp.gmail.com';
 const SMTP_PORT        = parseInt(process.env.SMTP_PORT || '587');
@@ -477,8 +483,13 @@ app.post('/api/appkit/send', async (req, res) => {
     return res.json({ success: false, error: 'walletAddress, destinationAddress, amount required' });
   if (!TOKEN_ADDRESSES[token])
     return res.json({ success: false, error: 'Unsupported token. Use USDC or EURC' });
-  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    if (IS_RAILWAY) {
+      console.error('[appkit/send] CIRCLE_API_KEY/CIRCLE_ENTITY_SECRET missing in production');
+      return res.json({ success: false, error: 'Server misconfigured — Circle credentials missing. Contact support.' });
+    }
     return res.json({ success: true, txHash: '0xdev_send_' + Date.now(), state: 'success', dev: true });
+  }
 
   try {
     const { kit, adapter } = await getAppKit();
@@ -506,6 +517,10 @@ app.post('/api/appkit/swap', rateLimit(20), async (req, res) => {
     return res.json({ success: false, error: 'Valid amountIn required' });
 
   if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    if (IS_RAILWAY) {
+      console.error('[appkit/swap] CIRCLE_API_KEY/CIRCLE_ENTITY_SECRET missing in production');
+      return res.json({ success: false, error: 'Server misconfigured — Circle credentials missing. Contact support.' });
+    }
     const rate = fromToken === 'USDC' ? 0.9224 : 1.0842;
     const amountOut = (amtIn * rate * 0.999).toFixed(6);
     return res.json({ success: true, amountOut, estimatedOutput: { amount: amountOut, token: toToken }, dev: true });
@@ -561,8 +576,13 @@ app.post('/api/appkit/bridge', rateLimit(20), async (req, res) => {
     return res.json({ success: false, error: 'walletAddress, destChain, destAddr, amount required' });
   if (!destChainName)
     return res.json({ success: false, error: 'Unsupported chain: ' + destChain });
-  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET)
+  if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    if (IS_RAILWAY) {
+      console.error('[appkit/bridge] CIRCLE_API_KEY/CIRCLE_ENTITY_SECRET missing in production');
+      return res.json({ success: false, error: 'Server misconfigured — Circle credentials missing. Contact support.' });
+    }
     return res.json({ success: true, state: 'success', burnTxHash: '0xdev_burn_' + Date.now(), dev: true });
+  }
   try {
     const { kit, adapter } = await getAppKit();
     // Non-blocking — CCTP bridge takes 3-20 mins on testnet
