@@ -27,13 +27,10 @@ export default async function handler(req, res) {
     const amtParsed = parseFloat(amount).toFixed(6);
     const amtAtomic = Math.floor(parseFloat(amtParsed) * 1_000_000).toString();
 
-    // Gateway deposit = approve + transfer to Circle Gateway address
-    const GATEWAY = '0x5625Df77D7d69D2a50c8ADe0d7ce5d4B84B08f49';
-    const USDC    = '0x3600000000000000000000000000000000000000';
+    const USDC = '0x3600000000000000000000000000000000000000';
 
-    // Per Circle Gateway docs: use approve + deposit() on the Gateway contract
-    // NOT a plain transfer — transfer() doesn't register with the Gateway
-    // Gateway contract: 0x0077777d7EBA4688BDeF3E311b846F25870A19B9
+    // GatewayWallet contract on Arc Testnet (domain 26) — verified against
+    // https://developers.circle.com/gateway/references/contract-addresses
     const GATEWAY_CONTRACT = '0x0077777d7EBA4688BDeF3E311b846F25870A19B9';
     const blockchain = process.env.CIRCLE_BLOCKCHAIN || 'ARC-TESTNET';
 
@@ -52,15 +49,18 @@ export default async function handler(req, res) {
     // Small wait for Arc to confirm approve
     await new Promise(r => setTimeout(r, 3000));
 
-    // Step 2: Call deposit() on Gateway contract
-    // deposit(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient)
-    // For Arc testnet domain = 26, mintRecipient = walletAddress padded to 32 bytes
-    const recipientPadded = '0x' + walletAddress.replace('0x','').toLowerCase().padStart(64,'0');
+    // Step 2: Call deposit() on the GatewayWallet contract.
+    // Per Circle's Gateway Contract Interfaces docs, the actual signature is
+    // deposit(address token, uint256 value) — a plain deposit that credits
+    // the resulting balance to the caller (walletAddress). This previously
+    // called depositForBurn(uint256,uint32,bytes32,address), which is CCTP's
+    // TokenMessenger signature, not a function that exists on GatewayWallet —
+    // that call would have reverted every time.
     const txRes = await client.createContractExecutionTransaction({
       walletId, blockchain,
       contractAddress: GATEWAY_CONTRACT,
-      abiFunctionSignature: 'depositForBurn(uint256,uint32,bytes32,address)',
-      abiParameters: [amtAtomic, '26', recipientPadded, USDC],
+      abiFunctionSignature: 'deposit(address,uint256)',
+      abiParameters: [USDC, amtAtomic],
       idempotencyKey: crypto.randomUUID(),
       fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
     });
