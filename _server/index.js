@@ -82,12 +82,14 @@ function rateLimit(maxPerMin) {
 
 // ── In-memory stores (use Redis/DB in production) ──
 const otpStore = new Map();      // email -> { otp, expires, attempts }
-const userStore = new Map();     // email -> { circleUserId, userToken, walletId, walletAddress }
-const walletTokens = new Map();  // walletAddress -> userToken (for API calls)
+// NOTE: userStore is never written to anymore — real wallet creation happens
+// entirely inside api/circle-wallets.js via Circle's Developer-Controlled
+// Wallets SDK, which doesn't use this map. Kept as an empty lookup so the
+// cron order-executor loop below (which reads it) doesn't need rewriting.
+const userStore = new Map();
 
 // ── Config ──
 const CIRCLE_API_KEY   = process.env.CIRCLE_API_KEY   || '';
-const CIRCLE_BASE_URL  = process.env.CIRCLE_BASE_URL  || 'https://api.circle.com/v1/w3s';
 const GROQ_API_KEY     = process.env.GROQ_API_KEY     || '';
 const SMTP_HOST        = process.env.SMTP_HOST        || 'smtp.gmail.com';
 const SMTP_PORT        = parseInt(process.env.SMTP_PORT || '587');
@@ -98,30 +100,6 @@ const PORT             = parseInt(process.env.PORT    || '3000');
 // Arc Testnet config
 const ARC_CHAIN_ID   = 'ARB-SEPOLIA';
 const ARC_BLOCKCHAIN = 'ARB-SEPOLIA';
-
-// ─────────────────────────────────────────────
-// Helper: Circle API proxy
-// ─────────────────────────────────────────────
-async function circleRequest(method, apiPath, body, userToken) {
-  const { default: fetch } = await import('node-fetch');
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${CIRCLE_API_KEY}`,
-  };
-  if (userToken) {
-    headers['X-User-Token'] = userToken;
-  }
-
-  const url = `${CIRCLE_BASE_URL}${apiPath}`;
-  const options = { method, headers };
-  if (body && method !== 'GET') {
-    options.body = JSON.stringify(body);
-  }
-
-  const res = await fetch(url, options);
-  const data = await res.json();
-  return { status: res.status, data };
-}
 
 // ─────────────────────────────────────────────
 // Helper: Send OTP email
@@ -162,69 +140,6 @@ async function sendOTPEmail(email, otp) {
   return { success: true };
 }
 
-// ─────────────────────────────────────────────
-// Helper: Create or retrieve Circle user + wallet
-// ─────────────────────────────────────────────
-async function getOrCreateCircleWallet(email) {
-  if (userStore.has(email)) {
-    const existing = userStore.get(email);
-    console.log(`Returning existing wallet for ${email}:`, existing.walletAddress);
-    return existing;
-  }
-
-  if (!CIRCLE_API_KEY) {
-    const hash = crypto.createHash('sha256').update(email).digest('hex');
-    const mockAddress = '0x' + hash.slice(0, 40);
-    const userData = {
-      circleUserId: 'dev-' + hash.slice(0, 8),
-      userToken: 'dev-token-' + hash.slice(0, 16),
-      walletId: 'dev-wallet-' + hash.slice(0, 8),
-      walletAddress: mockAddress,
-      email,
-      dev: true,
-    };
-    userStore.set(email, userData);
-    walletTokens.set(mockAddress, userData.userToken);
-    return userData;
-  }
-
-  const idempotencyKey = crypto.randomUUID();
-  const userRes = await circleRequest('POST', '/users', { idempotencyKey });
-
-  if (userRes.status !== 201 && userRes.status !== 200) {
-    throw new Error(`Circle user creation failed: ${JSON.stringify(userRes.data)}`);
-  }
-
-  const circleUserId = userRes.data?.data?.id;
-  if (!circleUserId) throw new Error('No user ID returned from Circle');
-
-  const tokenRes = await circleRequest('POST', `/users/token`, { userId: circleUserId });
-  const userToken = tokenRes.data?.data?.userToken;
-  if (!userToken) throw new Error('No user token returned from Circle');
-
-  const walletRes = await circleRequest('POST', '/user/wallets', {
-    idempotencyKey: crypto.randomUUID(),
-    blockchains: ['ARC-TESTNET'],
-    name: `NAN-${email}`,
-  }, userToken);
-
-  const wallets = walletRes.data?.data?.wallets;
-  if (!wallets || wallets.length === 0) throw new Error('No wallet created');
-
-  const wallet = wallets[0];
-  const userData = {
-    circleUserId,
-    userToken,
-    walletId: wallet.id,
-    walletAddress: wallet.address,
-    email,
-  };
-
-  userStore.set(email, userData);
-  walletTokens.set(wallet.address, userToken);
-  return userData;
-}
-
 // ═════════════════════════════════════════════
 // ROUTES
 // ═════════════════════════════════════════════
@@ -251,102 +166,6 @@ app.post('/api/otp', rateLimit(5), async (req, res) => {
     res.status(500).json({ success: false, error: e.message });
   }
 });;
-
-// ── Circle API Proxy ──
-app.post('/api/circle', async (req, res) => {
-  const { path: apiPath, body, method = 'GET', userToken } = req.body;
-
-  if (!CIRCLE_API_KEY) {
-    if (apiPath && apiPath.includes('balances')) {
-      return res.json({
-        data: {
-          tokenBalances: [
-            { token: { symbol: 'USDC', decimals: 6 }, amount: '100.000000' },
-            { token: { symbol: 'EURC', decimals: 6 }, amount: '50.000000' },
-          ]
-        }
-      });
-    }
-    return res.json({ data: {}, dev: true });
-  }
-
-  if (!apiPath) return res.status(400).json({ error: 'path required' });
-
-  try {
-    const result = await circleRequest(method, apiPath, body, userToken);
-    res.status(result.status).json(result.data);
-  } catch (err) {
-    console.error('Circle proxy error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── Circle Wallet Balances ──
-app.get('/api/balances/:walletId', async (req, res) => {
-  const { walletId } = req.params;
-  const userToken = walletTokens.get(req.query.address) || req.headers['x-user-token'];
-
-  if (!CIRCLE_API_KEY) {
-    return res.json({ usdc: '100.00', eurc: '50.00', dev: true });
-  }
-
-  try {
-    const result = await circleRequest('GET', `/wallets/${walletId}/balances`, null, userToken);
-    const balances = result.data?.data?.tokenBalances || [];
-    const usdc = balances.find(b => b.token.symbol === 'USDC')?.amount || '0';
-    const eurc = balances.find(b => b.token.symbol === 'EURC')?.amount || '0';
-    res.json({ usdc, eurc });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── Circle Transfer ──
-app.post('/api/transfer', async (req, res) => {
-  const { walletId, destinationAddress, amount, tokenSymbol, userToken } = req.body;
-
-  if (!CIRCLE_API_KEY) {
-    return res.json({
-      success: true,
-      txHash: '0xdev' + crypto.randomBytes(32).toString('hex'),
-      dev: true,
-    });
-  }
-
-  const TOKEN_IDS = {
-    'USDC': process.env.USDC_TOKEN_ID || '36b6931a-873a-56a8-8a27-b706b17104ee',
-    'EURC': process.env.EURC_TOKEN_ID || '1b6b4d90-3602-5e74-9249-5202f14b4f93',
-  };
-
-  const tokenId = TOKEN_IDS[tokenSymbol];
-  if (!tokenId) return res.status(400).json({ error: 'Unknown token' });
-
-  try {
-    const result = await circleRequest('POST', '/user/transactions/transfer', {
-      idempotencyKey: crypto.randomUUID(),
-      walletId,
-      tokenId,
-      destinationAddress,
-      amounts: [amount.toString()],
-      fee: { type: 'level', config: { feeLevel: 'MEDIUM' } },
-    }, userToken);
-
-    if (result.status !== 201 && result.status !== 200) {
-      return res.status(result.status).json({ error: result.data?.message || 'Transfer failed' });
-    }
-
-    res.json({
-      success: true,
-      transactionId: result.data?.data?.id,
-      txHash: result.data?.data?.txHash,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── Transaction Status ──
-// Transaction route — handled by the second route below (DCW-based)
 
 // ── Faucet Proxy ──
 app.post('/api/faucet', rateLimit(5), async (req, res) => {
