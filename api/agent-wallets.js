@@ -370,6 +370,215 @@ async function checkPolicy(walletAddress, amount) {
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AGENT-TO-AGENT PAYMENT FEATURES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. Trust tiers ────────────────────────────────────────────────────────
+// Redis: nan:a2atrust:{senderWallet}:{counterpartyWallet} →
+//   { successCount, totalVolume, firstSeen, lastSeen }
+// New counterparties get a tight auto-approve cap; the cap grows as the
+// relationship proves out (more successful payments, more volume), similar
+// to how a real credit line extends with track record.
+
+function trustKey(sender, counterparty) {
+  return `nan:a2atrust:${sender.toLowerCase()}:${counterparty.toLowerCase()}`;
+}
+
+async function getTrust(sender, counterparty) {
+  return await kvGet(trustKey(sender, counterparty)) || {
+    successCount: 0, totalVolume: 0, firstSeen: null, lastSeen: null
+  };
+}
+
+async function recordTrustSuccess(sender, counterparty, amount) {
+  const t = await getTrust(sender, counterparty);
+  const now = Date.now();
+  const updated = {
+    successCount: t.successCount + 1,
+    totalVolume: t.totalVolume + parseFloat(amount),
+    firstSeen: t.firstSeen || now,
+    lastSeen: now
+  };
+  await kvSet(trustKey(sender, counterparty), updated);
+  return updated;
+}
+
+// Auto-approve cap for a given counterparty, independent of (and layered
+// under) the wallet's own perTx policy. Untrusted/new counterparty: small
+// fixed cap. Proven counterparty: cap grows with successCount, capped at a
+// ceiling so trust never fully removes the safety rail.
+function trustTierCap(trust) {
+  const NEW_COUNTERPARTY_CAP = 5;      // untested — hold to $5 auto-approve
+  const TIER_STEP = 20;                // +$20 auto-approve per 3 successes
+  const MAX_TIER_CAP = 500;            // trust alone never exceeds this
+  if (trust.successCount === 0) return NEW_COUNTERPARTY_CAP;
+  const tier = Math.floor(trust.successCount / 3);
+  return Math.min(NEW_COUNTERPARTY_CAP + tier * TIER_STEP, MAX_TIER_CAP);
+}
+
+// Combines the wallet's own spending policy with the counterparty trust tier.
+// The tighter of the two always wins — trust can never override an explicit
+// policy cap, it only ever adds an *additional* restriction for unproven
+// counterparties.
+async function checkA2APolicy(senderWallet, counterpartyWallet, amount) {
+  const amt = parseFloat(amount);
+  const [policyResult, trust] = await Promise.all([
+    checkPolicy(senderWallet, amount),
+    getTrust(senderWallet, counterpartyWallet)
+  ]);
+  if (!policyResult.allowed) return policyResult;
+
+  const tierCap = trustTierCap(trust);
+  if (amt > tierCap) {
+    return {
+      allowed: false,
+      reason: trust.successCount === 0
+        ? `First payment to this counterparty is capped at $${tierCap} until a track record is established`
+        : `Amount $${amt} exceeds this counterparty's trust-tier cap of $${tierCap} (${trust.successCount} successful payments so far)`,
+      trust, tierCap
+    };
+  }
+  return { allowed: true, trust, tierCap };
+}
+
+// ── 2. Escrow (soft-lock model) ──────────────────────────────────────────
+// No dedicated on-chain escrow contract — funds stay in the sender's agent
+// wallet, but a Redis record "locks" that amount against what's available
+// for other spends. Real funds only move once on release. Recipient can
+// self-attest completion (agent-native trust, not a human oracle); the
+// sender's own policy decides whether that's enough to release.
+// Redis: nan:a2aescrow:{escrowId} → { ...state }
+
+function newEscrowId() { return 'esc_' + crypto.randomBytes(8).toString('hex'); }
+
+async function getEscrow(escrowId) {
+  return await kvGet(`nan:a2aescrow:${escrowId}`);
+}
+async function saveEscrow(escrow) {
+  await kvSet(`nan:a2aescrow:${escrow.id}`, escrow);
+  return escrow;
+}
+
+// Sum of all currently-locked (pending/attested, not yet released/refunded)
+// escrow amounts for a wallet, so balance checks can account for them.
+async function getLockedAmount(walletAddress) {
+  const keys = await kvKeys(`nan:a2aescrow:`);
+  let locked = 0;
+  for (const k of keys) {
+    const e = await kvGet(k);
+    if (e && e.fromWallet?.toLowerCase() === walletAddress.toLowerCase() &&
+        (e.status === 'pending' || e.status === 'attested')) {
+      locked += parseFloat(e.amount);
+    }
+  }
+  return locked;
+}
+
+// ── 3. Recurring / conditional payments ──────────────────────────────────
+// Redis: nan:a2arecurring:{scheduleId} → { ...state }
+// condition is optional: { type: 'min-balance', minUsd } is the only type
+// implemented for now — skips a run (without cancelling) if the recipient's
+// agent wallet balance is currently below the threshold, e.g. to pause
+// payment to a counterparty that looks inactive/drained rather than paying
+// into a dead wallet.
+
+function newScheduleId() { return 'rec_' + crypto.randomBytes(8).toString('hex'); }
+
+async function getRecurring(scheduleId) {
+  return await kvGet(`nan:a2arecurring:${scheduleId}`);
+}
+async function saveRecurring(sched) {
+  await kvSet(`nan:a2arecurring:${sched.id}`, sched);
+  return sched;
+}
+async function listRecurringForWallet(walletAddress) {
+  const keys = await kvKeys('nan:a2arecurring:');
+  const out = [];
+  for (const k of keys) {
+    const s = await kvGet(k);
+    if (s && s.fromWallet?.toLowerCase() === walletAddress.toLowerCase()) out.push(s);
+  }
+  return out;
+}
+async function listAllDueRecurring() {
+  const keys = await kvKeys('nan:a2arecurring:');
+  const now = Date.now();
+  const due = [];
+  for (const k of keys) {
+    const s = await kvGet(k);
+    if (s && s.active && s.nextRunAt <= now) due.push(s);
+  }
+  return due;
+}
+
+// ── 4. Invoices / payment requests ───────────────────────────────────────
+// Redis: nan:a2ainvoice:{invoiceId} → { ...state }
+// One agent requests payment from another. The paying agent's own trust +
+// spending policy decides whether to auto-honor immediately or leave it
+// pending for explicit review — this is what makes it a negotiation between
+// two independent decision-makers rather than a one-sided push payment.
+
+function newInvoiceId() { return 'inv_' + crypto.randomBytes(8).toString('hex'); }
+
+async function getInvoice(invoiceId) {
+  return await kvGet(`nan:a2ainvoice:${invoiceId}`);
+}
+async function saveInvoice(inv) {
+  await kvSet(`nan:a2ainvoice:${inv.id}`, inv);
+  return inv;
+}
+async function listInvoicesFor(walletAddress, direction) {
+  // direction: 'incoming' (I owe/was asked to pay) or 'outgoing' (I'm the requester)
+  const keys = await kvKeys('nan:a2ainvoice:');
+  const out = [];
+  for (const k of keys) {
+    const inv = await kvGet(k);
+    if (!inv) continue;
+    const field = direction === 'outgoing' ? 'fromWallet' : 'toWallet';
+    if (inv[field]?.toLowerCase() === walletAddress.toLowerCase()) out.push(inv);
+  }
+  return out.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+// ── 5. Settlement netting ────────────────────────────────────────────────
+// Instead of transferring on every obligation between two agent wallets,
+// accumulate a running ledger and settle only the net difference in a
+// single transfer. Canonical key ordering (lower address first) so both
+// directions hit the same ledger record.
+// Redis: nan:a2anet:{walletLo}:{walletHi} → { aOwesB, bOwesA, entries: [...] }
+
+function netKey(walletA, walletB) {
+  const [lo, hi] = [walletA.toLowerCase(), walletB.toLowerCase()].sort();
+  return { key: `nan:a2anet:${lo}:${hi}`, lo, hi };
+}
+async function getNetLedger(walletA, walletB) {
+  const { key, lo, hi } = netKey(walletA, walletB);
+  const ledger = await kvGet(key) || { lo, hi, loOwesHi: 0, hiOwesLo: 0, entries: [] };
+  return { key, ledger };
+}
+async function recordNetObligation(oweFromWallet, oweToWallet, amount, note) {
+  const { key, ledger } = await getNetLedger(oweFromWallet, oweToWallet);
+  const amt = parseFloat(amount);
+  if (oweFromWallet.toLowerCase() === ledger.lo) {
+    ledger.loOwesHi += amt;
+  } else {
+    ledger.hiOwesLo += amt;
+  }
+  ledger.entries.push({ from: oweFromWallet, to: oweToWallet, amount: amt, note: note || '', at: Date.now() });
+  await kvSet(key, ledger);
+  return ledger;
+}
+function netDifference(ledger) {
+  const diff = ledger.loOwesHi - ledger.hiOwesLo;
+  if (diff > 0) return { payer: ledger.lo, payee: ledger.hi, amount: diff };
+  if (diff < 0) return { payer: ledger.hi, payee: ledger.lo, amount: -diff };
+  return { payer: null, payee: null, amount: 0 };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -584,6 +793,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Valid toAgentAddress or toMainAddress required' });
       }
 
+      // Trust-tier check — layered on top of the wallet's own spending policy.
+      // Only applies to genuine agent-to-agent hops (toAgentAddress), not
+      // sends that fall back to a recipient's plain main wallet.
+      if (toAgentAddress) {
+        const trustCheck = await checkA2APolicy(agentWalletAddress, toAgentAddress, amount);
+        if (!trustCheck.allowed) {
+          return res.json({ success: false, policyViolation: true, error: trustCheck.reason, trust: trustCheck.trust, tierCap: trustCheck.tierCap });
+        }
+      }
+
       // Resolve sender walletId from Redis or by address scan
       let walletId = null;
       const senderKey = `nan:agentwallet:${userAddress.toLowerCase()}`;
@@ -608,11 +827,394 @@ export default async function handler(req, res) {
       const state = result?.data?.state || result?.data?.transaction?.state;
       if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0, 200));
       const sentToAgent = !!toAgentAddress;
-      return res.json({ success: true, txId, state, sentToAgent,
+      // Record trust on success — only for genuine agent-to-agent hops
+      let trustAfter = null;
+      if (sentToAgent) {
+        trustAfter = await recordTrustSuccess(agentWalletAddress, toAgentAddress, amount).catch(() => null);
+      }
+      return res.json({ success: true, txId, state, sentToAgent, trust: trustAfter,
         message: sentToAgent
           ? `Sent ${amount} ${token} agent→agent ✅`
           : `Sent ${amount} ${token} to recipient's main wallet (no agent wallet found) ✅`
       });
+    }
+
+    // ── trust: read the trust-tier relationship between two agent wallets ────
+    if (action === 'trust') {
+      const { counterpartyAddress } = req.body;
+      const senderKey = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      const senderWallet = await kvGet(senderKey);
+      const senderAddr = senderWallet?.walletAddress || req.body.agentWalletAddress;
+      if (!senderAddr || !counterpartyAddress) return res.status(400).json({ error: 'counterpartyAddress required (and a resolvable sender agent wallet)' });
+      const trust = await getTrust(senderAddr, counterpartyAddress);
+      return res.json({ success: true, trust, autoApproveCap: trustTierCap(trust) });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ESCROW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── escrow-create: lock funds (soft-lock) pending task completion ────────
+    if (action === 'escrow-create') {
+      const { agentWalletAddress, toAgentAddress, amount, token = 'USDC', task } = req.body;
+      if (!agentWalletAddress || !toAgentAddress || !amount) {
+        return res.status(400).json({ error: 'agentWalletAddress, toAgentAddress, and amount required' });
+      }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(toAgentAddress)) return res.status(400).json({ error: 'Invalid toAgentAddress' });
+
+      // Available = actual on-chain balance minus already-locked escrow amounts
+      const [balance, locked] = await Promise.all([
+        getAgentBalanceRpc(agentWalletAddress),
+        getLockedAmount(agentWalletAddress)
+      ]);
+      const available = parseFloat(balance?.[token] || 0) - locked;
+      if (parseFloat(amount) > available) {
+        return res.json({ success: false, error: `Insufficient available balance: $${available.toFixed(2)} available (${locked.toFixed(2)} already locked in other escrows)` });
+      }
+
+      const escrow = await saveEscrow({
+        id: newEscrowId(),
+        fromWallet: agentWalletAddress,
+        fromUserAddress: userAddress,
+        toWallet: toAgentAddress,
+        amount: parseFloat(amount),
+        token,
+        task: task || '',
+        status: 'pending',      // pending → attested → released | refunded
+        attestation: null,
+        createdAt: Date.now()
+      });
+      return res.json({ success: true, escrow });
+    }
+
+    // ── escrow-attest: recipient agent self-attests task completion ─────────
+    if (action === 'escrow-attest') {
+      const { escrowId, note } = req.body;
+      const escrow = await getEscrow(escrowId);
+      if (!escrow) return res.json({ success: false, error: 'Escrow not found' });
+      if (escrow.status !== 'pending') return res.json({ success: false, error: `Escrow is ${escrow.status}, cannot attest` });
+      escrow.status = 'attested';
+      escrow.attestation = { note: note || '', at: Date.now() };
+      await saveEscrow(escrow);
+      return res.json({ success: true, escrow, message: 'Attested — awaiting sender release' });
+    }
+
+    // ── escrow-release: sender releases locked funds to recipient ────────────
+    if (action === 'escrow-release') {
+      const { escrowId, requireAttestation = true } = req.body;
+      const escrow = await getEscrow(escrowId);
+      if (!escrow) return res.json({ success: false, error: 'Escrow not found' });
+      if (escrow.status === 'released' || escrow.status === 'refunded') {
+        return res.json({ success: false, error: `Escrow already ${escrow.status}` });
+      }
+      if (requireAttestation && escrow.status !== 'attested') {
+        return res.json({ success: false, error: 'Escrow has not been attested by the recipient yet' });
+      }
+
+      const senderKey = `nan:agentwallet:${escrow.fromUserAddress.toLowerCase()}`;
+      const senderWallet = await kvGet(senderKey);
+      let result;
+      try {
+        result = await agentTransfer(senderWallet?.walletId || null, escrow.toWallet, escrow.amount, escrow.token, escrow.fromWallet);
+      } catch(e) {
+        if (e.message?.includes('POLICY_VIOLATION:')) {
+          return res.json({ success: false, policyViolation: true, error: e.message.replace('POLICY_VIOLATION: ','') });
+        }
+        throw e;
+      }
+      const txId = result?.data?.id || result?.data?.transaction?.id;
+      escrow.status = 'released';
+      escrow.releasedAt = Date.now();
+      escrow.releaseTxId = txId;
+      await saveEscrow(escrow);
+      await recordTrustSuccess(escrow.fromWallet, escrow.toWallet, escrow.amount).catch(() => null);
+      return res.json({ success: true, escrow, txId, message: `Released ${escrow.amount} ${escrow.token} ✅` });
+    }
+
+    // ── escrow-refund: sender cancels, funds simply unlock (no transfer needed) ──
+    if (action === 'escrow-refund') {
+      const { escrowId } = req.body;
+      const escrow = await getEscrow(escrowId);
+      if (!escrow) return res.json({ success: false, error: 'Escrow not found' });
+      if (escrow.status === 'released' || escrow.status === 'refunded') {
+        return res.json({ success: false, error: `Escrow already ${escrow.status}` });
+      }
+      escrow.status = 'refunded';
+      escrow.refundedAt = Date.now();
+      await saveEscrow(escrow);
+      return res.json({ success: true, escrow, message: 'Escrow refunded — funds were never moved, just unlocked' });
+    }
+
+    // ── escrow-list: list escrows for a wallet (sent or received) ───────────
+    if (action === 'escrow-list') {
+      const { agentWalletAddress, direction = 'sent' } = req.body;
+      if (!agentWalletAddress) return res.status(400).json({ error: 'agentWalletAddress required' });
+      const keys = await kvKeys('nan:a2aescrow:');
+      const out = [];
+      for (const k of keys) {
+        const e = await kvGet(k);
+        if (!e) continue;
+        const field = direction === 'received' ? 'toWallet' : 'fromWallet';
+        if (e[field]?.toLowerCase() === agentWalletAddress.toLowerCase()) out.push(e);
+      }
+      return res.json({ success: true, escrows: out.sort((a,b) => b.createdAt - a.createdAt) });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // RECURRING / CONDITIONAL PAYMENTS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── recurring-create: schedule a repeating A2A payment ───────────────────
+    if (action === 'recurring-create') {
+      const { agentWalletAddress, toAgentAddress, amount, token = 'USDC', intervalSeconds, condition, label } = req.body;
+      if (!agentWalletAddress || !toAgentAddress || !amount || !intervalSeconds) {
+        return res.status(400).json({ error: 'agentWalletAddress, toAgentAddress, amount, and intervalSeconds required' });
+      }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(toAgentAddress)) return res.status(400).json({ error: 'Invalid toAgentAddress' });
+      if (parseInt(intervalSeconds) < 60) return res.status(400).json({ error: 'intervalSeconds must be at least 60' });
+
+      const sched = await saveRecurring({
+        id: newScheduleId(),
+        fromWallet: agentWalletAddress,
+        fromUserAddress: userAddress,
+        toWallet: toAgentAddress,
+        amount: parseFloat(amount),
+        token,
+        intervalSeconds: parseInt(intervalSeconds),
+        condition: condition || null,   // e.g. { type: 'min-balance', minUsd: 10 }
+        label: label || '',
+        active: true,
+        runCount: 0,
+        skipCount: 0,
+        lastRunAt: null,
+        nextRunAt: Date.now() + parseInt(intervalSeconds) * 1000,
+        createdAt: Date.now()
+      });
+      return res.json({ success: true, schedule: sched });
+    }
+
+    // ── recurring-list: list schedules for a wallet ──────────────────────────
+    if (action === 'recurring-list') {
+      const { agentWalletAddress } = req.body;
+      if (!agentWalletAddress) return res.status(400).json({ error: 'agentWalletAddress required' });
+      const schedules = await listRecurringForWallet(agentWalletAddress);
+      return res.json({ success: true, schedules });
+    }
+
+    // ── recurring-cancel: stop a schedule ─────────────────────────────────────
+    if (action === 'recurring-cancel') {
+      const { scheduleId } = req.body;
+      const sched = await getRecurring(scheduleId);
+      if (!sched) return res.json({ success: false, error: 'Schedule not found' });
+      sched.active = false;
+      sched.cancelledAt = Date.now();
+      await saveRecurring(sched);
+      return res.json({ success: true, schedule: sched });
+    }
+
+    // ── recurring-run-due: execute all due schedules (called by cron) ────────
+    if (action === 'recurring-run-due') {
+      const due = await listAllDueRecurring();
+      const results = [];
+      for (const sched of due) {
+        try {
+          // Optional condition check — skip (not cancel) if unmet
+          if (sched.condition?.type === 'min-balance') {
+            const recipientKeyByAgent = await kvKeys('nan:agentwallet:');
+            let recipientBalance = null;
+            for (const k of recipientKeyByAgent) {
+              const w = await kvGet(k);
+              if (w?.walletAddress?.toLowerCase() === sched.toWallet.toLowerCase()) {
+                recipientBalance = await getAgentBalance(w.walletId);
+                break;
+              }
+            }
+            const bal = parseFloat(recipientBalance?.[sched.token] || 0);
+            if (bal < sched.condition.minUsd) {
+              sched.skipCount++;
+              sched.nextRunAt = Date.now() + sched.intervalSeconds * 1000;
+              await saveRecurring(sched);
+              results.push({ id: sched.id, skipped: true, reason: `recipient balance $${bal} below min $${sched.condition.minUsd}` });
+              continue;
+            }
+          }
+
+          const senderWallet = await kvGet(`nan:agentwallet:${sched.fromUserAddress.toLowerCase()}`);
+          const result = await agentTransfer(senderWallet?.walletId || null, sched.toWallet, sched.amount, sched.token, sched.fromWallet);
+          const txId = result?.data?.id || result?.data?.transaction?.id;
+          sched.runCount++;
+          sched.lastRunAt = Date.now();
+          sched.nextRunAt = Date.now() + sched.intervalSeconds * 1000;
+          await saveRecurring(sched);
+          await recordTrustSuccess(sched.fromWallet, sched.toWallet, sched.amount).catch(() => null);
+          results.push({ id: sched.id, executed: true, txId });
+        } catch(e) {
+          // Policy violation or transient error — don't cancel, just retry next interval
+          sched.nextRunAt = Date.now() + sched.intervalSeconds * 1000;
+          await saveRecurring(sched);
+          results.push({ id: sched.id, executed: false, error: e.message.slice(0, 150) });
+        }
+      }
+      return res.json({ success: true, processed: results.length, results });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // INVOICES / PAYMENT REQUESTS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── invoice-create: one agent requests payment from another ──────────────
+    if (action === 'invoice-create') {
+      const { agentWalletAddress, fromAgentAddress, amount, token = 'USDC', reason, autoHonorThreshold } = req.body;
+      // agentWalletAddress = the requester (payee); fromAgentAddress = who's being asked to pay
+      if (!agentWalletAddress || !fromAgentAddress || !amount) {
+        return res.status(400).json({ error: 'agentWalletAddress, fromAgentAddress, and amount required' });
+      }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(fromAgentAddress)) return res.status(400).json({ error: 'Invalid fromAgentAddress' });
+
+      const invoice = await saveInvoice({
+        id: newInvoiceId(),
+        toWallet: agentWalletAddress,     // requester / payee
+        toUserAddress: userAddress,
+        fromWallet: fromAgentAddress,     // payer being asked
+        amount: parseFloat(amount),
+        token,
+        reason: reason || '',
+        status: 'pending',                // pending → honored | rejected | expired
+        createdAt: Date.now()
+      });
+
+      // Auto-evaluation: does the requester meet the payer's trust tier + policy?
+      // Requires the payer to have a resolvable agent wallet in Redis to check
+      // their policy against — if not resolvable, leave pending for manual review.
+      const payerKeys = await kvKeys('nan:agentwallet:');
+      let payerUserAddress = null;
+      for (const k of payerKeys) {
+        const w = await kvGet(k);
+        if (w?.walletAddress?.toLowerCase() === fromAgentAddress.toLowerCase()) {
+          payerUserAddress = w.userAddress || k.replace('nan:agentwallet:', '');
+          break;
+        }
+      }
+      let autoEval = { autoHonored: false, reason: 'Payer agent wallet not resolvable for auto-evaluation — left pending' };
+      if (payerUserAddress) {
+        const trustCheck = await checkA2APolicy(fromAgentAddress, agentWalletAddress, amount);
+        if (trustCheck.allowed) {
+          autoEval = { autoHonored: true, reason: 'Within payer\'s trust tier and spending policy' };
+        } else {
+          autoEval = { autoHonored: false, reason: trustCheck.reason };
+        }
+      }
+      return res.json({ success: true, invoice, autoEval });
+    }
+
+    // ── invoice-list: list invoices for a wallet ──────────────────────────────
+    if (action === 'invoice-list') {
+      const { agentWalletAddress, direction = 'incoming' } = req.body;
+      if (!agentWalletAddress) return res.status(400).json({ error: 'agentWalletAddress required' });
+      const invoices = await listInvoicesFor(agentWalletAddress, direction);
+      return res.json({ success: true, invoices });
+    }
+
+    // ── invoice-respond: payer honors or rejects a pending invoice ───────────
+    if (action === 'invoice-respond') {
+      const { invoiceId, honor } = req.body;
+      const invoice = await getInvoice(invoiceId);
+      if (!invoice) return res.json({ success: false, error: 'Invoice not found' });
+      if (invoice.status !== 'pending') return res.json({ success: false, error: `Invoice already ${invoice.status}` });
+
+      if (!honor) {
+        invoice.status = 'rejected';
+        invoice.respondedAt = Date.now();
+        await saveInvoice(invoice);
+        return res.json({ success: true, invoice, message: 'Invoice rejected' });
+      }
+
+      // Trust + policy check before honoring
+      const trustCheck = await checkA2APolicy(invoice.fromWallet, invoice.toWallet, invoice.amount);
+      if (!trustCheck.allowed) {
+        return res.json({ success: false, policyViolation: true, error: trustCheck.reason });
+      }
+
+      const payerKey = `nan:agentwallet:${userAddress.toLowerCase()}`;
+      const payerWallet = await kvGet(payerKey);
+      let result;
+      try {
+        result = await agentTransfer(payerWallet?.walletId || null, invoice.toWallet, invoice.amount, invoice.token, invoice.fromWallet);
+      } catch(e) {
+        if (e.message?.includes('POLICY_VIOLATION:')) {
+          return res.json({ success: false, policyViolation: true, error: e.message.replace('POLICY_VIOLATION: ','') });
+        }
+        throw e;
+      }
+      const txId = result?.data?.id || result?.data?.transaction?.id;
+      invoice.status = 'honored';
+      invoice.respondedAt = Date.now();
+      invoice.txId = txId;
+      await saveInvoice(invoice);
+      await recordTrustSuccess(invoice.fromWallet, invoice.toWallet, invoice.amount).catch(() => null);
+      return res.json({ success: true, invoice, txId, message: `Honored ${invoice.amount} ${invoice.token} ✅` });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SETTLEMENT NETTING
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── net-record: record an obligation on the running ledger (no transfer yet) ──
+    if (action === 'net-record') {
+      const { agentWalletAddress, counterpartyAddress, amount, note } = req.body;
+      if (!agentWalletAddress || !counterpartyAddress || !amount) {
+        return res.status(400).json({ error: 'agentWalletAddress, counterpartyAddress, and amount required' });
+      }
+      const ledger = await recordNetObligation(agentWalletAddress, counterpartyAddress, amount, note);
+      const diff = netDifference(ledger);
+      return res.json({ success: true, ledger, currentNet: diff });
+    }
+
+    // ── net-status: view the running ledger between two wallets ─────────────
+    if (action === 'net-status') {
+      const { agentWalletAddress, counterpartyAddress } = req.body;
+      if (!agentWalletAddress || !counterpartyAddress) return res.status(400).json({ error: 'agentWalletAddress and counterpartyAddress required' });
+      const { ledger } = await getNetLedger(agentWalletAddress, counterpartyAddress);
+      const diff = netDifference(ledger);
+      return res.json({ success: true, ledger, currentNet: diff });
+    }
+
+    // ── net-settle: execute a single transfer for the net difference, reset ledger ──
+    if (action === 'net-settle') {
+      const { agentWalletAddress, counterpartyAddress, token = 'USDC' } = req.body;
+      if (!agentWalletAddress || !counterpartyAddress) return res.status(400).json({ error: 'agentWalletAddress and counterpartyAddress required' });
+      const { key, ledger } = await getNetLedger(agentWalletAddress, counterpartyAddress);
+      const diff = netDifference(ledger);
+      if (diff.amount === 0) {
+        return res.json({ success: true, settled: false, message: 'Ledger is already balanced — nothing to settle' });
+      }
+
+      // Resolve the payer's walletId
+      const payerAgentKeys = await kvKeys('nan:agentwallet:');
+      let payerUserAddress = null;
+      for (const k of payerAgentKeys) {
+        const w = await kvGet(k);
+        if (w?.walletAddress?.toLowerCase() === diff.payer.toLowerCase()) {
+          payerUserAddress = k.replace('nan:agentwallet:', '');
+          break;
+        }
+      }
+      const payerWallet = payerUserAddress ? await kvGet(`nan:agentwallet:${payerUserAddress}`) : null;
+
+      let result;
+      try {
+        result = await agentTransfer(payerWallet?.walletId || null, diff.payee, diff.amount, token, diff.payer);
+      } catch(e) {
+        if (e.message?.includes('POLICY_VIOLATION:')) {
+          return res.json({ success: false, policyViolation: true, error: e.message.replace('POLICY_VIOLATION: ','') });
+        }
+        throw e;
+      }
+      const txId = result?.data?.id || result?.data?.transaction?.id;
+      // Reset ledger after settlement, keep entry history for reference
+      const settledLedger = { ...ledger, loOwesHi: 0, hiOwesLo: 0, lastSettledAt: Date.now(), lastSettlement: { ...diff, txId } };
+      await kvSet(key, settledLedger);
+      return res.json({ success: true, settled: true, txId, netAmount: diff.amount, payer: diff.payer, payee: diff.payee, ledger: settledLedger });
     }
 
     // ── lookup: check Redis without creating ─────────────────────────────────
