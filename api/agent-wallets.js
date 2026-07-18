@@ -170,12 +170,27 @@ async function getOrCreateAgentWallet(userAddress) {
   return record;
 }
 
-// ── Get balance via Circle SDK (getWalletTokenBalance) ───────────────────────
-// Uses SDK natively instead of raw ethers RPC call
+// ── Get balance — on-chain RPC is the source of truth ────────────────────────
+// Previously this called Circle's getWalletTokenBalance as primary and only
+// fell back to a direct RPC read if that SDK call threw an exception. But
+// Circle's wallet balance API has its own indexing behind the scenes, which
+// can lag behind the actual chain state -- meanwhile the transaction history
+// list (checkIncomingTransfers) reads confirmed transfers directly from the
+// blockchain and updates immediately. Result: the balance card could show a
+// stale number while the history list already shows the deposits as
+// confirmed, with no way to reconcile the two.
+// Fix: read the real on-chain balance directly (same trusted method the main
+// wallet already uses successfully elsewhere in this app) as the primary
+// source, and only fall back to Circle's SDK if we can't even resolve the
+// wallet's address (e.g. Circle API briefly unavailable).
 async function getAgentBalance(walletId) {
+  const walletAddress = await getWalletAddress(walletId);
+  if (walletAddress) {
+    return getAgentBalanceRpc(walletAddress);
+  }
+  // Couldn't resolve an address at all — fall back to Circle's SDK balance call
   try {
     const client = await getClient();
-    // getWalletTokenBalance: takes { id: walletId, includeAll: true }
     const res = await client.getWalletTokenBalance({ id: walletId, includeAll: true });
     const balances = res.data?.tokenBalances || [];
     let USDC = '0.00', EURC = '0.00';
@@ -187,9 +202,8 @@ async function getAgentBalance(walletId) {
     }
     return { USDC, EURC };
   } catch(e) {
-    // Fallback to raw RPC if SDK balance fails
-    console.log('[agent-wallets] SDK balance failed, falling back to RPC:', e.message);
-    return getAgentBalanceRpc(await getWalletAddress(walletId));
+    console.log('[agent-wallets] Both RPC (no address) and Circle SDK balance failed:', e.message);
+    return { USDC: '0.00', EURC: '0.00' };
   }
 }
 
@@ -366,8 +380,16 @@ export default async function handler(req, res) {
   const { action, userAddress, toAddress, amount, token = 'USDC' } = req.body || {};
   if (!userAddress) return res.status(400).json({ error: 'userAddress required' });
 
-  // Dev mode — Circle credentials not set
+  // Dev mode — Circle credentials not set. Only allowed outside of a real
+  // Railway deployment; if these are ever missing in production, fail loudly
+  // instead of silently fabricating a wallet/balance (same fix applied to
+  // the appkit routes in _server/index.js).
+  const _isRailway = !!(process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RAILWAY_ENVIRONMENT);
   if (!process.env.CIRCLE_API_KEY || !process.env.CIRCLE_ENTITY_SECRET) {
+    if (_isRailway) {
+      console.error('[agent-wallets] CIRCLE_API_KEY/CIRCLE_ENTITY_SECRET missing in production');
+      return res.status(500).json({ success: false, error: 'Server misconfigured — Circle credentials missing' });
+    }
     const hash = crypto.createHash('sha256').update(userAddress.toLowerCase()).digest('hex');
     const devAddr = '0x' + hash.slice(0, 40);
     if (action === 'get-or-create')
