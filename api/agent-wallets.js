@@ -186,9 +186,14 @@ async function getOrCreateAgentWallet(userAddress) {
 async function getAgentBalance(walletId) {
   const walletAddress = await getWalletAddress(walletId);
   if (walletAddress) {
-    return getAgentBalanceRpc(walletAddress);
+    try {
+      return await getAgentBalanceRpc(walletAddress);
+    } catch(e) {
+      console.log('[agent-wallets] RPC balance read failed, falling back to Circle SDK:', e.message);
+      // fall through to Circle SDK balance below instead of reporting a false 0.00
+    }
   }
-  // Couldn't resolve an address at all — fall back to Circle's SDK balance call
+  // Couldn't resolve an address, or the RPC read failed — fall back to Circle's SDK balance call
   try {
     const client = await getClient();
     const res = await client.getWalletTokenBalance({ id: walletId, includeAll: true });
@@ -202,7 +207,7 @@ async function getAgentBalance(walletId) {
     }
     return { USDC, EURC };
   } catch(e) {
-    console.log('[agent-wallets] Both RPC (no address) and Circle SDK balance failed:', e.message);
+    console.log('[agent-wallets] Both RPC and Circle SDK balance failed:', e.message);
     return { USDC: '0.00', EURC: '0.00' };
   }
 }
@@ -216,20 +221,16 @@ async function getWalletAddress(walletId) {
 }
 
 async function getAgentBalanceRpc(walletAddress) {
-  if (!walletAddress) return { USDC: '0.00', EURC: '0.00' };
-  try {
-    const { ethers } = await import('ethers');
-    const provider = new ethers.JsonRpcProvider(ARC_RPC, { chainId: ARC_CHAIN_ID, name: 'arc-testnet' });
-    const usdc = new ethers.Contract(USDC_ADDRESS, TOKEN_ABI, provider);
-    const eurc = new ethers.Contract(EURC_ADDRESS, TOKEN_ABI, provider);
-    const [u, e] = await Promise.all([
-      usdc.balanceOf(walletAddress).catch(() => 0n),
-      eurc.balanceOf(walletAddress).catch(() => 0n)
-    ]);
-    return { USDC: (Number(u) / 1e6).toFixed(2), EURC: (Number(e) / 1e6).toFixed(2) };
-  } catch(e) {
-    return { USDC: '0.00', EURC: '0.00' };
-  }
+  if (!walletAddress) throw new Error('No wallet address to read balance for');
+  const { ethers } = await import('ethers');
+  const provider = new ethers.JsonRpcProvider(ARC_RPC, { chainId: ARC_CHAIN_ID, name: 'arc-testnet' });
+  const usdc = new ethers.Contract(USDC_ADDRESS, TOKEN_ABI, provider);
+  const eurc = new ethers.Contract(EURC_ADDRESS, TOKEN_ABI, provider);
+  const [u, e] = await Promise.all([
+    usdc.balanceOf(walletAddress),
+    eurc.balanceOf(walletAddress)
+  ]);
+  return { USDC: (Number(u) / 1e6).toFixed(2), EURC: (Number(e) / 1e6).toFixed(2) };
 }
 
 // ── Transfer via Circle SDK (createTransaction) ───────────────────────────────
