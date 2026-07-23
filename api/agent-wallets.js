@@ -622,8 +622,7 @@ export default async function handler(req, res) {
 
     // ── balance: fetch current balance ───────────────────────────────────────
     if (action === 'balance') {
-      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
-      const wallet = await kvGet(key);
+      const wallet = await getOrCreateAgentWallet(userAddress);
       if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found' });
       const balance = await getAgentBalance(wallet.walletId);
       return res.json({ success: true, walletAddress: wallet.walletAddress, balance });
@@ -674,8 +673,7 @@ export default async function handler(req, res) {
 
     // ── faucet: request testnet tokens via Circle SDK ─────────────────────────
     if (action === 'faucet') {
-      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
-      const wallet = await kvGet(key);
+      const wallet = await getOrCreateAgentWallet(userAddress);
       if (!wallet?.walletAddress) return res.json({ success: false, error: 'No agent wallet — connect first' });
       await requestFaucet(wallet.walletAddress);
       return res.json({ success: true, message: 'Testnet tokens requested — arrives in ~30s' });
@@ -683,8 +681,7 @@ export default async function handler(req, res) {
 
     // ── history: list transactions via Circle SDK ───────────────────────────
     if (action === 'history') {
-      const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
-      const wallet = await kvGet(key);
+      const wallet = await getOrCreateAgentWallet(userAddress);
       if (!wallet?.walletId) return res.json({ success: false, error: 'No agent wallet found' });
       const client = await getClient();
       // listTransactions: filter by walletIds (comma-separated string)
@@ -1269,3 +1266,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: e.message.slice(0, 200) });
   }
 }
+
