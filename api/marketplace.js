@@ -327,6 +327,36 @@ export default async function handler(req, res) {
       return res.json({ success: true, order });
     }
 
+    // ── listing-get ──────────────────────────────────────────────────────────
+    if (action === 'listing-get') {
+      const { listingId } = req.body;
+      const listing = await kvGet(`nan:mkt:listing:${listingId}`);
+      if (!listing) return res.json({ success: false, error: 'Listing not found' });
+      return res.json({ success: true, listing });
+    }
+
+    // ── my-orders (as buyer or seller) ──────────────────────────────────────
+    if (action === 'my-orders') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const addr = walletAddress.toLowerCase();
+      const orders = (await listByPrefix('nan:mkt:order:')).filter(
+        o => o.buyerAddress?.toLowerCase() === addr || o.sellerAddress?.toLowerCase() === addr
+      );
+      orders.sort((a, b) => b.updatedAt - a.updatedAt);
+      return res.json({ success: true, orders });
+    }
+
+    // ── my-listings-offers (pending offers on my listings) ──────────────────
+    if (action === 'my-listings-offers') {
+      const { sellerAddress } = req.body;
+      if (!sellerAddress) return res.json({ success: false, error: 'sellerAddress required' });
+      const myListings = (await listByPrefix('nan:mkt:listing:')).filter(l => l.sellerAddress?.toLowerCase() === sellerAddress.toLowerCase());
+      const myListingIds = new Set(myListings.map(l => l.id));
+      const offers = (await listByPrefix('nan:mkt:offer:')).filter(o => myListingIds.has(o.listingId) && o.status === 'pending');
+      return res.json({ success: true, offers, listings: myListings });
+    }
+
     return res.status(400).json({ error: 'Unknown action' });
   } catch (e) {
     console.error('[marketplace]', e.message);
