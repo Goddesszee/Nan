@@ -248,6 +248,17 @@ app.post('/api/circle-wallets', rateLimit(60), async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+// ── Career Agent (CV parse / generate / web-search job match) ──────────────
+app.post('/api/career', rateLimit(15), async (req, res) => {
+  try {
+    const mod = await import('../api/career.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[career proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── CCTP Attest ───────────────────────────────────────────────────────────────
 app.post('/api/cctp-attest', async (req, res) => {
   try {
