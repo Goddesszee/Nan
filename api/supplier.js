@@ -85,6 +85,17 @@ export default async function handler(req, res) {
 }
 
 async function runAction(action, req, res, OPENAI_KEY) {
+  const originalJson = res.json.bind(res);
+  res.json = (payload) => {
+    if (req.payment && payload && typeof payload === 'object' && payload.success) {
+      payload = { ...payload, payment: {
+        amount: req.payment.amount, payer: req.payment.payer,
+        network: req.payment.network, transaction: req.payment.transaction,
+      }};
+    }
+    return originalJson(payload);
+  };
+
   if (action === 'search-suppliers') {
       const { product, location, budget, moqLimit } = req.body;
       if (!product) return res.status(400).json({ error: 'A product description is required' });

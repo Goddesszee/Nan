@@ -177,6 +177,19 @@ export default async function handler(req, res) {
 }
 
 async function runAction(action, req, res, OPENAI_KEY) {
+  // Attach real payment receipt info (from Circle Gateway, via req.payment) to every
+  // successful response — matches Circle's own seller quickstart pattern.
+  const originalJson = res.json.bind(res);
+  res.json = (payload) => {
+    if (req.payment && payload && typeof payload === 'object' && payload.success) {
+      payload = { ...payload, payment: {
+        amount: req.payment.amount, payer: req.payment.payer,
+        network: req.payment.network, transaction: req.payment.transaction,
+      }};
+    }
+    return originalJson(payload);
+  };
+
   if (action === 'parse-cv') {
       const { cvText } = req.body;
       if (!cvText || cvText.trim().length < 20)
