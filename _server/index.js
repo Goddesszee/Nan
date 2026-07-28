@@ -259,6 +259,17 @@ app.post('/api/career', rateLimit(15), async (req, res) => {
   }
 });
 
+// ── Marketplace (listings, offers, Circle-custodied escrow orders) ─────────
+app.post('/api/marketplace', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/marketplace.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[marketplace proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── Supplier Agent (web-search-powered manufacturer/supplier discovery) ────
 app.post('/api/supplier', rateLimit(15), async (req, res) => {
   try {
