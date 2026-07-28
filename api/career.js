@@ -88,6 +88,40 @@ async function searchRemoteOK(skills, headline) {
   return scored;
 }
 
+// Arbeitnow — another public, keyless job API, broader than RemoteOK (not remote-only).
+// UNVERIFIED against a live response in this environment — sanity-check field names after deploy.
+async function searchArbeitnow(skills, headline) {
+  const r = await fetch('https://www.arbeitnow.com/api/job-board-api');
+  if (!r.ok) return [];
+  const body = await r.json();
+  const listings = body.data || [];
+
+  const skillTerms = (Array.isArray(skills) ? skills : String(skills || '').split(','))
+    .map(s => s.trim().toLowerCase()).filter(Boolean);
+  const headlineTerms = String(headline || '').toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const terms = [...new Set([...skillTerms, ...headlineTerms])];
+  if (terms.length === 0) return [];
+
+  return listings.map(job => {
+    const haystack = `${job.title || ''} ${(job.tags || []).join(' ')} ${job.description || ''}`.toLowerCase();
+    const hits = terms.filter(t => haystack.includes(t));
+    const matchScore = Math.min(95, Math.round((hits.length / terms.length) * 100));
+    return {
+      title: job.title,
+      company: job.company_name,
+      location: job.remote ? 'Remote' : (job.location || 'Unspecified'),
+      url: job.url,
+      source: 'arbeitnow.com',
+      matchScore,
+      reason: hits.length ? `Matches on: ${hits.slice(0, 4).join(', ')}` : 'Broad match on listing',
+      verified: true,
+    };
+  })
+  .filter(j => j.matchScore > 0)
+  .sort((a, b) => b.matchScore - a.matchScore)
+  .slice(0, 6);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -144,8 +178,9 @@ ${remoteOnly ? 'Remote only.' : ''}
 
 Return the 6 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing). Do not include a url field — real source links are attached separately from search citations.`;
 
-      const [remoteOkJobs, aiSearch] = await Promise.all([
+      const [remoteOkJobs, arbeitnowJobs, aiSearch] = await Promise.all([
         searchRemoteOK(profile.skills, profile.headline).catch(e => { console.error('[remoteok]', e.message); return []; }),
+        searchArbeitnow(profile.skills, profile.headline).catch(e => { console.error('[arbeitnow]', e.message); return []; }),
         callOpenAIWebSearch(OPENAI_KEY, searchPrompt).catch(e => { console.error('[ai-search]', e.message); return { text: '[]', citations: [] }; }),
       ]);
 
@@ -155,7 +190,7 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
         aiJobs = JSON.parse(cleaned);
       } catch { aiJobs = []; }
 
-      const usedUrls = new Set(remoteOkJobs.map(j => j.url).filter(Boolean));
+      const usedUrls = new Set([...remoteOkJobs, ...arbeitnowJobs].map(j => j.url).filter(Boolean));
       const availableCitations = aiSearch.citations.filter(c => c.url && !usedUrls.has(c.url));
       aiJobs = aiJobs.map(job => {
         const next = availableCitations.find(c => !usedUrls.has(c.url));
@@ -163,10 +198,28 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
         return { ...job, url: null, verified: false };
       });
 
-      // RemoteOK only lists remote roles anyway, so no extra filtering needed there.
-      const jobs = [...remoteOkJobs, ...aiJobs].sort((a, b) => b.matchScore - a.matchScore);
+      // RemoteOK/Arbeitnow only list roles they actually have, so no extra filtering needed there.
+      const jobs = [...remoteOkJobs, ...arbeitnowJobs, ...aiJobs].sort((a, b) => b.matchScore - a.matchScore);
 
       return res.json({ success: true, jobs, sources: aiSearch.citations });
+    }
+
+    if (action === 'company-profile') {
+      const { company, jobTitle } = req.body;
+      if (!company) return res.status(400).json({ error: 'A company name is required' });
+
+      const prompt = `Search the web right now for information about the company "${company}"${jobTitle ? ` (they are hiring for a "${jobTitle}" role)` : ''}. Cover: what they do, approximate size, funding/stage if known, and any notable culture or review signal you can find (e.g. Glassdoor-style sentiment). Be concise — return a short JSON object only (no prose, no markdown fences) with keys: summary (2-3 sentences), size, stage, notableSignal (1 sentence, or "not found").`;
+
+      const { text: raw, citations } = await callOpenAIWebSearch(OPENAI_KEY, prompt);
+      let profile;
+      try {
+        const cleaned = raw.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
+        profile = JSON.parse(cleaned);
+      } catch {
+        return res.json({ success: true, profile: { summary: raw }, sources: citations, warning: 'Model did not return clean JSON' });
+      }
+
+      return res.json({ success: true, profile, sources: citations });
     }
 
     return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, or search-jobs.' });

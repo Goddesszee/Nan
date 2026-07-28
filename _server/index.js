@@ -259,6 +259,17 @@ app.post('/api/career', rateLimit(15), async (req, res) => {
   }
 });
 
+// ── Supplier Agent (web-search-powered manufacturer/supplier discovery) ────
+app.post('/api/supplier', rateLimit(15), async (req, res) => {
+  try {
+    const mod = await import('../api/supplier.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[supplier proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── CCTP Attest ───────────────────────────────────────────────────────────────
 app.post('/api/cctp-attest', async (req, res) => {
   try {
