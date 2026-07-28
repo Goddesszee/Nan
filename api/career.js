@@ -52,7 +52,42 @@ async function callOpenAIWebSearch(OPENAI_KEY, query) {
   return { text, citations };
 }
 
-export default async function handler(req, res) {
+// RemoteOK — genuine public API, no key required, every result is a real posting with a real
+// apply URL. https://remoteok.com/api returns an array where index 0 is a legal notice, not a job.
+async function searchRemoteOK(skills, headline) {
+  const r = await fetch('https://remoteok.com/api', { headers: { 'User-Agent': 'NAN-Career-Agent' } });
+  if (!r.ok) return [];
+  const all = await r.json();
+  const listings = all.slice(1); // drop the legal-notice row
+
+  const skillTerms = (Array.isArray(skills) ? skills : String(skills || '').split(','))
+    .map(s => s.trim().toLowerCase()).filter(Boolean);
+  const headlineTerms = String(headline || '').toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const terms = [...new Set([...skillTerms, ...headlineTerms])];
+  if (terms.length === 0) return [];
+
+  const scored = listings.map(job => {
+    const haystack = `${job.position || ''} ${(job.tags || []).join(' ')} ${job.description || ''}`.toLowerCase();
+    const hits = terms.filter(t => haystack.includes(t));
+    const matchScore = Math.min(95, Math.round((hits.length / terms.length) * 100));
+    return {
+      title: job.position,
+      company: job.company,
+      location: job.location || 'Remote',
+      url: job.url || job.apply_url,
+      source: 'remoteok.com',
+      matchScore,
+      reason: hits.length ? `Matches on: ${hits.slice(0, 4).join(', ')}` : 'Broad match on remote listing',
+      verified: true,
+    };
+  })
+  .filter(j => j.matchScore > 0)
+  .sort((a, b) => b.matchScore - a.matchScore)
+  .slice(0, 6);
+
+  return scored;
+}
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -99,34 +134,38 @@ export default async function handler(req, res) {
       if (!profile) return res.status(400).json({ error: 'A parsed profile is required' });
 
       const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : String(profile.skills || '');
-      const searchPrompt = `Search the web right now for real, currently open job listings that match this candidate. Search across MULTIPLE different job platforms — general boards (e.g. Indeed, LinkedIn public postings, RemoteOK, We Work Remotely, company career pages)${includeWeb3 ? ', AND ALSO web3/crypto-specific boards (e.g. Web3.career, CryptoJobsList)' : ''}. Do not limit results to only one platform or only web3 roles — general roles matter just as much${includeWeb3 ? ', web3 is one additional category to include, not the only category' : ''}.
+      const searchPrompt = `Search the web right now for real, currently open job listings that match this candidate. Search across MULTIPLE different job platforms — general boards (e.g. Indeed, LinkedIn public postings, We Work Remotely, company career pages)${includeWeb3 ? ', AND ALSO web3/crypto-specific boards (e.g. Web3.career, CryptoJobsList)' : ''}. Do not limit results to only one platform or only web3 roles — general roles matter just as much${includeWeb3 ? ', web3 is one additional category to include, not the only category' : ''}. Do not include RemoteOK — that source is handled separately.
 
 Candidate: ${profile.headline || profile.name || 'candidate'}, seniority: ${profile.seniority || 'unspecified'}
 Skills: ${skills}
 ${location ? `Preferred location: ${location}` : ''}
 ${remoteOnly ? 'Remote only.' : ''}
 
-Return the 8 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing). Do not include a url field — real source links are attached separately from search citations.`;
+Return the 6 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing). Do not include a url field — real source links are attached separately from search citations.`;
 
-      const { text: raw, citations } = await callOpenAIWebSearch(OPENAI_KEY, searchPrompt);
-      let jobs;
+      const [remoteOkJobs, aiSearch] = await Promise.all([
+        searchRemoteOK(profile.skills, profile.headline).catch(e => { console.error('[remoteok]', e.message); return []; }),
+        callOpenAIWebSearch(OPENAI_KEY, searchPrompt).catch(e => { console.error('[ai-search]', e.message); return { text: '[]', citations: [] }; }),
+      ]);
+
+      let aiJobs = [];
       try {
-        const cleaned = raw.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
-        jobs = JSON.parse(cleaned);
-      } catch {
-        return res.json({ success: true, jobs: [], sources: citations, rawText: raw, warning: 'Model did not return clean JSON — showing raw text instead' });
-      }
+        const cleaned = aiSearch.text.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
+        aiJobs = JSON.parse(cleaned);
+      } catch { aiJobs = []; }
 
-      // Assign one distinct real cited URL per job — never reuse the same URL twice.
-      const usedUrls = new Set();
-      const availableCitations = citations.filter(c => c.url);
-      jobs = jobs.map(job => {
+      const usedUrls = new Set(remoteOkJobs.map(j => j.url).filter(Boolean));
+      const availableCitations = aiSearch.citations.filter(c => c.url && !usedUrls.has(c.url));
+      aiJobs = aiJobs.map(job => {
         const next = availableCitations.find(c => !usedUrls.has(c.url));
-        if (next) { usedUrls.add(next.url); return { ...job, url: next.url }; }
-        return { ...job, url: null };
+        if (next) { usedUrls.add(next.url); return { ...job, url: next.url, verified: false }; }
+        return { ...job, url: null, verified: false };
       });
 
-      return res.json({ success: true, jobs, sources: citations });
+      // RemoteOK only lists remote roles anyway, so no extra filtering needed there.
+      const jobs = [...remoteOkJobs, ...aiJobs].sort((a, b) => b.matchScore - a.matchScore);
+
+      return res.json({ success: true, jobs, sources: aiSearch.citations });
     }
 
     return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, or search-jobs.' });
