@@ -641,7 +641,7 @@ export default async function handler(req, res) {
     // ── pay-service ───────────────────────────────────────────────────────────
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     if (action === 'pay-service') {
-      const { url, address, chain='ARC-TESTNET', maxAmount, method='GET' } = body;
+      const { url, address, chain='ARC-TESTNET', maxAmount, method='GET', body: forwardBody } = body;
       if (!url) return res.json({ error: 'url required' });
 
       const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
@@ -661,7 +661,9 @@ export default async function handler(req, res) {
           privateKey: privateKey.startsWith('0x') ? privateKey : `0x${privateKey}`,
         });
         const fetchMethod = (method || 'GET').toUpperCase();
-        const { data: responseData, status } = await client.pay(url, { method: fetchMethod });
+        const payOptions = { method: fetchMethod };
+        if (forwardBody !== undefined) payOptions.body = forwardBody;
+        const { data: responseData, status } = await client.pay(url, payOptions);
         const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
         return res.json({ success: true, status, result: safe });
       } catch (e) {
