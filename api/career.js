@@ -1,4 +1,26 @@
 // api/career.js — NAN Career Agent: CV parsing, CV generation, web-search job matching
+const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0x86B245D0B48BBdc58F08cAeA971a24ba377c366a';
+
+let _gateway = null;
+async function getGateway() {
+  if (_gateway) return _gateway;
+  const { createGatewayMiddleware } = await import('@circle-fin/x402-batching/server');
+  _gateway = createGatewayMiddleware({
+    sellerAddress: SELLER_ADDR,
+    facilitatorUrl: 'https://gateway-api-testnet.circle.com',
+    networks: ['eip155:5042002'],
+  });
+  return _gateway;
+}
+
+// Per-action pricing — separate from OpenAI's own per-call cost, this is what the user pays via x402.
+const PRICE_BY_ACTION = {
+  'parse-cv': '$0.02',
+  'generate-cv': '$0.03',
+  'search-jobs': '$0.05',
+  'company-profile': '$0.02',
+};
+
 const rateLimitMap = new Map();
 
 function checkRateLimit(ip, limit = 15, windowMs = 60_000) {
@@ -125,7 +147,8 @@ async function searchArbeitnow(skills, headline) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, Payment-Signature, PAYMENT-REQUIRED');
+  res.setHeader('Access-Control-Expose-Headers', 'PAYMENT-REQUIRED, PAYMENT-RESPONSE');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -136,9 +159,25 @@ export default async function handler(req, res) {
   if (!OPENAI_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
 
   const { action } = req.body || {};
+  const price = PRICE_BY_ACTION[action];
+  if (!price) return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, search-jobs, or company-profile.' });
 
-  try {
-    if (action === 'parse-cv') {
+  const gateway = await getGateway();
+  return new Promise((resolve) => {
+    gateway.require(price)(req, res, async () => {
+      try {
+        await runAction(action, req, res, OPENAI_KEY);
+      } catch (e) {
+        console.error('[career]', e.message);
+        res.status(500).json({ success: false, error: e.message.slice(0, 200) });
+      }
+      resolve();
+    });
+  });
+}
+
+async function runAction(action, req, res, OPENAI_KEY) {
+  if (action === 'parse-cv') {
       const { cvText } = req.body;
       if (!cvText || cvText.trim().length < 20)
         return res.status(400).json({ error: 'CV text is too short to parse' });
@@ -221,10 +260,4 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
 
       return res.json({ success: true, profile, sources: citations });
     }
-
-    return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, or search-jobs.' });
-  } catch (e) {
-    console.error('[career]', e.message);
-    return res.status(500).json({ success: false, error: e.message.slice(0, 200) });
-  }
 }
