@@ -2,22 +2,6 @@
 // Unlike Career Agent's RemoteOK/Arbeitnow sources, there is no free structured supplier API —
 // Alibaba/1688/Global Sources don't expose open catalogs. Every result here is AI-researched
 // from public web content, not pulled from a verified database. Label accordingly in the UI.
-const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0x86B245D0B48BBdc58F08cAeA971a24ba377c366a';
-
-let _gateway = null;
-async function getGateway() {
-  if (_gateway) return _gateway;
-  const { createGatewayMiddleware } = await import('@circle-fin/x402-batching/server');
-  _gateway = createGatewayMiddleware({
-    sellerAddress: SELLER_ADDR,
-    facilitatorUrl: 'https://gateway-api-testnet.circle.com',
-    networks: ['eip155:5042002'],
-  });
-  return _gateway;
-}
-
-const PRICE_BY_ACTION = { 'search-suppliers': '$0.10' };
-
 const rateLimitMap = new Map();
 
 function checkRateLimit(ip, limit = 15, windowMs = 60_000) {
@@ -55,8 +39,7 @@ async function callOpenAIWebSearch(OPENAI_KEY, query) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-PAYMENT, Payment-Signature, PAYMENT-REQUIRED');
-  res.setHeader('Access-Control-Expose-Headers', 'PAYMENT-REQUIRED, PAYMENT-RESPONSE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -67,25 +50,9 @@ export default async function handler(req, res) {
   if (!OPENAI_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
 
   const { action } = req.body || {};
-  const price = PRICE_BY_ACTION[action];
-  if (!price) return res.status(400).json({ error: 'Unknown action. Use search-suppliers.' });
 
-  const gateway = await getGateway();
-  return new Promise((resolve) => {
-    gateway.require(price)(req, res, async () => {
-      try {
-        await runAction(action, req, res, OPENAI_KEY);
-      } catch (e) {
-        console.error('[supplier]', e.message);
-        res.status(500).json({ success: false, error: e.message.slice(0, 200) });
-      }
-      resolve();
-    });
-  });
-}
-
-async function runAction(action, req, res, OPENAI_KEY) {
-  if (action === 'search-suppliers') {
+  try {
+    if (action === 'search-suppliers') {
       const { product, location, budget, moqLimit } = req.body;
       if (!product) return res.status(400).json({ error: 'A product description is required' });
 
@@ -119,4 +86,10 @@ Return the 6 best matches as a JSON array only (no prose, no markdown fences), e
 
       return res.json({ success: true, suppliers, sources: citations });
     }
+
+    return res.status(400).json({ error: 'Unknown action. Use search-suppliers.' });
+  } catch (e) {
+    console.error('[supplier]', e.message);
+    return res.status(500).json({ success: false, error: e.message.slice(0, 200) });
+  }
 }
