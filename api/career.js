@@ -43,8 +43,13 @@ async function callOpenAIWebSearch(OPENAI_KEY, query) {
   if (!r.ok) throw new Error(`OpenAI responses error ${r.status}: ${await r.text()}`);
   const data = await r.json();
   const textBlock = (data.output || []).find(o => o.type === 'message');
-  const text = textBlock?.content?.find(c => c.type === 'output_text')?.text || '';
-  return text;
+  const textContent = textBlock?.content?.find(c => c.type === 'output_text');
+  const text = textContent?.text || '';
+  // Real, tool-grounded URLs the model actually cited — not whatever it typed into the JSON.
+  const citations = (textContent?.annotations || [])
+    .filter(a => a.type === 'url_citation')
+    .map(a => ({ url: a.url, title: a.title || '' }));
+  return { text, citations };
 }
 
 export default async function handler(req, res) {
@@ -94,25 +99,34 @@ export default async function handler(req, res) {
       if (!profile) return res.status(400).json({ error: 'A parsed profile is required' });
 
       const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : String(profile.skills || '');
-      const searchPrompt = `Search the web right now for real, currently open job listings that match this candidate. Include general job boards and, if relevant, web3/crypto-specific boards such as Web3.career and CryptoJobsList${includeWeb3 ? ' — prioritize web3/crypto roles' : ''}.
+      const searchPrompt = `Search the web right now for real, currently open job listings that match this candidate. Search across MULTIPLE different job platforms — general boards (e.g. Indeed, LinkedIn public postings, RemoteOK, We Work Remotely, company career pages)${includeWeb3 ? ', AND ALSO web3/crypto-specific boards (e.g. Web3.career, CryptoJobsList)' : ''}. Do not limit results to only one platform or only web3 roles — general roles matter just as much${includeWeb3 ? ', web3 is one additional category to include, not the only category' : ''}.
 
 Candidate: ${profile.headline || profile.name || 'candidate'}, seniority: ${profile.seniority || 'unspecified'}
 Skills: ${skills}
 ${location ? `Preferred location: ${location}` : ''}
 ${remoteOnly ? 'Remote only.' : ''}
 
-Return the 8 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, url, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing).`;
+Return the 8 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing). Do not include a url field — real source links are attached separately from search citations.`;
 
-      const raw = await callOpenAIWebSearch(OPENAI_KEY, searchPrompt);
+      const { text: raw, citations } = await callOpenAIWebSearch(OPENAI_KEY, searchPrompt);
       let jobs;
       try {
         const cleaned = raw.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
         jobs = JSON.parse(cleaned);
       } catch {
-        return res.json({ success: true, jobs: [], rawText: raw, warning: 'Model did not return clean JSON — showing raw text instead' });
+        return res.json({ success: true, jobs: [], sources: citations, rawText: raw, warning: 'Model did not return clean JSON — showing raw text instead' });
       }
 
-      return res.json({ success: true, jobs });
+      // Assign one distinct real cited URL per job — never reuse the same URL twice.
+      const usedUrls = new Set();
+      const availableCitations = citations.filter(c => c.url);
+      jobs = jobs.map(job => {
+        const next = availableCitations.find(c => !usedUrls.has(c.url));
+        if (next) { usedUrls.add(next.url); return { ...job, url: next.url }; }
+        return { ...job, url: null };
+      });
+
+      return res.json({ success: true, jobs, sources: citations });
     }
 
     return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, or search-jobs.' });
