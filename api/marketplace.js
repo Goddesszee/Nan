@@ -139,16 +139,26 @@ export default async function handler(req, res) {
   try {
     // ── listing-create ──────────────────────────────────────────────────────
     if (action === 'listing-create') {
-      const { sellerAddress, sellerEmail, title, description, price, category, location } = req.body;
+      const { sellerAddress, sellerEmail, title, description, price, category, location, images } = req.body;
       if (!sellerAddress || !title || !price) return res.json({ success: false, error: 'sellerAddress, title, and price are required' });
       const parsedPrice = parseFloat(price);
       if (isNaN(parsedPrice) || parsedPrice <= 0) return res.json({ success: false, error: 'Invalid price' });
+
+      let safeImages = [];
+      if (Array.isArray(images)) {
+        if (images.length > 4) return res.json({ success: false, error: 'Max 4 images per listing' });
+        for (const img of images) {
+          if (typeof img !== 'string' || !img.startsWith('data:image/')) return res.json({ success: false, error: 'Invalid image data' });
+          if (img.length > 350_000) return res.json({ success: false, error: 'An image is too large — please use a smaller photo' });
+        }
+        safeImages = images;
+      }
 
       const listing = {
         id: newId('lst'), sellerAddress, sellerEmail: sellerEmail || null,
         title: String(title).slice(0, 140), description: String(description || '').slice(0, 2000),
         price: parsedPrice, category: category || 'general', location: location || null,
-        status: 'active', createdAt: Date.now(),
+        images: safeImages, status: 'active', createdAt: Date.now(),
       };
       await kvSet(`nan:mkt:listing:${listing.id}`, listing);
       return res.json({ success: true, listing });
@@ -355,6 +365,52 @@ export default async function handler(req, res) {
       const myListingIds = new Set(myListings.map(l => l.id));
       const offers = (await listByPrefix('nan:mkt:offer:')).filter(o => myListingIds.has(o.listingId) && o.status === 'pending');
       return res.json({ success: true, offers, listings: myListings });
+    }
+
+    // ── review-create (buyer reviews a completed order, photos optional) ───
+    if (action === 'review-create') {
+      const { orderId, reviewerAddress, rating, comment, images } = req.body;
+      const order = await kvGet(`nan:mkt:order:${orderId}`);
+      if (!order) return res.json({ success: false, error: 'Order not found' });
+      if (order.status !== 'released') return res.json({ success: false, error: 'You can only review a completed (released) order' });
+      if (!reviewerAddress || reviewerAddress.toLowerCase() !== order.buyerAddress?.toLowerCase())
+        return res.json({ success: false, error: 'Only the buyer on this order can leave a review' });
+      const existing = await kvGet(`nan:mkt:review-by-order:${orderId}`);
+      if (existing) return res.json({ success: false, error: 'This order has already been reviewed' });
+
+      const parsedRating = parseInt(rating, 10);
+      if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) return res.json({ success: false, error: 'Rating must be 1-5' });
+
+      let safeImages = [];
+      if (Array.isArray(images)) {
+        if (images.length > 3) return res.json({ success: false, error: 'Max 3 images per review' });
+        for (const img of images) {
+          if (typeof img !== 'string' || !img.startsWith('data:image/')) return res.json({ success: false, error: 'Invalid image data' });
+          if (img.length > 350_000) return res.json({ success: false, error: 'An image is too large — please use a smaller photo' });
+        }
+        safeImages = images;
+      }
+
+      const review = {
+        id: newId('rev'), orderId, listingId: order.listingId,
+        sellerAddress: order.sellerAddress, reviewerAddress,
+        rating: parsedRating, comment: String(comment || '').slice(0, 1000),
+        images: safeImages, createdAt: Date.now(),
+      };
+      await kvSet(`nan:mkt:review:${review.id}`, review);
+      await kvSet(`nan:mkt:review-by-order:${orderId}`, review.id);
+      return res.json({ success: true, review });
+    }
+
+    // ── review-list (for a listing, or a seller overall) ───────────────────
+    if (action === 'review-list') {
+      const { listingId, sellerAddress } = req.body;
+      let reviews = await listByPrefix('nan:mkt:review:');
+      if (listingId) reviews = reviews.filter(r => r.listingId === listingId);
+      else if (sellerAddress) reviews = reviews.filter(r => r.sellerAddress?.toLowerCase() === sellerAddress.toLowerCase());
+      reviews.sort((a, b) => b.createdAt - a.createdAt);
+      const avgRating = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : null;
+      return res.json({ success: true, reviews, avgRating, count: reviews.length });
     }
 
     return res.status(400).json({ error: 'Unknown action' });
