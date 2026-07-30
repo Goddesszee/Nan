@@ -28,17 +28,26 @@ async function kvSet(key, value) {
     body: JSON.stringify(JSON.stringify(value))
   });
 }
-async function kvKeys(prefix) {
+async function kvSadd(setKey, member) {
   const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/keys/${encodeURIComponent(prefix + '*')}`, {
+  await fetch(`${KV_URL}/sadd/${encodeURIComponent(setKey)}/${encodeURIComponent(member)}`, {
+    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  });
+}
+async function kvSmembers(setKey) {
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(`${KV_URL}/smembers/${encodeURIComponent(setKey)}`, {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
   const d = await r.json();
   return d?.result || [];
 }
-async function listByPrefix(prefix) {
-  const keys = await kvKeys(prefix);
-  const items = await Promise.all(keys.map(k => kvGet(k)));
+// Indexed list: reads member IDs from a Set (O(1) lookup) instead of pattern-scanning
+// every key in the shared database with KEYS, which gets slower as the whole KV store
+// (shared across career/marketplace/gigs/kyc) accumulates more keys over time.
+async function listByIndex(indexKey, keyPrefix) {
+  const ids = await kvSmembers(indexKey);
+  const items = await Promise.all(ids.map(id => kvGet(keyPrefix + id)));
   return items.filter(Boolean);
 }
 function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('hex'); }
@@ -78,13 +87,14 @@ export default async function handler(req, res) {
         status: 'open', createdAt: Date.now(),
       };
       await kvSet(`nan:gig:task:${task.id}`, task);
+      await kvSadd('nan:gig:task:index', task.id);
       return res.json({ success: true, task });
     }
 
     // ── task-list (browse open tasks) ────────────────────────────────────────
     if (action === 'task-list') {
       const { query } = req.body;
-      let tasks = (await listByPrefix('nan:gig:task:')).filter(t => t.status === 'open');
+      let tasks = (await listByIndex('nan:gig:task:index', 'nan:gig:task:')).filter(t => t.status === 'open');
       if (query) {
         const q = String(query).toLowerCase();
         tasks = tasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
@@ -105,7 +115,7 @@ export default async function handler(req, res) {
     if (action === 'my-tasks') {
       const { requesterAddress } = req.body;
       if (!requesterAddress) return res.json({ success: false, error: 'requesterAddress required' });
-      const tasks = (await listByPrefix('nan:gig:task:')).filter(t => t.requesterAddress?.toLowerCase() === requesterAddress.toLowerCase());
+      const tasks = (await listByIndex('nan:gig:task:index', 'nan:gig:task:')).filter(t => t.requesterAddress?.toLowerCase() === requesterAddress.toLowerCase());
       tasks.sort((a, b) => b.createdAt - a.createdAt);
       return res.json({ success: true, tasks });
     }
@@ -138,6 +148,7 @@ export default async function handler(req, res) {
         fileUrl: safeFile, status: 'pending', createdAt: Date.now(),
       };
       await kvSet(`nan:gig:submission:${submission.id}`, submission);
+      await kvSadd('nan:gig:submission:index', submission.id);
       return res.json({ success: true, submission });
     }
 
@@ -145,7 +156,7 @@ export default async function handler(req, res) {
     if (action === 'submission-list') {
       const { taskId } = req.body;
       if (!taskId) return res.json({ success: false, error: 'taskId required' });
-      const submissions = (await listByPrefix('nan:gig:submission:')).filter(s => s.taskId === taskId);
+      const submissions = (await listByIndex('nan:gig:submission:index', 'nan:gig:submission:')).filter(s => s.taskId === taskId);
       submissions.sort((a, b) => a.createdAt - b.createdAt);
       return res.json({ success: true, submissions });
     }
@@ -154,7 +165,7 @@ export default async function handler(req, res) {
     if (action === 'my-submissions') {
       const { freelancerAddress } = req.body;
       if (!freelancerAddress) return res.json({ success: false, error: 'freelancerAddress required' });
-      const submissions = (await listByPrefix('nan:gig:submission:')).filter(s => s.freelancerAddress?.toLowerCase() === freelancerAddress.toLowerCase());
+      const submissions = (await listByIndex('nan:gig:submission:index', 'nan:gig:submission:')).filter(s => s.freelancerAddress?.toLowerCase() === freelancerAddress.toLowerCase());
       submissions.sort((a, b) => b.createdAt - a.createdAt);
       const taskIds = [...new Set(submissions.map(s => s.taskId))];
       const tasks = await Promise.all(taskIds.map(id => kvGet(`nan:gig:task:${id}`)));
@@ -197,7 +208,7 @@ export default async function handler(req, res) {
       await kvSet(`nan:gig:submission:${submission.id}`, submission);
 
       // Mark every other pending submission on this task as not selected.
-      const others = (await listByPrefix('nan:gig:submission:')).filter(s => s.taskId === task.id && s.id !== submission.id && s.status === 'pending');
+      const others = (await listByIndex('nan:gig:submission:index', 'nan:gig:submission:')).filter(s => s.taskId === task.id && s.id !== submission.id && s.status === 'pending');
       for (const other of others) {
         other.status = 'not_selected';
         await kvSet(`nan:gig:submission:${other.id}`, other);
