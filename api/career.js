@@ -23,7 +23,7 @@ const PRICE_BY_ACTION = {
 
 const rateLimitMap = new Map();
 
-function checkRateLimit(ip, limit = 15, windowMs = 60_000) {
+function checkRateLimit(ip, limit = 90, windowMs = 60_000) {
   const now = Date.now();
   const record = rateLimitMap.get(ip) || { count: 0, start: now };
   if (now - record.start > windowMs) { rateLimitMap.set(ip, { count: 1, start: now }); return true; }

@@ -663,9 +663,24 @@ export default async function handler(req, res) {
         const fetchMethod = (method || 'GET').toUpperCase();
         const payOptions = { method: fetchMethod };
         if (forwardBody !== undefined) payOptions.body = forwardBody;
-        const { data: responseData, status } = await client.pay(url, payOptions);
-        const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
-        return res.json({ success: true, status, result: safe });
+
+        // Retry transient failures (network hiccups, RPC rate-limits) with backoff.
+        // Does NOT retry application-level failures like 'Too many requests' from the
+        // downstream service itself — retrying into the same limit won't help.
+        let lastErr = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const { data: responseData, status } = await client.pay(url, payOptions);
+            const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
+            return res.json({ success: true, status, result: safe });
+          } catch (e) {
+            lastErr = e;
+            const transient = /429|rate.?limit|timeout|ECONNRESET|fetch failed|network/i.test(e.message || '');
+            if (!transient || attempt === 2) break;
+            await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt))); // 500ms, 1000ms
+          }
+        }
+        return res.json({ success: false, error: lastErr?.message || 'Payment failed after retries' });
       } catch (e) {
         return res.json({ success: false, error: e.message });
       }
