@@ -1,4 +1,5 @@
 // api/career.js — NAN Career Agent: CV parsing, CV generation, web-search job matching
+import crypto from 'crypto';
 const SELLER_ADDR = process.env.X402_SELLER_ADDR || '0x86B245D0B48BBdc58F08cAeA971a24ba377c366a';
 
 let _gateway = null;
@@ -19,7 +20,38 @@ const PRICE_BY_ACTION = {
   'generate-cv': '$0.03',
   'search-jobs': '$0.05',
   'company-profile': '$0.02',
+  'post-job': '$0.05',
 };
+
+const KV_URL   = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
+async function kvGet(key) {
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
+  const d = await r.json();
+  return d?.result ? JSON.parse(d.result) : null;
+}
+async function kvSet(key, value) {
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+    method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(JSON.stringify(value)),
+  });
+  const d = await r.json();
+  if (!r.ok || d?.error) throw new Error(`kvSet failed for ${key}: ${d?.error || r.status}`);
+}
+async function addToIndex(indexKey, id) {
+  const raw = await kvGet(indexKey);
+  const current = Array.isArray(raw) ? raw : [];
+  if (!current.includes(id)) { current.push(id); await kvSet(indexKey, current); }
+}
+async function listByIndex(indexKey, keyPrefix) {
+  const raw = await kvGet(indexKey);
+  const ids = Array.isArray(raw) ? raw : [];
+  const items = await Promise.all(ids.map(id => kvGet(keyPrefix + id)));
+  return items.filter(Boolean);
+}
+function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('hex'); }
 
 const rateLimitMap = new Map();
 
@@ -112,6 +144,35 @@ async function searchRemoteOK(skills, headline) {
 
 // Arbeitnow — another public, keyless job API, broader than RemoteOK (not remote-only).
 // UNVERIFIED against a live response in this environment — sanity-check field names after deploy.
+async function matchPostedJobs(profile, { location, remoteOnly, includeWeb3 }) {
+  const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.status === 'open');
+  if (!jobs.length) return [];
+
+  const skillTerms = (Array.isArray(profile.skills) ? profile.skills : String(profile.skills || '').split(','))
+    .map(s => s.trim().toLowerCase()).filter(Boolean);
+  const headlineTerms = String(profile.headline || '').toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const terms = [...new Set([...skillTerms, ...headlineTerms])];
+  if (terms.length === 0) return [];
+
+  return jobs
+    .filter(j => !remoteOnly || j.remoteOnly)
+    .map(job => {
+      const haystack = `${job.title || ''} ${job.description || ''}`.toLowerCase();
+      const hits = terms.filter(t => haystack.includes(t));
+      const matchScore = Math.min(98, Math.round((hits.length / terms.length) * 100));
+      return {
+        title: job.title, company: 'Posted on NAN', location: job.remoteOnly ? 'Remote' : (job.location || 'Unspecified'),
+        url: null, source: 'NAN Job Board', matchScore,
+        reason: hits.length ? `Matches on: ${hits.slice(0, 4).join(', ')}` : 'Broad match on listing',
+        verified: true, employerPosted: true, referred: true,
+        salary: job.salary, currency: job.currency, jobId: job.id,
+      };
+    })
+    .filter(j => j.matchScore > 0)
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, 6);
+}
+
 async function searchArbeitnow(skills, headline) {
   const r = await fetch('https://www.arbeitnow.com/api/job-board-api');
   if (!r.ok) return [];
@@ -159,8 +220,21 @@ export default async function handler(req, res) {
   if (!OPENAI_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
 
   const { action } = req.body || {};
+
+  // Free actions — no x402 payment required (browsing shouldn't cost anything).
+  const FREE_ACTIONS = new Set(['job-list']);
+  if (FREE_ACTIONS.has(action)) {
+    try {
+      await runAction(action, req, res, OPENAI_KEY);
+    } catch (e) {
+      console.error('[career]', e.message);
+      res.status(500).json({ success: false, error: e.message.slice(0, 200) });
+    }
+    return;
+  }
+
   const price = PRICE_BY_ACTION[action];
-  if (!price) return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, search-jobs, or company-profile.' });
+  if (!price) return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, search-jobs, company-profile, post-job, or job-list.' });
 
   const gateway = await getGateway();
   return new Promise((resolve) => {
@@ -230,10 +304,11 @@ ${remoteOnly ? 'Remote only.' : ''}
 
 Return the 6 best current matches as a JSON array only (no prose, no markdown fences), each item with keys: title, company, location, source, matchScore (0-100 integer estimating fit), reason (one sentence on why it fits or what's missing). Do not include a url field — real source links are attached separately from search citations.`;
 
-      const [remoteOkJobs, arbeitnowJobs, aiSearch] = await Promise.all([
+      const [remoteOkJobs, arbeitnowJobs, aiSearch, postedJobs] = await Promise.all([
         searchRemoteOK(profile.skills, profile.headline).catch(e => { console.error('[remoteok]', e.message); return []; }),
         searchArbeitnow(profile.skills, profile.headline).catch(e => { console.error('[arbeitnow]', e.message); return []; }),
         callOpenAIWebSearch(OPENAI_KEY, searchPrompt).catch(e => { console.error('[ai-search]', e.message); return { text: '[]', citations: [] }; }),
+        matchPostedJobs(profile, { location, remoteOnly, includeWeb3 }).catch(e => { console.error('[posted-jobs]', e.message); return []; }),
       ]);
 
       let aiJobs = [];
@@ -251,7 +326,7 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       });
 
       // RemoteOK/Arbeitnow only list roles they actually have, so no extra filtering needed there.
-      const jobs = [...remoteOkJobs, ...arbeitnowJobs, ...aiJobs].sort((a, b) => b.matchScore - a.matchScore);
+      const jobs = [...postedJobs, ...remoteOkJobs, ...arbeitnowJobs, ...aiJobs].sort((a, b) => b.matchScore - a.matchScore);
 
       return res.json({ success: true, jobs, sources: aiSearch.citations });
     }
@@ -272,5 +347,31 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       }
 
       return res.json({ success: true, profile, sources: citations });
+    }
+
+    // ── post-job (employer posts a job listing, pays the fee via x402 above) ──
+    if (action === 'post-job') {
+      const { employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employerEmail } = req.body;
+      if (!employerAddress || !title || !salary) return res.json({ success: false, error: 'employerAddress, title, and salary are required' });
+      const parsedSalary = parseFloat(salary);
+      if (isNaN(parsedSalary) || parsedSalary <= 0) return res.json({ success: false, error: 'Invalid salary' });
+
+      const job = {
+        id: newId('job'), employerAddress, employerEmail: employerEmail || null,
+        title: String(title).slice(0, 140), description: String(description || '').slice(0, 2000),
+        salary: parsedSalary, currency: (currency && currency.toUpperCase() === 'EURC') ? 'EURC' : 'USDC',
+        location: location || null, remoteOnly: !!remoteOnly, includeWeb3: !!includeWeb3,
+        status: 'open', createdAt: Date.now(),
+      };
+      await kvSet(`nan:career:job:${job.id}`, job);
+      await addToIndex('nan:career:job:index', job.id);
+      return res.json({ success: true, job });
+    }
+
+    // ── job-list (browse posted jobs — free, no payment required) ────────────
+    if (action === 'job-list') {
+      const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.status === 'open');
+      jobs.sort((a, b) => b.createdAt - a.createdAt);
+      return res.json({ success: true, jobs });
     }
 }
