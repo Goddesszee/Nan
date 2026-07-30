@@ -417,11 +417,13 @@ export default async function handler(req, res) {
 
     // ── transfer ──────────────────────────────────────────────────────────────
     if (action === 'transfer') {
-      const { fromAddress, toAddress, amount, chain = 'ARC-TESTNET' } = body;
+      const { fromAddress, toAddress, amount, chain = 'ARC-TESTNET', token } = body;
       if (!fromAddress || !toAddress || !amount) return res.json({ error: 'fromAddress, toAddress, amount required' });
       if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return res.json({ error: `Invalid destination address: ${toAddress}` });
       try {
-        // CLI syntax: circle wallet transfer <recipient> --amount X --address <from> --chain X
+        // CLI syntax: circle wallet transfer <recipient> --amount X --address <from> --chain X [--token <contract>]
+        // --token omitted defaults to USDC (per Circle CLI docs); pass the EURC contract address to settle in EURC instead.
+        const EURC_ADDRESS = process.env.EURC_ADDRESS || '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
         const args = ['wallet','transfer',
           toAddress,
           '--amount', String(amount),
@@ -429,12 +431,13 @@ export default async function handler(req, res) {
           '--chain', chain,
           '--testnet'
         ];
+        if (token && token.toUpperCase() === 'EURC') args.push('--token', EURC_ADDRESS);
         const r = await cli(args);
         // Check for success in output
         const rStr = typeof r === 'string' ? r : JSON.stringify(r||'');
         const success = rStr && !rStr.toLowerCase().includes('error') && !rStr.toLowerCase().includes('failed');
         const txHashM = rStr.match(/0x[a-fA-F0-9]{64}/);
-        console.log(`[transfer] ${success?'✅':'❌'} ${amount} USDC → ${toAddress.slice(0,10)}`);
+        console.log(`[transfer] ${success?'✅':'❌'} ${amount} ${token && token.toUpperCase()==='EURC'?'EURC':'USDC'} → ${toAddress.slice(0,10)}`);
         return res.json({ success, txHash: txHashM?.[0], result: rStr, error: success ? undefined : rStr.slice(0,200) });
       } catch(e) {
         console.error('[transfer] CLI failed:', e.message);

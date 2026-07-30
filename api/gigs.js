@@ -60,11 +60,11 @@ function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('h
 
 // Pay the freelancer directly from the requester's Agent Wallet — real on-chain
 // transfer, reusing agent-stack.js's existing, already-working 'transfer' action.
-async function payFreelancer({ fromAddress, toAddress, amount }) {
+async function payFreelancer({ fromAddress, toAddress, amount, currency }) {
   const { default: fetch } = await import('node-fetch');
   const r = await fetch(AGENT_STACK_API, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'transfer', fromAddress, toAddress, amount: String(amount), chain: 'ARC-TESTNET' }),
+    body: JSON.stringify({ action: 'transfer', fromAddress, toAddress, amount: String(amount), chain: 'ARC-TESTNET', token: currency }),
   });
   return r.json(); // { success, txHash, error }
 }
@@ -215,7 +215,7 @@ export default async function handler(req, res) {
 
     // ── submission-accept (requester edits the amount, agent pays instantly, onchain) ─
     if (action === 'submission-accept') {
-      const { submissionId, requesterAddress, requesterAgentWalletAddress, finalAmount } = req.body;
+      const { submissionId, requesterAddress, requesterAgentWalletAddress, finalAmount, currency } = req.body;
       if (!submissionId || !requesterAddress || !requesterAgentWalletAddress || !finalAmount)
         return res.json({ success: false, error: 'submissionId, requesterAddress, requesterAgentWalletAddress, and finalAmount are required' });
 
@@ -231,17 +231,20 @@ export default async function handler(req, res) {
 
       const parsedAmount = parseFloat(finalAmount);
       if (isNaN(parsedAmount) || parsedAmount <= 0) return res.json({ success: false, error: 'Invalid finalAmount' });
+      const settlementCurrency = (currency && currency.toUpperCase() === 'EURC') ? 'EURC' : 'USDC';
 
       // Pay the freelancer directly, on-chain, from the requester's Agent Wallet.
       const payResult = await payFreelancer({
         fromAddress: requesterAgentWalletAddress,
         toAddress: submission.freelancerWalletAddress,
         amount: parsedAmount,
+        currency: settlementCurrency,
       });
       if (!payResult.success) return res.json({ success: false, error: payResult.error || 'Payment failed' });
 
       submission.status = 'accepted';
       submission.finalAmount = parsedAmount;
+      submission.currency = settlementCurrency;
       submission.txHash = payResult.txHash || null;
       submission.acceptedAt = Date.now();
       await kvSet(`nan:gig:submission:${submission.id}`, submission);
