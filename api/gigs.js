@@ -30,29 +30,22 @@ async function kvSet(key, value) {
   const d = await r.json();
   if (!r.ok || d?.error) throw new Error(`kvSet failed for ${key}: ${d?.error || r.status}`);
 }
-async function kvSadd(setKey, member) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/sadd/${encodeURIComponent(setKey)}/${encodeURIComponent(member)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
-  });
-  const d = await r.json();
-  if (!r.ok || d?.error) throw new Error(`kvSadd failed for ${setKey}: ${d?.error || r.status}`);
-  return d;
+// Index helpers: maintain a plain JSON array of IDs at indexKey, using ONLY
+// kvGet/kvSet — the same primitives already proven to work everywhere else in
+// this codebase (marketplace.js, career.js, kyc.js). Earlier this used Redis
+// Set commands (SADD/SMEMBERS) via path-based REST endpoints, but those are
+// never used anywhere else in this codebase and were never actually verified
+// against this specific KV deployment — likely the real reason tasks weren't
+// showing up (the index write may have been silently doing nothing).
+async function addToIndex(indexKey, id) {
+  const current = (await kvGet(indexKey)) || [];
+  if (!current.includes(id)) {
+    current.push(id);
+    await kvSet(indexKey, current);
+  }
 }
-async function kvSmembers(setKey) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/smembers/${encodeURIComponent(setKey)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
-  });
-  const d = await r.json();
-  if (!r.ok || d?.error) throw new Error(`kvSmembers failed for ${setKey}: ${d?.error || r.status}`);
-  return d?.result || [];
-}
-// Indexed list: reads member IDs from a Set (O(1) lookup) instead of pattern-scanning
-// every key in the shared database with KEYS, which gets slower as the whole KV store
-// (shared across career/marketplace/gigs/kyc) accumulates more keys over time.
 async function listByIndex(indexKey, keyPrefix) {
-  const ids = await kvSmembers(indexKey);
+  const ids = (await kvGet(indexKey)) || [];
   const items = await Promise.all(ids.map(id => kvGet(keyPrefix + id)));
   return items.filter(Boolean);
 }
@@ -106,7 +99,7 @@ export default async function handler(req, res) {
         status: 'open', createdAt: Date.now(),
       };
       await kvSet(`nan:gig:task:${task.id}`, task);
-      await kvSadd('nan:gig:task:index', task.id);
+      await addToIndex('nan:gig:task:index', task.id);
 
       // Notify anyone watching a keyword that matches this new task (best-effort — errors don't fail the request).
       try {
@@ -179,7 +172,7 @@ export default async function handler(req, res) {
         fileUrl: safeFile, status: 'pending', createdAt: Date.now(),
       };
       await kvSet(`nan:gig:submission:${submission.id}`, submission);
-      await kvSadd('nan:gig:submission:index', submission.id);
+      await addToIndex('nan:gig:submission:index', submission.id);
 
       if (task.notifyEmail) {
         await sendNotification(
@@ -270,7 +263,7 @@ export default async function handler(req, res) {
       if (!email || !keyword) return res.json({ success: false, error: 'email and keyword are required' });
       const watch = { id: newId('watch'), email: String(email).slice(0, 200), keyword: String(keyword).slice(0, 100).toLowerCase(), createdAt: Date.now() };
       await kvSet(`nan:gig:watch:${watch.id}`, watch);
-      await kvSadd('nan:gig:watch:index', watch.id);
+      await addToIndex('nan:gig:watch:index', watch.id);
       return res.json({ success: true, watch });
     }
 
