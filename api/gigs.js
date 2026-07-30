@@ -38,12 +38,8 @@ async function kvKeys(prefix) {
 }
 async function listByPrefix(prefix) {
   const keys = await kvKeys(prefix);
-  const items = [];
-  for (const k of keys) {
-    const v = await kvGet(k);
-    if (v) items.push(v);
-  }
-  return items;
+  const items = await Promise.all(keys.map(k => kvGet(k)));
+  return items.filter(Boolean);
 }
 function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('hex'); }
 
