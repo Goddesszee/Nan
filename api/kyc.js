@@ -10,19 +10,23 @@ const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
 async function kvGet(key) {
   const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  const r = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(['GET', key]),
   });
   const d = await r.json();
   return d?.result ? JSON.parse(d.result) : null;
 }
 async function kvSet(key, value) {
   const { default: fetch } = await import('node-fetch');
-  await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+  const r = await fetch(KV_URL, {
     method: 'POST',
     headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(JSON.stringify(value))
+    body: JSON.stringify(['SET', key, JSON.stringify(value)]),
   });
+  const d = await r.json();
+  if (!r.ok || d?.error) throw new Error(`kvSet failed for ${key}: ${d?.error || r.status}`);
 }
 async function kvKeys(prefix) {
   const { default: fetch } = await import('node-fetch');
