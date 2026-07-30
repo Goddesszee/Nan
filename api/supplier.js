@@ -89,7 +89,7 @@ async function runAction(action, req, res, OPENAI_KEY) {
   res.json = (payload) => {
     if (req.payment && payload && typeof payload === 'object' && payload.success) {
       payload = { ...payload, payment: {
-        amount: req.payment.amount, payer: req.payment.payer,
+        amount: (Number(req.payment.amount) / 1e6).toString(), payer: req.payment.payer,
         network: req.payment.network, transaction: req.payment.transaction,
       }};
     }
