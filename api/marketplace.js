@@ -139,10 +139,16 @@ export default async function handler(req, res) {
   try {
     // ── listing-create ──────────────────────────────────────────────────────
     if (action === 'listing-create') {
-      const { sellerAddress, sellerEmail, title, description, price, category, location, images } = req.body;
+      const { sellerAddress, sellerEmail, title, description, price, category, location, images, highValue } = req.body;
       if (!sellerAddress || !title || !price) return res.json({ success: false, error: 'sellerAddress, title, and price are required' });
       const parsedPrice = parseFloat(price);
       if (isNaN(parsedPrice) || parsedPrice <= 0) return res.json({ success: false, error: 'Invalid price' });
+
+      if (highValue) {
+        const kyc = await kvGet(`nan:kyc:${sellerAddress.toLowerCase()}`);
+        if (!kyc || kyc.status !== 'approved')
+          return res.json({ success: false, error: 'Verified Listings require identity verification first. Submit a verification request and wait for approval before posting.' });
+      }
 
       let safeImages = [];
       if (Array.isArray(images)) {
@@ -159,6 +165,7 @@ export default async function handler(req, res) {
         title: String(title).slice(0, 140), description: String(description || '').slice(0, 2000),
         price: parsedPrice, category: category || 'general', location: location || null,
         images: safeImages, status: 'active', createdAt: Date.now(),
+        highValue: !!highValue,
       };
       await kvSet(`nan:mkt:listing:${listing.id}`, listing);
       return res.json({ success: true, listing });
@@ -166,8 +173,9 @@ export default async function handler(req, res) {
 
     // ── listing-list ─────────────────────────────────────────────────────────
     if (action === 'listing-list') {
-      const { query, category } = req.body;
+      const { query, category, highValue } = req.body;
       let listings = (await listByPrefix('nan:mkt:listing:')).filter(l => l.status === 'active');
+      if (highValue !== undefined) listings = listings.filter(l => !!l.highValue === !!highValue);
       if (category) listings = listings.filter(l => l.category === category);
       if (query) {
         const q = String(query).toLowerCase();
