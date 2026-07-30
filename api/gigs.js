@@ -63,6 +63,18 @@ async function payFreelancer({ fromAddress, toAddress, amount }) {
   return r.json(); // { success, txHash, error }
 }
 
+// Notifications are best-effort — never let an email failure break task/submission flow.
+async function sendNotification(to, subject, body) {
+  if (!to) return;
+  try {
+    const { default: fetch } = await import('node-fetch');
+    await fetch('https://nan-production.up.railway.app/api/send-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, body }),
+    });
+  } catch (e) { console.log('[gigs] notification email failed:', e.message); }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -75,7 +87,7 @@ export default async function handler(req, res) {
   try {
     // ── task-create ──────────────────────────────────────────────────────────
     if (action === 'task-create') {
-      const { requesterAddress, title, description, budget, negotiable } = req.body;
+      const { requesterAddress, title, description, budget, negotiable, notifyEmail } = req.body;
       if (!requesterAddress || !title || !budget) return res.json({ success: false, error: 'requesterAddress, title, and budget are required' });
       const parsedBudget = parseFloat(budget);
       if (isNaN(parsedBudget) || parsedBudget <= 0) return res.json({ success: false, error: 'Invalid budget' });
@@ -84,10 +96,23 @@ export default async function handler(req, res) {
         id: newId('task'), requesterAddress,
         title: String(title).slice(0, 140), description: String(description || '').slice(0, 2000),
         budget: parsedBudget, negotiable: !!negotiable,
+        notifyEmail: notifyEmail ? String(notifyEmail).slice(0, 200) : null,
         status: 'open', createdAt: Date.now(),
       };
       await kvSet(`nan:gig:task:${task.id}`, task);
       await kvSadd('nan:gig:task:index', task.id);
+
+      // Notify anyone watching a keyword that matches this new task (best-effort — errors don't fail the request).
+      try {
+        const watches = await listByIndex('nan:gig:watch:index', 'nan:gig:watch:');
+        const haystack = (task.title + ' ' + task.description).toLowerCase();
+        const matches = watches.filter(w => haystack.includes(w.keyword.toLowerCase()));
+        await Promise.all(matches.map(w => sendNotification(
+          w.email, `New task matching "${w.keyword}"`,
+          `A new task was just posted that matches your saved search "${w.keyword}":\n\n${task.title}\nBudget: $${task.budget}${task.negotiable ? ' (negotiable)' : ''}\n\nCheck it out at nanarc.xyz/legacy/app.html`
+        )));
+      } catch (e) { console.log('[gigs] watch-notify failed:', e.message); }
+
       return res.json({ success: true, task });
     }
 
@@ -149,6 +174,14 @@ export default async function handler(req, res) {
       };
       await kvSet(`nan:gig:submission:${submission.id}`, submission);
       await kvSadd('nan:gig:submission:index', submission.id);
+
+      if (task.notifyEmail) {
+        await sendNotification(
+          task.notifyEmail, `New submission on "${task.title}"`,
+          `Someone submitted work for your task "${task.title}":\n\n${submission.description}\nProposed price: $${submission.proposedPrice}\n\nReview it at nanarc.xyz/legacy/app.html`
+        ).catch(() => {});
+      }
+
       return res.json({ success: true, submission });
     }
 
@@ -220,6 +253,16 @@ export default async function handler(req, res) {
       await kvSet(`nan:gig:task:${task.id}`, task);
 
       return res.json({ success: true, submission, task, rejectedCount: others.length });
+    }
+
+    // ── watch-create (save a keyword search + email, get notified on matching new tasks) ─
+    if (action === 'watch-create') {
+      const { email, keyword } = req.body;
+      if (!email || !keyword) return res.json({ success: false, error: 'email and keyword are required' });
+      const watch = { id: newId('watch'), email: String(email).slice(0, 200), keyword: String(keyword).slice(0, 100).toLowerCase(), createdAt: Date.now() };
+      await kvSet(`nan:gig:watch:${watch.id}`, watch);
+      await kvSadd('nan:gig:watch:index', watch.id);
+      return res.json({ success: true, watch });
     }
 
     return res.status(400).json({ error: 'Unknown action' });
