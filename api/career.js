@@ -222,7 +222,7 @@ export default async function handler(req, res) {
   const { action } = req.body || {};
 
   // Free actions — no x402 payment required (browsing shouldn't cost anything).
-  const FREE_ACTIONS = new Set(['job-list']);
+  const FREE_ACTIONS = new Set(['job-list', 'my-jobs', 'job-delete', 'job-edit']);
   if (FREE_ACTIONS.has(action)) {
     try {
       await runAction(action, req, res, OPENAI_KEY);
@@ -373,5 +373,52 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.status === 'open');
       jobs.sort((a, b) => b.createdAt - a.createdAt);
       return res.json({ success: true, jobs });
+    }
+
+    // ── my-jobs (posted by this employer, any status) ─────────────────────────
+    if (action === 'my-jobs') {
+      const { employerAddress } = req.body;
+      if (!employerAddress) return res.json({ success: false, error: 'employerAddress required' });
+      const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.employerAddress?.toLowerCase() === employerAddress.toLowerCase());
+      jobs.sort((a, b) => b.createdAt - a.createdAt);
+      return res.json({ success: true, jobs });
+    }
+
+    // ── job-delete (only the employer who posted it can delete) ──────────────
+    if (action === 'job-delete') {
+      const { jobId, employerAddress } = req.body;
+      if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      if (job.employerAddress?.toLowerCase() !== employerAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the employer who posted this job can delete it' });
+      const raw = await kvGet('nan:career:job:index');
+      const current = Array.isArray(raw) ? raw : [];
+      await kvSet('nan:career:job:index', current.filter(id => id !== jobId));
+      return res.json({ success: true });
+    }
+
+    // ── job-edit (only the employer who posted it can edit) ──────────────────
+    if (action === 'job-edit') {
+      const { jobId, employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3 } = req.body;
+      if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      if (job.employerAddress?.toLowerCase() !== employerAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the employer who posted this job can edit it' });
+      if (title) job.title = String(title).slice(0, 140);
+      if (description !== undefined) job.description = String(description).slice(0, 2000);
+      if (salary) {
+        const parsedSalary = parseFloat(salary);
+        if (isNaN(parsedSalary) || parsedSalary <= 0) return res.json({ success: false, error: 'Invalid salary' });
+        job.salary = parsedSalary;
+      }
+      if (currency) job.currency = currency.toUpperCase() === 'EURC' ? 'EURC' : 'USDC';
+      if (location !== undefined) job.location = location;
+      if (remoteOnly !== undefined) job.remoteOnly = !!remoteOnly;
+      if (includeWeb3 !== undefined) job.includeWeb3 = !!includeWeb3;
+      job.updatedAt = Date.now();
+      await kvSet(`nan:career:job:${jobId}`, job);
+      return res.json({ success: true, job });
     }
 }

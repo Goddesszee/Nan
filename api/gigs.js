@@ -259,6 +259,42 @@ export default async function handler(req, res) {
       return res.json({ success: true, submission, task, rejectedCount: others.length });
     }
 
+    // ── task-delete (only the requester who posted it can delete) ────────────
+    if (action === 'task-delete') {
+      const { taskId, requesterAddress } = req.body;
+      if (!taskId || !requesterAddress) return res.json({ success: false, error: 'taskId and requesterAddress are required' });
+      const task = await kvGet(`nan:gig:task:${taskId}`);
+      if (!task) return res.json({ success: false, error: 'Task not found' });
+      if (task.requesterAddress?.toLowerCase() !== requesterAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the person who posted this task can delete it' });
+      const raw = await kvGet('nan:gig:task:index');
+      const current = Array.isArray(raw) ? raw : [];
+      await kvSet('nan:gig:task:index', current.filter(id => id !== taskId));
+      return res.json({ success: true });
+    }
+
+    // ── task-edit (only the requester who posted it can edit; only while open) ─
+    if (action === 'task-edit') {
+      const { taskId, requesterAddress, title, description, budget, negotiable } = req.body;
+      if (!taskId || !requesterAddress) return res.json({ success: false, error: 'taskId and requesterAddress are required' });
+      const task = await kvGet(`nan:gig:task:${taskId}`);
+      if (!task) return res.json({ success: false, error: 'Task not found' });
+      if (task.requesterAddress?.toLowerCase() !== requesterAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the person who posted this task can edit it' });
+      if (task.status !== 'open') return res.json({ success: false, error: `Task is ${task.status} and can no longer be edited` });
+      if (title) task.title = String(title).slice(0, 140);
+      if (description !== undefined) task.description = String(description).slice(0, 2000);
+      if (budget) {
+        const parsedBudget = parseFloat(budget);
+        if (isNaN(parsedBudget) || parsedBudget <= 0) return res.json({ success: false, error: 'Invalid budget' });
+        task.budget = parsedBudget;
+      }
+      if (negotiable !== undefined) task.negotiable = !!negotiable;
+      task.updatedAt = Date.now();
+      await kvSet(`nan:gig:task:${taskId}`, task);
+      return res.json({ success: true, task });
+    }
+
     // ── watch-create (save a keyword search + email, get notified on matching new tasks) ─
     if (action === 'watch-create') {
       const { email, keyword } = req.body;
