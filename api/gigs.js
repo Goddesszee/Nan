@@ -22,17 +22,22 @@ async function kvGet(key) {
 }
 async function kvSet(key, value) {
   const { default: fetch } = await import('node-fetch');
-  await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+  const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(JSON.stringify(value))
   });
+  const d = await r.json();
+  if (!r.ok || d?.error) throw new Error(`kvSet failed for ${key}: ${d?.error || r.status}`);
 }
 async function kvSadd(setKey, member) {
   const { default: fetch } = await import('node-fetch');
-  await fetch(`${KV_URL}/sadd/${encodeURIComponent(setKey)}/${encodeURIComponent(member)}`, {
+  const r = await fetch(`${KV_URL}/sadd/${encodeURIComponent(setKey)}/${encodeURIComponent(member)}`, {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
+  const d = await r.json();
+  if (!r.ok || d?.error) throw new Error(`kvSadd failed for ${setKey}: ${d?.error || r.status}`);
+  return d;
 }
 async function kvSmembers(setKey) {
   const { default: fetch } = await import('node-fetch');
@@ -40,6 +45,7 @@ async function kvSmembers(setKey) {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
   const d = await r.json();
+  if (!r.ok || d?.error) throw new Error(`kvSmembers failed for ${setKey}: ${d?.error || r.status}`);
   return d?.result || [];
 }
 // Indexed list: reads member IDs from a Set (O(1) lookup) instead of pattern-scanning
