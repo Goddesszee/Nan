@@ -55,6 +55,17 @@ function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('h
 
 const rateLimitMap = new Map();
 
+async function sendNotification(to, subject, body) {
+  if (!to) return;
+  try {
+    const { default: fetch } = await import('node-fetch');
+    await fetch('https://nan-production.up.railway.app/api/send-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, body }),
+    });
+  } catch (e) { console.log('[career] notification email failed:', e.message); }
+}
+
 function checkRateLimit(ip, limit = 90, windowMs = 60_000) {
   const now = Date.now();
   const record = rateLimitMap.get(ip) || { count: 0, start: now };
@@ -222,7 +233,7 @@ export default async function handler(req, res) {
   const { action } = req.body || {};
 
   // Free actions — no x402 payment required (browsing shouldn't cost anything).
-  const FREE_ACTIONS = new Set(['job-list', 'my-jobs', 'job-delete', 'job-edit']);
+  const FREE_ACTIONS = new Set(['job-list', 'my-jobs', 'job-delete', 'job-edit', 'job-watch-create']);
   if (FREE_ACTIONS.has(action)) {
     try {
       await runAction(action, req, res, OPENAI_KEY);
@@ -365,6 +376,18 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       };
       await kvSet(`nan:career:job:${job.id}`, job);
       await addToIndex('nan:career:job:index', job.id);
+
+      // Notify anyone watching a keyword that matches this new job (best-effort — errors don't fail the request).
+      try {
+        const watches = await listByIndex('nan:career:watch:index', 'nan:career:watch:');
+        const haystack = (job.title + ' ' + job.description).toLowerCase();
+        const matches = watches.filter(w => haystack.includes(w.keyword.toLowerCase()));
+        await Promise.all(matches.map(w => sendNotification(
+          w.email, `New job matching "${w.keyword}"`,
+          `A new job was just posted that matches your saved search "${w.keyword}":\n\n${job.title}\nSalary: ${job.salary} ${job.currency}\n\nCheck it out at nanarc.xyz/legacy/app.html`
+        )));
+      } catch (e) { console.log('[career] watch-notify failed:', e.message); }
+
       return res.json({ success: true, job });
     }
 
@@ -420,5 +443,15 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       job.updatedAt = Date.now();
       await kvSet(`nan:career:job:${jobId}`, job);
       return res.json({ success: true, job });
+    }
+
+    // ── job-watch-create (save a keyword search + email, get notified on matching new jobs) ─
+    if (action === 'job-watch-create') {
+      const { email, keyword } = req.body;
+      if (!email || !keyword) return res.json({ success: false, error: 'email and keyword are required' });
+      const watch = { id: newId('watch'), email: String(email).slice(0, 200), keyword: String(keyword).slice(0, 100).toLowerCase(), createdAt: Date.now() };
+      await kvSet(`nan:career:watch:${watch.id}`, watch);
+      await addToIndex('nan:career:watch:index', watch.id);
+      return res.json({ success: true, watch });
     }
 }
