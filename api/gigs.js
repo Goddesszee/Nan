@@ -38,14 +38,16 @@ async function kvSet(key, value) {
 // against this specific KV deployment — likely the real reason tasks weren't
 // showing up (the index write may have been silently doing nothing).
 async function addToIndex(indexKey, id) {
-  const current = (await kvGet(indexKey)) || [];
+  const raw = await kvGet(indexKey);
+  const current = Array.isArray(raw) ? raw : [];
   if (!current.includes(id)) {
     current.push(id);
     await kvSet(indexKey, current);
   }
 }
 async function listByIndex(indexKey, keyPrefix) {
-  const ids = (await kvGet(indexKey)) || [];
+  const raw = await kvGet(indexKey);
+  const ids = Array.isArray(raw) ? raw : [];
   const items = await Promise.all(ids.map(id => kvGet(keyPrefix + id)));
   return items.filter(Boolean);
 }
