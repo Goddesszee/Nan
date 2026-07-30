@@ -156,7 +156,11 @@ export default async function handler(req, res) {
       if (!freelancerAddress) return res.json({ success: false, error: 'freelancerAddress required' });
       const submissions = (await listByPrefix('nan:gig:submission:')).filter(s => s.freelancerAddress?.toLowerCase() === freelancerAddress.toLowerCase());
       submissions.sort((a, b) => b.createdAt - a.createdAt);
-      return res.json({ success: true, submissions });
+      const taskIds = [...new Set(submissions.map(s => s.taskId))];
+      const tasks = await Promise.all(taskIds.map(id => kvGet(`nan:gig:task:${id}`)));
+      const taskById = Object.fromEntries(taskIds.map((id, i) => [id, tasks[i]]));
+      const enriched = submissions.map(s => ({ ...s, taskTitle: taskById[s.taskId]?.title || null, requesterAddress: taskById[s.taskId]?.requesterAddress || null }));
+      return res.json({ success: true, submissions: enriched });
     }
 
     // ── submission-accept (requester edits the amount, agent pays instantly, onchain) ─
