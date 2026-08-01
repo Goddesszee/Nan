@@ -11,7 +11,7 @@
 //   - if a request arrives while the very first full scan is still running,
 //     it gets the last good cache (or a "scanning" flag) instead of timing out
 
-const RPC    = 'https://rpc.testnet.arc.network';
+const RPC    = 'https://rpc.testnet.arc.io';
 const USDC   = '0x3600000000000000000000000000000000000000';
 const SWAP   = '0x5cE359b74BE53b1B370641571cBef157dD575c79';
 const LEND   = '0x4CC84BbEf992439Cb01FeF2E1150B37916d1f2ce';
