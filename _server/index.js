@@ -775,6 +775,17 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
+// Live activity feed — Swaps + Arc Name claims, decoded on-chain, all users
+app.get('/api/activity-feed', async (req, res) => {
+  try {
+    const mod = await import('../api/activity-feed.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[activity-feed]', e.message);
+    res.status(500).json({ items: [], total: 0, error: e.message });
+  }
+});
+
 // POST /api/appkit/gateway — unified balance
 app.post('/api/appkit/gateway', rateLimit(20), async (req, res) => {
   try {
