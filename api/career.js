@@ -386,16 +386,24 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
 
     // ── post-job (employer posts a job listing, pays the fee via x402 above) ──
     if (action === 'post-job') {
-      const { employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employerEmail } = req.body;
+      const { employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employerEmail, employmentType, experienceLevel, numOpenings, deadline, skillsRequired } = req.body;
       if (!employerAddress || !title || !salary) return res.json({ success: false, error: 'employerAddress, title, and salary are required' });
       const parsedSalary = parseFloat(salary);
       if (isNaN(parsedSalary) || parsedSalary <= 0) return res.json({ success: false, error: 'Invalid salary' });
+      const VALID_TYPES = ['full-time', 'part-time', 'contract', 'internship'];
+      const VALID_LEVELS = ['entry', 'mid', 'senior', 'lead', 'executive'];
 
       const job = {
         id: newId('job'), employerAddress, employerEmail: employerEmail || null,
         title: String(title).slice(0, 140), description: String(description || '').slice(0, 2000),
         salary: parsedSalary, currency: (currency && currency.toUpperCase() === 'EURC') ? 'EURC' : 'USDC',
         location: location || null, remoteOnly: !!remoteOnly, includeWeb3: !!includeWeb3,
+        employmentType: VALID_TYPES.includes(employmentType) ? employmentType : 'full-time',
+        experienceLevel: VALID_LEVELS.includes(experienceLevel) ? experienceLevel : 'mid',
+        numOpenings: Number.isInteger(numOpenings) && numOpenings > 0 ? numOpenings : (parseInt(numOpenings, 10) > 0 ? parseInt(numOpenings, 10) : 1),
+        deadline: deadline || null,
+        skillsRequired: Array.isArray(skillsRequired) ? skillsRequired.slice(0, 15).map(s => String(s).slice(0, 40)) : [],
+        views: 0,
         status: 'open', createdAt: Date.now(),
       };
       await kvSet(`nan:career:job:${job.id}`, job);
@@ -451,7 +459,7 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
 
     // ── job-edit (only the employer who posted it can edit) ──────────────────
     if (action === 'job-edit') {
-      const { jobId, employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3 } = req.body;
+      const { jobId, employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employmentType, experienceLevel, numOpenings, deadline, skillsRequired } = req.body;
       if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
       const job = await kvGet(`nan:career:job:${jobId}`);
       if (!job) return res.json({ success: false, error: 'Job not found' });
@@ -468,6 +476,13 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       if (location !== undefined) job.location = location;
       if (remoteOnly !== undefined) job.remoteOnly = !!remoteOnly;
       if (includeWeb3 !== undefined) job.includeWeb3 = !!includeWeb3;
+      const VALID_TYPES = ['full-time', 'part-time', 'contract', 'internship'];
+      const VALID_LEVELS = ['entry', 'mid', 'senior', 'lead', 'executive'];
+      if (employmentType && VALID_TYPES.includes(employmentType)) job.employmentType = employmentType;
+      if (experienceLevel && VALID_LEVELS.includes(experienceLevel)) job.experienceLevel = experienceLevel;
+      if (numOpenings !== undefined && parseInt(numOpenings, 10) > 0) job.numOpenings = parseInt(numOpenings, 10);
+      if (deadline !== undefined) job.deadline = deadline;
+      if (skillsRequired !== undefined) job.skillsRequired = Array.isArray(skillsRequired) ? skillsRequired.slice(0, 15).map(s => String(s).slice(0, 40)) : [];
       job.updatedAt = Date.now();
       await kvSet(`nan:career:job:${jobId}`, job);
       return res.json({ success: true, job });
