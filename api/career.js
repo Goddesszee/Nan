@@ -23,6 +23,7 @@ const PRICE_BY_ACTION = {
   'post-job': '$0.05',
   'generate-cover-letter': '$0.02',
   'interview-coach-message': '$0.01',
+  'match-candidates': '$0.03',
 };
 
 const KV_URL   = process.env.KV_REST_API_URL;
@@ -386,7 +387,7 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
 
     // ── post-job (employer posts a job listing, pays the fee via x402 above) ──
     if (action === 'post-job') {
-      const { employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employerEmail, employmentType, experienceLevel, numOpenings, deadline, skillsRequired } = req.body;
+      const { employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employerEmail, employmentType, experienceLevel, numOpenings, deadline, skillsRequired, category, companyLogo, companyWebsite, benefits } = req.body;
       if (!employerAddress || !title || !salary) return res.json({ success: false, error: 'employerAddress, title, and salary are required' });
       const parsedSalary = parseFloat(salary);
       if (isNaN(parsedSalary) || parsedSalary <= 0) return res.json({ success: false, error: 'Invalid salary' });
@@ -403,7 +404,11 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
         numOpenings: Number.isInteger(numOpenings) && numOpenings > 0 ? numOpenings : (parseInt(numOpenings, 10) > 0 ? parseInt(numOpenings, 10) : 1),
         deadline: deadline || null,
         skillsRequired: Array.isArray(skillsRequired) ? skillsRequired.slice(0, 15).map(s => String(s).slice(0, 40)) : [],
-        views: 0,
+        category: category ? String(category).slice(0, 60) : 'Other',
+        companyLogo: companyLogo ? String(companyLogo).slice(0, 500) : null,
+        companyWebsite: companyWebsite ? String(companyWebsite).slice(0, 300) : null,
+        benefits: Array.isArray(benefits) ? benefits.slice(0, 10).map(b => String(b).slice(0, 100)) : [],
+        views: 0, reportCount: 0,
         status: 'open', createdAt: Date.now(),
       };
       await kvSet(`nan:career:job:${job.id}`, job);
@@ -459,7 +464,7 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
 
     // ── job-edit (only the employer who posted it can edit) ──────────────────
     if (action === 'job-edit') {
-      const { jobId, employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employmentType, experienceLevel, numOpenings, deadline, skillsRequired } = req.body;
+      const { jobId, employerAddress, title, description, salary, currency, location, remoteOnly, includeWeb3, employmentType, experienceLevel, numOpenings, deadline, skillsRequired, category, companyLogo, companyWebsite, benefits } = req.body;
       if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
       const job = await kvGet(`nan:career:job:${jobId}`);
       if (!job) return res.json({ success: false, error: 'Job not found' });
@@ -483,9 +488,53 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       if (numOpenings !== undefined && parseInt(numOpenings, 10) > 0) job.numOpenings = parseInt(numOpenings, 10);
       if (deadline !== undefined) job.deadline = deadline;
       if (skillsRequired !== undefined) job.skillsRequired = Array.isArray(skillsRequired) ? skillsRequired.slice(0, 15).map(s => String(s).slice(0, 40)) : [];
+      if (category !== undefined) job.category = String(category).slice(0, 60);
+      if (companyLogo !== undefined) job.companyLogo = companyLogo ? String(companyLogo).slice(0, 500) : null;
+      if (companyWebsite !== undefined) job.companyWebsite = companyWebsite ? String(companyWebsite).slice(0, 300) : null;
+      if (benefits !== undefined) job.benefits = Array.isArray(benefits) ? benefits.slice(0, 10).map(b => String(b).slice(0, 100)) : [];
       job.updatedAt = Date.now();
       await kvSet(`nan:career:job:${jobId}`, job);
       return res.json({ success: true, job });
+    }
+
+    // ── report-listing (flag a job as fraudulent/spam, real counter, no auto-removal) ──
+    if (action === 'report-listing') {
+      const { jobId, reporterAddress, reason } = req.body;
+      if (!jobId) return res.json({ success: false, error: 'jobId required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      const report = { id: newId('report'), jobId, reporterAddress: reporterAddress || null, reason: String(reason || '').slice(0, 300), createdAt: Date.now() };
+      await kvSet(`nan:career:report:${report.id}`, report);
+      await addToIndex(`nan:career:reportsbyjob:${jobId}`, report.id);
+      job.reportCount = (job.reportCount || 0) + 1;
+      await kvSet(`nan:career:job:${jobId}`, job);
+      return res.json({ success: true, reportCount: job.reportCount });
+    }
+
+    // ── match-candidates (employer-side AI compatibility scoring for applicants) ──
+    if (action === 'match-candidates') {
+      const { jobId, employerAddress } = req.body;
+      if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      if (job.employerAddress?.toLowerCase() !== employerAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the employer who posted this job can view candidate matches' });
+      const applications = await listByIndex(`nan:career:appbyjob:${jobId}`, 'nan:career:app:');
+      if (applications.length === 0) return res.json({ success: true, matches: [] });
+
+      const content = await callOpenAIChat(OPENAI_KEY, [
+        { role: 'system', content: 'You score how well each candidate resume fits a job. Return strict JSON only: an array of objects with keys applicationId, matchScore (0-100 integer), reason (one sentence). No prose, no markdown fences.' },
+        { role: 'user', content: `Job: ${job.title}\nRequirements: ${job.description}\nSkills required: ${(job.skillsRequired || []).join(', ')}\nExperience level: ${job.experienceLevel}\n\nCandidates:\n${applications.map(a => `applicationId: ${a.id}\nResume: ${(a.resumeText || '').slice(0, 2000)}`).join('\n---\n')}` },
+      ], true);
+
+      let scored = [];
+      try { scored = JSON.parse(content); } catch { scored = []; }
+      const scoreById = Object.fromEntries(scored.map(s => [s.applicationId, s]));
+      const matches = applications.map(a => ({
+        applicationId: a.id, applicantAddress: a.applicantAddress,
+        matchScore: scoreById[a.id]?.matchScore ?? null, reason: scoreById[a.id]?.reason || '',
+      })).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+      return res.json({ success: true, matches });
     }
 
     // ── job-watch-create (save a keyword search + email, get notified on matching new jobs) ─
