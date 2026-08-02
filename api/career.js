@@ -21,6 +21,8 @@ const PRICE_BY_ACTION = {
   'search-jobs': '$0.05',
   'company-profile': '$0.02',
   'post-job': '$0.05',
+  'generate-cover-letter': '$0.02',
+  'interview-coach-message': '$0.01',
 };
 
 const KV_URL   = process.env.KV_REST_API_URL;
@@ -52,6 +54,14 @@ async function listByIndex(indexKey, keyPrefix) {
   return items.filter(Boolean);
 }
 function newId(prefix) { return prefix + '_' + crypto.randomBytes(8).toString('hex'); }
+
+// Reuses the exact same verification record Marketplace's KYC flow writes, so "Verified
+// Employer" reflects genuine identity verification, not a separate/fake check.
+async function getKycStatus(walletAddress) {
+  if (!walletAddress) return 'none';
+  const record = await kvGet(`nan:kyc:${walletAddress.toLowerCase()}`);
+  return record?.status || 'none';
+}
 
 const rateLimitMap = new Map();
 
@@ -165,7 +175,7 @@ async function matchPostedJobs(profile, { location, remoteOnly, includeWeb3 }) {
   const terms = [...new Set([...skillTerms, ...headlineTerms])];
   if (terms.length === 0) return [];
 
-  return jobs
+  const scored = jobs
     .filter(j => !remoteOnly || j.remoteOnly)
     .map(job => {
       const haystack = `${job.title || ''} ${job.description || ''}`.toLowerCase();
@@ -175,13 +185,19 @@ async function matchPostedJobs(profile, { location, remoteOnly, includeWeb3 }) {
         title: job.title, company: 'Posted on NAN', location: job.remoteOnly ? 'Remote' : (job.location || 'Unspecified'),
         url: null, source: 'NAN Job Board', matchScore,
         reason: hits.length ? `Matches on: ${hits.slice(0, 4).join(', ')}` : 'Broad match on listing',
-        verified: true, employerPosted: true, referred: true,
+        employerPosted: true, referred: true, employerAddress: job.employerAddress,
         salary: job.salary, currency: job.currency, jobId: job.id,
       };
     })
     .filter(j => j.matchScore > 0)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 6);
+
+  // Attach real verification status per employer, not a hardcoded true.
+  const uniqueAddrs = [...new Set(scored.map(j => j.employerAddress).filter(Boolean))];
+  const statuses = await Promise.all(uniqueAddrs.map(a => getKycStatus(a)));
+  const statusByAddr = Object.fromEntries(uniqueAddrs.map((a, i) => [a.toLowerCase(), statuses[i]]));
+  return scored.map(j => ({ ...j, verified: statusByAddr[(j.employerAddress || '').toLowerCase()] === 'approved' }));
 }
 
 async function searchArbeitnow(skills, headline) {
@@ -233,7 +249,15 @@ export default async function handler(req, res) {
   const { action } = req.body || {};
 
   // Free actions — no x402 payment required (browsing shouldn't cost anything).
-  const FREE_ACTIONS = new Set(['job-list', 'my-jobs', 'job-delete', 'job-edit', 'job-watch-create']);
+  const FREE_ACTIONS = new Set([
+    'job-list', 'my-jobs', 'job-delete', 'job-edit', 'job-watch-create',
+    'apply-to-job', 'my-applications', 'job-applications', 'application-update-status',
+    'career-profile-get', 'career-profile-save',
+    'save-job', 'unsave-job', 'saved-jobs-list',
+    'job-view', 'employer-stats', 'employer-verification-status',
+    'messages-send', 'messages-thread', 'messages-list',
+    'notifications-list', 'notifications-mark-read',
+  ]);
   if (FREE_ACTIONS.has(action)) {
     try {
       await runAction(action, req, res, OPENAI_KEY);
@@ -245,7 +269,7 @@ export default async function handler(req, res) {
   }
 
   const price = PRICE_BY_ACTION[action];
-  if (!price) return res.status(400).json({ error: 'Unknown action. Use parse-cv, generate-cv, search-jobs, company-profile, post-job, or job-list.' });
+  if (!price) return res.status(400).json({ error: 'Unknown action.' });
 
   const gateway = await getGateway();
   return new Promise((resolve) => {
@@ -395,7 +419,11 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
     if (action === 'job-list') {
       const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.status === 'open');
       jobs.sort((a, b) => b.createdAt - a.createdAt);
-      return res.json({ success: true, jobs });
+      const uniqueAddrs = [...new Set(jobs.map(j => j.employerAddress).filter(Boolean))];
+      const statuses = await Promise.all(uniqueAddrs.map(a => getKycStatus(a)));
+      const statusByAddr = Object.fromEntries(uniqueAddrs.map((a, i) => [a.toLowerCase(), statuses[i]]));
+      const withVerification = jobs.map(j => ({ ...j, employerVerified: statusByAddr[(j.employerAddress || '').toLowerCase()] === 'approved', views: j.views || 0 }));
+      return res.json({ success: true, jobs: withVerification });
     }
 
     // ── my-jobs (posted by this employer, any status) ─────────────────────────
@@ -453,5 +481,278 @@ Return the 6 best current matches as a JSON array only (no prose, no markdown fe
       await kvSet(`nan:career:watch:${watch.id}`, watch);
       await addToIndex('nan:career:watch:index', watch.id);
       return res.json({ success: true, watch });
+    }
+
+    // ── notifications (shared helper + actions) ───────────────────────────────
+    async function pushNotification(toAddress, type, text, jobId) {
+      if (!toAddress) return;
+      const n = { id: newId('notif'), toAddress: toAddress.toLowerCase(), type, text, jobId: jobId || null, read: false, createdAt: Date.now() };
+      await kvSet(`nan:career:notif:${n.id}`, n);
+      await addToIndex(`nan:career:notifindex:${toAddress.toLowerCase()}`, n.id);
+    }
+
+    if (action === 'notifications-list') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const notifs = await listByIndex(`nan:career:notifindex:${walletAddress.toLowerCase()}`, 'nan:career:notif:');
+      notifs.sort((a, b) => b.createdAt - a.createdAt);
+      return res.json({ success: true, notifications: notifs.slice(0, 50) });
+    }
+
+    if (action === 'notifications-mark-read') {
+      const { notificationId } = req.body;
+      if (!notificationId) return res.json({ success: false, error: 'notificationId required' });
+      const n = await kvGet(`nan:career:notif:${notificationId}`);
+      if (!n) return res.json({ success: false, error: 'Notification not found' });
+      n.read = true;
+      await kvSet(`nan:career:notif:${notificationId}`, n);
+      return res.json({ success: true });
+    }
+
+    // ── career profile (skills, education, experience, certifications, languages, portfolio) ─
+    if (action === 'career-profile-get') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const profile = await kvGet(`nan:career:profile:${walletAddress.toLowerCase()}`) || {
+        walletAddress: walletAddress.toLowerCase(), skills: [], education: [], experience: [],
+        certifications: [], languages: [], portfolio: null, resumeScore: null,
+      };
+      const fields = [profile.skills?.length, profile.education?.length, profile.experience?.length, profile.certifications?.length, profile.languages?.length, profile.portfolio];
+      const filled = fields.filter(f => f && (Array.isArray(f) ? true : true)).length;
+      const completion = Math.round((filled / fields.length) * 100);
+      return res.json({ success: true, profile: { ...profile, completion } });
+    }
+
+    if (action === 'career-profile-save') {
+      const { walletAddress, skills, education, experience, certifications, languages, portfolio, resumeScore } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const existing = await kvGet(`nan:career:profile:${walletAddress.toLowerCase()}`) || {};
+      const profile = {
+        ...existing,
+        walletAddress: walletAddress.toLowerCase(),
+        skills: skills !== undefined ? skills : (existing.skills || []),
+        education: education !== undefined ? education : (existing.education || []),
+        experience: experience !== undefined ? experience : (existing.experience || []),
+        certifications: certifications !== undefined ? certifications : (existing.certifications || []),
+        languages: languages !== undefined ? languages : (existing.languages || []),
+        portfolio: portfolio !== undefined ? portfolio : (existing.portfolio || null),
+        resumeScore: resumeScore !== undefined ? resumeScore : (existing.resumeScore || null),
+        updatedAt: Date.now(),
+      };
+      await kvSet(`nan:career:profile:${walletAddress.toLowerCase()}`, profile);
+      return res.json({ success: true, profile });
+    }
+
+    // ── saved jobs ──────────────────────────────────────────────────────────
+    if (action === 'save-job') {
+      const { walletAddress, jobId } = req.body;
+      if (!walletAddress || !jobId) return res.json({ success: false, error: 'walletAddress and jobId are required' });
+      const key = `nan:career:saved:${walletAddress.toLowerCase()}`;
+      const raw = await kvGet(key);
+      const current = Array.isArray(raw) ? raw : [];
+      if (!current.includes(jobId)) { current.push(jobId); await kvSet(key, current); }
+      return res.json({ success: true });
+    }
+
+    if (action === 'unsave-job') {
+      const { walletAddress, jobId } = req.body;
+      if (!walletAddress || !jobId) return res.json({ success: false, error: 'walletAddress and jobId are required' });
+      const key = `nan:career:saved:${walletAddress.toLowerCase()}`;
+      const raw = await kvGet(key);
+      const current = Array.isArray(raw) ? raw : [];
+      await kvSet(key, current.filter(id => id !== jobId));
+      return res.json({ success: true });
+    }
+
+    if (action === 'saved-jobs-list') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const raw = await kvGet(`nan:career:saved:${walletAddress.toLowerCase()}`);
+      const ids = Array.isArray(raw) ? raw : [];
+      const jobs = (await Promise.all(ids.map(id => kvGet(`nan:career:job:${id}`)))).filter(Boolean);
+      return res.json({ success: true, jobs });
+    }
+
+    // ── job view tracking (real counter, powers Employer Dashboard "job views") ─
+    if (action === 'job-view') {
+      const { jobId } = req.body;
+      if (!jobId) return res.json({ success: false, error: 'jobId required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      job.views = (job.views || 0) + 1;
+      await kvSet(`nan:career:job:${jobId}`, job);
+      return res.json({ success: true, views: job.views });
+    }
+
+    // ── apply-to-job ────────────────────────────────────────────────────────
+    if (action === 'apply-to-job') {
+      const { jobId, applicantAddress, resumeText, coverLetter, portfolioLinks } = req.body;
+      if (!jobId || !applicantAddress) return res.json({ success: false, error: 'jobId and applicantAddress are required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      const existingApps = await listByIndex(`nan:career:appbyapplicant:${applicantAddress.toLowerCase()}`, 'nan:career:app:');
+      if (existingApps.some(a => a.jobId === jobId)) return res.json({ success: false, error: 'You already applied to this job' });
+
+      const application = {
+        id: newId('app'), jobId, jobTitle: job.title, employerAddress: job.employerAddress,
+        applicantAddress: applicantAddress.toLowerCase(),
+        resumeText: String(resumeText || '').slice(0, 12000),
+        coverLetter: String(coverLetter || '').slice(0, 4000),
+        portfolioLinks: Array.isArray(portfolioLinks) ? portfolioLinks.slice(0, 5) : [],
+        status: 'applied', createdAt: Date.now(),
+      };
+      await kvSet(`nan:career:app:${application.id}`, application);
+      await addToIndex('nan:career:app:index', application.id);
+      await addToIndex(`nan:career:appbyjob:${jobId}`, application.id);
+      await addToIndex(`nan:career:appbyapplicant:${applicantAddress.toLowerCase()}`, application.id);
+      await pushNotification(job.employerAddress, 'new_applicant', `New applicant for "${job.title}"`, jobId);
+      if (job.employerEmail) await sendNotification(job.employerEmail, `New applicant for "${job.title}"`, `Someone just applied to your job posting on NAN Careers. Log in to review their application.`);
+      return res.json({ success: true, application });
+    }
+
+    // ── my-applications (applicant's own view — powers My Applications tracker) ─
+    if (action === 'my-applications') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const apps = await listByIndex(`nan:career:appbyapplicant:${walletAddress.toLowerCase()}`, 'nan:career:app:');
+      apps.sort((a, b) => b.createdAt - a.createdAt);
+      return res.json({ success: true, applications: apps });
+    }
+
+    // ── job-applications (employer's view of applicants for one of their jobs) ─
+    if (action === 'job-applications') {
+      const { jobId, employerAddress } = req.body;
+      if (!jobId || !employerAddress) return res.json({ success: false, error: 'jobId and employerAddress are required' });
+      const job = await kvGet(`nan:career:job:${jobId}`);
+      if (!job) return res.json({ success: false, error: 'Job not found' });
+      if (job.employerAddress?.toLowerCase() !== employerAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the employer who posted this job can view its applicants' });
+      const apps = await listByIndex(`nan:career:appbyjob:${jobId}`, 'nan:career:app:');
+      apps.sort((a, b) => b.createdAt - a.createdAt);
+      return res.json({ success: true, applications: apps });
+    }
+
+    // ── application-update-status (employer moves an applicant through the pipeline) ─
+    if (action === 'application-update-status') {
+      const { applicationId, employerAddress, status } = req.body;
+      const VALID = ['applied', 'under_review', 'interview_scheduled', 'offer', 'rejected', 'hired'];
+      if (!applicationId || !employerAddress || !VALID.includes(status))
+        return res.json({ success: false, error: `applicationId, employerAddress, and a valid status (${VALID.join('/')}) are required` });
+      const app = await kvGet(`nan:career:app:${applicationId}`);
+      if (!app) return res.json({ success: false, error: 'Application not found' });
+      if (app.employerAddress?.toLowerCase() !== employerAddress.toLowerCase())
+        return res.json({ success: false, error: 'Only the employer for this job can update applicant status' });
+      app.status = status;
+      app.updatedAt = Date.now();
+      await kvSet(`nan:career:app:${applicationId}`, app);
+      await pushNotification(app.applicantAddress, 'application_update', `Your application for "${app.jobTitle}" is now: ${status.replace('_', ' ')}`, app.jobId);
+      return res.json({ success: true, application: app });
+    }
+
+    // ── employer-stats (real analytics, computed from real applications + job views) ─
+    if (action === 'employer-stats') {
+      const { employerAddress } = req.body;
+      if (!employerAddress) return res.json({ success: false, error: 'employerAddress required' });
+      const jobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.employerAddress?.toLowerCase() === employerAddress.toLowerCase());
+      const appLists = await Promise.all(jobs.map(j => listByIndex(`nan:career:appbyjob:${j.id}`, 'nan:career:app:')));
+      const allApps = appLists.flat();
+      const activePostings = jobs.filter(j => j.status === 'open').length;
+      const totalApplicants = allApps.length;
+      const jobViews = jobs.reduce((sum, j) => sum + (j.views || 0), 0);
+      const interviewInvites = allApps.filter(a => a.status === 'interview_scheduled' || a.status === 'offer' || a.status === 'hired').length;
+      const hired = allApps.filter(a => a.status === 'hired').length;
+      const conversionRate = totalApplicants > 0 ? Math.round((hired / totalApplicants) * 100) : 0;
+      return res.json({ success: true, stats: { activePostings, totalApplicants, jobViews, interviewInvites, hired, conversionRate } });
+    }
+
+    // ── employer-verification-status (reuses the real Marketplace KYC record) ──
+    if (action === 'employer-verification-status') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const status = await getKycStatus(walletAddress);
+      return res.json({ success: true, status });
+    }
+
+    // ── messaging (tied to a specific application, matching spec's "attached to order") ──
+    if (action === 'messages-send') {
+      const { applicationId, fromAddress, text } = req.body;
+      if (!applicationId || !fromAddress || !text?.trim()) return res.json({ success: false, error: 'applicationId, fromAddress, and text are required' });
+      const app = await kvGet(`nan:career:app:${applicationId}`);
+      if (!app) return res.json({ success: false, error: 'Application not found' });
+      const isApplicant = app.applicantAddress?.toLowerCase() === fromAddress.toLowerCase();
+      const isEmployer = app.employerAddress?.toLowerCase() === fromAddress.toLowerCase();
+      if (!isApplicant && !isEmployer) return res.json({ success: false, error: 'You are not part of this conversation' });
+      const toAddress = isApplicant ? app.employerAddress : app.applicantAddress;
+      const msg = { id: newId('msg'), applicationId, fromAddress: fromAddress.toLowerCase(), toAddress, text: String(text).slice(0, 2000), createdAt: Date.now(), read: false };
+      await kvSet(`nan:career:msg:${msg.id}`, msg);
+      await addToIndex(`nan:career:msgthread:${applicationId}`, msg.id);
+      await pushNotification(toAddress, 'new_message', `New message about "${app.jobTitle}"`, app.jobId);
+      return res.json({ success: true, message: msg });
+    }
+
+    if (action === 'messages-thread') {
+      const { applicationId, walletAddress } = req.body;
+      if (!applicationId || !walletAddress) return res.json({ success: false, error: 'applicationId and walletAddress are required' });
+      const app = await kvGet(`nan:career:app:${applicationId}`);
+      if (!app) return res.json({ success: false, error: 'Application not found' });
+      const isApplicant = app.applicantAddress?.toLowerCase() === walletAddress.toLowerCase();
+      const isEmployer = app.employerAddress?.toLowerCase() === walletAddress.toLowerCase();
+      if (!isApplicant && !isEmployer) return res.json({ success: false, error: 'You are not part of this conversation' });
+      const messages = await listByIndex(`nan:career:msgthread:${applicationId}`, 'nan:career:msg:');
+      messages.sort((a, b) => a.createdAt - b.createdAt);
+      return res.json({ success: true, messages, application: app });
+    }
+
+    // ── messages-list (all threads/applications a wallet has any message-eligible context in) ─
+    if (action === 'messages-list') {
+      const { walletAddress } = req.body;
+      if (!walletAddress) return res.json({ success: false, error: 'walletAddress required' });
+      const asApplicant = await listByIndex(`nan:career:appbyapplicant:${walletAddress.toLowerCase()}`, 'nan:career:app:');
+      const myJobs = (await listByIndex('nan:career:job:index', 'nan:career:job:')).filter(j => j.employerAddress?.toLowerCase() === walletAddress.toLowerCase());
+      const asEmployerLists = await Promise.all(myJobs.map(j => listByIndex(`nan:career:appbyjob:${j.id}`, 'nan:career:app:')));
+      const asEmployer = asEmployerLists.flat();
+      const allThreads = [...asApplicant, ...asEmployer];
+      const withLastMessage = await Promise.all(allThreads.map(async app => {
+        const msgs = await listByIndex(`nan:career:msgthread:${app.id}`, 'nan:career:msg:');
+        msgs.sort((a, b) => b.createdAt - a.createdAt);
+        return { application: app, lastMessage: msgs[0] || null, messageCount: msgs.length };
+      }));
+      withLastMessage.sort((a, b) => (b.lastMessage?.createdAt || b.application.createdAt) - (a.lastMessage?.createdAt || a.application.createdAt));
+      return res.json({ success: true, threads: withLastMessage });
+    }
+
+    // ── AI cover letter generator (paid, matches parse-cv/generate-cv cost pattern) ──
+    if (action === 'generate-cover-letter') {
+      const { resumeText, jobTitle, jobDescription, companyName } = req.body;
+      if (!resumeText || !jobTitle) return res.status(400).json({ error: 'resumeText and jobTitle are required' });
+      const content = await callOpenAIChat(OPENAI_KEY, [
+        { role: 'system', content: 'Write a concise, specific, professional cover letter (plain text, no markdown symbols) tailored to the candidate\'s actual resume and the job description. Avoid generic filler phrases. 250-350 words.' },
+        { role: 'user', content: `Resume:\n${resumeText.slice(0, 8000)}\n\nJob title: ${jobTitle}\nCompany: ${companyName || 'the company'}\nJob description: ${(jobDescription || '').slice(0, 3000)}` },
+      ], false);
+      return res.json({ success: true, coverLetter: content });
+    }
+
+    // ── AI interview coach (stateful mock interview, paid per message) ──────
+    if (action === 'interview-coach-message') {
+      const { sessionId, walletAddress, role, userMessage } = req.body;
+      if (!walletAddress || !role) return res.status(400).json({ error: 'walletAddress and role are required' });
+
+      let session = sessionId ? await kvGet(`nan:career:interview:${sessionId}`) : null;
+      const isNewSession = !session;
+      if (isNewSession) {
+        session = { id: newId('interview'), walletAddress: walletAddress.toLowerCase(), role: String(role).slice(0, 120), history: [], createdAt: Date.now() };
+      }
+      if (userMessage) session.history.push({ role: 'user', content: String(userMessage).slice(0, 3000) });
+
+      const systemPrompt = `You are an expert interview coach role-playing as an interviewer for a "${session.role}" position. If this is the first message (empty history before this point), open with a short greeting and your first behavioral or role-specific question. Otherwise, briefly give constructive feedback (2-3 sentences, specific, actionable — mention things like structure, specificity, use of the STAR method, or communication clarity) on the candidate's last answer, THEN ask the next interview question. Keep your entire response under 120 words. Never break character or mention you are an AI.`;
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...session.history.map(h => ({ role: h.role, content: h.content })),
+      ];
+      const reply = await callOpenAIChat(OPENAI_KEY, messages, false);
+      session.history.push({ role: 'assistant', content: reply });
+      session.updatedAt = Date.now();
+      await kvSet(`nan:career:interview:${session.id}`, session);
+      return res.json({ success: true, sessionId: session.id, reply, turnCount: session.history.filter(h => h.role === 'user').length });
     }
 }
