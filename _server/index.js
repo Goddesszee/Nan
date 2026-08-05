@@ -292,6 +292,17 @@ app.post('/api/gigs', rateLimit(30), async (req, res) => {
   }
 });
 
+// ── Explore (AI-powered search: businesses, people, places, services) ──────
+app.post('/api/explore', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/explore.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[explore proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── KYC (lightweight, admin-reviewed verification for Marketplace sellers) ────
 app.post('/api/kyc', rateLimit(30), async (req, res) => {
   try {
