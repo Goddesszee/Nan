@@ -116,7 +116,7 @@ html,body{background:var(--bg) !important;}
   <div id="globalTopBar">
     <div class="brand">
       <div class="brand-logo" id="secretTapZone" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
-  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#8b5cf6"/><rect x="78" y="10" width="14" height="80" fill="#8b5cf6"/></svg>
+  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#2563EB"/><rect x="78" y="10" width="14" height="80" fill="#2563EB"/></svg>
   <span style="font-size:15px;font-weight:700;color:var(--text);letter-spacing:.02em;font-family:'Inter',sans-serif;">an</span>
 </div>
       
@@ -171,7 +171,7 @@ html,body{background:var(--bg) !important;}
   <nav id="desktopNav" style="display:none;">
     <div class="dnav-logo-row">
       <div class="dnav-logo" id="secretTapZoneDesktop" onclick="handleSecretTap()" style="display:flex;align-items:center;gap:10px;cursor:pointer;height:72px;">
-  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#8b5cf6"/><rect x="78" y="10" width="14" height="80" fill="#8b5cf6"/></svg>
+  <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><polygon points="10,90 10,10 30,10 58,62 58,10 78,10 78,90 58,90 30,38 30,90" fill="#2563EB"/><rect x="78" y="10" width="14" height="80" fill="#2563EB"/></svg>
   <div>
     <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:.02em;line-height:1;font-family:'Inter',sans-serif;">an</div>
     <div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.1em;margin-top:2px;">WALLET</div>
@@ -442,7 +442,7 @@ html,body{background:var(--bg) !important;}
 
     <!-- RECEIVE tab -->
     <div id="tab-recv" style="display:none;flex-direction:column;align-items:center;">
-      <div style="display:flex;align-items:center;gap:6px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:100px;padding:5px 14px;margin-bottom:20px;width:fit-content;align-self:center;">
         <span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span>
         <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);">Arc Testnet</span>
       </div>
@@ -542,7 +542,7 @@ html,body{background:var(--bg) !important;}
     </div>
 
     <!-- Tabs -->
-    <div class="send-tabs" style="background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.14);border-radius:13px;padding:4px;gap:3px;margin-bottom:12px;">
+    <div class="send-tabs" style="background:rgba(255,255,255,.03);border:1px solid rgba(37,99,235,.14);border-radius:13px;padding:4px;gap:3px;margin-bottom:12px;">
       <button class="stab active" onclick="setLendTab('supply',this)">Save</button>
       <button class="stab" onclick="setLendTab('withdraw',this)">Withdraw</button>
       <button class="stab" onclick="setLendTab('borrow',this)">Borrow</button>
@@ -1026,7 +1026,7 @@ html,body{background:var(--bg) !important;}
       <span style="font-size:1rem;color:var(--text);">Account Number</span>
       <div style="display:flex;align-items:center;gap:7px;">
         <span style="font-size:1rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;" id="ngnVirtualAcct">9901234567</span>
-        <button onclick="navigator.clipboard.writeText('9901234567');toast('Account number copied!','success',2000)" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);border-radius:5px;color:var(--accent3);font-size:1rem;padding:2px 7px;cursor:pointer;font-family:'Inter',sans-serif;">Copy</button>
+        <button onclick="navigator.clipboard.writeText('9901234567');toast('Account number copied!','success',2000)" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.25);border-radius:5px;color:var(--accent3);font-size:1rem;padding:2px 7px;cursor:pointer;font-family:'Inter',sans-serif;">Copy</button>
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:9px;">
@@ -1040,21 +1040,21 @@ html,body{background:var(--bg) !important;}
 <div style="font-size:1rem;font-weight:700;color:var(--text);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;">How to deposit</div>
 <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
   <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">1</div>
+    <div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">1</div>
     <div style="font-size:.875rem;color:var(--text);">Transfer NGN to the Providus account above from any Nigerian bank</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">2</div>
+    <div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">2</div>
     <div style="font-size:.875rem;color:var(--text);">Your NGN balance updates automatically within 30 seconds</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-    <div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">3</div>
+    <div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.15);display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--accent3);flex-shrink:0;">3</div>
     <div style="font-size:.875rem;color:var(--text);">Convert to USDC instantly on the Convert tab</div>
   </div>
 </div>
 
 <!-- Simulate deposit for demo -->
-<div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:13px;margin-bottom:4px;">
+<div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:13px;margin-bottom:4px;">
   <div style="font-size:1rem;color:var(--text);margin-bottom:9px;">Simulate an incoming NGN transfer</div>
   <div style="display:flex;gap:7px;">
     <input id="ngnSimAmt" type="number" placeholder="Amount in NGN" style="flex:1;padding:9px 12px;border-radius:9px;font-size:1rem;"/>
@@ -1085,20 +1085,20 @@ html,body{background:var(--bg) !important;}
     </div>
     <div id="npanel-convert" class="card" style="display:none;">
       <div class="card-title"><div class="cticon">⇄</div>Convert</div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(168,85,247,0.18);border-radius:var(--radius);padding:4px;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(37,99,235,0.18);border-radius:var(--radius);padding:4px;margin-bottom:10px;">
         <div style="background:var(--surface);border-radius:14px 14px 4px 4px;padding:14px 16px 10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);">You Pay</span>
             <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);" id="ngnFromBal">Bal: ₦0.00</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <div id="ngnFromToken" onclick="flipNgnConvert()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(168,85,247,.25);border-radius:100px;padding:6px 12px;font-size:1rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;">₦ NGN <span style="font-size:.875rem;color:var(--text);margin-left:2px;">▾</span></div>
+            <div id="ngnFromToken" onclick="flipNgnConvert()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(37,99,235,.25);border-radius:100px;padding:6px 12px;font-size:1rem;font-weight:600;color:var(--text);white-space:nowrap;cursor:pointer;">₦ NGN <span style="font-size:.875rem;color:var(--text);margin-left:2px;">▾</span></div>
             <input class="swap-input" id="ngnConvertFrom" type="number" placeholder="0.00" oninput="calcNgnConvert()" style="flex:1;text-align:right;font-size:1.6rem;"/>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:center;position:relative;height:28px;margin:0 -4px;">
-          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(168,85,247,.1);"></div>
-          <button onclick="flipNgnConvert()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(168,85,247,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">⇅</button>
+          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(37,99,235,.1);"></div>
+          <button onclick="flipNgnConvert()" style="position:relative;width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid rgba(37,99,235,.3);color:var(--accent3);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">⇅</button>
         </div>
         <div style="background:var(--surface);border-radius:4px 4px 14px 14px;padding:10px 16px 14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -1106,12 +1106,12 @@ html,body{background:var(--bg) !important;}
             <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);" id="ngnToBalLabel">Bal: 0.00 USDC</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <div id="ngnToToken" onclick="toggleNgnToToken()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(168,85,247,.25);border-radius:100px;padding:6px 12px;font-size:1rem;font-weight:600;color:var(--accent3);white-space:nowrap;cursor:pointer;"><span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.875rem;color:var(--text);margin-left:2px;">▾</span></div>
+            <div id="ngnToToken" onclick="toggleNgnToToken()" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid rgba(37,99,235,.25);border-radius:100px;padding:6px 12px;font-size:1rem;font-weight:600;color:var(--accent3);white-space:nowrap;cursor:pointer;"><span class="tok-dot usdc-dot"></span>USDC <span style="font-size:.875rem;color:var(--text);margin-left:2px;">▾</span></div>
             <input class="swap-input" id="ngnConvertTo" type="number" placeholder="0.00" readonly style="flex:1;text-align:right;font-size:1.6rem;opacity:.65;"/>
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.12);border-radius:10px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.12);border-radius:10px;margin-bottom:10px;">
         <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);" id="ngnRateDisplay">₦1,620 = 1 USDC</span>
         <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);">Fee: 0.5%</span>
       </div>
@@ -1148,7 +1148,7 @@ html,body{background:var(--bg) !important;}
       <select id="payrollGroupSelect" onchange="loadPayrollGroup()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:16px;font-family:'Inter',sans-serif;-webkit-appearance:auto;appearance:auto;cursor:pointer;">
         <option value="">— Select saved group —</option>
       </select>
-      <button onclick="savePayrollGroup()" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:10px;color:var(--accent3);font-size:1rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;font-weight:600;">Save Group</button>
+      <button onclick="savePayrollGroup()" style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:10px;color:var(--accent3);font-size:1rem;padding:9px 12px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;font-weight:600;">Save Group</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
       <button id="bulk-usdc" onclick="setBulkToken('USDC')" style="flex:1;padding:9px;border-radius:10px;font-size:.875rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#111111;border:none;color:#f3e8ff;">USDC</button>
@@ -1175,19 +1175,19 @@ html,body{background:var(--bg) !important;}
       <input id="bulkNameInput" type="text" placeholder="Name or role (e.g. Chidi · Lead Dev)" style="width:100%;padding:10px 12px;border-radius:10px;font-size:16px;font-family:'Inter',sans-serif;"/>
       <div style="display:flex;gap:6px;">
         <input id="bulkAddrInput" type="text" placeholder="Wallet address or .arc name" style="flex:1;padding:10px 12px;border-radius:10px;font-size:.875rem;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;" onkeydown="if(event.key==='Enter')addBulkRecipient()"/>
-        <button onclick="addBulkRecipient()" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);border-radius:10px;color:var(--accent3);font-size:1.2rem;padding:10px 14px;cursor:pointer;font-weight:700;">+</button>
+        <button onclick="addBulkRecipient()" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);border-radius:10px;color:var(--accent3);font-size:1.2rem;padding:10px 14px;cursor:pointer;font-weight:700;">+</button>
       </div>
     </div>
 
     <!-- CSV import -->
-    <div onclick="document.getElementById('bulkCsvInput').click()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:rgba(168,85,247,.04);border:1px dashed rgba(168,85,247,.22);border-radius:10px;margin-bottom:12px;cursor:pointer;">
+    <div onclick="document.getElementById('bulkCsvInput').click()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:rgba(37,99,235,.04);border:1px dashed rgba(37,99,235,.22);border-radius:10px;margin-bottom:12px;cursor:pointer;">
       <span style="font-size:1rem;">📋</span>
       <span style="font-size:.875rem;color:var(--text);">Import from CSV <span style="font-size:.875rem;color:var(--text);opacity:.6;">(address, amount per line)</span></span>
     </div>
     <input id="bulkCsvInput" type="file" accept=".csv,.txt" style="display:none;" onchange="importBulkCSV(event)"/>
 
     <!-- Summary -->
-    <div id="bulkSummary" style="display:none;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+    <div id="bulkSummary" style="display:none;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
         <span style="font-size:1rem;color:var(--text);">Recipients</span>
         <span style="font-size:1rem;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;" id="bulkRecipCount">0</span>
@@ -1213,12 +1213,12 @@ html,body{background:var(--bg) !important;}
       <div id="payrollHistory"></div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:8px;">
-      <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
+      <button onclick="schedulePayroll()" style="flex:1;padding:10px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;">📅 Schedule Monthly</button>
       <button onclick="downloadPayrollReceipt()" style="flex:1;padding:10px;background:rgba(112,0,255,.06);border:1px solid rgba(112,0,255,.2);border-radius:10px;color:#ffffff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;">🧾 Last Receipt</button>
     </div>
 
     <!-- Progress -->
-    <div id="bulkProgress" style="display:none;padding:12px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;margin-bottom:8px;">
+    <div id="bulkProgress" style="display:none;padding:12px;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:12px;margin-bottom:8px;">
       <div style="font-size:.875rem;font-weight:700;color:var(--text);margin-bottom:8px;" id="bulkProgressTitle">Sending...</div>
       <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;overflow:hidden;margin-bottom:8px;">
         <div id="bulkProgressBar" style="height:100%;background:#111111;border-radius:100px;width:0%;transition:width .5s;"></div>
@@ -1303,7 +1303,7 @@ html,body{background:var(--bg) !important;}
       <div style="width:32px;height:32px;border-radius:9px;background:#111111;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#f3e8ff;">N</div>
       <div class="page-title" style="margin-bottom:0;">NAN Payment Request</div>
     </div>
-    <div style="background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(85,0,204,.05));border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,.1),rgba(85,0,204,.05));border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
       <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="payNowAmt">—</div>
       <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:4px;" id="payNowLabel">—</div>
       <div style="font-size:1rem;color:var(--text);" id="payNowNote"></div>
@@ -1317,24 +1317,24 @@ html,body{background:var(--bg) !important;}
       <div class="flbl">Enter amount</div>
       <input id="payNowCustomAmt" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;border-radius:12px;font-size:1.2rem;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;"/>
     </div>
-    <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
+    <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:14px;padding:14px;margin-bottom:12px;">
       <div style="font-size:.875rem;color:var(--text);margin-bottom:8px;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Send USDC to this address on Arc Testnet</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
-      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
+      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(37,99,235,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:10px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:10px;color:var(--accent3);font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:rgba(37,99,235,.12);"></div>
       <div style="font-size:.875rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">or pay with NAN wallet</div>
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:rgba(37,99,235,.12);"></div>
     </div>
     <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;">
       <div style="font-size:.875rem;font-weight:700;color:var(--success);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.05em;margin-bottom:10px;">Step 1 — Scan or copy address</div>
       <div id="payNowQR" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
-      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
+      <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--accent3);word-break:break-all;text-align:center;padding:8px;background:rgba(37,99,235,.06);border-radius:8px;margin-bottom:10px;" id="payNowAddrDisplay">—</div>
       <button onclick="navigator.clipboard.writeText(document.getElementById('payNowTo').textContent).then(()=>toast('✓ Address copied!','success',2000))" style="width:100%;padding:11px;background:#111111;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">📋 Copy Address</button>
     </div>
-    <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:12px;margin-bottom:12px;">
+    <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:12px;margin-bottom:12px;">
       <div style="font-size:.875rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:8px;">Step 2 — Send from your wallet</div>
       <div style="display:flex;flex-direction:column;gap:6px;">
         <div style="display:flex;align-items:center;gap:8px;font-size:1rem;color:var(--text);"><span>1.</span> Open MetaMask, Trust Wallet, or any wallet</div>
@@ -1343,9 +1343,9 @@ html,body{background:var(--bg) !important;}
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:rgba(37,99,235,.12);"></div>
       <div style="font-size:.875rem;color:var(--text);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">Already have a NAN Wallet?</div>
-      <div style="flex:1;height:1px;background:rgba(168,85,247,.12);"></div>
+      <div style="flex:1;height:1px;background:rgba(37,99,235,.12);"></div>
     </div>
     <button class="btn" onclick="doPayNow()" id="payNowBtn" style="margin-bottom:8px;">⚡ Pay instantly via NAN</button>
     <div style="text-align:center;font-size:.875rem;color:var(--text);">Powered by NAN Wallet · Arc Testnet · Circle USDC</div>
@@ -1361,7 +1361,7 @@ html,body{background:var(--bg) !important;}
         <div style="font-size:1rem;font-weight:600;" id="prViewStatus">⏳ Pending</div>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(85,0,204,.05));border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,.1),rgba(85,0,204,.05));border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:24px;margin-bottom:14px;text-align:center;">
       <div style="font-size:2.2rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="prViewAmt">—</div>
       <div style="font-size:1rem;font-weight:600;color:var(--text);" id="prViewLabel2">—</div>
     </div>
@@ -1373,7 +1373,7 @@ html,body{background:var(--bg) !important;}
     </div>
     <div class="card" style="margin-bottom:12px;">
       <div style="font-size:.875rem;color:var(--text);margin-bottom:8px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;">SHAREABLE LINK</div>
-      <div style="font-size:.875rem;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(168,85,247,.06);border-radius:8px;" id="prViewLink"></div>
+      <div style="font-size:.875rem;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;word-break:break-all;margin-bottom:10px;padding:8px;background:rgba(37,99,235,.06);border-radius:8px;" id="prViewLink"></div>
       <div style="display:flex;justify-content:center;margin-bottom:10px;" id="prViewQR"></div>
       <div style="display:flex;gap:8px;">
         <button onclick="copyPRLink()" style="flex:1;padding:10px;background:#111111;border:none;border-radius:10px;color:#f3e8ff;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:700;cursor:pointer;">📋 Copy Link</button>
@@ -1434,7 +1434,7 @@ html,body{background:var(--bg) !important;}
       </div>
       <div id="prPreviewWrap" style="display:none;margin-bottom:12px;">
         <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;">Preview</div>
-        <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:14px;">
+        <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:14px;">
           <div style="font-size:1.1rem;font-weight:700;color:var(--accent3);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;margin-bottom:4px;" id="prPreviewAmt">—</div>
           <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:6px;" id="prPreviewLabel">—</div>
           <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--text);">To: <span id="prPreviewAddr">—</span></div>
@@ -1457,17 +1457,17 @@ html,body{background:var(--bg) !important;}
       <div class="wallet-logo-icon" style="background:#f87171;" onclick="connectSpecific('rabby')" title="Rabby">🐰</div>
       <div class="wallet-logo-icon" style="background:#111111;" onclick="connectSpecific('circle')" title="Circle Wallet">⭕</div>
     </div>
-    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()" style="border:1.5px solid rgba(168,85,247,.5);background:rgba(168,85,247,.06);margin-bottom:10px;">
-      <div class="wallet-opt-icon" style="background:rgba(168,85,247,.15);">⚡</div>
+    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()" style="border:1.5px solid rgba(37,99,235,.5);background:rgba(37,99,235,.06);margin-bottom:10px;">
+      <div class="wallet-opt-icon" style="background:rgba(37,99,235,.15);">⚡</div>
       <div><div class="wallet-opt-name">Email — instant wallet</div><div class="wallet-opt-desc">Fastest · No extension · Free</div></div>
-      <span class="wallet-opt-badge" style="background:rgba(168,85,247,.15);color:var(--accent3);border:1px solid rgba(168,85,247,.3);">Recommended</span>
+      <span class="wallet-opt-badge" style="background:rgba(37,99,235,.15);color:var(--accent3);border:1px solid rgba(37,99,235,.3);">Recommended</span>
     </div>
-    <div class="wallet-opt" onclick="connectSpecific('metamask')"><div class="wallet-opt-icon" style="background:#11111120;">🦊</div><div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div><span class="wallet-opt-badge" style="background:rgba(168,85,247,.1);color:var(--accent3);border:1px solid rgba(168,85,247,.2);">Popular</span></div>
+    <div class="wallet-opt" onclick="connectSpecific('metamask')"><div class="wallet-opt-icon" style="background:#11111120;">🦊</div><div><div class="wallet-opt-name">MetaMask</div><div class="wallet-opt-desc">Browser extension wallet</div></div><span class="wallet-opt-badge" style="background:rgba(37,99,235,.1);color:var(--accent3);border:1px solid rgba(37,99,235,.2);">Popular</span></div>
     <div class="wallet-opt" onclick="connectSpecific('walletconnect')"><div class="wallet-opt-icon" style="background:#11111120;">🔗</div><div><div class="wallet-opt-name">WalletConnect</div><div class="wallet-opt-desc">Scan QR with mobile wallet</div></div></div>
     <div class="wallet-opt" onclick="connectSpecific('coinbase')"><div class="wallet-opt-icon" style="background:#11111120;">🔵</div><div><div class="wallet-opt-name">Coinbase Wallet</div><div class="wallet-opt-desc">Mobile & browser extension</div></div></div>
-    <div class="wallet-opt" onclick="connectSpecific('circle')"><div class="wallet-opt-icon" style="background:rgba(168,85,247,.1);">⭕</div><div><div class="wallet-opt-name">Circle Programmable Wallet</div><div class="wallet-opt-desc">Embedded wallet via Circle</div></div><span class="wallet-opt-badge" style="background:rgba(112,0,255,.08);color:var(--success);border:1px solid rgba(112,0,255,.2);">New</span></div>
+    <div class="wallet-opt" onclick="connectSpecific('circle')"><div class="wallet-opt-icon" style="background:rgba(37,99,235,.1);">⭕</div><div><div class="wallet-opt-name">Circle Programmable Wallet</div><div class="wallet-opt-desc">Embedded wallet via Circle</div></div><span class="wallet-opt-badge" style="background:rgba(112,0,255,.08);color:var(--success);border:1px solid rgba(112,0,255,.2);">New</span></div>
     <div class="wallet-divider"><span>or sign in with email</span></div>
-    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()"><div class="wallet-opt-icon" style="background:rgba(168,85,247,.1);">✉</div><div><div class="wallet-opt-name">Email Login</div><div class="wallet-opt-desc">Creates a secure wallet in your browser</div></div></div>
+    <div class="wallet-opt" onclick="hideWalletPicker();document.getElementById('emailInput').focus()"><div class="wallet-opt-icon" style="background:rgba(37,99,235,.1);">✉</div><div><div class="wallet-opt-name">Email Login</div><div class="wallet-opt-desc">Creates a secure wallet in your browser</div></div></div>
   </div>
 </div>
 
@@ -1575,7 +1575,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script>
 /* ── Chain & Bank picker helpers ── */
 
-function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(168,85,247,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
+function _sheetRow(inner){ return `<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent;" ontouchstart="this.style.background='rgba(37,99,235,.1)'" ontouchend="this.style.background='transparent'" onclick="${inner}">`; }
 
 // ── Bridge page helpers ──
 function toggleBridgeAddr(){
@@ -1618,7 +1618,7 @@ document.addEventListener('DOMContentLoaded',function(){
 function openChainPicker(){
   const cur = document.getElementById('bridgeDestChain').value;
   document.getElementById('chainPickerOptions').innerHTML = CHAIN_OPTIONS.map(c=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(168,85,247,.12);':''}" ontouchstart="this.style.background='rgba(168,85,247,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(168,85,247,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${c.val===cur?'background:rgba(37,99,235,.12);':''}" ontouchstart="this.style.background='rgba(37,99,235,.15)'" ontouchend="this.style.background='${c.val===cur?'rgba(37,99,235,.12)':'transparent'}'" onclick="pickChain('${c.val}','${c.label}')">
       <span style="font-size:1.4rem;width:28px;text-align:center;">${c.icon}</span>
       <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);flex:1;">${c.label}</span>
       ${c.val===cur?'<span style="color:var(--accent3);">✓</span>':''}
@@ -1641,7 +1641,7 @@ function pickChain(val,label){
 function openBankPicker(){
   const cur = document.getElementById('ngnBankName').value;
   document.getElementById('bankPickerOptions').innerHTML = BANK_OPTIONS.map(b=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(168,85,247,.12);':''}" ontouchstart="this.style.background='rgba(168,85,247,.15)'" ontouchend="this.style.background='${b===cur?'rgba(168,85,247,.12)':'transparent'}'" onclick="pickBank('${b}')">
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border);${b===cur?'background:rgba(37,99,235,.12);':''}" ontouchstart="this.style.background='rgba(37,99,235,.15)'" ontouchend="this.style.background='${b===cur?'rgba(37,99,235,.12)':'transparent'}'" onclick="pickBank('${b}')">
       <span style="font-size:1.3rem;">🏦</span>
       <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);flex:1;">${b}</span>
       ${b===cur?'<span style="color:var(--accent3);">✓</span>':''}
@@ -1663,14 +1663,14 @@ function pickBank(name){
 <!-- ══ ADMIN OVERLAY ══ -->
 <div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(7,8,26,.97);backdrop-filter:blur(20px);font-family:'Inter',sans-serif;overflow-y:auto;">
   <div id="adminAuth" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;">
-    <div style="width:48px;height:48px;border-radius:14px;background:#111111;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 24px rgba(168,85,247,.5);">
+    <div style="width:48px;height:48px;border-radius:14px;background:#111111;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 24px rgba(37,99,235,.5);">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f3e8ff" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <div style="font-size:1.125rem;font-weight:700;color:var(--text);margin-bottom:4px;">Admin Access</div>
     <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);margin-bottom:24px;">NAN Dashboard · Restricted</div>
-    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;outline:none;text-align:center;margin-bottom:10px;"/>
+    <input id="adminPwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPw()" style="width:100%;max-width:300px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:14px;padding:13px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;outline:none;text-align:center;margin-bottom:10px;"/>
     <div id="adminPwErr" style="font-size:1rem;color:#f87171;margin-bottom:10px;display:none;">Incorrect password</div>
-    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:#111111;border:none;border-radius:14px;color:#ffffff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(168,85,247,.4);">Unlock →</button>
+    <button onclick="checkAdminPw()" style="width:100%;max-width:300px;background:#111111;border:none;border-radius:14px;color:#ffffff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;padding:13px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);">Unlock →</button>
     <button onclick="closeAdmin()" style="margin-top:12px;background:transparent;border:none;color:var(--text);font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
   </div>
   <div id="adminDash" style="display:none;max-width:640px;margin:0 auto;padding:32px 20px 60px;">
@@ -1680,14 +1680,14 @@ function pickBank(name){
         <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);margin-top:2px;">Live · Arc Testnet · <span id="adminLastRefresh">—</span></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button onclick="loadAdminStats()" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);border-radius:10px;color:var(--accent3);font-size:1rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;">↻ Refresh</button>
+        <button onclick="loadAdminStats()" style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.25);border-radius:10px;color:var(--accent3);font-size:1rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;">↻ Refresh</button>
         <button onclick="closeAdmin()" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#f87171;font-size:1rem;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;">Exit</button>
       </div>
     </div>
     <div id="adminLoading" style="text-align:center;padding:40px 0;"><div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);animation:pulse 1.5s infinite;">Loading on-chain data…</div></div>
     <div id="adminStats" style="display:none;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:18px;padding:20px;">
+        <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:18px;padding:20px;">
           <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1rem;color:var(--text);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">Unique Wallets</div>
           <div id="statWallets" style="font-size:2rem;font-weight:800;letter-spacing:-1px;color:var(--accent3);">—</div>
           <div data-stat="wallet-sub" style="font-size:1rem;color:var(--text);margin-top:4px;">Verified NAN users</div>
@@ -1730,7 +1730,7 @@ function pickBank(name){
             <div style="font-size:1rem;color:var(--text);margin-bottom:4px;">USDC in Pool</div>
             <div id="adminPoolUSDC" style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1.1rem;font-weight:700;color:var(--text);">—</div>
           </div>
-          <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.18);border-radius:12px;padding:12px;">
+          <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:12px;padding:12px;">
             <div style="font-size:1rem;color:var(--text);margin-bottom:4px;">EURC in Pool</div>
             <div id="adminPoolEURC" style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:1.1rem;font-weight:700;color:#cccccc;">—</div>
           </div>
@@ -1749,27 +1749,27 @@ function pickBank(name){
     </div>
   </div>
 
-<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:110px;right:16px;z-index:2147483647;width:52px;height:52px;border-radius:16px;background:#111111;border:2px solid rgba(196,181,253,.2);color:#f3e8ff;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(168,85,247,.55),0 0 0 1px rgba(168,85,247,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
+<button id="aiBtn" onclick="toggleAgent()" style="position:fixed;bottom:110px;right:16px;z-index:2147483647;width:52px;height:52px;border-radius:16px;background:#111111;border:2px solid rgba(196,181,253,.2);color:#f3e8ff;font-size:1rem;cursor:pointer;box-shadow:0 4px 24px rgba(37,99,235,.55),0 0 0 1px rgba(37,99,235,.3);display:none;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;">
   <span>✦</span>
   <span style="font-size:1rem;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;">AI</span>
 </button>
 <div id="agentPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid #1a1a1a;border-radius:24px 24px 0 0;z-index:2147483647;font-family:'Inter',sans-serif;overflow:hidden;">
-  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(168,85,247,.15);z-index:2;">
-    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(168,85,247,.3);"></div></div>
+  <div style="position:absolute;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(37,99,235,.15);z-index:2;">
+    <div style="display:flex;justify-content:center;padding:10px 0 4px;"><div style="width:36px;height:4px;border-radius:2px;background:rgba(37,99,235,.3);"></div></div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#111111;display:inline-block;animation:pulse 2s infinite;"></span>✦ NAN AI</div>
         <div style="font-size:.875rem;color:var(--text);margin-top:2px;">Live wallet data · Groq AI powered</div>
       </div>
-      <button id="agentCloseBtn" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(168,85,247,.2);color:var(--text);cursor:pointer;font-size:15px;">✕</button>
+      <button id="agentCloseBtn" style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(37,99,235,.2);color:var(--text);cursor:pointer;font-size:15px;">✕</button>
     </div>
   </div>
-  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.3) transparent;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(168,85,247,.12);background:var(--bg);">
+  <div id="agentMessages" style="position:absolute;top:72px;bottom:128px;left:0;right:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(37,99,235,.3) transparent;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px 16px;border-top:1px solid rgba(37,99,235,.12);background:var(--bg);">
     <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;" id="agentChips"></div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
-      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(168,85,247,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;"/>
+      <button id="voiceBtn" onclick="toggleVoice()" title="Speak to NAN AI" style="width:42px;height:42px;border-radius:11px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);color:var(--accent3);font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s;">🎤</button>
+      <input id="agentInput" placeholder="Ask anything or tap 🎤 to speak…" onkeydown="if(event.key==='Enter')sendAgentMsg()" style="flex:1;background:var(--surface);border:1px solid rgba(37,99,235,.25);border-radius:12px;padding:11px 14px;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;"/>
       <button onclick="sendAgentMsg()" style="width:42px;height:42px;border-radius:11px;background:#111111;border:none;color:#f3e8ff;font-size:1.1rem;cursor:pointer;flex-shrink:0;">↑</button>
     </div>
     <div id="voiceStatus" style="display:none;text-align:center;font-size:.875rem;color:var(--accent3);margin-top:6px;animation:pulse 1s ease infinite;">🎤 Listening… speak now</div>
