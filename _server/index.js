@@ -364,6 +364,13 @@ app.post('/api/notify', rateLimit(20), async (req, res) => {
   } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+app.post('/api/support', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/support.js');
+    return mod.default(req, res);
+  } catch(e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 
 // ── Web Push ──────────────────────────────────────────────────────────────────
 // Persist subscriptions to file so they survive Railway restarts
