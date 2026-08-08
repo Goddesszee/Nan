@@ -645,9 +645,7 @@ export default async function handler(req, res) {
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     if (action === 'pay-service') {
       const { url, address, chain='ARC-TESTNET', maxAmount, method='GET', body: forwardBody } = body;
-      if (!url) return res.json({ error: 'url required' });
-
-      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!url) return res.json({ error: 'url required' });      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
       if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in environment' });
 
       try {
@@ -675,7 +673,18 @@ export default async function handler(req, res) {
           try {
             const { data: responseData, status } = await client.pay(url, payOptions);
             const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
-            return res.json({ success: true, status, result: safe });
+            // maxAmount / spending-cap check — HONEST LIMITATION: client.pay()
+            // only returns {data, status} here, with no amount-paid field we've
+            // verified exists on it. Rather than guess at a field name and risk
+            // either silently doing nothing or false-failing real payments, we
+            // log the intended cap for manual/Railway-log verification and flag
+            // it clearly in the response. Real pre-payment enforcement needs the
+            // actual x402 quote/receipt shape from @circle-fin/x402-batching
+            // confirmed against a live call before it can be trusted to block.
+            if (maxAmount != null) {
+              console.log(`[pay-service] maxAmount=${maxAmount} requested for ${url} — not yet verified against actual amount paid, logged only`);
+            }
+            return res.json({ success: true, status, result: safe, maxAmountRequested: maxAmount ?? null, capEnforced: false });
           } catch (e) {
             lastErr = e;
             const transient = /429|rate.?limit|timeout|ECONNRESET|fetch failed|network/i.test(e.message || '');

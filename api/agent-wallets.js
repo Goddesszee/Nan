@@ -302,14 +302,18 @@ async function getPolicy(walletAddress) {
   return await kvGet(key) || null;
 }
 
-async function setPolicy(walletAddress, { perTx, daily, weekly }) {
+async function setPolicy(walletAddress, updates) {
   const key = `nan:agentpolicy:${walletAddress.toLowerCase()}`;
-  const policy = {
-    perTx:    perTx    != null ? parseFloat(perTx)    : null,
-    daily:    daily    != null ? parseFloat(daily)    : null,
-    weekly:   weekly   != null ? parseFloat(weekly)   : null,
-    updatedAt: Date.now()
-  };
+  const existing = await kvGet(key) || {};
+  const policy = { ...existing };
+  // Only touch fields actually present in this call — lets each form (main
+  // limits vs. the separate nanopay cap) update just its own field without
+  // silently wiping out whatever the other one already saved.
+  if ('perTx' in updates)      policy.perTx      = updates.perTx      != null ? parseFloat(updates.perTx)      : null;
+  if ('daily' in updates)      policy.daily      = updates.daily      != null ? parseFloat(updates.daily)      : null;
+  if ('weekly' in updates)     policy.weekly     = updates.weekly     != null ? parseFloat(updates.weekly)     : null;
+  if ('nanopayCap' in updates) policy.nanopayCap = updates.nanopayCap != null ? parseFloat(updates.nanopayCap) : null;
+  policy.updatedAt = Date.now();
   await kvSet(key, policy);
   return policy;
 }
@@ -695,12 +699,17 @@ export default async function handler(req, res) {
 
     // ── set-policy: save spending limits to Redis ─────────────────────────────
     if (action === 'set-policy') {
-      const { walletAddress: pWallet, perTx, daily, weekly } = req.body;
+      const { walletAddress: pWallet, perTx, daily, weekly, nanopayCap } = req.body;
       if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
-      if (perTx == null && daily == null && weekly == null)
-        return res.status(400).json({ error: 'At least one of perTx, daily, or weekly required' });
-      const policy = await setPolicy(pWallet, { perTx, daily, weekly });
-      console.log(`[policy] Set for ${pWallet.slice(0,10)}: perTx=${policy.perTx} daily=${policy.daily} weekly=${policy.weekly}`);
+      const updates = {};
+      if ('perTx' in req.body)      updates.perTx = perTx;
+      if ('daily' in req.body)      updates.daily = daily;
+      if ('weekly' in req.body)     updates.weekly = weekly;
+      if ('nanopayCap' in req.body) updates.nanopayCap = nanopayCap;
+      if (Object.keys(updates).length === 0)
+        return res.status(400).json({ error: 'At least one of perTx, daily, weekly, or nanopayCap required' });
+      const policy = await setPolicy(pWallet, updates);
+      console.log(`[policy] Set for ${pWallet.slice(0,10)}: perTx=${policy.perTx} daily=${policy.daily} weekly=${policy.weekly} nanopayCap=${policy.nanopayCap}`);
       return res.json({ success: true, policy });
     }
 
