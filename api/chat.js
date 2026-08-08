@@ -125,6 +125,7 @@ RULES:
 
   Circle Agent Wallet (MPC, autonomous - only available when agent wallet is connected):
   <ACTION>{"action":"agent-send","amount":1,"token":"USDC","to":"0x... or name.arc"}</ACTION>
+  <ACTION>{"action":"agent-a2a","amount":5,"token":"USDC","to":"0x... or name.arc"}</ACTION>
   <ACTION>{"action":"agent-balance"}</ACTION>
   <ACTION>{"action":"agent-history"}</ACTION>
   <ACTION>{"action":"agent-fund"}</ACTION>
@@ -163,6 +164,8 @@ RULES:
 - ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
 - CRITICAL ADDRESS RULE: In ACTION tags NEVER use truncated addresses like "86B2...366a". Always use the original .arc name (e.g. "aunty.arc") OR a full 42-char 0x address. If unsure, use the .arc name from the user's message
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
+- For "pay another agent", "send to their agent wallet", or anything framed as agent-to-agent (not just a regular send): use agent-a2a instead of agent-send — it looks up the recipient's own agent wallet and applies trust-tier auto-approve limits (new counterparties capped low until a track record builds)
+- Escrow, agent-to-agent invoicing, and trust-tier lookups are NOT available via chat yet — only through their own pages (Agent Wallet → Escrow / Invoicing / Trusted Contacts). If asked to do any of these three, say so plainly and point to the relevant card on the Agent Wallet page — do NOT claim to do it or emit an ACTION for it
 - For "set limit", "spending limit", "max per tx", "daily limit", "cap my agent": use agent-set-policy with perTx and daily amounts parsed from the message
 - For "what are my limits", "show policy", "spending rules": use agent-get-policy
 - For "remove limits", "clear policy", "no limits": use agent-clear-policy
