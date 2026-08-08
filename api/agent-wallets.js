@@ -7,7 +7,7 @@ import crypto from 'crypto';
 
 const KV_URL   = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
-const ARC_RPC  = 'https://rpc.testnet.arc.network';
+const ARC_RPC  = 'https://rpc.testnet.arc.io';
 const ARC_CHAIN_ID = 5042002;
 const BLOCKCHAIN   = 'ARC-TESTNET';
 const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
@@ -736,10 +736,10 @@ export default async function handler(req, res) {
       if (!mainAddr && arcName) {
         // Resolve arc name using Arc Testnet name registry
         const { JsonRpcProvider, Contract } = await import('ethers');
-        const NAME_REGISTRY_ADDR = '0x0000000000000000000000000000000000000832';
+        const NAME_REGISTRY_ADDR = '0x043D072B12CBe488DBA3d2975c42Db3055F2836f'; // NANNameRegistry (matches frontend NAME_REGISTRY)
         const NAME_ABI_MINI = ['function resolve(string name) view returns (address)'];
         try {
-          const rp = new JsonRpcProvider('https://rpc.testnet.arc.network');
+          const rp = new JsonRpcProvider('https://rpc.testnet.arc.io');
           const nc = new Contract(NAME_REGISTRY_ADDR, NAME_ABI_MINI, rp);
           const resolved = await Promise.race([
             nc.resolve(arcName.replace(/\.arc$/i, '').toLowerCase()),
