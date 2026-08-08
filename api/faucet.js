@@ -13,39 +13,47 @@ export default async function handler(req, res) {
   if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address))
     return res.json({ success: false, error: 'Valid wallet address required' });
 
-  try {
-    // Try Circle's official faucet API
-    const faucetRes = await fetch('https://faucet.circle.com/api/faucet', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        address,
-        blockchain: 'ARC-TESTNET',
-        native:     false,
-        tokens:     ['USDC', 'EURC'],
-      }),
-    });
-
-    if (faucetRes.ok) {
-      const data = await faucetRes.json();
-      return res.json({ success: true, data, message: 'Tokens requested — arrives in ~30 seconds' });
+  // Two separate requests: native gas token, and the ERC20 stablecoins.
+  // Kept separate (not combined into one body) because it's untested/unclear
+  // whether Circle's faucet API accepts native + tokens together in a single
+  // call — if one form fails, this way it doesn't silently take the other
+  // down with it.
+  async function requestFaucet(body) {
+    try {
+      const r = await fetch('https://faucet.circle.com/api/faucet', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+      if (r.ok) return { ok: true, data: await r.json() };
+      const errText = await r.text().catch(() => '');
+      console.warn('[faucet]', body.native ? 'native' : 'tokens', 'request returned', r.status, errText.slice(0, 100));
+      return { ok: false, status: r.status, errText };
+    } catch (err) {
+      console.error('[faucet]', body.native ? 'native' : 'tokens', 'request failed', err.message);
+      return { ok: false, error: err.message };
     }
+  }
 
-    // If faucet API fails, return helpful message
-    const errText = await faucetRes.text().catch(() => '');
-    console.warn('[faucet] Circle faucet returned', faucetRes.status, errText.slice(0, 100));
-    return res.json({
-      success: false,
-      error:   'Faucet unavailable — visit faucet.circle.com directly',
-      fallback: 'https://faucet.circle.com',
-    });
+  const [nativeResult, tokenResult] = await Promise.all([
+    requestFaucet({ address, blockchain: 'ARC-TESTNET', native: true }),
+    requestFaucet({ address, blockchain: 'ARC-TESTNET', native: false, tokens: ['USDC', 'EURC'] }),
+  ]);
 
-  } catch (err) {
-    console.error('[faucet]', err.message);
+  if (nativeResult.ok || tokenResult.ok) {
     return res.json({
-      success:  false,
-      error:    'Faucet request failed — visit faucet.circle.com directly',
-      fallback: 'https://faucet.circle.com',
+      success: true,
+      native:  nativeResult.ok,
+      tokens:  tokenResult.ok,
+      message: nativeResult.ok
+        ? 'Tokens and gas requested — arrives in ~30 seconds'
+        : 'Tokens requested — arrives in ~30 seconds (gas top-up unavailable right now)',
     });
   }
+
+  return res.json({
+    success:  false,
+    error:    'Faucet unavailable — visit faucet.circle.com directly',
+    fallback: 'https://faucet.circle.com',
+  });
 }
