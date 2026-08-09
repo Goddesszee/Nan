@@ -77,7 +77,37 @@ export function requireEmailSession(req, res, { matchEmail } = {}) {
   return session;
 }
 
-// ── 2. Wallet-signature auth (MetaMask users) ────────────────────────────────
+// ── 3. Agent-wallet auth (dual mode) ──────────────────────────────────────────
+// Agent wallets belong to two different kinds of users:
+//   - Self-custody (MetaMask): they hold the key → prove it with a fresh
+//     personal_sign signature (requireWalletSignature above).
+//   - Circle-custody (email OTP): Circle holds the key, so there's nothing in
+//     the browser to sign with — instead they prove it with the same email
+//     session used for circle-wallets.js, PROVIDED that email has already
+//     been linked to this wallet address server-side.
+// `getLinkedEmail(userAddress)` is injected by the caller (it needs Redis
+// access, which lives in agent-wallets.js, not this shared module).
+export async function requireAgentAuth(req, res, { action, userAddress, getLinkedEmail }) {
+  const { signature } = req.body || {};
+
+  if (signature) {
+    return requireWalletSignature(req, res, { action, userAddress });
+  }
+
+  const header = req.headers['authorization'] || req.headers['Authorization'] || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+  const session = verifyEmailSession(token);
+  if (!session) {
+    res.status(401).json({ success: false, error: 'Provide a wallet signature or log in to verify this action' });
+    return false;
+  }
+  const linkedEmail = await getLinkedEmail(userAddress);
+  if (!linkedEmail || linkedEmail.toLowerCase() !== session.email) {
+    res.status(403).json({ success: false, error: 'Your session is not linked to this wallet' });
+    return false;
+  }
+  return true;
+}
 
 // Builds the exact message the frontend must sign with personal_sign so both
 // sides derive an identical string. `action` should be the request's action
