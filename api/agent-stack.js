@@ -664,6 +664,52 @@ export default async function handler(req, res) {
     // ── pay-service ───────────────────────────────────────────────────────────
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     // ── discover-services: Circle's public x402 service discovery API ────────
+    // ── test-agent-signing: isolated test of the Agent Wallet's real
+    // signTypedData call, with no dependency on any external x402 service
+    // actually charging for anything. Signs a harmless sample EIP-712
+    // message (not a real payment authorization — just proves the wallet
+    // can sign) so we can verify this specific piece works without hunting
+    // for a third-party service that reliably triggers a real 402.
+    if (action === 'test-agent-signing') {
+      const { userAddress } = body;
+      if (!userAddress) return res.json({ success: false, error: 'userAddress required' });
+      try {
+        const agentWallet = await getOrCreateAgentWallet(userAddress);
+        if (!agentWallet?.walletId || !agentWallet?.walletAddress) {
+          return res.json({ success: false, error: 'Could not find your agent wallet — connect it first.' });
+        }
+        const circleClient = await getCircleWalletsClient();
+        const sampleTypedData = {
+          domain: { name: 'NAN Signing Test', version: '1', chainId: 421614, verifyingContract: '0x0000000000000000000000000000000000000000' },
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            TestMessage: [
+              { name: 'purpose', type: 'string' },
+              { name: 'timestamp', type: 'uint256' },
+            ],
+          },
+          primaryType: 'TestMessage',
+          message: { purpose: 'NAN Nanopayments signing self-test — not a real payment', timestamp: Date.now() },
+        };
+        const signRes = await circleClient.signTypedData({
+          walletId: agentWallet.walletId,
+          data: JSON.stringify(sampleTypedData),
+        });
+        const signature = signRes?.data?.data?.signature || signRes?.data?.signature;
+        if (!signature) {
+          return res.json({ success: false, error: 'Circle returned no signature', rawResponseShape: JSON.stringify(signRes?.data || signRes).slice(0, 300) });
+        }
+        return res.json({ success: true, walletAddress: agentWallet.walletAddress, signature: signature.slice(0, 20) + '...' + signature.slice(-8), signatureLength: signature.length });
+      } catch (e) {
+        return res.json({ success: false, error: e.message, stack: (e.stack || '').split('\n').slice(0,3).join(' | ') });
+      }
+    }
+
     if (action === 'discover-services') {
       const { query, category, maxUsdPrice, limit } = body;
       const { default: fetch } = await import('node-fetch');
