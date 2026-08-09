@@ -645,7 +645,8 @@ export default async function handler(req, res) {
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
     if (action === 'pay-service') {
       const { url, address, chain='ARC-TESTNET', maxAmount, method='GET', body: forwardBody } = body;
-      if (!url) return res.json({ error: 'url required' });      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
+      if (!url) return res.json({ error: 'url required' });
+      const privateKey = process.env.AGENT_WALLET_PRIVATE_KEY;
       if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in environment' });
 
       try {
@@ -665,26 +666,52 @@ export default async function handler(req, res) {
         const payOptions = { method: fetchMethod };
         if (forwardBody !== undefined) payOptions.body = forwardBody;
 
+        // Real pre-payment cap check. Confirmed against the actual installed
+        // @circle-fin/x402-batching@3.0.4 source (not guessed): supports(url)
+        // returns the real x402 PaymentRequirements — including .amount, a
+        // raw atomic-unit string (USDC = 6 decimals) — pulled straight from
+        // the target's PAYMENT-REQUIRED 402 header, before any money moves.
+        // pay() casts this same field via BigInt(batchingOption.amount), so
+        // this comparison is done in the identical unit the SDK itself uses.
+        let quotedAtomic = null;
+        if (maxAmount != null) {
+          const check = await client.supports(url);
+          if (check.supported && check.requirements?.amount != null) {
+            quotedAtomic = BigInt(check.requirements.amount);
+            const capAtomic = BigInt(Math.round(parseFloat(maxAmount) * 1e6));
+            if (quotedAtomic > capAtomic) {
+              const quotedUsd = (Number(quotedAtomic) / 1e6).toFixed(6);
+              return res.json({
+                success: false,
+                capBlocked: true,
+                error: `Quoted price $${quotedUsd} exceeds your cap of $${maxAmount} — payment not attempted`,
+              });
+            }
+          }
+          // If supports() can't determine a price (non-Gateway-batching service,
+          // or the 402 shape doesn't match), we can't verify a quote to compare
+          // against — proceed but say so honestly in the response, rather than
+          // silently skip the check or block a legitimate payment on a false
+          // negative.
+        }
+
         // Retry transient failures (network hiccups, RPC rate-limits) with backoff.
         // Does NOT retry application-level failures like 'Too many requests' from the
         // downstream service itself — retrying into the same limit won't help.
         let lastErr = null;
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
-            const { data: responseData, status } = await client.pay(url, payOptions);
+            const { data: responseData, amount, formattedAmount, transaction, status } = await client.pay(url, payOptions);
             const safe = JSON.parse(JSON.stringify(responseData, (k,v) => typeof v === 'bigint' ? v.toString() : v));
-            // maxAmount / spending-cap check — HONEST LIMITATION: client.pay()
-            // only returns {data, status} here, with no amount-paid field we've
-            // verified exists on it. Rather than guess at a field name and risk
-            // either silently doing nothing or false-failing real payments, we
-            // log the intended cap for manual/Railway-log verification and flag
-            // it clearly in the response. Real pre-payment enforcement needs the
-            // actual x402 quote/receipt shape from @circle-fin/x402-batching
-            // confirmed against a live call before it can be trusted to block.
-            if (maxAmount != null) {
-              console.log(`[pay-service] maxAmount=${maxAmount} requested for ${url} — not yet verified against actual amount paid, logged only`);
-            }
-            return res.json({ success: true, status, result: safe, maxAmountRequested: maxAmount ?? null, capEnforced: false });
+            return res.json({
+              success: true,
+              status,
+              result: safe,
+              amountPaid: formattedAmount,
+              transaction,
+              maxAmountRequested: maxAmount ?? null,
+              capEnforced: quotedAtomic !== null,
+            });
           } catch (e) {
             lastErr = e;
             const transient = /429|rate.?limit|timeout|ECONNRESET|fetch failed|network/i.test(e.message || '');
