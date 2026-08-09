@@ -680,7 +680,7 @@ export default async function handler(req, res) {
         }
         const circleClient = await getCircleWalletsClient();
         const sampleTypedData = {
-          domain: { name: 'NAN Signing Test', version: '1', chainId: '421614', verifyingContract: '0x000000000000000000000000000000000000dEaD' },
+          domain: { name: 'NAN Signing Test', version: '1', chainId: '5042002', verifyingContract: '0x000000000000000000000000000000000000dEaD' },
           types: {
             EIP712Domain: [
               { name: 'name', type: 'string' },
