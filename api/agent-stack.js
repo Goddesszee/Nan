@@ -772,18 +772,22 @@ export default async function handler(req, res) {
         const chainMap = {
           'ARC-TESTNET':  'arcTestnet',
           'BASE-SEPOLIA': 'baseSepolia',
-          'BASE':         'base',
           'ETH-SEPOLIA':  'sepolia',
-          'eip155:8453':  'base',
-          'eip155:1':     'ethereum',
+          'POLYGON-AMOY': 'polygonAmoy',
+          // Only testnet CAIP-2 IDs — NAN's Circle API key is test-tier
+          // throughout this project, so mainnet wallets (Base, Polygon,
+          // Ethereum mainnet) were never actually going to work: even if
+          // wallet creation succeeded, a mainnet-labeled service would
+          // never see a valid payment from a testnet transaction anyway.
+          // Removed mainnet mappings entirely rather than offer a path
+          // that fails to settle either way.
           'eip155:11155111': 'sepolia',
           'eip155:84532': 'baseSepolia',
-          'eip155:137':   'polygon',
           'eip155:80002': 'polygonAmoy',
         };
         const chainName = chainMap[chain];
         if (!chainName) {
-          return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet can currently pay on Arc Testnet, Base, or Polygon — not this network.` });
+          return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet only pays on testnets (Arc, Base Sepolia, Polygon Amoy) — mainnet services can't settle from a test-tier wallet regardless of chain.` });
         }
         // Circle's own signTypedData API wants ITS blockchain identifier
         // format specifically (confirmed against @circle-fin/developer-
@@ -793,10 +797,7 @@ export default async function handler(req, res) {
         const circleBlockchainMap = {
           arcTestnet:  'ARC-TESTNET',
           baseSepolia: 'BASE-SEPOLIA',
-          base:        'BASE',
           sepolia:     'ETH-SEPOLIA',
-          ethereum:    'ETH',
-          polygon:     'MATIC',
           polygonAmoy: 'MATIC-AMOY',
         };
         const circleBlockchain = circleBlockchainMap[chainName] || 'ARC-TESTNET';
