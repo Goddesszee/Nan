@@ -26,11 +26,19 @@ async function kvGet(key) {
 
 async function kvSet(key, value) {
   const { default: fetch } = await import('node-fetch');
-  await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+  const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(JSON.stringify(value))
   });
+  if (!r.ok) {
+    const errText = await r.text().catch(() => '');
+    throw new Error(`kvSet failed for ${key}: ${r.status} ${errText.slice(0,200)}`);
+  }
+  const d = await r.json().catch(() => null);
+  if (!d || d.result !== 'OK') {
+    throw new Error(`kvSet did not confirm write for ${key}: ${JSON.stringify(d).slice(0,200)}`);
+  }
 }
 
 async function kvKeys(prefix) {
