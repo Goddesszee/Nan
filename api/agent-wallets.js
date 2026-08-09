@@ -1251,7 +1251,28 @@ export default async function handler(req, res) {
       if (payerUserAddress) {
         const trustCheck = await checkA2APolicy(fromAgentAddress, agentWalletAddress, amount);
         if (trustCheck.allowed) {
-          autoEval = { autoHonored: true, reason: 'Within payer\'s trust tier and spending policy' };
+          // Actually execute the payment — this used to just set autoHonored:
+          // true as a label without ever moving money, leaving every invoice
+          // pending regardless of trust tier. Now it really pays.
+          try {
+            const payerKey = `nan:agentwallet:${payerUserAddress.toLowerCase()}`;
+            const payerWallet = await kvGet(payerKey);
+            const result = await agentTransfer(payerWallet?.walletId || null, invoice.toWallet, invoice.amount, invoice.token, invoice.fromWallet);
+            const txId = result?.data?.id || result?.data?.transaction?.id;
+            invoice.status = 'honored';
+            invoice.respondedAt = Date.now();
+            invoice.txId = txId;
+            invoice.autoHonored = true;
+            await saveInvoice(invoice);
+            await recordTrustSuccess(fromAgentAddress, agentWalletAddress, amount).catch(() => null);
+            autoEval = { autoHonored: true, reason: 'Within payer\'s trust tier and spending policy — paid automatically', txId };
+          } catch (e) {
+            // Execution failed even though the policy check passed (payer's
+            // agent wallet unfundable, transient Circle error, etc) — fall
+            // back to pending for manual review rather than silently losing
+            // the invoice or pretending it was paid.
+            autoEval = { autoHonored: false, reason: `Auto-honor eligible but execution failed: ${e.message?.slice(0,150) || 'unknown error'} — left pending for manual review` };
+          }
         } else {
           autoEval = { autoHonored: false, reason: trustCheck.reason };
         }
@@ -1264,9 +1285,18 @@ export default async function handler(req, res) {
       if (!autoEval.autoHonored && payerUserAddress) {
         await notifyUser(payerUserAddress, 'invoices', `New invoice: ${invoice.amount} ${invoice.token}`,
           `You've been sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''}.\n\nOpen NAN to review and respond.`);
+      } else if (autoEval.autoHonored && payerUserAddress) {
+        // Payer didn't click anything, but money moved from their wallet —
+        // they still deserve to know, just phrased as already-done, not a
+        // request for action.
+        await notifyUser(payerUserAddress, 'invoices', `Invoice auto-paid: ${invoice.amount} ${invoice.token}`,
+          `An invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} from ${agentWalletAddress} was automatically paid — it was within your trust tier and spending policy for this counterparty.`);
       }
-      await notifyUser(userAddress, 'invoices', `Invoice sent: ${invoice.amount} ${invoice.token}`,
-        `You sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} to ${fromAgentAddress}.`);
+      await notifyUser(userAddress, 'invoices',
+        autoEval.autoHonored ? `Invoice auto-paid: ${invoice.amount} ${invoice.token}` : `Invoice sent: ${invoice.amount} ${invoice.token}`,
+        autoEval.autoHonored
+          ? `Your invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} to ${fromAgentAddress} was paid automatically.`
+          : `You sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} to ${fromAgentAddress}.`);
 
       return res.json({ success: true, invoice, autoEval });
     }
