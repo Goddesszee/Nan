@@ -60,7 +60,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization','X-User-Token'],
   credentials: false,
 }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "1mb", verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(express.static(path.join(__dirname, '..')));
 
 // ── Simple in-memory rate limiter (no extra package needed) ──
