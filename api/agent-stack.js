@@ -778,10 +778,12 @@ export default async function handler(req, res) {
           'eip155:1':     'ethereum',
           'eip155:11155111': 'sepolia',
           'eip155:84532': 'baseSepolia',
+          'eip155:137':   'polygon',
+          'eip155:80002': 'polygonAmoy',
         };
         const chainName = chainMap[chain];
         if (!chainName) {
-          return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet can currently pay on Arc Testnet or Base — not this network.` });
+          return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet can currently pay on Arc Testnet, Base, or Polygon — not this network.` });
         }
         // Circle's own signTypedData API wants ITS blockchain identifier
         // format specifically (confirmed against @circle-fin/developer-
@@ -794,6 +796,8 @@ export default async function handler(req, res) {
           base:        'BASE',
           sepolia:     'ETH-SEPOLIA',
           ethereum:    'ETH',
+          polygon:     'MATIC',
+          polygonAmoy: 'MATIC-AMOY',
         };
         const circleBlockchain = circleBlockchainMap[chainName] || 'ARC-TESTNET';
 
@@ -806,9 +810,9 @@ export default async function handler(req, res) {
         // x402Client + registerBatchScheme API and providing a custom signer
         // that calls Circle's own signTypedData endpoint (walletId-based,
         // never touches a raw private key) instead of signing locally.
-        const agentWallet = await getOrCreateAgentWallet(userAddress);
+        const agentWallet = await getOrCreateAgentWallet(userAddress, circleBlockchain);
         if (!agentWallet?.walletId || !agentWallet?.walletAddress) {
-          return res.json({ success: false, error: 'Could not find your agent wallet — connect it first.' });
+          return res.json({ success: false, error: `Could not find or create your agent wallet on ${circleBlockchain} — connect it first.` });
         }
 
         const circleClient = await getCircleWalletsClient();
