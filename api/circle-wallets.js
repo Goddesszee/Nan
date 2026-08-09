@@ -19,9 +19,13 @@ import { requireEmailSession } from './_lib/auth.js';
 const ALLOWED_ORIGINS = [
   'https://nanarc.xyz',
   'https://www.nanarc.xyz',
-  'http://localhost:3000',
-  'http://localhost:5173',
+  'https://nan-production.up.railway.app',
+  /\.vercel\.app$/,
 ];
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  return ALLOWED_ORIGINS.some(o => typeof o === 'string' ? o === origin : o.test(origin));
+}
 
 // Actions that move funds or create real Circle transactions — every one of
 // these MUST prove the caller owns `email` via a verified session before
@@ -142,7 +146,7 @@ async function pollAttestation(txHash, maxAttempts = 3) {
 // =============================================================================
 export default async function handler(req, res) {
   const origin = req.headers.origin;
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
+  res.setHeader('Access-Control-Allow-Origin', isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
