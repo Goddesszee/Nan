@@ -708,13 +708,25 @@ export default async function handler(req, res) {
       if (!privateKey) return res.json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in environment' });
 
       try {
+        // Accepts both our own short codes (ARC-TESTNET, BASE, ...) and the
+        // CAIP-2 network IDs Circle's discovery API actually returns
+        // (eip155:8453 for Base mainnet, etc) — discovered services were
+        // silently defaulting to Arc regardless of what chain they actually
+        // needed, because their CAIP-2 id never matched this map at all.
         const chainMap = {
           'ARC-TESTNET':  'arcTestnet',
           'BASE-SEPOLIA': 'baseSepolia',
           'BASE':         'base',
           'ETH-SEPOLIA':  'sepolia',
+          'eip155:8453':  'base',
+          'eip155:1':     'ethereum',
+          'eip155:11155111': 'sepolia',
+          'eip155:84532': 'baseSepolia',
         };
-        const chainName = chainMap[chain] || 'arcTestnet';
+        const chainName = chainMap[chain];
+        if (!chainName) {
+          return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet can currently pay on Arc Testnet or Base — not this network.` });
+        }
         const { GatewayClient } = await import('@circle-fin/x402-batching/client');
         const client = new GatewayClient({
           chain:      chainName,
