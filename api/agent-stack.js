@@ -680,7 +680,7 @@ export default async function handler(req, res) {
         }
         const circleClient = await getCircleWalletsClient();
         const sampleTypedData = {
-          domain: { name: 'NAN Signing Test', version: '1', chainId: 421614, verifyingContract: '0x0000000000000000000000000000000000000000' },
+          domain: { name: 'NAN Signing Test', version: '1', chainId: '421614', verifyingContract: '0x000000000000000000000000000000000000dEaD' },
           types: {
             EIP712Domain: [
               { name: 'name', type: 'string' },
@@ -694,7 +694,7 @@ export default async function handler(req, res) {
             ],
           },
           primaryType: 'TestMessage',
-          message: { purpose: 'NAN Nanopayments signing self-test — not a real payment', timestamp: Date.now() },
+          message: { purpose: 'NAN Nanopayments signing self-test — not a real payment', timestamp: String(Date.now()) },
         };
         const signRes = await circleClient.signTypedData({
           walletAddress: agentWallet.walletAddress,
@@ -707,7 +707,16 @@ export default async function handler(req, res) {
         }
         return res.json({ success: true, walletAddress: agentWallet.walletAddress, signature: signature.slice(0, 20) + '...' + signature.slice(-8), signatureLength: signature.length });
       } catch (e) {
-        return res.json({ success: false, error: e.message, stack: (e.stack || '').split('\n').slice(0,3).join(' | ') });
+        return res.json({
+          success: false,
+          error: e.message,
+          // Circle's SDK error classes carry the full underlying API response
+          // on .error (confirmed in their source) — surfacing it since the
+          // top-level message alone has been too generic to pin down the
+          // exact validation failure so far.
+          circleErrorDetail: e.error?.response?.data ? JSON.stringify(e.error.response.data).slice(0, 500) : null,
+          stack: (e.stack || '').split('\n').slice(0,3).join(' | '),
+        });
       }
     }
 
