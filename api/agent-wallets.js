@@ -20,7 +20,13 @@ async function kvGet(key) {
   const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
-  const d = await r.json();
+  if (!r.ok) {
+    const errText = await r.text().catch(() => '');
+    throw new Error(`kvGet failed for ${key}: ${r.status} ${errText.slice(0,200)}`);
+  }
+  const d = await r.json().catch(() => null);
+  // {result: null} is Upstash's normal, legitimate response for "key doesn't
+  // exist" — NOT an error, so this stays as a clean null return, not a throw.
   return d?.result ? JSON.parse(d.result) : null;
 }
 
@@ -46,8 +52,15 @@ async function kvKeys(prefix) {
   const r = await fetch(`${KV_URL}/keys/${encodeURIComponent(prefix + '*')}`, {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
-  const d = await r.json();
-  return d?.result || [];
+  if (!r.ok) {
+    const errText = await r.text().catch(() => '');
+    throw new Error(`kvKeys failed for prefix ${prefix}: ${r.status} ${errText.slice(0,200)}`);
+  }
+  const d = await r.json().catch(() => null);
+  if (!d || !Array.isArray(d.result)) {
+    throw new Error(`kvKeys got unexpected response for prefix ${prefix}: ${JSON.stringify(d).slice(0,200)}`);
+  }
+  return d.result;
 }
 
 // ── Circle SDK client ─────────────────────────────────────────────────────────
