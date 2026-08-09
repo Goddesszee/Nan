@@ -460,24 +460,17 @@ function trustTierCap(trust) {
 // policy cap, it only ever adds an *additional* restriction for unproven
 // counterparties.
 async function checkA2APolicy(senderWallet, counterpartyWallet, amount) {
-  const amt = parseFloat(amount);
+  // Trust-tier auto-approve cap disabled by request — the wallet's own
+  // spending policy (perTx/daily/weekly) is now the only gate. Trust data
+  // is still fetched and returned for display/history purposes, it just
+  // no longer blocks payments on its own.
   const [policyResult, trust] = await Promise.all([
     checkPolicy(senderWallet, amount),
     getTrust(senderWallet, counterpartyWallet)
   ]);
   if (!policyResult.allowed) return policyResult;
 
-  const tierCap = trustTierCap(trust);
-  if (amt > tierCap) {
-    return {
-      allowed: false,
-      reason: trust.successCount === 0
-        ? `First payment to this counterparty is capped at $${tierCap} until a track record is established`
-        : `Amount $${amt} exceeds this counterparty's trust-tier cap of $${tierCap} (${trust.successCount} successful payments so far)`,
-      trust, tierCap
-    };
-  }
-  return { allowed: true, trust, tierCap };
+  return { allowed: true, trust, tierCap: trustTierCap(trust) };
 }
 
 // ── 2. Escrow (soft-lock model) ──────────────────────────────────────────
@@ -564,6 +557,44 @@ async function linkUserEmail(userAddress, email) {
 async function getUserEmail(userAddress) {
   const rec = await kvGet(`nan:useremail:${userAddress.toLowerCase()}`);
   return rec?.email || null;
+}
+
+// ── Notification preferences ────────────────────────────────────────────
+// Redis: nan:notifyprefs:{userAddress} → { transfers, invoices, escrow, recurring }
+// Covers money-movement events only. All categories default to on; users
+// can unsubscribe per category. Missing categories on a stored record
+// (e.g. added after the user last saved prefs) also default to on.
+const NOTIFY_CATEGORIES = ['transfers', 'invoices', 'escrow', 'recurring'];
+const NOTIFY_DEFAULTS = { transfers: true, invoices: true, escrow: true, recurring: true };
+
+async function getNotifyPrefs(userAddress) {
+  const rec = await kvGet(`nan:notifyprefs:${userAddress.toLowerCase()}`);
+  return { ...NOTIFY_DEFAULTS, ...(rec || {}) };
+}
+async function setNotifyPrefs(userAddress, prefs) {
+  const current = await getNotifyPrefs(userAddress);
+  const updated = { ...current };
+  for (const cat of NOTIFY_CATEGORIES) {
+    if (typeof prefs[cat] === 'boolean') updated[cat] = prefs[cat];
+  }
+  await kvSet(`nan:notifyprefs:${userAddress.toLowerCase()}`, updated);
+  return updated;
+}
+
+// Sends only if the user hasn't unsubscribed from this category and has an
+// email on file. Swallows its own errors so a notification failure never
+// breaks the underlying money-movement action.
+async function notifyUser(userAddress, category, subject, message) {
+  if (!userAddress) return;
+  try {
+    const prefs = await getNotifyPrefs(userAddress);
+    if (!prefs[category]) return;
+    const email = await getUserEmail(userAddress);
+    if (!email) return;
+    await sendNotificationEmail(email, subject, message);
+  } catch (e) {
+    console.error(`[notify:${category}] failed:`, e.message);
+  }
 }
 
 function newInvoiceId() { return 'inv_' + crypto.randomBytes(8).toString('hex'); }
@@ -714,6 +745,8 @@ export default async function handler(req, res) {
       const txId  = result?.data?.id || result?.data?.transaction?.id;
       const state = result?.data?.state || result?.data?.transaction?.state;
       if (!txId) throw new Error(result?.message || JSON.stringify(result?.data || result).slice(0, 200));
+      await notifyUser(userAddress, 'transfers', `Transfer sent: ${amount} ${token}`,
+        `You sent ${amount} ${token} to ${toAddress}.`);
       return res.json({ success: true, txId, state });
     }
 
@@ -767,6 +800,20 @@ export default async function handler(req, res) {
     if (action === 'get-email') {
       const email = await getUserEmail(userAddress);
       return res.json({ success: true, email: email || null });
+    }
+
+    // ── get-notify-prefs: read per-category email subscription state ────────
+    if (action === 'get-notify-prefs') {
+      const prefs = await getNotifyPrefs(userAddress);
+      return res.json({ success: true, prefs });
+    }
+
+    // ── set-notify-prefs: update per-category email subscription state ──────
+    if (action === 'set-notify-prefs') {
+      const { prefs } = req.body;
+      if (!prefs || typeof prefs !== 'object') return res.status(400).json({ error: 'prefs object required' });
+      const updated = await setNotifyPrefs(userAddress, prefs);
+      return res.json({ success: true, prefs: updated });
     }
 
     if (action === 'get-policy') {
@@ -891,6 +938,10 @@ export default async function handler(req, res) {
       if (sentToAgent) {
         trustAfter = await recordTrustSuccess(agentWalletAddress, toAgentAddress, amount).catch(() => null);
       }
+      await notifyUser(userAddress, 'transfers', `Transfer sent: ${amount} ${token}`,
+        sentToAgent
+          ? `You sent ${amount} ${token} agent-to-agent to ${destination}.`
+          : `You sent ${amount} ${token} to ${destination}'s main wallet.`);
       return res.json({ success: true, txId, state, sentToAgent, trust: trustAfter,
         message: sentToAgent
           ? `Sent ${amount} ${token} agent→agent ✅`
@@ -943,6 +994,8 @@ export default async function handler(req, res) {
         attestation: null,
         createdAt: Date.now()
       });
+      await notifyUser(userAddress, 'escrow', `Escrow created: ${amount} ${token}`,
+        `You locked ${amount} ${token} in escrow${task ? ` for "${task}"` : ''}. Awaiting recipient attestation.`);
       return res.json({ success: true, escrow });
     }
 
@@ -987,6 +1040,8 @@ export default async function handler(req, res) {
       escrow.releaseTxId = txId;
       await saveEscrow(escrow);
       await recordTrustSuccess(escrow.fromWallet, escrow.toWallet, escrow.amount).catch(() => null);
+      await notifyUser(escrow.fromUserAddress, 'escrow', `Escrow released: ${escrow.amount} ${escrow.token}`,
+        `You released ${escrow.amount} ${escrow.token} from escrow to ${escrow.toWallet}.`);
       return res.json({ success: true, escrow, txId, message: `Released ${escrow.amount} ${escrow.token} ✅` });
     }
 
@@ -1001,6 +1056,8 @@ export default async function handler(req, res) {
       escrow.status = 'refunded';
       escrow.refundedAt = Date.now();
       await saveEscrow(escrow);
+      await notifyUser(escrow.fromUserAddress, 'escrow', `Escrow refunded: ${escrow.amount} ${escrow.token}`,
+        `Your escrow of ${escrow.amount} ${escrow.token} was refunded — funds were never moved.`);
       return res.json({ success: true, escrow, message: 'Escrow refunded — funds were never moved, just unlocked' });
     }
 
@@ -1049,6 +1106,8 @@ export default async function handler(req, res) {
         nextRunAt: Date.now() + parseInt(intervalSeconds) * 1000,
         createdAt: Date.now()
       });
+      await notifyUser(userAddress, 'recurring', `Recurring payment scheduled: ${amount} ${token}`,
+        `A recurring payment of ${amount} ${token} every ${intervalSeconds}s has been set up${label ? ` — "${label}"` : ''}.`);
       return res.json({ success: true, schedule: sched });
     }
 
@@ -1106,6 +1165,8 @@ export default async function handler(req, res) {
           sched.nextRunAt = Date.now() + sched.intervalSeconds * 1000;
           await saveRecurring(sched);
           await recordTrustSuccess(sched.fromWallet, sched.toWallet, sched.amount).catch(() => null);
+          await notifyUser(sched.fromUserAddress, 'recurring', `Recurring payment sent: ${sched.amount} ${sched.token}`,
+            `Your recurring payment of ${sched.amount} ${sched.token}${sched.label ? ` — "${sched.label}"` : ''} was sent (run #${sched.runCount}).`);
           results.push({ id: sched.id, executed: true, txId });
         } catch(e) {
           // Policy violation or transient error — don't cancel, just retry next interval
@@ -1169,15 +1230,11 @@ export default async function handler(req, res) {
       // point failing the whole request if they never linked an email
       // (self-custody wallet users especially won't have one on file).
       if (!autoEval.autoHonored && payerUserAddress) {
-        const payerEmail = await getUserEmail(payerUserAddress);
-        if (payerEmail) {
-          sendNotificationEmail(
-            payerEmail,
-            `New invoice: ${invoice.amount} ${invoice.token}`,
-            `You've been sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''}.\n\nOpen your Agent Wallet to review and respond.`
-          ).catch(e => console.error('[invoice-create] email send failed:', e.message));
-        }
+        await notifyUser(payerUserAddress, 'invoices', `New invoice: ${invoice.amount} ${invoice.token}`,
+          `You've been sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''}.\n\nOpen NAN to review and respond.`);
       }
+      await notifyUser(userAddress, 'invoices', `Invoice sent: ${invoice.amount} ${invoice.token}`,
+        `You sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} to ${fromAgentAddress}.`);
 
       return res.json({ success: true, invoice, autoEval });
     }
@@ -1202,15 +1259,11 @@ export default async function handler(req, res) {
         invoice.respondedAt = Date.now();
         await saveInvoice(invoice);
         if (invoice.toUserAddress) {
-          const requesterEmail = await getUserEmail(invoice.toUserAddress);
-          if (requesterEmail) {
-            sendNotificationEmail(
-              requesterEmail,
-              `Invoice rejected: ${invoice.amount} ${invoice.token}`,
-              `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} was rejected.`
-            ).catch(e => console.error('[invoice-respond] email send failed:', e.message));
-          }
+          await notifyUser(invoice.toUserAddress, 'invoices', `Invoice rejected: ${invoice.amount} ${invoice.token}`,
+            `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} was rejected.`);
         }
+        await notifyUser(userAddress, 'invoices', `You rejected an invoice: ${invoice.amount} ${invoice.token}`,
+          `You rejected an invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} from ${invoice.fromWallet}.`);
         return res.json({ success: true, invoice, message: 'Invoice rejected' });
       }
 
@@ -1238,15 +1291,11 @@ export default async function handler(req, res) {
       await saveInvoice(invoice);
       await recordTrustSuccess(invoice.fromWallet, invoice.toWallet, invoice.amount).catch(() => null);
       if (invoice.toUserAddress) {
-        const requesterEmail = await getUserEmail(invoice.toUserAddress);
-        if (requesterEmail) {
-          sendNotificationEmail(
-            requesterEmail,
-            `Invoice paid: ${invoice.amount} ${invoice.token}`,
-            `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} has been paid.`
-          ).catch(e => console.error('[invoice-respond] email send failed:', e.message));
-        }
+        await notifyUser(invoice.toUserAddress, 'invoices', `Invoice paid: ${invoice.amount} ${invoice.token}`,
+          `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} has been paid.`);
       }
+      await notifyUser(userAddress, 'invoices', `You paid an invoice: ${invoice.amount} ${invoice.token}`,
+        `You paid an invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} to ${invoice.toWallet}.`);
       return res.json({ success: true, invoice, txId, message: `Honored ${invoice.amount} ${invoice.token} ✅` });
     }
 

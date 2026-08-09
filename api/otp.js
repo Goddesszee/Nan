@@ -33,7 +33,7 @@ function generateCode() {
 
 async function sendEmail(to, code) {
   const apiKey  = process.env.SMTP_PASS; // Resend API key
-  const from    = process.env.SMTP_FROM || 'NAN Wallet <onboarding@resend.dev>';
+  const from    = process.env.SMTP_FROM || 'NAN <onboarding@resend.dev>';
 
   if(!apiKey) throw new Error('SMTP_PASS (Resend API key) not set in environment');
   const r = await fetch('https://api.resend.com/emails', {
@@ -45,27 +45,27 @@ async function sendEmail(to, code) {
     body: JSON.stringify({
       from,
       to:      [to],
-      subject: 'Your NAN Wallet login code',
+      subject: 'Your NAN login code',
       html: `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
                     max-width:440px;margin:0 auto;background:#0f0f1a;border-radius:16px;
-                    overflow:hidden;border:1px solid rgba(139,92,246,0.3);">
-          <div style="background:linear-gradient(135deg,#1a0a2e,#16213e);padding:32px;text-align:center;">
-            <div style="font-size:28px;font-weight:800;color:#8b5cf6;letter-spacing:-0.5px;">
-              NAN <span style="color:#a78bfa;">✦</span>
+                    overflow:hidden;border:1px solid rgba(37,99,235,0.3);">
+          <div style="background:linear-gradient(135deg,#0a1a3e,#16213e);padding:32px;text-align:center;">
+            <div style="font-size:28px;font-weight:800;color:#2563EB;letter-spacing:-0.5px;">
+              NAN <span style="color:#60a5fa;">✦</span>
             </div>
             <div style="color:#6b7280;font-size:13px;margin-top:4px;">
-              Stablecoin Wallet on Arc · Powered by Circle
+              Stablecoin Payments on Arc · Powered by Circle
             </div>
           </div>
           <div style="padding:32px;">
             <p style="color:#e5e7eb;font-size:16px;margin:0 0 24px;">
               Your one-time login code:
             </p>
-            <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.4);
+            <div style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.4);
                         border-radius:12px;padding:28px;text-align:center;
                         letter-spacing:12px;font-size:36px;font-weight:700;
-                        font-family:'Courier New',monospace;color:#a78bfa;">
+                        font-family:'Courier New',monospace;color:#60a5fa;">
               ${code}
             </div>
             <p style="color:#6b7280;font-size:13px;margin-top:20px;text-align:center;">
@@ -73,9 +73,9 @@ async function sendEmail(to, code) {
             </p>
           </div>
           <div style="background:rgba(0,0,0,0.3);padding:16px 32px;text-align:center;
-                      border-top:1px solid rgba(139,92,246,0.1);">
+                      border-top:1px solid rgba(37,99,235,0.1);">
             <p style="color:#4b5563;font-size:12px;margin:0;">
-              NAN Wallet · <a href="https://nanarc.xyz" style="color:#8b5cf6;text-decoration:none;">nanarc.xyz</a>
+              NAN · <a href="https://nanarc.xyz" style="color:#2563EB;text-decoration:none;">nanarc.xyz</a>
               &nbsp;·&nbsp; Built on Arc Testnet by Circle
             </p>
           </div>
