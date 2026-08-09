@@ -149,6 +149,21 @@ async function restoreAllSessions() {
 // Run restore on startup
 restoreAllSessions();
 
+// Make sure the Circle CLI binary is present as soon as the server boots,
+// rather than waiting for the first agent-wallet request to discover it's
+// missing and trigger a multi-minute install. The build step should already
+// install it, this is just a fallback so a fresh container never sits idle
+// without a working CLI.
+(async () => {
+  const bin = await findCli();
+  if (!bin) {
+    console.log('[agent-stack] CLI not found on startup, installing...');
+    await installCli();
+  } else {
+    console.log('[agent-stack] CLI already present at', bin);
+  }
+})();
+
 function cliEnv() {
   return {
     ...process.env,
@@ -357,8 +372,12 @@ export default async function handler(req, res) {
       const { email } = body;
       if (!email) return res.json({ error: 'email required' });
       let session = sessionStore.get(email);
-      // If no session in memory — try restoring from Redis silently
-      if (!session && email) {
+      // Restore from Redis whenever we don't have a confirmed active session in
+      // memory — covers a fresh Map after a restart, but also a stale error or
+      // inactive state left over from an earlier attempt, so one bad check
+      // doesn't permanently block recovery once a valid login exists in Redis.
+      const needsRestore = !session || (!session.pending && !session.sessionActive);
+      if (needsRestore) {
         const restored = await restoreCliConfigFromRedis(email);
         if (restored) {
           try {
