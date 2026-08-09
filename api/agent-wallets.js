@@ -4,6 +4,7 @@
 // Wallets stored in Redis: nan:agentwallet:{userAddress} → { walletId, walletAddress, walletSetId, createdAt }
 
 import crypto from 'crypto';
+import { sendNotificationEmail } from './_lib/emailer.js';
 
 const KV_URL   = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -556,6 +557,15 @@ async function listAllDueRecurring() {
 // pending for explicit review — this is what makes it a negotiation between
 // two independent decision-makers rather than a one-sided push payment.
 
+// ── User email (for notifications — separate from wallet identity) ────────
+async function linkUserEmail(userAddress, email) {
+  await kvSet(`nan:useremail:${userAddress.toLowerCase()}`, { email, linkedAt: Date.now() });
+}
+async function getUserEmail(userAddress) {
+  const rec = await kvGet(`nan:useremail:${userAddress.toLowerCase()}`);
+  return rec?.email || null;
+}
+
 function newInvoiceId() { return 'inv_' + crypto.randomBytes(8).toString('hex'); }
 
 async function getInvoice(invoiceId) {
@@ -745,6 +755,14 @@ export default async function handler(req, res) {
     }
 
     // ── get-policy: read current spending limits + today's spend ─────────────
+    // ── link-email: associate an email with this wallet for notifications ────
+    if (action === 'link-email') {
+      const { email } = req.body;
+      if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+      await linkUserEmail(userAddress, email);
+      return res.json({ success: true });
+    }
+
     if (action === 'get-policy') {
       const { walletAddress: pWallet } = req.body;
       if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
@@ -1139,6 +1157,22 @@ export default async function handler(req, res) {
           autoEval = { autoHonored: false, reason: trustCheck.reason };
         }
       }
+
+      // Email the payer if they need to actually do something — no point
+      // emailing about an invoice that just auto-honored itself, and no
+      // point failing the whole request if they never linked an email
+      // (self-custody wallet users especially won't have one on file).
+      if (!autoEval.autoHonored && payerUserAddress) {
+        const payerEmail = await getUserEmail(payerUserAddress);
+        if (payerEmail) {
+          sendNotificationEmail(
+            payerEmail,
+            `New invoice: ${invoice.amount} ${invoice.token}`,
+            `You've been sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''}.\n\nOpen your Agent Wallet to review and respond.`
+          ).catch(e => console.error('[invoice-create] email send failed:', e.message));
+        }
+      }
+
       return res.json({ success: true, invoice, autoEval });
     }
 
@@ -1161,6 +1195,16 @@ export default async function handler(req, res) {
         invoice.status = 'rejected';
         invoice.respondedAt = Date.now();
         await saveInvoice(invoice);
+        if (invoice.toUserAddress) {
+          const requesterEmail = await getUserEmail(invoice.toUserAddress);
+          if (requesterEmail) {
+            sendNotificationEmail(
+              requesterEmail,
+              `Invoice rejected: ${invoice.amount} ${invoice.token}`,
+              `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} was rejected.`
+            ).catch(e => console.error('[invoice-respond] email send failed:', e.message));
+          }
+        }
         return res.json({ success: true, invoice, message: 'Invoice rejected' });
       }
 
@@ -1187,6 +1231,16 @@ export default async function handler(req, res) {
       invoice.txId = txId;
       await saveInvoice(invoice);
       await recordTrustSuccess(invoice.fromWallet, invoice.toWallet, invoice.amount).catch(() => null);
+      if (invoice.toUserAddress) {
+        const requesterEmail = await getUserEmail(invoice.toUserAddress);
+        if (requesterEmail) {
+          sendNotificationEmail(
+            requesterEmail,
+            `Invoice paid: ${invoice.amount} ${invoice.token}`,
+            `Your invoice for ${invoice.amount} ${invoice.token}${invoice.reason ? ` — "${invoice.reason}"` : ''} has been paid.`
+          ).catch(e => console.error('[invoice-respond] email send failed:', e.message));
+        }
+      }
       return res.json({ success: true, invoice, txId, message: `Honored ${invoice.amount} ${invoice.token} ✅` });
     }
 
