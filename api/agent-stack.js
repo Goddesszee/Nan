@@ -697,7 +697,8 @@ export default async function handler(req, res) {
           message: { purpose: 'NAN Nanopayments signing self-test — not a real payment', timestamp: Date.now() },
         };
         const signRes = await circleClient.signTypedData({
-          walletId: agentWallet.walletId,
+          walletAddress: agentWallet.walletAddress,
+          blockchain: 'ARC-TESTNET',
           data: JSON.stringify(sampleTypedData),
         });
         const signature = signRes?.data?.data?.signature || signRes?.data?.signature;
@@ -773,6 +774,19 @@ export default async function handler(req, res) {
         if (!chainName) {
           return res.json({ success: false, error: `Unsupported chain for this service: "${chain}". This agent wallet can currently pay on Arc Testnet or Base — not this network.` });
         }
+        // Circle's own signTypedData API wants ITS blockchain identifier
+        // format specifically (confirmed against @circle-fin/developer-
+        // controlled-wallets' own internal Provider implementation) — a
+        // third naming scheme, distinct from both the raw chain param and
+        // x402-batching's chainName above.
+        const circleBlockchainMap = {
+          arcTestnet:  'ARC-TESTNET',
+          baseSepolia: 'BASE-SEPOLIA',
+          base:        'BASE',
+          sepolia:     'ETH-SEPOLIA',
+          ethereum:    'ETH',
+        };
+        const circleBlockchain = circleBlockchainMap[chainName] || 'ARC-TESTNET';
 
         // ── Pay from the real Circle Developer-Controlled Agent Wallet ──────
         // Was: a raw AGENT_WALLET_PRIVATE_KEY, a completely separate wallet
@@ -795,9 +809,11 @@ export default async function handler(req, res) {
 
         // Custom signer: same shape GatewayClient's own signer expects
         // (address + signTypedData), but backed by Circle's Developer-
-        // Controlled Wallets signing API and this specific walletId instead
-        // of local private-key material — the key itself never leaves
-        // Circle's infrastructure.
+        // Controlled Wallets signing API (walletAddress + blockchain,
+        // matching the exact shape Circle's own SDK uses internally for
+        // eth_signTypedData_v4 — confirmed by reading their actual source,
+        // not guessed) instead of local private-key material — the key
+        // itself never leaves Circle's infrastructure.
         const agentSigner = {
           address: agentWallet.walletAddress,
           signTypedData: async ({ domain, types, primaryType, message }) => {
@@ -813,7 +829,8 @@ export default async function handler(req, res) {
               message,
             };
             const signRes = await circleClient.signTypedData({
-              walletId: agentWallet.walletId,
+              walletAddress: agentWallet.walletAddress,
+              blockchain: circleBlockchain,
               data: JSON.stringify(typedData),
             });
             const signature = signRes?.data?.data?.signature || signRes?.data?.signature;
