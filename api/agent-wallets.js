@@ -5,7 +5,7 @@
 
 import crypto from 'crypto';
 import { sendNotificationEmail } from './_lib/emailer.js';
-import { requireWalletSignature } from './_lib/auth.js';
+import { requireAgentAuth, requireEmailSession } from './_lib/auth.js';
 
 const ALLOWED_ORIGINS = [
   'https://nanarc.xyz',
@@ -14,15 +14,14 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',
 ];
 
-// Agent wallets are keyed by MetaMask address (no Circle email/OTP session
-// exists for these users), so instead of a session token, every sensitive
-// action must include a fresh personal_sign signature proving control of
-// `userAddress` right now. See _lib/auth.js for the exact message format the
-// frontend must sign.
+// Actions requiring proof of wallet control, checked via requireAgentAuth
+// (wallet signature for self-custody users, or a linked+verified email
+// session for Circle-custody users). link-email is handled separately below
+// since it's the step that CREATES the link — nothing to check it against yet.
 const AUTH_REQUIRED_ACTIONS = new Set([
   'transfer', 'a2a-transfer', 'escrow-release', 'escrow-refund',
   'set-policy', 'clear-policy', 'recurring-create', 'recurring-cancel',
-  'link-email', 'net-settle', 'invoice-respond',
+  'net-settle', 'invoice-respond',
 ]);
 
 const KV_URL   = process.env.KV_REST_API_URL;
@@ -686,9 +685,13 @@ export default async function handler(req, res) {
   const { action, userAddress, toAddress, amount, token = 'USDC' } = req.body || {};
   if (!userAddress) return res.status(400).json({ error: 'userAddress required' });
 
-  if (AUTH_REQUIRED_ACTIONS.has(action)) {
-    const ok = await requireWalletSignature(req, res, { action, userAddress });
-    if (!ok) return; // requireWalletSignature already sent the 401/403 response
+  if (action === 'link-email') {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Valid email required' });
+    if (!requireEmailSession(req, res, { matchEmail: email })) return;
+  } else if (AUTH_REQUIRED_ACTIONS.has(action)) {
+    const ok = await requireAgentAuth(req, res, { action, userAddress, getLinkedEmail: getUserEmail });
+    if (!ok) return; // requireAgentAuth already sent the 401/403 response
   }
 
   // Dev mode — Circle credentials not set. Only allowed outside of a real
