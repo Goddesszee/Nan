@@ -312,7 +312,16 @@ async function getPolicy(walletAddress) {
 
 async function setPolicy(walletAddress, updates) {
   const key = `nan:agentpolicy:${walletAddress.toLowerCase()}`;
-  const existing = await kvGet(key) || {};
+  let existing = await kvGet(key) || {};
+  // Defensive: a policy record should only ever be a handful of numbers.
+  // If it's somehow grown huge (corrupted from an earlier bug, a bad write,
+  // whatever), don't keep re-writing that bloat forever — drop it and start
+  // clean, so this can't turn into a permanent "every save fails" state for
+  // whoever's wallet this happens to.
+  if (JSON.stringify(existing).length > 5000) {
+    console.warn(`[policy] Discarding oversized existing policy for ${walletAddress.slice(0,10)} (${JSON.stringify(existing).length} bytes) instead of merging onto it`);
+    existing = {};
+  }
   const policy = { ...existing };
   // Only touch fields actually present in this call — lets each form (main
   // limits vs. the separate nanopay cap) update just its own field without
@@ -738,9 +747,13 @@ export default async function handler(req, res) {
       if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
       const { default: fetch } = await import('node-fetch');
       const key = `nan:agentpolicy:${pWallet.toLowerCase()}`;
-      await fetch(`${KV_URL}/del/${encodeURIComponent(key)}`, {
+      const delRes = await fetch(`${KV_URL}/del/${encodeURIComponent(key)}`, {
         method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` }
       });
+      if (!delRes.ok) {
+        const errText = await delRes.text().catch(() => '');
+        return res.status(500).json({ success: false, error: `Could not clear policy: ${delRes.status} ${errText.slice(0,200)}` });
+      }
       return res.json({ success: true, message: 'Spending policy cleared' });
     }
 
