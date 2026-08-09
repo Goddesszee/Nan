@@ -14,6 +14,23 @@
 //   FIX 5 (bridge): Already correct — no changes needed
 
 import crypto from 'crypto';
+import { requireEmailSession } from './_lib/auth.js';
+
+const ALLOWED_ORIGINS = [
+  'https://nanarc.xyz',
+  'https://www.nanarc.xyz',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+
+// Actions that move funds or create real Circle transactions — every one of
+// these MUST prove the caller owns `email` via a verified session before
+// anything else runs. Read-only actions (getWallet, swapQuote, balances,
+// attestation lookups) are left open since they don't move money.
+const AUTH_REQUIRED_ACTIONS = new Set([
+  'transfer', 'bridge', 'contractCall', 'swapExecute',
+  'appkitSend', 'appkitBridge', 'cctpMint',
+]);
 
 // ── Token addresses ───────────────────────────────────────────────────────────
 const ARC_USDC = process.env.USDC_ADDRESS || '0x3600000000000000000000000000000000000000';
@@ -124,9 +141,10 @@ async function pollAttestation(txHash, maxAttempts = 3) {
 // Handler
 // =============================================================================
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -137,6 +155,13 @@ export default async function handler(req, res) {
     destChain, destAddr, bridgeAmount, txHash,
     contractAddress, functionSignature, params,
   } = req.body || {};
+
+  // Every money-moving action must prove the caller owns `email` via a
+  // session issued by otp.js after OTP verification. Fail closed.
+  if (AUTH_REQUIRED_ACTIONS.has(action)) {
+    if (!email) return res.json({ success: false, error: 'email is required for this action' });
+    if (!requireEmailSession(req, res, { matchEmail: email })) return; // requireEmailSession already sent the response
+  }
 
   // ── getWallet ───────────────────────────────────────────────────────────────
   if (action === 'getWallet') {
