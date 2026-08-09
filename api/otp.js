@@ -4,6 +4,7 @@
 // Required env vars: SMTP_PASS (Resend API key), SMTP_FROM (optional)
 
 import crypto from 'crypto';
+import { signEmailSession } from './_lib/auth.js';
 
 const otpRateLimit = new Map();
 
@@ -138,12 +139,22 @@ export default async function handler(req, res) {
 
     const expected = signOTP(email, otp.trim(), Number(expiresAt));
     console.log('[OTP verify] expected:', expected?.slice(0,8), 'got:', token?.slice(0,8));
-    const a = Buffer.from(expected, 'hex');
-    const b = Buffer.from(token,    'hex');
+    // Compare as raw strings, not hex-decoded buffers — Buffer.from(str,'hex')
+    // silently truncates at the first invalid/odd character rather than
+    // throwing, which could let a tampered token with junk appended still
+    // decode to the right byte length and pass the comparison below.
+    if (typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token))
+      return res.json({ success: false, error: 'Wrong code' });
+    const a = Buffer.from(expected, 'utf8');
+    const b = Buffer.from(token,    'utf8');
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b))
       return res.json({ success: false, error: 'Wrong code — expected:'+expected?.slice(0,8)+' got:'+token?.slice(0,8) });
 
-    return res.json({ success: true });
+    // Issue a session token proving this email was verified just now. The
+    // frontend must store this and send it as `Authorization: Bearer <token>`
+    // on every subsequent Circle-wallet request for this email.
+    const sessionToken = signEmailSession(email);
+    return res.json({ success: true, sessionToken });
   }
 
   return res.json({ success: false, error: 'Unknown action' });
