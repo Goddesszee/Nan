@@ -763,6 +763,12 @@ export default async function handler(req, res) {
       return res.json({ success: true });
     }
 
+    // ── get-email: check whether this wallet has a notification email on file ─
+    if (action === 'get-email') {
+      const email = await getUserEmail(userAddress);
+      return res.json({ success: true, email: email || null });
+    }
+
     if (action === 'get-policy') {
       const { walletAddress: pWallet } = req.body;
       if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
