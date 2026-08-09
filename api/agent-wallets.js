@@ -15,52 +15,53 @@ const EURC_ADDRESS = '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a';
 const TOKEN_ABI    = ['function balanceOf(address) view returns(uint256)'];
 
 // ── Redis helpers ─────────────────────────────────────────────────────────────
-async function kvGet(key) {
+// Rewritten to use Upstash's documented "Command Array Format"
+// (POST the whole command as a JSON array to the base URL) instead of the
+// URL-path style (/command/arg1/arg2). Upstash's own docs recommend this
+// specifically to avoid URL-encoding ambiguity — worth doing outright rather
+// than continuing to debug symptoms one at a time on the path-style form.
+async function kvExec(commandArray) {
   const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  const r = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(commandArray)
   });
   if (!r.ok) {
     const errText = await r.text().catch(() => '');
-    throw new Error(`kvGet failed for ${key}: ${r.status} ${errText.slice(0,200)}`);
+    throw new Error(`kvExec(${commandArray[0]}) failed: ${r.status} ${errText.slice(0,200)}`);
   }
   const d = await r.json().catch(() => null);
-  // {result: null} is Upstash's normal, legitimate response for "key doesn't
-  // exist" — NOT an error, so this stays as a clean null return, not a throw.
-  return d?.result ? JSON.parse(d.result) : null;
+  if (!d || 'error' in d) {
+    throw new Error(`kvExec(${commandArray[0]}) returned an error: ${JSON.stringify(d).slice(0,200)}`);
+  }
+  return d.result;
+}
+
+async function kvGet(key) {
+  const result = await kvExec(['GET', key]);
+  // null is Upstash's normal, legitimate response for "key doesn't exist" —
+  // NOT an error, so this stays a clean null return.
+  return result ? JSON.parse(result) : null;
 }
 
 async function kvSet(key, value) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(JSON.stringify(value))
-  });
-  if (!r.ok) {
-    const errText = await r.text().catch(() => '');
-    throw new Error(`kvSet failed for ${key}: ${r.status} ${errText.slice(0,200)}`);
-  }
-  const d = await r.json().catch(() => null);
-  if (!d || d.result !== 'OK') {
-    throw new Error(`kvSet did not confirm write for ${key}: ${JSON.stringify(d).slice(0,200)}`);
+  const result = await kvExec(['SET', key, JSON.stringify(value)]);
+  if (result !== 'OK') {
+    throw new Error(`kvSet did not confirm write for ${key}: got ${JSON.stringify(result).slice(0,200)}`);
   }
 }
 
 async function kvKeys(prefix) {
-  const { default: fetch } = await import('node-fetch');
-  const r = await fetch(`${KV_URL}/keys/${encodeURIComponent(prefix + '*')}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
-  });
-  if (!r.ok) {
-    const errText = await r.text().catch(() => '');
-    throw new Error(`kvKeys failed for prefix ${prefix}: ${r.status} ${errText.slice(0,200)}`);
+  const result = await kvExec(['KEYS', prefix + '*']);
+  if (!Array.isArray(result)) {
+    throw new Error(`kvKeys got unexpected response for prefix ${prefix}: ${JSON.stringify(result).slice(0,200)}`);
   }
-  const d = await r.json().catch(() => null);
-  if (!d || !Array.isArray(d.result)) {
-    throw new Error(`kvKeys got unexpected response for prefix ${prefix}: ${JSON.stringify(d).slice(0,200)}`);
-  }
-  return d.result;
+  return result;
+}
+
+async function kvDel(key) {
+  return await kvExec(['DEL', key]);
 }
 
 // ── Circle SDK client ─────────────────────────────────────────────────────────
@@ -758,15 +759,8 @@ export default async function handler(req, res) {
     if (action === 'clear-policy') {
       const { walletAddress: pWallet } = req.body;
       if (!pWallet) return res.status(400).json({ error: 'walletAddress required' });
-      const { default: fetch } = await import('node-fetch');
       const key = `nan:agentpolicy:${pWallet.toLowerCase()}`;
-      const delRes = await fetch(`${KV_URL}/del/${encodeURIComponent(key)}`, {
-        method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` }
-      });
-      if (!delRes.ok) {
-        const errText = await delRes.text().catch(() => '');
-        return res.status(500).json({ success: false, error: `Could not clear policy: ${delRes.status} ${errText.slice(0,200)}` });
-      }
+      await kvDel(key);
       return res.json({ success: true, message: 'Spending policy cleared' });
     }
 
