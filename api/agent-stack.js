@@ -643,6 +643,45 @@ export default async function handler(req, res) {
 
     // ── pay-service ───────────────────────────────────────────────────────────
     // Uses @circle-fin/x402-batching GatewayClient directly — no CLI session needed
+    // ── discover-services: Circle's public x402 service discovery API ────────
+    if (action === 'discover-services') {
+      const { query, category, maxUsdPrice, limit } = body;
+      const { default: fetch } = await import('node-fetch');
+      const params = new URLSearchParams();
+      if (query) params.set('query', query);
+      if (category) params.set('category', category);
+      if (maxUsdPrice) params.set('maxUsdPrice', String(maxUsdPrice));
+      params.set('type', 'http');
+      params.set('siwx', 'false'); // exclude browser-auth-only endpoints — not usable from a server
+      params.set('limit', String(Math.min(parseInt(limit) || 12, 50)));
+      try {
+        const r = await fetch(`https://api.circle.com/v2/x402/discovery/resources?${params.toString()}`, {
+          headers: { 'Accept-Encoding': 'gzip' }
+        });
+        if (!r.ok) {
+          const errText = await r.text().catch(() => '');
+          return res.json({ success: false, error: `Circle discovery API returned ${r.status}: ${errText.slice(0,150)}` });
+        }
+        const data = await r.json();
+        const services = (data.items || []).map(item => {
+          const accept = (item.accepts || [])[0] || {};
+          const priceUsdc = accept.amount ? (parseInt(accept.amount) / 1e6).toFixed(4) : null;
+          return {
+            resource: item.resource,
+            method: item.metadata?.method || 'GET',
+            name: item.metadata?.provider?.name || item.resource,
+            description: item.metadata?.description || item.metadata?.provider?.description || '',
+            category: item.metadata?.provider?.category || null,
+            priceUsdc,
+            network: accept.network || null,
+          };
+        });
+        return res.json({ success: true, services, total: data.pagination?.total ?? services.length });
+      } catch (e) {
+        return res.json({ success: false, error: 'Could not reach Circle discovery API: ' + e.message.slice(0,150) });
+      }
+    }
+
     if (action === 'pay-service') {
       const { url, address, chain='ARC-TESTNET', maxAmount, method='GET', body: forwardBody } = body;
       if (!url) return res.json({ error: 'url required' });
