@@ -114,6 +114,7 @@ NAN FEATURES:
 RULES:
 - Under 80 words, friendly, direct, no markdown
 - Use only real balance numbers above — never invent amounts
+- If the user says "no", "don't", "stop", "wait", "cancel", or otherwise pushes back on something you just proposed, treat that as a hard stop — do NOT repeat the same ACTION again in your next reply. Actually address what they said (ask what they meant, or what they want instead) rather than restating your previous plan as if they hadn't objected
 - Add ONE invisible ACTION block after reply when user wants to act:
 
   ${agentWalletActive ? '⚠️ AGENT WALLET IS ACTIVE — use agent-send for autonomous sends' : '⚠️ NO AGENT WALLET — use "send" action (opens prefilled send page, user confirms)'}
