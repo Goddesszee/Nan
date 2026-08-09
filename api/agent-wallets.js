@@ -5,6 +5,25 @@
 
 import crypto from 'crypto';
 import { sendNotificationEmail } from './_lib/emailer.js';
+import { requireWalletSignature } from './_lib/auth.js';
+
+const ALLOWED_ORIGINS = [
+  'https://nanarc.xyz',
+  'https://www.nanarc.xyz',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+
+// Agent wallets are keyed by MetaMask address (no Circle email/OTP session
+// exists for these users), so instead of a session token, every sensitive
+// action must include a fresh personal_sign signature proving control of
+// `userAddress` right now. See _lib/auth.js for the exact message format the
+// frontend must sign.
+const AUTH_REQUIRED_ACTIONS = new Set([
+  'transfer', 'a2a-transfer', 'escrow-release', 'escrow-refund',
+  'set-policy', 'clear-policy', 'recurring-create', 'recurring-cancel',
+  'link-email', 'net-settle', 'invoice-respond',
+]);
 
 const KV_URL   = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -657,14 +676,20 @@ function netDifference(ledger) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, userAddress, toAddress, amount, token = 'USDC' } = req.body || {};
   if (!userAddress) return res.status(400).json({ error: 'userAddress required' });
+
+  if (AUTH_REQUIRED_ACTIONS.has(action)) {
+    const ok = await requireWalletSignature(req, res, { action, userAddress });
+    if (!ok) return; // requireWalletSignature already sent the 401/403 response
+  }
 
   // Dev mode — Circle credentials not set. Only allowed outside of a real
   // Railway deployment; if these are ever missing in production, fail loudly
