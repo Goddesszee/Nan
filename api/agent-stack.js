@@ -849,7 +849,18 @@ export default async function handler(req, res) {
         };
 
         const x402c = new x402Client();
-        registerBatchScheme(x402c, { signer: agentSigner });
+        // Circle's BatchEvmScheme only understands Circle's own "Gateway
+        // batching" payment scheme (extra.name === "GatewayWalletBatched")
+        // — most third-party x402 services (Leakage included) use the
+        // standard/generic "exact" scheme instead, which BatchEvmScheme
+        // correctly refuses to handle on its own. Registering ExactEvmScheme
+        // as its fallback composes both into one dispatching scheme, so
+        // whichever one the target service actually uses gets handled —
+        // confirmed via @circle-fin/x402-batching's own registerBatchScheme
+        // fallback option, built specifically for this case.
+        const { ExactEvmScheme } = await import('@x402/evm/exact/client');
+        const exactScheme = new ExactEvmScheme(agentSigner);
+        registerBatchScheme(x402c, { signer: agentSigner, fallback: exactScheme });
         const http = new x402HTTPClient(x402c);
 
         const { default: fetch } = await import('node-fetch');
