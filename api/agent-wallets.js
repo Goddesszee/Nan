@@ -39,7 +39,7 @@ async function kvExec(commandArray) {
   return d.result;
 }
 
-async function kvGet(key) {
+export async function kvGet(key) {
   const result = await kvExec(['GET', key]);
   // null is Upstash's normal, legitimate response for "key doesn't exist" —
   // NOT an error, so this stays a clean null return.
@@ -68,7 +68,7 @@ async function kvDel(key) {
 // ── Circle SDK client ─────────────────────────────────────────────────────────
 // initiateDeveloperControlledWalletsClient handles RSA encryption automatically.
 // DO NOT manually construct entitySecretCiphertext.
-async function getClient() {
+export async function getClient() {
   const { initiateDeveloperControlledWalletsClient } = await import('@circle-fin/developer-controlled-wallets');
   const apiKey       = process.env.CIRCLE_API_KEY;
   const entitySecret = process.env.CIRCLE_ENTITY_SECRET;
@@ -88,7 +88,7 @@ function deterministicUUID(scope, addr) {
 
 // ── Get or create agent wallet ────────────────────────────────────────────────
 // Recovery priority: Redis exact → Redis case-variant → Circle scan → create new
-async function getOrCreateAgentWallet(userAddress) {
+export async function getOrCreateAgentWallet(userAddress) {
   const key = `nan:agentwallet:${userAddress.toLowerCase()}`;
 
   // 1. Redis exact match (fast path)
