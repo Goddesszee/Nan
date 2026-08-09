@@ -460,24 +460,17 @@ function trustTierCap(trust) {
 // policy cap, it only ever adds an *additional* restriction for unproven
 // counterparties.
 async function checkA2APolicy(senderWallet, counterpartyWallet, amount) {
-  const amt = parseFloat(amount);
+  // Trust-tier auto-approve cap disabled by request — the wallet's own
+  // spending policy (perTx/daily/weekly) is now the only gate. Trust data
+  // is still fetched and returned for display/history purposes, it just
+  // no longer blocks payments on its own.
   const [policyResult, trust] = await Promise.all([
     checkPolicy(senderWallet, amount),
     getTrust(senderWallet, counterpartyWallet)
   ]);
   if (!policyResult.allowed) return policyResult;
 
-  const tierCap = trustTierCap(trust);
-  if (amt > tierCap) {
-    return {
-      allowed: false,
-      reason: trust.successCount === 0
-        ? `First payment to this counterparty is capped at $${tierCap} until a track record is established`
-        : `Amount $${amt} exceeds this counterparty's trust-tier cap of $${tierCap} (${trust.successCount} successful payments so far)`,
-      trust, tierCap
-    };
-  }
-  return { allowed: true, trust, tierCap };
+  return { allowed: true, trust, tierCap: trustTierCap(trust) };
 }
 
 // ── 2. Escrow (soft-lock model) ──────────────────────────────────────────
