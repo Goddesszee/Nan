@@ -845,9 +845,21 @@ app.get('*', (req, res) => {
 });
 
 // ── Keep-alive ping — prevents Railway cold starts ──
+// Needs the real public domain: the whole point is keeping Railway's
+// external routing layer from seeing the service as idle, which a
+// loopback call wouldn't do anything for.
 const SELF_URL = process.env.RAILWAY_PUBLIC_DOMAIN
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
   : null;
+// Internal cron self-calls (order executor, recurring A2A) don't need to
+// leave the process at all — they're calling their own API in the same
+// running server. Using localhost here means these crons work regardless
+// of whether RAILWAY_PUBLIC_DOMAIN happens to be set, which was
+// previously a silent single point of failure: if that env var was ever
+// missing, every cron below was gated behind `if (SELF_URL)` and simply
+// never registered — no error, no log, schedules just sat there forever
+// showing 'Active' with nothing actually checking them.
+const INTERNAL_URL = `http://localhost:${PORT}`;
 
 if (SELF_URL) {
   setInterval(async () => {
@@ -856,71 +868,74 @@ if (SELF_URL) {
       await fetch(`${SELF_URL}/api/health`, { signal: AbortSignal.timeout(8000) });
     } catch(e) { /* silent */ }
   }, 4 * 60 * 1000); // ping every 4 minutes
+}
 
-  // ── Autonomous order executor — runs every 60s on Railway ─────────────────
-  // Uses Circle AppKit (CIRCLE_API_KEY + CIRCLE_ENTITY_SECRET) — survives restarts
-  setInterval(async () => {
-    try {
-      if (!process.env.ADMIN_PASSWORD || !process.env.CIRCLE_API_KEY) return;
-      const { default: fetch } = await import('node-fetch');
-      const ordersModule = await import('../api/orders.js');
-      const allOrders = ordersModule.ordersStore;
-      if (!allOrders) return;
-      for (const [wallet, orders] of allOrders.entries()) {
-        const pending = orders.filter(o =>
-          o.status === 'pending' &&
-          ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type)
-        );
-        if (!pending.length) continue;
-        // Find the Circle wallet address for this user from userStore
-        let walletAddress = wallet;
-        for (const [, u] of userStore.entries()) {
-          if (u.walletAddress?.toLowerCase() === wallet.toLowerCase()) {
-            walletAddress = u.walletAddress;
-            break;
-          }
-        }
-        console.log(`[cron] Processing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
-        const r = await fetch(`${SELF_URL}/api/execute-orders`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending, walletAddress }),
-          signal: AbortSignal.timeout(30000)
-        });
-        const result = await r.json();
-        if (result.orders) {
-          const untouched = orders.filter(o => !pending.find(p => p.id === o.id));
-          const updated = result.orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
-          allOrders.set(wallet, [...untouched, ...updated]);
-          // Persist to disk so orders survive Railway restarts
-          if (ordersModule.saveToDisk) ordersModule.saveToDisk(allOrders);
-        }
-        if (result.results?.length) {
-          console.log(`[cron] Results:`, result.results.map(r => `${r.id}:${r.executed?'✅':'⏭'}`).join(' '));
+// ── Autonomous order executor — runs every 60s on Railway ─────────────────
+// Uses Circle AppKit (CIRCLE_API_KEY + CIRCLE_ENTITY_SECRET) — survives restarts.
+// Calls its own API via localhost, not the public domain — this cron has
+// nowhere to go but itself, and doesn't need to depend on
+// RAILWAY_PUBLIC_DOMAIN being set to run at all.
+setInterval(async () => {
+  try {
+    if (!process.env.ADMIN_PASSWORD || !process.env.CIRCLE_API_KEY) return;
+    const { default: fetch } = await import('node-fetch');
+    const ordersModule = await import('../api/orders.js');
+    const allOrders = ordersModule.ordersStore;
+    if (!allOrders) return;
+    for (const [wallet, orders] of allOrders.entries()) {
+      const pending = orders.filter(o =>
+        o.status === 'pending' &&
+        ['agent-scheduled','agent-standing','fx-limit-offramp'].includes(o.type)
+      );
+      if (!pending.length) continue;
+      // Find the Circle wallet address for this user from userStore
+      let walletAddress = wallet;
+      for (const [, u] of userStore.entries()) {
+        if (u.walletAddress?.toLowerCase() === wallet.toLowerCase()) {
+          walletAddress = u.walletAddress;
+          break;
         }
       }
-    } catch(e) { console.log('[cron] executor error:', e.message); }
-  }, 60 * 1000); // every 60 seconds
-
-  // ── Recurring agent-to-agent payment executor — runs every 60s ────────────
-  setInterval(async () => {
-    try {
-      if (!process.env.CIRCLE_API_KEY) return;
-      const { default: fetch } = await import('node-fetch');
-      const r = await fetch(`${SELF_URL}/api/agent-wallets`, {
+      console.log(`[cron] Processing ${pending.length} order(s) for ${wallet.slice(0,8)}...`);
+      const r = await fetch(`${INTERNAL_URL}/api/execute-orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'recurring-run-due', userAddress: 'cron' }),
+        body: JSON.stringify({ secret: process.env.ADMIN_PASSWORD, orders: pending, walletAddress }),
         signal: AbortSignal.timeout(30000)
       });
       const result = await r.json();
-      if (result.processed) {
-        console.log(`[cron] Recurring A2A: processed ${result.processed}`,
-          result.results?.map(x => `${x.id}:${x.executed ? '✅' : x.skipped ? '⏭' : '❌'}`).join(' '));
+      if (result.orders) {
+        const untouched = orders.filter(o => !pending.find(p => p.id === o.id));
+        const updated = result.orders.filter(o => o.status === 'pending' || o.status === 'fx-triggered');
+        allOrders.set(wallet, [...untouched, ...updated]);
+        // Persist to disk so orders survive Railway restarts
+        if (ordersModule.saveToDisk) ordersModule.saveToDisk(allOrders);
       }
-    } catch(e) { console.log('[cron] recurring A2A executor error:', e.message); }
-  }, 60 * 1000); // every 60 seconds
-}
+      if (result.results?.length) {
+        console.log(`[cron] Results:`, result.results.map(r => `${r.id}:${r.executed?'✅':'⏭'}`).join(' '));
+      }
+    }
+  } catch(e) { console.log('[cron] executor error:', e.message); }
+}, 60 * 1000); // every 60 seconds
+
+// ── Recurring agent-to-agent payment executor — runs every 60s ────────────
+setInterval(async () => {
+  try {
+    if (!process.env.CIRCLE_API_KEY) return;
+    const { default: fetch } = await import('node-fetch');
+    const r = await fetch(`${INTERNAL_URL}/api/agent-wallets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'recurring-run-due', userAddress: 'cron' }),
+      signal: AbortSignal.timeout(30000)
+    });
+    const result = await r.json();
+    if (result.processed) {
+      console.log(`[cron] Recurring A2A: processed ${result.processed}`,
+        result.results?.map(x => `${x.id}:${x.executed ? '✅' : x.skipped ? '⏭' : '❌'}`).join(' '));
+    }
+  } catch(e) { console.log('[cron] recurring A2A executor error:', e.message); }
+}, 60 * 1000); // every 60 seconds
 
 // ── Start ──
 app.listen(PORT, () => {
