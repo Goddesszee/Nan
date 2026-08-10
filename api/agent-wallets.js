@@ -624,11 +624,17 @@ async function setNotifyPrefs(userAddress, prefs) {
   return updated;
 }
 
-// Sends only if the user hasn't unsubscribed from this category and has an
-// email on file. Swallows its own errors so a notification failure never
-// breaks the underlying money-movement action.
+// Real emails are restricted to the 'invoices' category only. Every other
+// category (transfers, escrow, recurring) is a deliberate no-op — recurring
+// payments in particular can fire far more often than any transactional
+// email budget can absorb (a single test schedule at a short interval
+// already burned through the whole daily send quota and took OTP delivery
+// down with it). If more categories need real email later, widen this on
+// purpose rather than removing it by accident.
+const EMAIL_ENABLED_CATEGORIES = new Set(['invoices']);
 async function notifyUser(userAddress, category, subject, message) {
   if (!userAddress) return;
+  if (!EMAIL_ENABLED_CATEGORIES.has(category)) return;
   try {
     const prefs = await getNotifyPrefs(userAddress);
     if (!prefs[category]) return;
