@@ -19,7 +19,7 @@
 import crypto from 'crypto';
 
 const SECRET = process.env.OTP_SECRET || process.env.CIRCLE_ENTITY_SECRET || 'nan-otp-fixed-secret-v1';
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;      // 7 days
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;     // 30 days — matches the frontend's "remember this login" window
 const SIGNATURE_MAX_AGE_MS = 5 * 60 * 1000;           // signed message must be < 5 min old
 
 function b64url(str) {
