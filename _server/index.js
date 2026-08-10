@@ -292,6 +292,21 @@ app.post('/api/gigs', rateLimit(30), async (req, res) => {
   }
 });
 
+// ── Payroll (employee directory CRUD + payroll run logging) ────────────────
+// This route was missing entirely — api/payroll.js existed as a file but was
+// never wired up to the server, so every payroll request (add employee, run
+// payroll, everything) hit no matching route and fell through to an HTML
+// 404/fallback response instead of the JSON the frontend expected.
+app.post('/api/payroll', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/payroll.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[payroll proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── Explore (AI-powered search: businesses, people, places, services) ──────
 app.post('/api/explore', rateLimit(30), async (req, res) => {
   try {
