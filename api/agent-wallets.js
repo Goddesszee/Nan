@@ -1218,8 +1218,17 @@ export default async function handler(req, res) {
           sched.nextRunAt = Date.now() + sched.intervalSeconds * 1000;
           await saveRecurring(sched);
           await recordTrustSuccess(sched.fromWallet, sched.toWallet, sched.amount).catch(() => null);
-          await notifyUser(sched.fromUserAddress, 'recurring', `Recurring payment sent: ${sched.amount} ${sched.token}`,
-            `Your recurring payment of ${sched.amount} ${sched.token}${sched.label ? ` — "${sched.label}"` : ''} was sent (run #${sched.runCount}).`);
+          // Sub-hourly intervals are explicitly labeled as testing-only in
+          // the UI ("1 min is here for testing — watch it actually fire").
+          // A real recurring payment (hourly+) still gets its confirmation
+          // email, but a 1-minute test schedule left running would otherwise
+          // burn through the whole email account's daily send quota in
+          // minutes, taking down OTP delivery for every other user with it —
+          // which is exactly what happened before this fix.
+          if (sched.intervalSeconds >= 3600) {
+            await notifyUser(sched.fromUserAddress, 'recurring', `Recurring payment sent: ${sched.amount} ${sched.token}`,
+              `Your recurring payment of ${sched.amount} ${sched.token}${sched.label ? ` — "${sched.label}"` : ''} was sent (run #${sched.runCount}).`);
+          }
           results.push({ id: sched.id, executed: true, txId });
         } catch(e) {
           // Policy violation or transient error — don't cancel, just retry next interval
