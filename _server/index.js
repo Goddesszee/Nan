@@ -307,6 +307,22 @@ app.post('/api/payroll', rateLimit(30), async (req, res) => {
   }
 });
 
+// ── Cash In/Out (stablecoin <-> Naira: rates, bank accounts, swap requests) ──
+// Same missing-route bug as Payroll: api/cashinout.js existed as a real,
+// working file but was never registered here, so every call the Fiat page
+// makes (get-rates, list-transactions, create-cashout-request, everything)
+// hit no matching route and fell through to an HTML fallback — exactly why
+// the Swap tab showed "Rate: Unavailable" with no way to ever recover.
+app.post('/api/cashinout', rateLimit(30), async (req, res) => {
+  try {
+    const mod = await import('../api/cashinout.js');
+    return mod.default(req, res);
+  } catch(e) {
+    console.error('[cashinout proxy]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── Explore (AI-powered search: businesses, people, places, services) ──────
 app.post('/api/explore', rateLimit(30), async (req, res) => {
   try {
