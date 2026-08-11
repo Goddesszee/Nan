@@ -1254,7 +1254,7 @@ export default async function handler(req, res) {
 
     // ── invoice-create: one agent requests payment from another ──────────────
     if (action === 'invoice-create') {
-      const { agentWalletAddress, fromAgentAddress, amount, token = 'USDC', reason, autoHonorThreshold } = req.body;
+      const { agentWalletAddress, fromAgentAddress, billedToInput, amount, token = 'USDC', reason, autoHonorThreshold } = req.body;
       // agentWalletAddress = the requester (payee); fromAgentAddress = who's being asked to pay
       if (!agentWalletAddress || !fromAgentAddress || !amount) {
         return res.status(400).json({ error: 'agentWalletAddress, fromAgentAddress, and amount required' });
@@ -1266,6 +1266,11 @@ export default async function handler(req, res) {
         toWallet: agentWalletAddress,     // requester / payee
         toUserAddress: userAddress,
         fromWallet: fromAgentAddress,     // payer being asked
+        // What the sender actually typed into "Bill To", if it differs from
+        // the resolved agent wallet address (e.g. they typed a main wallet
+        // address or .arc name) — shown back to them in their Outgoing list
+        // so an unfamiliar-looking resolved address doesn't read as a bug.
+        billedToInput: (billedToInput && billedToInput.toLowerCase() !== fromAgentAddress.toLowerCase()) ? billedToInput : null,
         amount: parseFloat(amount),
         token,
         reason: reason || '',
