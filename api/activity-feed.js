@@ -40,12 +40,69 @@ const TRANSFER_TOPIC = ethers.id('Transfer(address,address,uint256)');
 
 const MAX_FEED = 200;
 const BLOCKS_PER_TICK = 200;   // cap how many blocks one poll pass will scan
-const FIRST_RUN_LOOKBACK = 500; // don't scan full genesis on first boot — just recent history
+const FIRST_RUN_LOOKBACK = 500; // don't scan full genesis on a genuinely fresh start — just recent history
+
+// ── Redis persistence ─────────────────────────────────────────────────────────
+// The feed and scan position used to live only in these two in-memory
+// variables, which reset to empty/[-1] every time the backend redeploys —
+// meaning every deploy wiped the whole feed and re-scanned from scratch,
+// visibly losing history. Same kvExec Command Array pattern already used in
+// agent-wallets.js, persisting both after every successful scan pass so a
+// redeploy resumes exactly where it left off instead of starting over.
+const KV_URL   = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
+const FEED_KEY = 'nan:activityfeed:items';
+const BLOCK_KEY = 'nan:activityfeed:lastblock';
+
+async function kvExec(commandArray) {
+  if (!KV_URL || !KV_TOKEN) throw new Error('KV not configured');
+  const { default: fetch } = await import('node-fetch');
+  const r = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(commandArray)
+  });
+  if (!r.ok) throw new Error(`kvExec(${commandArray[0]}) failed: ${r.status}`);
+  const d = await r.json().catch(() => null);
+  if (!d || 'error' in d) throw new Error(`kvExec(${commandArray[0]}) error: ${JSON.stringify(d).slice(0,200)}`);
+  return d.result;
+}
+async function kvGet(key) {
+  const result = await kvExec(['GET', key]);
+  return result ? JSON.parse(result) : null;
+}
+async function kvSet(key, value) {
+  await kvExec(['SET', key, JSON.stringify(value)]);
+}
 
 let feed = [];             // newest-first
 let lastScannedBlock = -1;
 let isScanning = false;
 let lastError = null;
+let persistedStateLoaded = false;
+
+// Loaded once, lazily, the first time a scan actually runs — not at module
+// top level, so a missing/misconfigured KV doesn't block the feed from
+// working at all, it just falls back to the old from-scratch behavior.
+async function loadPersistedState() {
+  if (persistedStateLoaded) return;
+  persistedStateLoaded = true;
+  try {
+    const [savedFeed, savedBlock] = await Promise.all([kvGet(FEED_KEY), kvGet(BLOCK_KEY)]);
+    if (Array.isArray(savedFeed) && savedFeed.length) feed = savedFeed;
+    if (typeof savedBlock === 'number' && savedBlock > 0) lastScannedBlock = savedBlock;
+    console.log(`[activity-feed] restored ${feed.length} items, resuming from block ${lastScannedBlock}`);
+  } catch (e) {
+    console.warn('[activity-feed] could not load persisted state, starting fresh:', e.message);
+  }
+}
+async function persistState() {
+  try {
+    await Promise.all([kvSet(FEED_KEY, feed), kvSet(BLOCK_KEY, lastScannedBlock)]);
+  } catch (e) {
+    console.warn('[activity-feed] could not persist state:', e.message);
+  }
+}
 
 async function rpcCall(method, params = []) {
   const res = await fetch(RPC, {
@@ -134,6 +191,7 @@ async function runScan() {
   if (isScanning) return;
   isScanning = true;
   try {
+    await loadPersistedState();
     const latestHex = await rpcCall('eth_blockNumber');
     const latest = parseInt(latestHex, 16);
     const from = lastScannedBlock === -1
@@ -146,6 +204,7 @@ async function runScan() {
     }
     lastScannedBlock = to;
     lastError = null;
+    await persistState();
   } catch (e) {
     lastError = e.message;
     console.error('[activity-feed] scan error:', e.message);
