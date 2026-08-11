@@ -656,13 +656,15 @@ async function saveInvoice(inv) {
   return inv;
 }
 async function listInvoicesFor(walletAddress, direction) {
-  // direction: 'incoming' (I owe/was asked to pay) or 'outgoing' (I'm the requester)
+  // direction: 'incoming' (invoices asking ME to pay) or 'outgoing' (invoices I sent, asking to be paid)
   const keys = await kvKeys('nan:a2ainvoice:');
   const out = [];
   for (const k of keys) {
     const inv = await kvGet(k);
     if (!inv) continue;
-    const field = direction === 'outgoing' ? 'fromWallet' : 'toWallet';
+    // toWallet = requester/payee (gets paid), fromWallet = payer (being asked to pay).
+    // 'incoming' from the payer's perspective means "asking me to pay" — that's fromWallet.
+    const field = direction === 'outgoing' ? 'toWallet' : 'fromWallet';
     if (inv[field]?.toLowerCase() === walletAddress.toLowerCase()) out.push(inv);
   }
   return out.sort((a, b) => b.createdAt - a.createdAt);
@@ -1271,9 +1273,12 @@ export default async function handler(req, res) {
         createdAt: Date.now()
       });
 
-      // Auto-evaluation: does the requester meet the payer's trust tier + policy?
-      // Requires the payer to have a resolvable agent wallet in Redis to check
-      // their policy against — if not resolvable, leave pending for manual review.
+      // Invoices always start pending and require the payer to explicitly
+      // honor or reject — no auto-execution on creation. This used to
+      // auto-pay immediately whenever the payer's basic spending policy
+      // allowed it, with no manual review step at all, which is exactly
+      // why invoices showed as already "honored" with nothing left for the
+      // payer to actually see or act on.
       const payerKeys = await kvKeys('nan:agentwallet:');
       let payerUserAddress = null;
       for (const k of payerKeys) {
@@ -1283,50 +1288,12 @@ export default async function handler(req, res) {
           break;
         }
       }
-      let autoEval = { autoHonored: false, reason: 'Payer agent wallet not resolvable for auto-evaluation — left pending' };
-      if (payerUserAddress) {
-        const trustCheck = await checkA2APolicy(fromAgentAddress, agentWalletAddress, amount);
-        if (trustCheck.allowed) {
-          // Actually execute the payment — this used to just set autoHonored:
-          // true as a label without ever moving money, leaving every invoice
-          // pending regardless of trust tier. Now it really pays.
-          try {
-            const payerKey = `nan:agentwallet:${payerUserAddress.toLowerCase()}`;
-            const payerWallet = await kvGet(payerKey);
-            const result = await agentTransfer(payerWallet?.walletId || null, invoice.toWallet, invoice.amount, invoice.token, invoice.fromWallet);
-            const txId = result?.data?.id || result?.data?.transaction?.id;
-            invoice.status = 'honored';
-            invoice.respondedAt = Date.now();
-            invoice.txId = txId;
-            invoice.autoHonored = true;
-            await saveInvoice(invoice);
-            await recordTrustSuccess(fromAgentAddress, agentWalletAddress, amount).catch(() => null);
-            autoEval = { autoHonored: true, reason: 'Within payer\'s trust tier and spending policy — paid automatically', txId };
-          } catch (e) {
-            // Execution failed even though the policy check passed (payer's
-            // agent wallet unfundable, transient Circle error, etc) — fall
-            // back to pending for manual review rather than silently losing
-            // the invoice or pretending it was paid.
-            autoEval = { autoHonored: false, reason: `Auto-honor eligible but execution failed: ${e.message?.slice(0,150) || 'unknown error'} — left pending for manual review` };
-          }
-        } else {
-          autoEval = { autoHonored: false, reason: trustCheck.reason };
-        }
-      }
+      const autoEval = { autoHonored: false, reason: 'Awaiting payer review' };
 
-      // Email the payer if they need to actually do something — no point
-      // emailing about an invoice that just auto-honored itself, and no
-      // point failing the whole request if they never linked an email
-      // (self-custody wallet users especially won't have one on file).
-      if (!autoEval.autoHonored && payerUserAddress) {
+      // Notify the payer there's something to actually act on.
+      if (payerUserAddress) {
         await notifyUser(payerUserAddress, 'invoices', `New invoice: ${invoice.amount} ${invoice.token}`,
           `You've been sent an invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''}.\n\nOpen NAN to review and respond.`);
-      } else if (autoEval.autoHonored && payerUserAddress) {
-        // Payer didn't click anything, but money moved from their wallet —
-        // they still deserve to know, just phrased as already-done, not a
-        // request for action.
-        await notifyUser(payerUserAddress, 'invoices', `Invoice auto-paid: ${invoice.amount} ${invoice.token}`,
-          `An invoice for ${invoice.amount} ${invoice.token}${reason ? ` — "${reason}"` : ''} from ${agentWalletAddress} was automatically paid — it was within your trust tier and spending policy for this counterparty.`);
       }
       await notifyUser(userAddress, 'invoices',
         autoEval.autoHonored ? `Invoice auto-paid: ${invoice.amount} ${invoice.token}` : `Invoice sent: ${invoice.amount} ${invoice.token}`,
