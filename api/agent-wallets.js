@@ -758,6 +758,33 @@ export default async function handler(req, res) {
       return res.json({ success: true, wallet, balance });
     }
 
+    // ── resolve-payee: figure out the correct agent wallet address to bill,
+    // given whatever the sender typed into "Bill To". Two real cases:
+    //   1. They typed an agent wallet address directly (e.g. copied it from
+    //      the Agent Wallet page itself) — use it as-is, no resolution.
+    //   2. They typed a main/login wallet address — resolve it to THAT
+    //      person's agent wallet via getOrCreateAgentWallet, same as before.
+    // Without checking case 1 first, an already-correct agent wallet address
+    // got treated as a main address and resolved AGAIN, producing a
+    // completely unrelated wrong address — exactly the reported bug.
+    if (action === 'resolve-payee') {
+      const { address } = req.body;
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        return res.status(400).json({ success: false, error: 'Valid address required' });
+      }
+      const addrLower = address.toLowerCase();
+      const keys = await kvKeys('nan:agentwallet:');
+      for (const k of keys) {
+        const w = await kvGet(k);
+        if (w?.walletAddress?.toLowerCase() === addrLower) {
+          return res.json({ success: true, agentWalletAddress: address, alreadyAgentWallet: true });
+        }
+      }
+      // Not an existing agent wallet — treat as a main address and resolve.
+      const wallet = await getOrCreateAgentWallet(address);
+      return res.json({ success: true, agentWalletAddress: wallet.walletAddress, alreadyAgentWallet: false });
+    }
+
     // ── balance: fetch current balance ───────────────────────────────────────
     if (action === 'balance') {
       const wallet = await getOrCreateAgentWallet(userAddress);
