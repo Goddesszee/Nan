@@ -217,6 +217,31 @@ export default async function handler(req, res) {
         } catch (e) {
           console.warn('[getWallet] updateWallet refId failed (non-fatal):', e.message);
         }
+
+        // Auto-fund brand new wallets with a small starter USDC amount, so a
+        // first-time user actually has gas for their very first on-chain
+        // action (like claiming a free .arc name) instead of being stuck
+        // with zero USDC and no way to pay for anything. Fire-and-forget —
+        // wrapped so a funding failure (treasury dry, env var missing,
+        // Circle error) never blocks wallet creation itself; the user still
+        // gets their wallet, they'd just need to fund it manually if this
+        // step fails, same as before this feature existed.
+        if (process.env.TREASURY_WALLET_ID && process.env.TREASURY_WALLET_ADDRESS) {
+          try {
+            await client.createTransaction({
+              walletId:           process.env.TREASURY_WALLET_ID,
+              blockchain:         BLOCKCHAIN,
+              destinationAddress: wallet.address,
+              amount:             [process.env.STARTER_GAS_USDC || '0.10'],
+              tokenAddress:       ARC_USDC,
+              fee:                { type: 'level', config: { feeLevel: 'MEDIUM' } },
+              walletAddress:      process.env.TREASURY_WALLET_ADDRESS,
+              idempotencyKey:     deterministicUUID('starter-gas', email),
+            });
+          } catch (e) {
+            console.warn('[getWallet] starter gas funding failed (non-fatal):', e.message);
+          }
+        }
       }
 
       return res.json({
