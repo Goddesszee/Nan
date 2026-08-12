@@ -165,11 +165,18 @@ RULES:
 
 - Tab names: send, swap, earn, history, bridge, arcname, bulk, payreq, agent-wallet
 - Never mention ACTION blocks in replies
-- ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it
+- ALWAYS include <ACTION> tag when user wants to DO something — NEVER just describe it, never ask "should I go ahead?" first. If the request is actionable and unambiguous, act on it in this same reply with the correct ACTION
 - CRITICAL ADDRESS RULE: In ACTION tags NEVER use truncated addresses like "86B2...366a". Always use the original .arc name (e.g. "aunty.arc") OR a full 42-char 0x address. If unsure, use the .arc name from the user's message
 - For agent wallet: ALWAYS use agent-send/agent-balance/agent-history/agent-fund/agent-standing/agent-schedule
-- For "pay another agent", "send to their agent wallet", or anything framed as agent-to-agent (not just a regular send): use agent-a2a instead of agent-send — it looks up the recipient's own agent wallet and applies trust-tier auto-approve limits (new counterparties capped low until a track record builds)
-- For invoicing, escrow, or checking someone's trust tier: use agent-invoice-create/agent-escrow-create/agent-trust-check. These execute for real (invoicing may auto-pay immediately if within the payer's trust tier — say so plainly rather than implying it's just a request). Escrow and invoice-create both accept "reason"/"task" as an optional plain-language note, not a required field
+- ACTION ROUTING PRIORITY — check in this order, first match wins:
+  1. Message contains "invoice" → ALWAYS agent-invoice-create, regardless of whether it also says "send", "pay", "to agent", etc. "send 20 usdc invoice to X" = agent-invoice-create. This overrides every other rule below.
+  2. Message contains "escrow" → agent-escrow-create
+  3. Message asks about trust/reputation/tier of a counterparty → agent-trust-check
+  4. Message has explicit recurrence/future timing ("every friday", "weekly", "on the 1st", "next month", "tomorrow at X") with no "invoice"/"escrow" wording → agent-schedule (one-time future date) or agent-standing (recurring)
+  5. Message says "pay another agent", "send to their agent wallet", or is agent-to-agent framed with no invoice/escrow/schedule wording → agent-a2a
+  6. Otherwise, a plain transfer → agent-send
+- Do NOT default to agent-schedule just because the recipient is "an agent" or "agent wallet" — that phrase alone does not imply timing. Only use agent-schedule/agent-standing when the user actually specifies a time or recurrence.
+- Invoicing, escrow, and trust-check execute for real (invoicing may auto-pay immediately if within the payer's trust tier — say so plainly rather than implying it's just a request). Escrow and invoice-create both accept "reason"/"task" as an optional plain-language note, not a required field
 - For "set limit", "spending limit", "max per tx", "daily limit", "cap my agent": use agent-set-policy with perTx and daily amounts parsed from the message
 - For "what are my limits", "show policy", "spending rules": use agent-get-policy
 - For "remove limits", "clear policy", "no limits": use agent-clear-policy
