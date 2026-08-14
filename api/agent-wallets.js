@@ -535,13 +535,16 @@ async function saveEscrow(escrow) {
 }
 
 // Sum of all currently-locked (pending/attested, not yet released/refunded)
-// escrow amounts for a wallet, so balance checks can account for them.
-async function getLockedAmount(walletAddress) {
+// escrow amounts for a wallet, for a specific token. Was summing across all
+// tokens regardless of `token`, so e.g. a locked EURC escrow would wrongly
+// reduce the wallet's available USDC balance (and vice versa).
+async function getLockedAmount(walletAddress, token) {
   const keys = await kvKeys(`nan:a2aescrow:`);
   let locked = 0;
   for (const k of keys) {
     const e = await kvGet(k);
     if (e && e.fromWallet?.toLowerCase() === walletAddress.toLowerCase() &&
+        (!token || e.token?.toUpperCase() === token.toUpperCase()) &&
         (e.status === 'pending' || e.status === 'attested')) {
       locked += parseFloat(e.amount);
     }
@@ -1063,7 +1066,7 @@ export default async function handler(req, res) {
       // Available = actual on-chain balance minus already-locked escrow amounts
       const [balance, locked] = await Promise.all([
         getAgentBalanceRpc(agentWalletAddress),
-        getLockedAmount(agentWalletAddress)
+        getLockedAmount(agentWalletAddress, token)
       ]);
       const available = parseFloat(balance?.[token] || 0) - locked;
       if (parseFloat(amount) > available) {
