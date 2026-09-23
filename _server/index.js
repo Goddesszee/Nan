@@ -61,6 +61,13 @@ app.use(cors({
   credentials: false,
 }));
 app.use(express.json({ limit: "1mb", verify: (req, res, buf) => { req.rawBody = buf; } }));
+
+// ── Static files ──────────────────────────────────────────────────────────
+// 1. Serve the built React client (Nan UI) from dist-client/
+//    Run `npm run build:client` inside the client/ folder to generate it.
+const CLIENT_DIST = path.join(__dirname, '..', 'dist-client');
+app.use(express.static(CLIENT_DIST));
+// 2. Keep legacy static files (old HTML/CSS/JS) as fallback
 app.use(express.static(path.join(__dirname, '..')));
 
 // ── Simple in-memory rate limiter (no extra package needed) ──
@@ -967,6 +974,20 @@ setInterval(async () => {
     }
   } catch(e) { console.log('[cron] recurring A2A executor error:', e.message); }
 }, 60 * 1000); // every 60 seconds
+
+// ── SPA catch-all: serve React app for any non-API route ─────────────────
+// This must come AFTER all /api routes so those still work.
+import { existsSync } from 'fs';
+const CLIENT_INDEX = path.join(CLIENT_DIST, 'index.html');
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+  if (existsSync(CLIENT_INDEX)) {
+    res.sendFile(CLIENT_INDEX);
+  } else {
+    // React app not built yet — fall back to legacy index.html
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+  }
+});
 
 // ── Start ──
 app.listen(PORT, () => {

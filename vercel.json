@@ -1,16 +1,30 @@
 {
   "version": 2,
+  "buildCommand": "npm run build:client",
+  "outputDirectory": "dist-client",
   "rewrites": [
-    { "source": "/app", "destination": "/app.html" },
-    { "source": "/pay", "destination": "/pay.html" },
-    { "source": "/legacy", "destination": "/legacy/app.html" },
-    { "source": "/", "destination": "/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://nan-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
   ]
